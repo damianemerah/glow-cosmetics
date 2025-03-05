@@ -1,14 +1,20 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function ServicesPage() {
   const services = [
     {
       id: "wrinkle-relaxer",
       title: "Wrinkle Relaxer",
-      description: "Reduce the appearance of fine lines and wrinkles with our wrinkle relaxer treatments.",
+      description:
+        "Reduce the appearance of fine lines and wrinkles with our wrinkle relaxer treatments.",
       price: "$300+",
       image: "/placeholder.svg?height=400&width=600",
       details:
@@ -17,7 +23,8 @@ export default function ServicesPage() {
     {
       id: "lip-facial-filler",
       title: "Lip/Facial Filler",
-      description: "Add volume and definition to your lips and face with our premium dermal fillers.",
+      description:
+        "Add volume and definition to your lips and face with our premium dermal fillers.",
       price: "$500+",
       image: "/placeholder.svg?height=400&width=600",
       details:
@@ -26,16 +33,18 @@ export default function ServicesPage() {
     {
       id: "microneedling",
       title: "Microneedling",
-      description: "Stimulate collagen production and improve skin texture with microneedling.",
+      description:
+        "Stimulate collagen production and improve skin texture with microneedling.",
       price: "$250+",
       image: "/placeholder.svg?height=400&width=600",
       details:
-        "Microneedling is a minimally invasive cosmetic procedure that involves using fine needles to create tiny punctures in the skin. This triggers the body's natural wound healing process, resulting in increased collagen and elastin production. Benefits include improved skin texture, reduced scarring, and a more youthful appearance.",
+        "Microneedling is a minimally invasive cosmetic procedure that involves using fine needles to create tiny punctures in the skin. This triggers the body&apos;s natural wound healing process, resulting in increased collagen and elastin production. Benefits include improved skin texture, reduced scarring, and a more youthful appearance.",
     },
     {
       id: "derma-peel",
       title: "The Perfect Derma Peel",
-      description: "Reveal brighter, smoother skin with our professional chemical peels.",
+      description:
+        "Reveal brighter, smoother skin with our professional chemical peels.",
       price: "$200+",
       image: "/placeholder.svg?height=400&width=600",
       details:
@@ -44,7 +53,8 @@ export default function ServicesPage() {
     {
       id: "prf-microneedling",
       title: "PRF Microneedling",
-      description: "Combine the benefits of microneedling with platelet-rich fibrin for enhanced results.",
+      description:
+        "Combine the benefits of microneedling with platelet-rich fibrin for enhanced results.",
       price: "$350+",
       image: "/placeholder.svg?height=400&width=600",
       details:
@@ -53,13 +63,14 @@ export default function ServicesPage() {
     {
       id: "teeth-whitening",
       title: "Teeth Whitening",
-      description: "Brighten your smile with our professional teeth whitening services.",
+      description:
+        "Brighten your smile with our professional teeth whitening services.",
       price: "$150+",
       image: "/placeholder.svg?height=400&width=600",
       details:
         "Our professional teeth whitening treatments use safe, effective bleaching agents to remove stains and discoloration from your teeth. The result is a brighter, whiter smile that can boost your confidence and enhance your overall appearance.",
     },
-  ]
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -77,9 +88,12 @@ export default function ServicesPage() {
         </div>
         <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
           <div className="max-w-2xl text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">Our Services</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">
+              Our Services
+            </h1>
             <p className="text-xl md:text-2xl">
-              Explore a variety of non-surgical, aesthetic treatments and injectables or book a consultation.
+              Explore a variety of non-surgical, aesthetic treatments and
+              injectables or book a consultation.
             </p>
           </div>
         </div>
@@ -92,7 +106,9 @@ export default function ServicesPage() {
             <Accordion type="single" collapsible className="w-full">
               {services.map((service) => (
                 <AccordionItem key={service.id} value={service.id}>
-                  <AccordionTrigger className="text-xl font-montserrat py-4">{service.title}</AccordionTrigger>
+                  <AccordionTrigger className="text-xl font-montserrat py-4">
+                    {service.title}
+                  </AccordionTrigger>
                   <AccordionContent>
                     <div className="grid md:grid-cols-2 gap-6 py-4">
                       <div className="relative h-64 md:h-auto">
@@ -105,8 +121,13 @@ export default function ServicesPage() {
                       </div>
                       <div>
                         <p className="mb-4">{service.details}</p>
-                        <p className="text-xl font-semibold mb-6">{service.price}</p>
-                        <Button asChild className="bg-green-500 hover:bg-green-600">
+                        <p className="text-xl font-semibold mb-6">
+                          {service.price}
+                        </p>
+                        <Button
+                          asChild
+                          className="bg-green-500 hover:bg-green-600"
+                        >
                           <Link href="/booking">Book Now</Link>
                         </Button>
                       </div>
@@ -122,7 +143,9 @@ export default function ServicesPage() {
       {/* Customer Reviews */}
       <section className="py-16 bg-secondary">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center font-montserrat">What Our Clients Say</h2>
+          <h2 className="text-3xl font-bold mb-12 text-center font-montserrat">
+            What Our Clients Say
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex items-center mb-4">
@@ -133,7 +156,12 @@ export default function ServicesPage() {
                   <h3 className="font-semibold">Jane Doe</h3>
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        key={i}
+                        className="w-4 h-4 text-yellow-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                     ))}
@@ -141,8 +169,9 @@ export default function ServicesPage() {
                 </div>
               </div>
               <p className="italic">
-                "I've been coming here for my lip fillers for over a year now. The results are always natural-looking
-                and the staff is incredibly professional."
+                &quot;I&apos;ve been coming here for my lip fillers for over a
+                year now. The results are always natural-looking and the staff
+                is incredibly professional.&quot;
               </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -154,7 +183,12 @@ export default function ServicesPage() {
                   <h3 className="font-semibold">Sarah Miller</h3>
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        key={i}
+                        className="w-4 h-4 text-yellow-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                     ))}
@@ -162,8 +196,9 @@ export default function ServicesPage() {
                 </div>
               </div>
               <p className="italic">
-                "The microneedling treatment completely transformed my skin. My acne scars have faded significantly and
-                my skin looks more youthful."
+                &quot;The microneedling treatment completely transformed my
+                skin. My acne scars have faded significantly and my skin looks
+                more youthful.&quot;
               </p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
@@ -175,7 +210,12 @@ export default function ServicesPage() {
                   <h3 className="font-semibold">Robert Johnson</h3>
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
-                      <svg key={i} className="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                      <svg
+                        key={i}
+                        className="w-4 h-4 text-yellow-500"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                     ))}
@@ -183,8 +223,9 @@ export default function ServicesPage() {
                 </div>
               </div>
               <p className="italic">
-                "I was hesitant to try wrinkle relaxers, but the team made me feel comfortable and the results look so
-                natural. I couldn't be happier!"
+                &quot;I was hesitant to try wrinkle relaxers, but the team made
+                me feel comfortable and the results look so natural. I
+                couldn&apos;t be happier!&quot;
               </p>
             </div>
           </div>
@@ -194,13 +235,18 @@ export default function ServicesPage() {
       {/* CTA Section */}
       <section className="py-16 bg-[#5a6b47] text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6 font-montserrat">Ready to book your consult or appointment?</h2>
-          <Button asChild size="lg" className="bg-white text-[#5a6b47] hover:bg-gray-100">
+          <h2 className="text-3xl font-bold mb-6 font-montserrat">
+            Ready to book your consult or appointment?
+          </h2>
+          <Button
+            asChild
+            size="lg"
+            className="bg-white text-[#5a6b47] hover:bg-gray-100"
+          >
             <Link href="/booking">Get Started Here!</Link>
           </Button>
         </div>
       </section>
     </div>
-  )
+  );
 }
-

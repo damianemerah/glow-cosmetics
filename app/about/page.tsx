@@ -1,6 +1,6 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function AboutPage() {
   return (
@@ -8,13 +8,23 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="relative h-[400px] bg-secondary">
         <div className="absolute inset-0">
-          <Image src="/placeholder.svg?height=400&width=1200" alt="About us" fill className="object-cover" priority />
+          <Image
+            src="/placeholder.svg?height=400&width=1200"
+            alt="About us"
+            fill
+            className="object-cover"
+            priority
+          />
           <div className="absolute inset-0 bg-black/40" />
         </div>
         <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
           <div className="max-w-2xl text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">About AB Aesthetics</h1>
-            <p className="text-xl md:text-2xl">Where beauty is more than skin deep, and expertise meets passion.</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">
+              About AB Aesthetics
+            </h1>
+            <p className="text-xl md:text-2xl">
+              Where beauty is more than skin deep, and expertise meets passion.
+            </p>
           </div>
         </div>
       </section>
@@ -25,31 +35,44 @@ export default function AboutPage() {
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl font-bold mb-6 font-montserrat">Meet Angie the Owner and Nurse Practitioner</h2>
+                <h2 className="text-3xl font-bold mb-6 font-montserrat">
+                  Meet Angie the Owner and Nurse Practitioner
+                </h2>
                 <div className="space-y-4">
                   <p>
-                    Meet Angie, a dedicated Nurse Practitioner with a rich history in nursing since her graduation from
-                    the University of Toledo in 2005. Her journey continued with a master's degree in science in
-                    nursing, culminating in her graduation from Walden University in 2016.
+                    Meet Angie, a dedicated Nurse Practitioner with a rich
+                    history in nursing since her graduation from the University
+                    of Toledo in 2005. Her journey continued with a
+                    master&apos;s degree in science in nursing, culminating in
+                    her graduation from Walden University in 2016.
                   </p>
                   <p>
-                    Angie holds board certification from the American Association of Nurse Practitioners, a testament to
-                    her commitment to excellence.
+                    Angie holds board certification from the American
+                    Association of Nurse Practitioners, a testament to her
+                    commitment to excellence.
                   </p>
                   <p>
-                    Angie's diverse professional background encompasses roles in urgent care, emergency medicine,
-                    hospital medicine, and infectious diseases, showcasing her versatility and expertise in various
-                    healthcare domains. While initially seeking into medical aesthetics as a respite from traditional
-                    medicine, Angie's passion for the field grew. This passion led her to make a career shift, by
-                    launching AB Aesthetics and embracing the world of medical aesthetics full-time.
+                    Angie&apos;s diverse professional background encompasses
+                    roles in urgent care, emergency medicine, hospital medicine,
+                    and infectious diseases, showcasing her versatility and
+                    expertise in various healthcare domains. While initially
+                    seeking into medical aesthetics as a respite from
+                    traditional medicine, Angie&apos;s passion for the field
+                    grew. This passion led her to make a career shift, by
+                    launching AB Aesthetics and embracing the world of medical
+                    aesthetics full-time.
                   </p>
                   <p>
-                    At the core of Angie's mission is the desire to empower individuals, particularly women, to look and
-                    feel their best. As a mother of four, she understands the importance of self-care and recognizing
-                    that one cannot pour from an empty cup. With AB Aesthetics, Angie strives to provide a rejuvenating
-                    experience that goes beyond aesthetics, promoting overall well-being and confidence. Join Angie on
-                    this transformative journey towards self-discovery and self-love, where her expertise and genuine
-                    care converge to enhance the beauty within.
+                    At the core of Angie&apos;s mission is the desire to empower
+                    individuals, particularly women, to look and feel their
+                    best. As a mother of four, she understands the importance of
+                    self-care and recognizing that one cannot pour from an empty
+                    cup. With AB Aesthetics, Angie strives to provide a
+                    rejuvenating experience that goes beyond aesthetics,
+                    promoting overall well-being and confidence. Join Angie on
+                    this transformative journey towards self-discovery and
+                    self-love, where her expertise and genuine care converge to
+                    enhance the beauty within.
                   </p>
                 </div>
                 <div className="mt-8">
@@ -75,7 +98,9 @@ export default function AboutPage() {
       <section className="py-16 bg-secondary">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-8 font-montserrat">Our Mission & Values</h2>
+            <h2 className="text-3xl font-bold mb-8 font-montserrat">
+              Our Mission & Values
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -94,10 +119,13 @@ export default function AboutPage() {
                     ></path>
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2 font-montserrat">Quality</h3>
+                <h3 className="text-xl font-bold mb-2 font-montserrat">
+                  Quality
+                </h3>
                 <p>
-                  We are committed to providing the highest quality services and products, using only premium
-                  ingredients and state-of-the-art techniques.
+                  We are committed to providing the highest quality services and
+                  products, using only premium ingredients and state-of-the-art
+                  techniques.
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
@@ -117,9 +145,12 @@ export default function AboutPage() {
                     ></path>
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2 font-montserrat">Integrity</h3>
+                <h3 className="text-xl font-bold mb-2 font-montserrat">
+                  Integrity
+                </h3>
                 <p>
-                  We believe in honesty and transparency in all our interactions, providing realistic expectations and
+                  We believe in honesty and transparency in all our
+                  interactions, providing realistic expectations and
                   personalized recommendations.
                 </p>
               </div>
@@ -142,8 +173,9 @@ export default function AboutPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-2 font-montserrat">Care</h3>
                 <p>
-                  We genuinely care about our clients' well-being and strive to create a warm, welcoming environment
-                  where everyone feels valued and respected.
+                  We genuinely care about our clients&apos; well-being and
+                  strive to create a warm, welcoming environment where everyone
+                  feels valued and respected.
                 </p>
               </div>
             </div>
@@ -155,7 +187,9 @@ export default function AboutPage() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-center font-montserrat">Credentials & Training</h2>
+            <h2 className="text-3xl font-bold mb-8 text-center font-montserrat">
+              Credentials & Training
+            </h2>
             <div className="bg-secondary p-8 rounded-lg">
               <ul className="space-y-4">
                 <li className="flex items-start">
@@ -166,10 +200,17 @@ export default function AboutPage() {
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
                   </svg>
                   <div>
-                    <p className="font-semibold">Bachelor of Science in Nursing</p>
+                    <p className="font-semibold">
+                      Bachelor of Science in Nursing
+                    </p>
                     <p className="text-sm">University of Toledo, 2005</p>
                   </div>
                 </li>
@@ -181,10 +222,17 @@ export default function AboutPage() {
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
                   </svg>
                   <div>
-                    <p className="font-semibold">Master of Science in Nursing</p>
+                    <p className="font-semibold">
+                      Master of Science in Nursing
+                    </p>
                     <p className="text-sm">Walden University, 2016</p>
                   </div>
                 </li>
@@ -196,11 +244,18 @@ export default function AboutPage() {
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
                   </svg>
                   <div>
                     <p className="font-semibold">Board Certification</p>
-                    <p className="text-sm">American Association of Nurse Practitioners</p>
+                    <p className="text-sm">
+                      American Association of Nurse Practitioners
+                    </p>
                   </div>
                 </li>
                 <li className="flex items-start">
@@ -211,11 +266,21 @@ export default function AboutPage() {
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
                   </svg>
                   <div>
-                    <p className="font-semibold">Advanced Injectable Training</p>
-                    <p className="text-sm">Certified in advanced techniques for Botox and dermal fillers</p>
+                    <p className="font-semibold">
+                      Advanced Injectable Training
+                    </p>
+                    <p className="text-sm">
+                      Certified in advanced techniques for Botox and dermal
+                      fillers
+                    </p>
                   </div>
                 </li>
                 <li className="flex items-start">
@@ -226,11 +291,19 @@ export default function AboutPage() {
                     viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
                   </svg>
                   <div>
                     <p className="font-semibold">Continuing Education</p>
-                    <p className="text-sm">Regular participation in aesthetic medicine conferences and workshops</p>
+                    <p className="text-sm">
+                      Regular participation in aesthetic medicine conferences
+                      and workshops
+                    </p>
                   </div>
                 </li>
               </ul>
@@ -242,13 +315,18 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="py-16 bg-[#5a6b47] text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6 font-montserrat">Ready to book your appointment?</h2>
-          <Button asChild size="lg" className="bg-white text-[#5a6b47] hover:bg-gray-100">
+          <h2 className="text-3xl font-bold mb-6 font-montserrat">
+            Ready to book your appointment?
+          </h2>
+          <Button
+            asChild
+            size="lg"
+            className="bg-white text-[#5a6b47] hover:bg-gray-100"
+          >
             <Link href="/booking">Get started here!</Link>
           </Button>
         </div>
       </section>
     </div>
-  )
+  );
 }
-

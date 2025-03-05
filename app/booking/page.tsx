@@ -1,21 +1,38 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { format } from "date-fns"
-import { CalendarIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
+import { useState } from "react";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export default function BookingPage() {
-  const [date, setDate] = useState<Date>()
+  const [date, setDate] = useState<Date>();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -24,23 +41,25 @@ export default function BookingPage() {
     service: "",
     provider: "",
     time: "",
-  })
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log({ ...formData, date })
+    e.preventDefault();
+    console.log({ ...formData, date });
     // Here you would typically send the data to your backend
-    alert("Booking request submitted! We'll contact you to confirm your appointment.")
-  }
+    alert(
+      "Booking request submitted! We&apos;ll contact you to confirm your appointment."
+    );
+  };
 
   const services = [
     { id: "brow-lash", name: "Brow & Lash Treatment" },
@@ -49,13 +68,13 @@ export default function BookingPage() {
     { id: "microneedling", name: "Microneedling" },
     { id: "derma-peel", name: "Derma Peel" },
     { id: "teeth-whitening", name: "Teeth Whitening" },
-  ]
+  ];
 
   const providers = [
     { id: "angie", name: "Angie - Owner & Nurse Practitioner" },
     { id: "sarah", name: "Sarah - Aesthetician" },
     { id: "michael", name: "Michael - Aesthetician" },
-  ]
+  ];
 
   const timeSlots = [
     "9:00 AM",
@@ -71,16 +90,19 @@ export default function BookingPage() {
     "3:00 PM",
     "3:30 PM",
     "4:00 PM",
-  ]
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="bg-secondary py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl font-bold mb-4 font-montserrat">Book Your Appointment</h1>
+          <h1 className="text-4xl font-bold mb-4 font-montserrat">
+            Book Your Appointment
+          </h1>
           <p className="text-xl max-w-2xl mx-auto">
-            Schedule your beauty and wellness services with our experienced professionals.
+            Schedule your beauty and wellness services with our experienced
+            professionals.
           </p>
         </div>
       </section>
@@ -91,9 +113,12 @@ export default function BookingPage() {
           <div className="max-w-4xl mx-auto">
             <Card>
               <CardHeader>
-                <CardTitle className="font-montserrat">Appointment Request</CardTitle>
+                <CardTitle className="font-montserrat">
+                  Appointment Request
+                </CardTitle>
                 <CardDescription>
-                  Fill out the form below to request an appointment. We'll contact you to confirm.
+                  Fill out the form below to request an appointment. We&apos;ll
+                  contact you to confirm.
                 </CardDescription>
               </CardHeader>
               <form onSubmit={handleSubmit}>
@@ -148,7 +173,12 @@ export default function BookingPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="service">Service</Label>
-                    <Select onValueChange={(value) => handleSelectChange("service", value)} required>
+                    <Select
+                      onValueChange={(value) =>
+                        handleSelectChange("service", value)
+                      }
+                      required
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a service" />
                       </SelectTrigger>
@@ -164,7 +194,11 @@ export default function BookingPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="provider">Provider (Optional)</Label>
-                    <Select onValueChange={(value) => handleSelectChange("provider", value)}>
+                    <Select
+                      onValueChange={(value) =>
+                        handleSelectChange("provider", value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a provider (optional)" />
                       </SelectTrigger>
@@ -187,7 +221,7 @@ export default function BookingPage() {
                             variant="outline"
                             className={cn(
                               "w-full justify-start text-left font-normal",
-                              !date && "text-muted-foreground",
+                              !date && "text-muted-foreground"
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
@@ -201,9 +235,9 @@ export default function BookingPage() {
                             onSelect={setDate}
                             initialFocus
                             disabled={(date) => {
-                              const today = new Date()
-                              today.setHours(0, 0, 0, 0)
-                              return date < today || date.getDay() === 0
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              return date < today || date.getDay() === 0;
                             }}
                           />
                         </PopoverContent>
@@ -212,7 +246,12 @@ export default function BookingPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="time">Preferred Time</Label>
-                      <Select onValueChange={(value) => handleSelectChange("time", value)} required>
+                      <Select
+                        onValueChange={(value) =>
+                          handleSelectChange("time", value)
+                        }
+                        required
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select a time" />
                         </SelectTrigger>
@@ -228,7 +267,10 @@ export default function BookingPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" className="w-full bg-green-500 hover:bg-green-600">
+                  <Button
+                    type="submit"
+                    className="w-full bg-green-500 hover:bg-green-600"
+                  >
                     Request Appointment
                   </Button>
                 </CardFooter>
@@ -243,7 +285,9 @@ export default function BookingPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <h2 className="text-2xl font-bold mb-4 font-montserrat">Booking Information</h2>
+              <h2 className="text-2xl font-bold mb-4 font-montserrat">
+                Booking Information
+              </h2>
               <ul className="space-y-4">
                 <li className="flex items-start">
                   <svg
@@ -306,15 +350,17 @@ export default function BookingPage() {
                   <div>
                     <p className="font-semibold">Cancellation Policy</p>
                     <p>
-                      Please provide at least 24 hours notice for cancellations or rescheduling to avoid a cancellation
-                      fee.
+                      Please provide at least 24 hours notice for cancellations
+                      or rescheduling to avoid a cancellation fee.
                     </p>
                   </div>
                 </li>
               </ul>
             </div>
             <div>
-              <h2 className="text-2xl font-bold mb-4 font-montserrat">What to Expect</h2>
+              <h2 className="text-2xl font-bold mb-4 font-montserrat">
+                What to Expect
+              </h2>
               <ul className="space-y-4">
                 <li className="flex items-start">
                   <svg
@@ -334,8 +380,9 @@ export default function BookingPage() {
                   <div>
                     <p className="font-semibold">Consultation</p>
                     <p>
-                      All new clients receive a complimentary consultation to discuss your goals and create a
-                      personalized treatment plan.
+                      All new clients receive a complimentary consultation to
+                      discuss your goals and create a personalized treatment
+                      plan.
                     </p>
                   </div>
                 </li>
@@ -357,7 +404,8 @@ export default function BookingPage() {
                   <div>
                     <p className="font-semibold">Arrival</p>
                     <p>
-                      Please arrive 10-15 minutes before your scheduled appointment to complete any necessary paperwork.
+                      Please arrive 10-15 minutes before your scheduled
+                      appointment to complete any necessary paperwork.
                     </p>
                   </div>
                 </li>
@@ -378,7 +426,10 @@ export default function BookingPage() {
                   </svg>
                   <div>
                     <p className="font-semibold">Payment</p>
-                    <p>We accept all major credit cards, cash, and offer financing options through Cherry.</p>
+                    <p>
+                      We accept all major credit cards, cash, and offer
+                      financing options through Cherry.
+                    </p>
                   </div>
                 </li>
               </ul>
@@ -387,6 +438,5 @@ export default function BookingPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }
-
