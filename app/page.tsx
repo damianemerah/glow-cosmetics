@@ -1,28 +1,37 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { ChevronRight } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { ChevronRight } from "lucide-react";
 
 export default function Home() {
   const services = [
     {
       title: "Brow & Lash Treatments",
-      description: "Enhance your natural beauty with our professional brow and lash services.",
+      description:
+        "Enhance your natural beauty with our professional brow and lash services.",
       image: "/placeholder.svg?height=300&width=400",
     },
     {
       title: "Facial Treatments",
-      description: "Rejuvenate your skin with our customized facial treatments.",
+      description:
+        "Rejuvenate your skin with our customized facial treatments.",
       image: "/placeholder.svg?height=300&width=400",
     },
     {
       title: "Injectables",
-      description: "Smooth fine lines and restore volume with our injectable treatments.",
+      description:
+        "Smooth fine lines and restore volume with our injectable treatments.",
       image: "/placeholder.svg?height=300&width=400",
     },
-  ]
+  ];
 
   const products = [
     {
@@ -45,7 +54,7 @@ export default function Home() {
       price: "$29.99",
       image: "/placeholder.svg?height=300&width=300",
     },
-  ]
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -63,12 +72,18 @@ export default function Home() {
         </div>
         <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
           <div className="max-w-2xl text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">Beauty & Wellness</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">
+              Beauty & Wellness
+            </h1>
             <p className="text-xl md:text-2xl mb-8">
               Where beauty is more than skin deep, and expertise meets passion.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild size="lg" className="bg-green-500 hover:bg-green-600">
+              <Button
+                asChild
+                size="lg"
+                className="bg-green-500 hover:bg-green-600"
+              >
                 <Link href="/booking">Book Your Appointment</Link>
               </Button>
               <Button
@@ -88,11 +103,14 @@ export default function Home() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-6 font-montserrat">Welcome to AB Aesthetics</h2>
+            <h2 className="text-3xl font-bold mb-6 font-montserrat">
+              Welcome to Glow by Sylvia
+            </h2>
             <p className="text-lg mb-8">
-              We are a premier beauty and wellness destination offering a range of services including brow and lash
-              treatments, facial services, and quality skincare products. Our mission is to help you look and feel your
-              best.
+              We are a premier beauty and wellness destination offering a range
+              of services including brow and lash treatments, facial services,
+              and quality skincare products. Our mission is to help you look and
+              feel your best.
             </p>
             <Button asChild className="bg-green-500 hover:bg-green-600">
               <Link href="/about">Learn More About Us</Link>
@@ -104,18 +122,33 @@ export default function Home() {
       {/* Services Section */}
       <section className="py-16 bg-secondary">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center font-montserrat">Our Services</h2>
+          <h2 className="text-3xl font-bold mb-12 text-center font-montserrat">
+            Our Services
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {services.map((service, index) => (
-              <Card key={index} className="overflow-hidden border-none shadow-lg">
+              <Card
+                key={index}
+                className="overflow-hidden border-none shadow-lg"
+              >
                 <div className="relative h-64">
-                  <Image src={service.image || "/placeholder.svg"} alt={service.title} fill className="object-cover" />
+                  <Image
+                    src={service.image || "/placeholder.svg"}
+                    alt={service.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <CardContent className="p-6">
-                  <h3 className="text-xl font-bold mb-2 font-montserrat">{service.title}</h3>
+                  <h3 className="text-xl font-bold mb-2 font-montserrat">
+                    {service.title}
+                  </h3>
                   <p className="mb-4">{service.description}</p>
                   <Button asChild variant="outline" className="w-full">
-                    <Link href="/services" className="flex items-center justify-center">
+                    <Link
+                      href="/services"
+                      className="flex items-center justify-center"
+                    >
                       Learn More <ChevronRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
@@ -134,7 +167,9 @@ export default function Home() {
       {/* Products Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-12 text-center font-montserrat">Featured Products</h2>
+          <h2 className="text-3xl font-bold mb-12 text-center font-montserrat">
+            Featured Products
+          </h2>
           <Carousel className="w-full max-w-5xl mx-auto">
             <CarouselContent>
               {products.map((product, index) => (
@@ -149,9 +184,15 @@ export default function Home() {
                       />
                     </div>
                     <CardContent className="p-4 text-center">
-                      <h3 className="font-medium mb-1 font-montserrat">{product.name}</h3>
-                      <p className="text-green-500 font-semibold mb-3">{product.price}</p>
-                      <Button className="w-full bg-green-500 hover:bg-green-600">Add to Cart</Button>
+                      <h3 className="font-medium mb-1 font-montserrat">
+                        {product.name}
+                      </h3>
+                      <p className="text-green-500 font-semibold mb-3">
+                        {product.price}
+                      </p>
+                      <Button className="w-full bg-green-500 hover:bg-green-600">
+                        Add to Cart
+                      </Button>
                     </CardContent>
                   </Card>
                 </CarouselItem>
@@ -171,16 +212,22 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-16 bg-[#5a6b47] text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6 font-montserrat">Ready to Book Your Appointment?</h2>
+          <h2 className="text-3xl font-bold mb-6 font-montserrat">
+            Ready to Book Your Appointment?
+          </h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto">
-            Transform your look and boost your confidence with our professional beauty and wellness services.
+            Transform your look and boost your confidence with our professional
+            beauty and wellness services.
           </p>
-          <Button asChild size="lg" className="bg-white text-[#5a6b47] hover:bg-gray-100">
+          <Button
+            asChild
+            size="lg"
+            className="bg-white text-[#5a6b47] hover:bg-gray-100"
+          >
             <Link href="/booking">Book Now</Link>
           </Button>
         </div>
       </section>
     </div>
-  )
+  );
 }
-

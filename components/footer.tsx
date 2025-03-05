@@ -1,5 +1,5 @@
-import Link from "next/link"
-import { Instagram, Facebook } from "lucide-react"
+import Link from "next/link";
+import { Instagram, Facebook } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -33,23 +33,32 @@ const Footer = () => {
           </div>
 
           <div className="flex space-x-4 mb-8">
-            <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+            <Link
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Instagram className="h-5 w-5 text-white hover:text-gray-200 transition-colors" />
             </Link>
-            <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+            <Link
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Facebook className="h-5 w-5 text-white hover:text-gray-200 transition-colors" />
             </Link>
           </div>
 
           <div className="text-center text-sm text-white/70">
-            <p>© {new Date().getFullYear()} AB Aesthetics | All rights reserved</p>
+            <p>
+              © {new Date().getFullYear()} Glow by Sylvia | All rights reserved
+            </p>
             <p className="mt-1">Website designed with ♥</p>
           </div>
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
-export default Footer
-
+export default Footer;

@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Instagram, Facebook, Menu } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useState } from "react";
+import Link from "next/link";
+import { Instagram, Facebook, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -16,13 +16,15 @@ const Navbar = () => {
     { name: "Products", href: "/products" },
     { name: "Payment Plans", href: "/payment-plans" },
     { name: "Contact", href: "/contact" },
-  ]
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-xs">
       <div className="container mx-auto flex h-20 items-center justify-between px-4">
         <Link href="/" className="flex items-center">
-          <span className="text-xl font-bold tracking-tight font-montserrat">AB AESTHETICS</span>
+          <span className="text-xl font-bold tracking-tight font-montserrat">
+            Glow by Sylvia
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -37,10 +39,18 @@ const Navbar = () => {
             </Link>
           ))}
           <div className="flex items-center space-x-2">
-            <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+            <Link
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Instagram className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
             </Link>
-            <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+            <Link
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Facebook className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
             </Link>
           </div>
@@ -51,10 +61,18 @@ const Navbar = () => {
 
         {/* Mobile Navigation */}
         <div className="md:hidden flex items-center space-x-4">
-          <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+          <Link
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Instagram className="h-5 w-5 text-gray-700" />
           </Link>
-          <Link href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+          <Link
+            href="https://facebook.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <Facebook className="h-5 w-5 text-gray-700" />
           </Link>
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -76,7 +94,10 @@ const Navbar = () => {
                     {link.name}
                   </Link>
                 ))}
-                <Button asChild className="bg-green-500 hover:bg-green-600 mt-4">
+                <Button
+                  asChild
+                  className="bg-green-500 hover:bg-green-600 mt-4"
+                >
                   <Link href="/booking" onClick={() => setIsOpen(false)}>
                     Book Your Appointment
                   </Link>
@@ -87,8 +108,7 @@ const Navbar = () => {
         </div>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Navbar
-
+export default Navbar;
