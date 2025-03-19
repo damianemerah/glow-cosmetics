@@ -51,7 +51,8 @@ const Footer = () => {
 
           <div className="text-center text-sm text-white/70">
             <p>
-              © {new Date().getFullYear()} Glow by Sylvia | All rights reserved
+              © {new Date().getFullYear()} Glow by UgoSylvia | All rights
+              reserved
             </p>
             <p className="mt-1">Website designed with ♥</p>
           </div>

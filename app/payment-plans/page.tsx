@@ -303,7 +303,7 @@ export default function PaymentPlansPage() {
               asChild
               size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-white/10"
+              className="border-white text-[#5a6b47] hover:bg-white/10"
             >
               <Link href="/contact">Contact Us with Questions</Link>
             </Button>

@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@plugin "@tailwindcss/typography";
+
 @plugin 'tailwindcss-animate';
 
 @custom-variant dark (&:is(.dark *));
@@ -276,5 +278,12 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+.prose {
+  :where(p):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
+    margin-top: 0.5em !important;
+    margin-bottom: 0.5em !important;
   }
 }

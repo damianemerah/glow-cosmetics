@@ -1,0 +1,263 @@
+--- Folder Structure ---
+[.cursor]
+    └── [rules]
+        ├── loading-ui.mdc
+        ├── project-rule.mdc
+        └── refactor-rules.mdc
+.env.local
+[.vscode]
+    ├── extensions.json
+    └── settings.json
+[actions]
+    ├── adminActions.ts
+    ├── authAction.ts
+    ├── bookingAction.ts
+    ├── cartAction.ts
+    ├── clientActions.ts
+    ├── dashboardAction.ts
+    └── orderAction.ts
+[app]
+    ├── [about]
+        └── page.tsx
+    ├── [admin]
+        ├── [analytics]
+            └── page.tsx
+        ├── [appointments]
+            └── page.tsx
+        ├── [clients]
+            └── page.tsx
+        ├── layout.tsx
+        ├── [messaging]
+            └── page.tsx
+        ├── [orders]
+            └── page.tsx
+        ├── page.tsx
+        ├── [products]
+            ├── page.tsx
+            ├── products-filter.tsx
+            └── [[id]]
+                ├── page.tsx
+                └── product-form.tsx
+        └── [settings]
+            └── page.tsx
+    ├── [api]
+        ├── [createProfile]
+            └── route.ts
+        ├── [deposit]
+            └── route.ts
+        └── [payment]
+            ├── route.ts
+            ├── [verify]
+                └── [[reference]]
+                    └── route.ts
+            └── [webhook]
+                └── route.ts
+    ├── [booking]
+        ├── [confirmation]
+            └── page.tsx
+        ├── [confirmed]
+            └── page.tsx
+        ├── loading.tsx
+        └── page.tsx
+    ├── [cart]
+        ├── loading.tsx
+        └── page.tsx
+    ├── [checkout]
+        ├── loading.js
+        └── page.tsx
+    ├── [components]
+        └── [booking]
+    ├── [contact]
+        └── page.tsx
+    ├── [dashboard]
+        ├── loading.js
+        └── page.tsx
+    ├── error.tsx
+    ├── globals.css
+    ├── layout.tsx
+    ├── [order-confirmation]
+        └── page.tsx
+    ├── page.tsx
+    ├── [payment]
+        └── [deposit]
+            └── page.tsx
+    ├── [payment-plans]
+        └── page.tsx
+    ├── [products]
+        ├── loading.tsx
+        ├── page.tsx
+        ├── product-tabs.tsx
+        └── [[slug]]
+            ├── loading.js
+            ├── loading.tsx
+            └── page.tsx
+    ├── [services]
+        ├── loading.js
+        └── page.tsx
+    └── [store]
+        └── bookingStore.ts
+[components]
+    ├── [admin]
+        ├── admin-footer.tsx
+        ├── admin-sidebar.tsx
+        ├── client-actions.tsx
+        ├── data-table.tsx
+        ├── page-header.tsx
+        └── stat-card.tsx
+    ├── [appointments]
+        ├── appointment-client.tsx
+        └── appointment-filter.tsx
+    ├── [auth]
+        └── LoginPopup.tsx
+    ├── [booking]
+        └── edit-booking-popover.tsx
+    ├── [cart]
+        ├── cart-client.tsx
+        ├── cart-pane-skeleton.tsx
+        └── cart-skeleton.tsx
+    ├── CartPane.tsx
+    ├── [checkout]
+        ├── checkout-form.tsx
+        └── order-summary.tsx
+    ├── [dashboard]
+        ├── account-settings.tsx
+        ├── beauty-tips.tsx
+        ├── bookings-list.tsx
+        ├── order-history.tsx
+        ├── product-recommendations.tsx
+        ├── profile-section.tsx
+        └── upcoming-bookings.tsx
+    ├── DepositPopup.tsx
+    ├── footer.tsx
+    ├── navbar.tsx
+    ├── order-history.tsx
+    ├── [product]
+        ├── add-to-cart-button.tsx
+        ├── loyalty-program.tsx
+        ├── product-cta.tsx
+        ├── product-description.tsx
+        ├── product-details.tsx
+        ├── product-gallery.tsx
+        ├── product-hero.tsx
+        ├── product-skeleton.tsx
+        ├── product-tabs-skeleton.tsx
+        ├── products-grid.tsx
+        └── related-products.tsx
+    ├── RichTextEditor.tsx
+    ├── tabs.tsx
+    ├── theme-provider.tsx
+    └── [ui]
+        ├── accordion.tsx
+        ├── alert-dialog.tsx
+        ├── alert.tsx
+        ├── aspect-ratio.tsx
+        ├── avatar.tsx
+        ├── badge.tsx
+        ├── button.tsx
+        ├── calendar.tsx
+        ├── card.tsx
+        ├── carousel.tsx
+        ├── chart.tsx
+        ├── checkbox.tsx
+        ├── collapsible.tsx
+        ├── context-menu.tsx
+        ├── date-picker.tsx
+        ├── dialog.tsx
+        ├── dropdown-menu.tsx
+        ├── form.tsx
+        ├── hover-card.tsx
+        ├── input.tsx
+        ├── label.tsx
+        ├── menubar.tsx
+        ├── navigation-menu.tsx
+        ├── pagination.tsx
+        ├── popover.tsx
+        ├── progress.tsx
+        ├── radio-group.tsx
+        ├── resizable.tsx
+        ├── scroll-area.tsx
+        ├── select.tsx
+        ├── separator.tsx
+        ├── sheet.tsx
+        ├── sidebar.tsx
+        ├── skeleton.tsx
+        ├── slider.tsx
+        ├── sonner.tsx
+        ├── switch.tsx
+        ├── table.tsx
+        ├── tabs.tsx
+        ├── textarea.tsx
+        ├── toggle-group.tsx
+        ├── toggle.tsx
+        ├── tooltip.tsx
+        └── use-mobile.tsx
+components.json
+[constants]
+    └── data.ts
+[docs]
+    ├── .project_structure_filter
+    ├── .project_structure_ignore
+    └── project_structure_filtered.txt
+eslint.config.mjs
+[hooks]
+    └── use-mobile.ts
+[lib]
+    ├── supabaseAdmin.ts
+    ├── supabaseClient.ts
+    └── utils.ts
+middleware.ts
+next.config.ts
+package-lock.json
+package.json
+postcss.config.mjs
+[public]
+    ├── file.svg
+    ├── globe.svg
+    ├── [images]
+        ├── pic1.jpg
+        ├── pic2.jpg
+        ├── pic3.jpg
+        ├── pic4.jpg
+        ├── pic5.jpg
+        ├── pic5.png
+        └── pic6.jpg
+    ├── next.svg
+    ├── vercel.svg
+    └── window.svg
+README-loading-optimizations.md
+README.md
+[store]
+    └── authStore.ts
+[supabase]
+    ├── [.branches]
+        └── _current_branch
+    ├── .gitignore
+    ├── [.temp]
+        ├── cli-latest
+        ├── gotrue-version
+        ├── pooler-url
+        ├── postgres-version
+        ├── project-ref
+        └── rest-version
+    ├── config.toml
+    ├── [migrations]
+        ├── 20250328160825_remote_schema.sql
+        ├── 20250328200129_create_admin_user_role.sql
+        ├── 20250328231200_product-constraints.sql
+        ├── 20250328232109_cart-item-types.sql
+        ├── 20250329021711_order-item-types.sql
+        └── 20250329051309_full_names.sql
+    └── seed.sql
+tables.sql
+tsconfig.json
+[types]
+    ├── dashboard.ts
+    └── types.ts
+[utils]
+    └── [supabase]
+        ├── client.ts
+        ├── middleware.ts
+        ├── server.ts
+        └── static.ts
+
+--- File Contents ---

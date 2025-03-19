@@ -17,19 +17,19 @@ export default function Home() {
       title: "Brow & Lash Treatments",
       description:
         "Enhance your natural beauty with our professional brow and lash services.",
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/images/pic1.jpg",
     },
     {
       title: "Facial Treatments",
       description:
         "Rejuvenate your skin with our customized facial treatments.",
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/images/pic4.jpg",
     },
     {
       title: "Injectables",
       description:
         "Smooth fine lines and restore volume with our injectable treatments.",
-      image: "/placeholder.svg?height=300&width=400",
+      image: "/images/pic3.jpg",
     },
   ];
 
@@ -37,32 +37,32 @@ export default function Home() {
     {
       name: "Hydrating Lip Gloss",
       price: "$24.99",
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/images/pic4.jpg",
     },
     {
       name: "Vitamin C Serum",
       price: "$49.99",
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/images/pic5.jpg",
     },
     {
       name: "Collagen Supplements",
       price: "$39.99",
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/images/pic6.jpg",
     },
     {
       name: "Gentle Cleanser",
       price: "$29.99",
-      image: "/placeholder.svg?height=300&width=300",
+      image: "/images/pic3.jpg",
     },
   ];
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[600px] bg-secondary">
+      <section className="relative h-screen bg-secondary">
         <div className="absolute inset-0">
           <Image
-            src="/placeholder.svg?height=600&width=1200"
+            src="/images/pic3.jpg"
             alt="Beauty treatment"
             fill
             className="object-cover"
@@ -72,7 +72,7 @@ export default function Home() {
         </div>
         <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
           <div className="max-w-2xl text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">
+            <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold mb-4 font-montserrat text-nowrap break-words">
               Beauty & Wellness
             </h1>
             <p className="text-xl md:text-2xl mb-8">
@@ -104,7 +104,7 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-6 font-montserrat">
-              Welcome to Glow by Sylvia
+              Welcome to Glow by UgoSylvia
             </h2>
             <p className="text-lg mb-8">
               We are a premier beauty and wellness destination offering a range

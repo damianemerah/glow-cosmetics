@@ -20,7 +20,7 @@ export default function AboutPage() {
         <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
           <div className="max-w-2xl text-white">
             <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">
-              About Glow by Sylvia
+              About Glow by UgoSylvia
             </h1>
             <p className="text-xl md:text-2xl">
               Where beauty is more than skin deep, and expertise meets passion.
@@ -59,15 +59,15 @@ export default function AboutPage() {
                     seeking into medical aesthetics as a respite from
                     traditional medicine, Angie&apos;s passion for the field
                     grew. This passion led her to make a career shift, by
-                    launching Glow by Sylvia and embracing the world of medical
-                    aesthetics full-time.
+                    launching Glow by UgoSylvia and embracing the world of
+                    medical aesthetics full-time.
                   </p>
                   <p>
                     At the core of Angie&apos;s mission is the desire to empower
                     individuals, particularly women, to look and feel their
                     best. As a mother of four, she understands the importance of
                     self-care and recognizing that one cannot pour from an empty
-                    cup. With Glow by Sylvia, Angie strives to provide a
+                    cup. With Glow by UgoSylvia, Angie strives to provide a
                     rejuvenating experience that goes beyond aesthetics,
                     promoting overall well-being and confidence. Join Angie on
                     this transformative journey towards self-discovery and

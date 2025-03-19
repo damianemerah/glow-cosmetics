@@ -7,78 +7,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { services } from "@/constants/data";
 
 export default function ServicesPage() {
-  const services = [
-    {
-      id: "wrinkle-relaxer",
-      title: "Wrinkle Relaxer",
-      description:
-        "Reduce the appearance of fine lines and wrinkles with our wrinkle relaxer treatments.",
-      price: "$300+",
-      image: "/placeholder.svg?height=400&width=600",
-      details:
-        "Our wrinkle relaxer treatments use FDA-approved neurotoxins to temporarily reduce muscle activity, smoothing out wrinkles and preventing new ones from forming. Results typically last 3-4 months.",
-    },
-    {
-      id: "lip-facial-filler",
-      title: "Lip/Facial Filler",
-      description:
-        "Add volume and definition to your lips and face with our premium dermal fillers.",
-      price: "$500+",
-      image: "/placeholder.svg?height=400&width=600",
-      details:
-        "Dermal Fillers help to soften the appearance of facial lines and restore volume in the face. They can help improve aesthetic imperfections, plump lips, enhance contours, and soften facial creases. It creates some immediate improvements, but you will continue to see enhancement to your appearance as the filler stimulates the production of collagen and continues to rejuvenate your skin, smoothing lines and adding youthful volume.",
-    },
-    {
-      id: "microneedling",
-      title: "Microneedling",
-      description:
-        "Stimulate collagen production and improve skin texture with microneedling.",
-      price: "$250+",
-      image: "/placeholder.svg?height=400&width=600",
-      details:
-        "Microneedling is a minimally invasive cosmetic procedure that involves using fine needles to create tiny punctures in the skin. This triggers the body&apos;s natural wound healing process, resulting in increased collagen and elastin production. Benefits include improved skin texture, reduced scarring, and a more youthful appearance.",
-    },
-    {
-      id: "derma-peel",
-      title: "The Perfect Derma Peel",
-      description:
-        "Reveal brighter, smoother skin with our professional chemical peels.",
-      price: "$200+",
-      image: "/placeholder.svg?height=400&width=600",
-      details:
-        "Our derma peels use a blend of powerful ingredients to exfoliate the skin, remove dead skin cells, and stimulate new cell growth. The result is improved skin tone, texture, and a reduction in fine lines, wrinkles, and hyperpigmentation.",
-    },
-    {
-      id: "prf-microneedling",
-      title: "PRF Microneedling",
-      description:
-        "Combine the benefits of microneedling with platelet-rich fibrin for enhanced results.",
-      price: "$350+",
-      image: "/placeholder.svg?height=400&width=600",
-      details:
-        "PRF Microneedling combines traditional microneedling with platelet-rich fibrin derived from your own blood. The PRF contains growth factors that accelerate healing and stimulate collagen production, resulting in improved skin texture, reduced scarring, and a more youthful appearance.",
-    },
-    {
-      id: "teeth-whitening",
-      title: "Teeth Whitening",
-      description:
-        "Brighten your smile with our professional teeth whitening services.",
-      price: "$150+",
-      image: "/placeholder.svg?height=400&width=600",
-      details:
-        "Our professional teeth whitening treatments use safe, effective bleaching agents to remove stains and discoloration from your teeth. The result is a brighter, whiter smile that can boost your confidence and enhance your overall appearance.",
-    },
-  ];
-
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[400px] bg-secondary">
         <div className="absolute inset-0">
           <Image
-            src="/placeholder.svg?height=400&width=1200"
+            src="/images/pic3.jpg"
             alt="Beauty services"
             fill
             className="object-cover"
@@ -107,14 +45,14 @@ export default function ServicesPage() {
               {services.map((service) => (
                 <AccordionItem key={service.id} value={service.id}>
                   <AccordionTrigger className="text-xl font-montserrat py-4">
-                    {service.title}
+                    {service.name}
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="grid md:grid-cols-2 gap-6 py-4">
                       <div className="relative h-64 md:h-auto">
                         <Image
                           src={service.image || "/placeholder.svg"}
-                          alt={service.title}
+                          alt={service.name}
                           fill
                           className="object-cover rounded-md"
                         />
