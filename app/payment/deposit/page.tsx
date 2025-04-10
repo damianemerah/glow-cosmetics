@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -14,10 +15,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useUserStore } from "@/store/authStore";
 import { CreditCard } from "lucide-react";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function DepositPaymentPage() {
+function DepositPaymentPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +28,14 @@ export default function DepositPaymentPage() {
     "credit-card" | "direct-transfer"
   >("credit-card");
   const [bookingId, setBookingId] = useState<string | null>(null);
-  const [depositAmount] = useState(200); // Fixed deposit amount
+  const [depositAmount] = useState(200);
+  const user = useUserStore((state) => state.user);
+  const [bankDetails] = useState({
+    bank_name: "Standard Bank",
+    account_name: "Glow Cosmetics",
+    account_number: "1234567890",
+    branch_code: "051001",
+  });
 
   // Track name and email
   const [name, setName] = useState("");
@@ -38,7 +48,12 @@ export default function DepositPaymentPage() {
     } else {
       router.push("/booking");
     }
-  }, [searchParams, router]);
+
+    if (user) {
+      setName(user.first_name + " " + user.last_name || "");
+      setEmail(user.email || "");
+    }
+  }, [searchParams, router, user]);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
@@ -139,7 +154,7 @@ export default function DepositPaymentPage() {
               <RadioGroup
                 value={paymentMethod}
                 onValueChange={(value) =>
-                  setPaymentMethod(value as "credit-card")
+                  setPaymentMethod(value as "credit-card" | "direct-transfer")
                 }
                 className="space-y-2"
               >
@@ -214,16 +229,23 @@ export default function DepositPaymentPage() {
                 </p>
                 <div className="bg-gray-100 p-4 rounded-md text-sm">
                   <p>
-                    <strong>Bank:</strong> Your Bank Name
+                    <strong>Bank:</strong> {bankDetails.bank_name}
                   </p>
                   <p>
-                    <strong>Account Name:</strong> Your Account Name
+                    <strong>Account Name:</strong> {bankDetails.account_name}
                   </p>
                   <p>
-                    <strong>Account Number:</strong> 1234567890
+                    <strong>Account Number:</strong>{" "}
+                    {bankDetails.account_number}
                   </p>
                   <p>
-                    <strong>Branch Code:</strong> 000000
+                    <strong>Branch Code:</strong> {bankDetails.branch_code}
+                  </p>
+                  <p className="mt-2">
+                    <strong>Reference:</strong> {bookingId}
+                  </p>
+                  <p>
+                    <strong>Amount:</strong> R{depositAmount.toFixed(2)}
                   </p>
                 </div>
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
@@ -240,6 +262,40 @@ export default function DepositPaymentPage() {
         </CardContent>
         <CardFooter className="flex justify-center text-sm text-muted-foreground">
           <p>Your payment is secure by Paystack</p>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
+
+export default function DepositPaymentPage() {
+  return (
+    <Suspense fallback={<DepositPaymentSkeleton />}>
+      <DepositPaymentPageContent />
+    </Suspense>
+  );
+}
+
+function DepositPaymentSkeleton() {
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-md">
+      <Card>
+        <CardHeader className="space-y-2">
+          {/* Title Skeleton */}
+          <Skeleton className="h-6 w-1/2 rounded-md" />
+          {/* Subtitle Skeleton */}
+          <Skeleton className="h-4 w-1/3 rounded-md" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Mimic form fields */}
+          <Skeleton className="h-4 w-full rounded-md" />
+          <Skeleton className="h-4 w-full rounded-md" />
+          <Skeleton className="h-4 w-full rounded-md" />
+          <Skeleton className="h-10 w-full rounded-md" />
+        </CardContent>
+        <CardFooter>
+          {/* Mimic button loading */}
+          <Skeleton className="h-10 w-full rounded-md" />
         </CardFooter>
       </Card>
     </div>

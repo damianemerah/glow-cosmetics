@@ -2,7 +2,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import sharp from "sharp";
-import type { Profile, Booking, BookingStatus } from "@/types/dashboard";
+import type { Booking, BookingStatus, Profile } from "@/types/dashboard";
 
 export async function cancelBooking(bookingId: string) {
   const supabase = await createClient();
@@ -38,7 +38,7 @@ export async function getUserBookings(userId: string) {
 
 export async function updateBooking(
   bookingId: string,
-  updates: Partial<Booking>
+  updates: Partial<Booking>,
 ) {
   const supabase = await createClient();
 
@@ -58,7 +58,7 @@ export async function updateBooking(
 
 export async function rescheduleBooking(
   bookingId: string,
-  newBookingTime: string
+  newBookingTime: string,
 ) {
   return updateBooking(bookingId, {
     booking_time: newBookingTime,
@@ -68,7 +68,7 @@ export async function rescheduleBooking(
 
 export async function updateProfile(
   updateData: Partial<Profile>,
-  userId: string
+  userId: string,
 ) {
   const supabase = await createClient();
   const { error } = await supabase
@@ -86,7 +86,7 @@ export async function updateProfile(
 
 export async function uploadAvatar(
   file: File,
-  userId: string
+  userId: string,
 ): Promise<string> {
   const supabase = await createClient();
 
@@ -133,6 +133,7 @@ export async function createBooking(bookingData: {
   service_id: string;
   booking_time: string;
   status: BookingStatus;
+  service_price: number;
   special_requests?: string;
 }) {
   const supabase = await createClient();
@@ -143,9 +144,44 @@ export async function createBooking(bookingData: {
     .select();
 
   if (error) {
+    console.log(error, "error🎈");
     throw new Error(error.message);
   }
 
   revalidatePath("/admin/appointments");
   return { booking: data?.[0], success: true };
+}
+
+export async function setNotificationSettings(
+  userId: string,
+  type: string,
+  enabled: boolean,
+) {
+  const supabase = await createClient();
+
+  // Ensure only valid notification fields are updated
+  const allowedTypes = [
+    "email_notifications_enabled",
+    "whatsapp_notifications_enabled",
+    "appointment_reminder",
+    "birthday_notification_enabled",
+    "marketing_notification_enabled",
+  ];
+
+  if (!allowedTypes.includes(type)) {
+    throw new Error("Invalid notification type");
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ [type]: enabled })
+    .eq("user_id", userId);
+
+  if (error) {
+    console.log(error, "error🎈");
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/dashboard");
+  return { success: true };
 }

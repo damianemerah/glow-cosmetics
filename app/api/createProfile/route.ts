@@ -7,22 +7,19 @@ export async function POST(req: Request) {
     const { record } = await req.json();
     const secretKey = req.headers.get("Authorization")?.replace("Bearer ", "");
 
-    console.log(secretKey, secretKey === process.env.HEADER_SECRET, "🔥🔥");
-
     if (secretKey !== process.env.HEADER_SECRET) {
       return NextResponse.json(
         { error: "Unauthorized request" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const { id, email, raw_user_meta_data } = record;
-    console.log(record, "record🔥🔥");
 
     if (!id || !email) {
       return NextResponse.json(
         { error: "Invalid request data" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -38,6 +35,7 @@ export async function POST(req: Request) {
           last_name: raw_user_meta_data?.last_name,
           date_of_birth: raw_user_meta_data?.date_of_birth,
           receive_emails: raw_user_meta_data?.receive_emails,
+          phone: raw_user_meta_data?.phone,
         },
       ])
       .select()
@@ -46,19 +44,8 @@ export async function POST(req: Request) {
     if (profileError) {
       return NextResponse.json(
         { error: profileError.message },
-        { status: 500 }
+        { status: 500 },
       );
-    }
-
-    // Create a cart for the user
-    const { data: cart, error: cartError } = await supabaseAdmin
-      .from("carts")
-      .insert([{ user_id: id, total_price: 0, status: "active" }])
-      .select()
-      .single();
-
-    if (cartError) {
-      return NextResponse.json({ error: cartError.message }, { status: 500 });
     }
 
     // (Optional) Insert audit log
@@ -73,17 +60,16 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        message: "User profile and cart created successfully",
+        message: "User profile created successfully",
         profile,
-        cart,
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("Error creating profile:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

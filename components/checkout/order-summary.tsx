@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import Image from "next/image";
+import { formatZAR } from "@/utils/formattedCurrency";
 
 interface OrderSummaryProps {
   cartItems: {
@@ -35,7 +36,8 @@ export default function OrderSummary({ cartItems }: OrderSummaryProps) {
 
   const calculateSubtotal = () => {
     return cartItems.reduce(
-      (total, item) => total + item.price * item.quantity,
+      (total: number, item: { price: number; quantity: number }) =>
+        total + item.price * item.quantity,
       0
     );
   };
@@ -61,14 +63,14 @@ export default function OrderSummary({ cartItems }: OrderSummaryProps) {
       <div className="space-y-4 mb-6">
         {cartItems.map((item) => (
           <div key={item.id} className="flex py-2 border-b">
-            <div className="h-16 w-16 bg-white rounded-md mr-4 flex-shrink-0 overflow-hidden relative">
+            <div className="h-16 w-16 bg-white rounded-md mr-4 flex-shrink-0  relative">
               {item.image_url ? (
                 <Image
-                  src={item.image_url || "/placeholder.svg"}
+                  src={item.image_url}
                   alt={item.product_name}
                   width={64}
                   height={64}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-cover rounded-md"
                 />
               ) : (
                 <div className="h-full w-full flex items-center justify-center text-muted-foreground">
@@ -84,7 +86,7 @@ export default function OrderSummary({ cartItems }: OrderSummaryProps) {
             </div>
             <div className="text-right">
               <span className="font-medium">
-                ${(item.price * item.quantity).toFixed(2)}
+                {formatZAR(item.price * item.quantity)}
               </span>
             </div>
           </div>
@@ -121,12 +123,12 @@ export default function OrderSummary({ cartItems }: OrderSummaryProps) {
       <div className="space-y-2">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span>${calculateSubtotal().toFixed(2)}</span>
+          <span>{formatZAR(calculateSubtotal())}</span>
         </div>
         {discountApplied && (
           <div className="flex justify-between text-green-600">
             <span>Discount</span>
-            <span>-${calculateDiscount().toFixed(2)}</span>
+            <span>-{formatZAR(calculateDiscount())}</span>
           </div>
         )}
         <div className="flex justify-between">
@@ -134,13 +136,13 @@ export default function OrderSummary({ cartItems }: OrderSummaryProps) {
           <span>
             {calculateShipping() === 0
               ? "Free"
-              : `$${calculateShipping().toFixed(2)}`}
+              : `${formatZAR(calculateShipping())}`}
           </span>
         </div>
         <Separator className="my-2" />
         <div className="flex justify-between font-bold text-lg">
           <span>Total</span>
-          <span>${calculateTotal().toFixed(2)}</span>
+          <span>{formatZAR(calculateTotal())}</span>
         </div>
       </div>
     </div>

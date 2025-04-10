@@ -24,7 +24,6 @@ export type Order = Omit<DbOrder, "shipping_address"> & {
 
 export type OrderItem = DbOrderItem;
 
-
 export type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled";
 
 export interface Booking extends DbBooking {
@@ -36,7 +35,12 @@ export type Product = DbProduct;
 
 export type ProductFormData = Omit<Product, "id" | "created_at" | "updated_at">;
 
-export type ProductCategory = "lip_gloss" | "skin_care" | "supplements";
+export type ProductCategory =
+  | "lip_gloss"
+  | "skin_care"
+  | "supplements"
+  | "jewellery"
+  | "makeup";
 
 export interface Service {
   id: string;

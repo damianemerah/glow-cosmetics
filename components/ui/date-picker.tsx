@@ -26,8 +26,6 @@ export function DatePicker({
   selected,
   onSelect,
   placeholderText = "Pick a date",
-  minDate,
-  maxDate,
   className,
 }: DatePickerProps) {
   const [date, setDate] = React.useState<Date | undefined>(selected);
@@ -65,8 +63,6 @@ export function DatePicker({
           selected={date}
           onSelect={handleSelect}
           initialFocus
-          minDate={minDate}
-          maxDate={maxDate}
         />
       </PopoverContent>
     </Popover>

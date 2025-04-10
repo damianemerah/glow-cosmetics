@@ -46,6 +46,18 @@ export async function POST(req: Request) {
       reference: bookingId,
       name,
       callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/booking/confirmation?bookingId=${bookingId}`,
+      metadata: {
+        type: "deposit",
+        booking_id: bookingId,
+        payment_type: "deposit",
+        custom_fields: [
+          {
+            display_name: "Booking ID",
+            variable_name: "booking_id",
+            value: bookingId
+          }
+        ]
+      }
     });
 
     return NextResponse.json({ data: response }, { status: 200 });

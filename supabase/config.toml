@@ -107,7 +107,7 @@ enabled = true
 # in emails.
 site_url = "http://localhost:3000"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["https://localhost:3000", "http://localhost:3000/dashboard", "http://localhost:3000/complete-profile"]
+additional_redirect_urls = ["http://localhost:3000", "http://localhost:3000/dashboard"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # If disabled, the refresh token will never expire.
@@ -129,7 +129,7 @@ password_requirements = ""
 
 [auth.rate_limit]
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 10
+email_sent = 200
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
@@ -283,7 +283,7 @@ policy = "oneshot"
 # Port to attach the Chrome inspector for debugging edge functions.
 inspector_port = 8083
 # The Deno major version to use.
- deno_version = 1
+deno_version = 1
 
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
@@ -306,3 +306,14 @@ s3_region = "env(S3_REGION)"
 s3_access_key = "env(S3_ACCESS_KEY)"
 # Configures AWS_SECRET_ACCESS_KEY for S3 bucket
 s3_secret_key = "env(S3_SECRET_KEY)"
+
+# [functions.checkout]
+# enabled = true
+# verify_jwt = true
+# import_map = "./functions/checkout/deno.json"
+# # Uncomment to specify a custom file path to the entrypoint.
+# # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+# entrypoint = "./functions/checkout/index.ts"
+# # Specifies static files to be bundled with the function. Supports glob patterns.
+# # For example, if you want to serve static HTML pages in your function:
+# # static_files = [ "./functions/checkout/*.html" ]

@@ -8,7 +8,6 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 // Import components
-import ProductGallery from "@/components/product/product-gallery";
 import ProductDetails from "@/components/product/product-details";
 import ProductDescription from "@/components/product/product-description";
 import RelatedProducts from "@/components/product/related-products";
@@ -108,11 +107,12 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   // Create client here outside cached function
+  const { slug } = await params;
   const supabase = await createClient();
-  const product = await getCachedProduct(supabase, params.slug);
+  const product = await getCachedProduct(supabase, slug);
 
   if (!product) {
     return {
@@ -149,13 +149,7 @@ async function ProductInfo({ slug }: { slug: string }) {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-        <ProductGallery
-          images={product.image_url ?? []}
-          productName={product.name}
-        />
-        <ProductDetails product={product} />
-      </div>
+      <ProductDetails product={product} />
       <Suspense fallback={<ProductDescriptionSkeleton />}>
         <ProductDescription description={product.description} />
       </Suspense>
@@ -190,13 +184,14 @@ async function RelatedProductsSection({
 export default async function ProductPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
   return (
     <div className="bg-white min-h-screen p-4.5 sm:p-8">
       <div className="max-w-6xl mx-auto">
         <Suspense fallback={<ProductDetailSkeleton />}>
-          <ProductInfo slug={params.slug} />
+          <ProductInfo slug={slug} />
         </Suspense>
       </div>
     </div>

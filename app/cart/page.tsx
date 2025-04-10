@@ -3,7 +3,6 @@ import { getCartWithItems } from "@/actions/cartAction";
 import { createClient } from "@/utils/supabase/server";
 import CartClient from "@/components/cart/cart-client";
 import CartSkeleton from "@/components/cart/cart-skeleton";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import type { CartItem } from "@/types/dashboard";
 
@@ -20,7 +19,9 @@ async function CartContent({ userId }: { userId: string }) {
 
   const typedItems = (items || []) as CartItem[];
 
-  return <CartClient initialCart={cartData} initialCartItems={typedItems} />;
+  return (
+    <CartClient initialCart={cartData || null} initialCartItems={typedItems} />
+  );
 }
 
 export default async function CartPage() {
@@ -31,19 +32,19 @@ export default async function CartPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/login?from=/cart");
-  }
-
   return (
     <div className="p-4 container mx-auto my-8">
       <h1 className="text-3xl font-bold mb-8 text-center font-montserrat">
         Your Cart
       </h1>
 
-      <Suspense fallback={<CartSkeleton />}>
-        <CartContent userId={user.id} />
-      </Suspense>
+      {user ? (
+        <Suspense fallback={<CartSkeleton />}>
+          <CartContent userId={user.id} />
+        </Suspense>
+      ) : (
+        <CartClient initialCart={null} initialCartItems={[]} />
+      )}
     </div>
   );
 }

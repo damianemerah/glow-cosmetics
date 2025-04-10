@@ -1,17 +1,14 @@
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import { type SupabaseClient } from "@supabase/supabase-js";
 
 // UI Components
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -27,6 +24,10 @@ const ProfileSection = dynamic(
 );
 const UpcomingBookings = dynamic(
   () => import("@/components/dashboard/upcoming-bookings")
+);
+
+const BookingsList = dynamic(
+  () => import("@/components/dashboard/bookings-list")
 );
 const ProductRecommendations = dynamic(
   () => import("@/components/dashboard/product-recommendations")
@@ -126,6 +127,27 @@ async function ProfileData() {
   return <ProfileSection profile={profile} initialError={!!error} />;
 }
 
+async function AccountSettingsData() {
+  const supabase = await createClient();
+  const { session } = await requireAuth(supabase);
+
+  const profile = await getProfileData(session.user.id);
+
+  const marketingEnabled = profile.marketing_notification_enabled;
+  const appointmentEnabled = profile.appointment_reminder;
+  const birthdayEnabled = profile.birthday_notification_enabled;
+  const userId = profile.user_id;
+
+  return (
+    <AccountSettings
+      marketingEnabled={marketingEnabled}
+      appointmentEnabled={appointmentEnabled}
+      birthdayEnabled={birthdayEnabled}
+      user_id={userId}
+    />
+  );
+}
+
 async function OrdersData() {
   const supabase = await createClient();
   const { session, error } = await requireAuth(supabase);
@@ -140,11 +162,22 @@ async function BookingsData() {
 
   try {
     const bookings = await getBookingsData(session.user.id);
-    console.log(bookings, "");
     return <UpcomingBookings bookings={bookings} initialError={false} />;
   } catch (error) {
     console.error("Error loading bookings:", error);
     return <UpcomingBookings bookings={[]} initialError={true} />;
+  }
+}
+async function BookingsListData() {
+  const supabase = await createClient();
+  const { session } = await requireAuth(supabase);
+
+  try {
+    const bookings = await getBookingsData(session.user.id);
+    return <BookingsList bookings={bookings} initialError={false} />;
+  } catch (error) {
+    console.error("Error loading bookings:", error);
+    return <BookingsList bookings={[]} initialError={true} />;
   }
 }
 
@@ -184,11 +217,12 @@ async function getOrdersData(userId: string) {
     async (uid: string, client: SupabaseClient) => {
       const { data: orders } = await client
         .from("orders")
-        .select(
-          "*, items:order_items(*, product:products(*), service:services(*))"
-        )
+        .select("*, items:order_items(*, product:products(*))")
         .eq("user_id", uid)
         .order("created_at", { ascending: false });
+
+      console.log("Orders:", orders);
+
       return orders || [];
     },
     [`orders-${userId}`],
@@ -327,14 +361,9 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <Suspense fallback={<BookingsListFallback />}>
-                  <BookingsData />
+                  <BookingsListData />
                 </Suspense>
               </CardContent>
-              <CardFooter className="flex justify-center">
-                <Button className="bg-green-500 hover:bg-green-600" asChild>
-                  <Link href="/booking">Book New Appointment</Link>
-                </Button>
-              </CardFooter>
             </Card>
           </TabsContent>
 
@@ -351,7 +380,7 @@ export default function DashboardPage() {
                 <Suspense
                   fallback={<Skeleton className="h-24 w-full rounded-md" />}
                 >
-                  <AccountSettings />
+                  <AccountSettingsData />
                 </Suspense>
               </CardContent>
             </Card>

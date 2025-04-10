@@ -10,6 +10,7 @@ import { CalendarIcon, Loader2, Mail } from "lucide-react";
 import { FaGoogle, FaApple } from "react-icons/fa";
 import { createClient } from "@/utils/supabase/client";
 import { useUserStore } from "@/store/authStore";
+import PhoneInput from "react-phone-input-2";
 
 import { cn } from "@/lib/utils";
 
@@ -46,9 +47,8 @@ const emailSchema = z.object({
 const userDetailsSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
-  dateOfBirth: z.date({
-    required_error: "Date of birth is required",
-  }),
+  dateOfBirth: z.date({ required_error: "Date of birth is required" }),
+  phone: z.string().min(1, { message: "Phone number is required" }),
   receiveEmails: z.boolean().default(false),
 });
 
@@ -89,15 +89,21 @@ export function LoginPopup() {
     },
   });
 
-  // User details form
+  // User details form with added phone default value
   const userDetailsForm = useForm<UserDetailsFormData>({
     resolver: zodResolver(userDetailsSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
+      phone: "",
       receiveEmails: false,
     },
   });
+
+  // Handler to update phone number in the form state
+  const handlePhoneChange = (value: string) => {
+    userDetailsForm.setValue("phone", value);
+  };
 
   // Handle email form submission
   const handleEmailSubmit = async (data: EmailFormData) => {
@@ -139,8 +145,30 @@ export function LoginPopup() {
         firstName: data.firstName,
         lastName: data.lastName,
         dateOfBirth: data.dateOfBirth,
+        phone: data.phone, // include phone number in signup data
         receiveEmails: data.receiveEmails,
       };
+
+      const isAtLeast13YearsOld = (dateOfBirth: Date): boolean => {
+        const today = new Date();
+        const birthDate = new Date(dateOfBirth);
+        const age = today.getFullYear() - birthDate.getFullYear();
+        const monthDifference = today.getMonth() - birthDate.getMonth();
+
+        if (
+          monthDifference < 0 ||
+          (monthDifference === 0 && today.getDate() < birthDate.getDate())
+        ) {
+          return age > 13;
+        }
+
+        return age >= 13;
+      };
+
+      if (!isAtLeast13YearsOld(data.dateOfBirth)) {
+        throw new Error("You must be at least 13 years old to sign up.");
+        return;
+      }
 
       await signup(signupData);
       setCurrentView("magicLinkSent");
@@ -323,6 +351,26 @@ export function LoginPopup() {
                     </p>
                   )}
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <PhoneInput
+                  country={"za"}
+                  value={userDetailsForm.watch("phone") || ""}
+                  onChange={handlePhoneChange}
+                  inputProps={{
+                    id: "phone",
+                    name: "phone",
+                    required: true,
+                  }}
+                  containerClass="w-full"
+                  inputClass="w-full p-2 border rounded-md"
+                />
+                {userDetailsForm.formState.errors.phone && (
+                  <p className="text-sm text-red-500">
+                    {userDetailsForm.formState.errors.phone.message}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="dateOfBirth">Date of Birth</Label>

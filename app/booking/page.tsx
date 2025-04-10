@@ -39,12 +39,14 @@ import { BookingStatus } from "@/types/dashboard";
 import { Clock, Phone, Info, CheckCircle } from "lucide-react";
 import { DepositPopup } from "@/components/DepositPopup";
 import { customAlphabet } from "nanoid";
+import PhoneInput from "react-phone-input-2";
 
-const nanoid = customAlphabet("0123456789", 5);
+const nanoid = customAlphabet("0123456789", 6);
 
 export default function BookingPage() {
   const [date, setDate] = useState<Date>(new Date());
   const user = useUserStore((state) => state.user);
+  const setShowModal = useUserStore((state) => state.setShowModal);
   const { bookedSlots, isLoading, fetchSlotsForDate } = useBookingStore();
   const [formData, setFormData] = useState({
     firstName: user?.first_name || "",
@@ -88,6 +90,10 @@ export default function BookingPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handlePhoneChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, phone: "+" + value }));
+  };
+
   const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -114,19 +120,19 @@ export default function BookingPage() {
     try {
       e.preventDefault();
       if (!date) {
-        toast.error("Please select a date");
+        toast.error("Select a date");
         return;
       }
-      // if (!user) {
-      //   toast.error("Please login to book an appointment");
-      //   return;
-      // }
+      if (!user) {
+        setShowModal(true);
+        return;
+      }
       if (!formData.service) {
-        toast.error("Please select a service");
+        toast.error("Select a service");
         return;
       }
       if (!formData.time) {
-        toast.error("Please select a time");
+        toast.error("Select a time");
         return;
       }
 
@@ -142,13 +148,15 @@ export default function BookingPage() {
       bookingTime.setMilliseconds(0);
       const booking_id = nanoid();
 
+      const selectedService = services.find(
+        (service) => service.id === formData.service
+      );
+
       const bookingData = {
-        user_id: user?.user_id,
+        user_id: user?.user_id || null,
         service_id: formData.service,
-        service_name: services.find(
-          (service) => service.id === formData.service
-        )?.name,
-        service_price: formData.servicePrice,
+        service_name: selectedService?.name,
+        service_price: selectedService?.price,
         first_name: formData.firstName,
         last_name: formData.lastName,
         email: formData.email,
@@ -158,11 +166,13 @@ export default function BookingPage() {
         status: "pending" as BookingStatus,
         booking_id: `GLOW-${booking_id}`,
       };
+
       const { error, booking } = await createBooking(bookingData);
       setBookingId(booking?.booking_id);
       setOpenDepositPopup(true);
 
       if (error) {
+        console.log(error, "error🎈");
         throw new Error(error.message);
       }
 
@@ -176,7 +186,6 @@ export default function BookingPage() {
       toast.error(error.message);
     }
   };
-
 
   return (
     <>
@@ -252,13 +261,17 @@ export default function BookingPage() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        required
+                      <PhoneInput
+                        country={"za"}
+                        value={formData.phone || ""}
+                        onChange={handlePhoneChange}
+                        inputProps={{
+                          id: "phone",
+                          name: "phone",
+                          required: true,
+                        }}
+                        containerClass="w-full"
+                        inputClass="w-full p-2 border rounded-md"
                       />
                     </div>
                   </div>

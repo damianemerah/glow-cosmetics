@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import type { Profile } from "@/types/dashboard";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
+import PhoneInput from "react-phone-input-2";
 
 import { uploadAvatar, updateProfile } from "@/actions/dashboardAction";
 
@@ -128,13 +129,6 @@ export default function ProfileSection({
     }
 
     try {
-      // Validate phone number (South African format)
-      if (formData?.phone && !formData.phone.match(/^\+27[0-9]{9}$/)) {
-        toast.error("Phone number must be in format: +27XXXXXXXXX");
-        setIsSubmitting(false);
-        return;
-      }
-
       // Prepare update data
       const updateData: Partial<Profile> = {
         first_name: formData?.first_name,
@@ -339,11 +333,21 @@ export default function ProfileSection({
 
               <div className="space-y-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  name="phone"
+                <PhoneInput
+                  country={"za"}
                   value={formData?.phone || ""}
-                  onChange={handleInputChange}
+                  onChange={(value) => {
+                    setFormData((prev) =>
+                      prev ? { ...prev, phone: "+" + value } : null
+                    );
+                  }}
+                  inputProps={{
+                    id: "phone",
+                    name: "phone",
+                    required: true,
+                  }}
+                  containerClass="w-full"
+                  inputClass="w-full p-2 border rounded-md"
                 />
               </div>
 

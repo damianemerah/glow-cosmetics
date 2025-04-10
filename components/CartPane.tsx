@@ -1,7 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { X, ShoppingBag, Trash2 } from "lucide-react";
+import { X, ShoppingBag, Trash2, WifiOff } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -12,15 +13,19 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useUserStore } from "@/store/authStore";
 import { getCartWithItems, removeCartItem } from "@/actions/cartAction";
+import { getProductsByIds } from "@/actions/productActions";
 import { toast } from "sonner";
 import type { CartItem } from "@/types/dashboard";
 import { Database } from "@/types/types";
 import CartPaneSkeleton from "@/components/cart/cart-pane-skeleton";
 import useSWR from "swr";
+import { formatZAR } from "@/utils/formattedCurrency";
+import { useCartStore } from "@/store/cartStore";
 
 interface CartPaneProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  isOnline?: boolean;
 }
 
 // Define the shape of the raw cart item from the API join result
@@ -34,23 +39,92 @@ interface RawCartItem extends BaseCartItem {
   product: BaseProduct | null;
 }
 
-export function CartPane({ open, onOpenChange }: CartPaneProps) {
+export function CartPane({
+  open,
+  onOpenChange,
+  isOnline = true,
+}: CartPaneProps) {
   const router = useRouter();
   const user = useUserStore((state) => state.user);
   const setShowModal = useUserStore((state) => state.setShowModal);
+  const [offlineCartItems, setOfflineCartItems] = useState<CartItem[]>([]);
+  const [loadingOfflineItems, setLoadingOfflineItems] = useState(false);
 
+  // Use the Zustand store for offline cart
+  const offlineItems = useCartStore((state) => state.offlineItems);
+  const removeOfflineItem = useCartStore((state) => state.removeOfflineItem);
+
+  // Get online cart data using SWR
   const {
     data: cartWithItems,
-    isLoading,
-    error,
-    mutate,
-  } = useSWR(open && user ? `cart-${user.user_id}` : null, () => {
+    isLoading: isLoadingOnlineCart,
+    error: onlineCartError,
+    mutate: mutateOnlineCart,
+  } = useSWR(open && user && isOnline ? `cart-${user.user_id}` : null, () => {
     if (!user || !user.user_id) return null;
     return getCartWithItems(user.user_id);
   });
 
-  // Format cart items
-  const cartItems: CartItem[] = !cartWithItems?.items
+  // Load offline cart items and their product details when component opens
+  useEffect(() => {
+    const loadOfflineCart = async () => {
+      if (!open) return;
+
+      setLoadingOfflineItems(true);
+      try {
+        // Get offline cart from Zustand store
+        // Make sure offlineItems is an array and not empty
+        if (!offlineItems || offlineItems.length === 0) {
+          setOfflineCartItems([]);
+          setLoadingOfflineItems(false);
+          return;
+        }
+
+        // Extract product IDs from array
+        const productIds = [...offlineItems].map((item) => item.id);
+
+        // Fetch product details
+        const { products } = await getProductsByIds(productIds);
+
+        // Combine product details with cart quantities
+        const items: CartItem[] = products
+          .map((product) => {
+            const cartItem = offlineItems.find(
+              (item) => item.id === product.id
+            );
+            return {
+              id: product.id, // Using product ID as cart item ID for offline cart
+              cart_id: "offline-cart",
+              product_id: product.id,
+              quantity: cartItem?.quantity || 0,
+              price_at_time: product.price,
+              product: {
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                image_url: product.image_url || [],
+              },
+              subtotal: product.price * (cartItem?.quantity || 0),
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            };
+          })
+          .filter((item) => item.quantity > 0);
+
+        setOfflineCartItems(items);
+      } catch (error) {
+        console.error("Error loading offline cart:", error);
+        toast.error("Failed to load offline cart items");
+      } finally {
+        setLoadingOfflineItems(false);
+      }
+    };
+
+    loadOfflineCart();
+  }, [open, isOnline, offlineItems]);
+
+  // Format online cart items
+  const onlineCartItems: CartItem[] = !cartWithItems?.items
     ? []
     : (cartWithItems.items as RawCartItem[]).map((item) => ({
         id: item.id,
@@ -73,7 +147,14 @@ export function CartPane({ open, onOpenChange }: CartPaneProps) {
             },
         subtotal: (item.quantity || 0) * (item.price_at_time || 0),
         created_at: item.created_at || new Date().toISOString(),
+        updated_at: item.updated_at || new Date().toISOString(),
       }));
+
+  // Determine which cart items to display based on online status and user
+  const cartItems = isOnline && user ? onlineCartItems : offlineCartItems;
+  const isLoading =
+    isOnline && user ? isLoadingOnlineCart : loadingOfflineItems;
+  const error = isOnline && user ? onlineCartError : false;
 
   const handleViewCart = () => {
     router.push("/cart");
@@ -81,19 +162,30 @@ export function CartPane({ open, onOpenChange }: CartPaneProps) {
   };
 
   const handleRemoveItem = async (itemId: string) => {
-    try {
-      const result = await removeCartItem(itemId);
+    if (isOnline && user) {
+      try {
+        const result = await removeCartItem(itemId);
 
-      if (result.success) {
-        // Update local state via SWR
-        mutate();
-        toast.success("Item removed from cart");
-      } else {
-        toast.error("Failed to remove item");
+        if (result.success) {
+          // Update local state via SWR
+          mutateOnlineCart();
+          toast.success("Item removed from cart");
+        } else {
+          toast.error("Failed to remove item");
+        }
+      } catch (err) {
+        console.error("Error removing item:", err);
+        toast.error("An error occurred while removing the item");
       }
-    } catch (err) {
-      console.error("Error removing item:", err);
-      toast.error("An error occurred while removing the item");
+    } else {
+      // Handle removal from offline cart using Zustand store
+      try {
+        removeOfflineItem(itemId);
+        toast.success("Item removed from cart");
+      } catch (err) {
+        console.error("Error removing offline item:", err);
+        toast.error("Failed to remove item from cart");
+      }
     }
   };
 
@@ -106,7 +198,7 @@ export function CartPane({ open, onOpenChange }: CartPaneProps) {
   };
 
   const handleCheckout = () => {
-    if (!user) {
+    if (!user && isOnline) {
       setShowModal(true);
       onOpenChange(false);
       return;
@@ -123,6 +215,12 @@ export function CartPane({ open, onOpenChange }: CartPaneProps) {
           <SheetTitle className="text-xl font-bold font-montserrat flex items-center">
             <ShoppingBag className="mr-2 h-5 w-5" />
             Your Cart
+            {!isOnline && (
+              <div className="ml-auto flex items-center text-amber-500 text-sm">
+                <WifiOff className="h-4 w-4 mr-1" />
+                Offline Mode
+              </div>
+            )}
           </SheetTitle>
         </SheetHeader>
 
@@ -131,7 +229,11 @@ export function CartPane({ open, onOpenChange }: CartPaneProps) {
         ) : error ? (
           <div className="text-red-500 p-4 text-center">
             <p>Failed to load cart items</p>
-            <Button variant="outline" className="mt-4" onClick={() => mutate()}>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() => (user && isOnline ? mutateOnlineCart() : null)}
+            >
               Try Again
             </Button>
           </div>
@@ -159,6 +261,7 @@ export function CartPane({ open, onOpenChange }: CartPaneProps) {
                 >
                   <div className="flex items-center space-x-4">
                     {item.product?.image_url &&
+                    Array.isArray(item.product.image_url) &&
                     item.product.image_url.length > 0 ? (
                       <div className="relative w-16 h-16 rounded-md overflow-hidden">
                         <Image
@@ -174,20 +277,17 @@ export function CartPane({ open, onOpenChange }: CartPaneProps) {
                       </div>
                     )}
                     <div className="flex-grow">
-                      <h4 className="font-medium">
+                      <h4 className="font-medium capitalize">
                         {item.product?.name || "Unknown Product"}
                       </h4>
-                      <div className="flex items-center justify-between mt-1">
+                      <div className="flex items-center justify-between mt-1 space-x-4">
                         <span className="text-sm text-muted-foreground">
                           Qty: {item.quantity}
                         </span>
                         <span className="text-sm font-medium">
-                          $
-                          {(
-                            item.price_at_time ||
-                            item.product?.price ||
-                            0
-                          ).toFixed(2)}
+                          {formatZAR(
+                            item.price_at_time || item.product?.price || 0
+                          )}
                         </span>
                       </div>
                     </div>
@@ -207,7 +307,7 @@ export function CartPane({ open, onOpenChange }: CartPaneProps) {
               <div className="flex justify-between py-2">
                 <span className="font-medium">Subtotal</span>
                 <span className="font-medium">
-                  ${calculateSubtotal().toFixed(2)}
+                  {formatZAR(calculateSubtotal())}
                 </span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
@@ -226,6 +326,14 @@ export function CartPane({ open, onOpenChange }: CartPaneProps) {
               >
                 Checkout
               </Button>
+              {!isOnline && (
+                <div className="mt-3 text-center text-xs text-amber-600">
+                  <p>
+                    You&apos;re currently offline. Your cart is saved locally.
+                  </p>
+                  <p>Connect to the internet to complete your purchase.</p>
+                </div>
+              )}
             </div>
           </div>
         )}

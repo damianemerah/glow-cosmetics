@@ -1,14 +1,3 @@
-"use client";
-
-import { useState, useMemo, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -19,67 +8,9 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageHeader from "@/components/admin/page-header";
 import StatCard from "@/components/admin/stat-card";
-import { BarChart2, PieChart, TrendingUp } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Pie,
-  PieChart as RechartsPieChart,
-  Label,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 import { DatePicker } from "@/components/ui/date-picker";
-
-// Mock data for revenue analysis - both services and products
-const revenueData = [
-  { month: "Jan", services: 3200, products: 1000 },
-  { month: "Feb", services: 3500, products: 1300 },
-  { month: "Mar", services: 4000, products: 1500 },
-  { month: "Apr", services: 3800, products: 1400 },
-  { month: "May", services: 4500, products: 1600 },
-  { month: "Jun", services: 5100, products: 1900 },
-  { month: "Jul", services: 4900, products: 1900 },
-  { month: "Aug", services: 5300, products: 1900 },
-  { month: "Sep", services: 5800, products: 2000 },
-  { month: "Oct", services: 6200, products: 2300 },
-  { month: "Nov", services: 6800, products: 2400 },
-  { month: "Dec", services: 7300, products: 2500 },
-];
-
-// Mock data for appointment counts by service
-const appointmentData = [
-  { name: "Microblading", count: 76 },
-  { name: "Facial Treatment", count: 54 },
-  { name: "Lip Filler", count: 48 },
-  { name: "Wrinkle Relaxer", count: 32 },
-  { name: "Lash Extensions", count: 28 },
-];
-
-// Mock data for product sales by category
-const productData = [
-  { name: "Skin Care", value: 45 },
-  { name: "Lip Products", value: 25 },
-  { name: "Supplements", value: 20 },
-  { name: "Body Care", value: 10 },
-];
-
-// Mock data for revenue distribution by service for pie chart
-const revenueDistribution = [
-  { name: "Microblading", value: 35, fill: "#4CAF50" },
-  { name: "Facial Treatment", value: 25, fill: "#8BC34A" },
-  { name: "Lip Filler", value: 20, fill: "#CDDC39" },
-  { name: "Wrinkle Relaxer", value: 15, fill: "#FFC107" },
-  { name: "Other Services", value: 5, fill: "#FF9800" },
-];
+import { createClient } from "@/utils/supabase/server";
+import AnalyticsCharts from "@/components/admin/analytics-charts";
 
 // Chart configurations
 const revenueChartConfig = {
@@ -113,46 +44,290 @@ const distributionChartConfig = {
   },
 };
 
-export default function AnalyticsPage() {
-  const [timeframe, setTimeframe] = useState("year");
-  const [activeTab, setActiveTab] = useState("overview");
-  const [dateRange, setDateRange] = useState({
-    from: new Date(new Date().getFullYear(), 0, 1), // Jan 1 of current year
-    to: new Date(),
+async function getRevenueData() {
+  const supabase = await createClient();
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  // Get bookings data for services revenue
+  const { data: bookingsData, error: bookingsError } = await supabase
+    .from("bookings")
+    .select("booking_time, service_price")
+    .gte("booking_time", new Date(new Date().getFullYear(), 0, 1).toISOString()) // From start of year
+    .lte("booking_time", new Date().toISOString()); // To current date
+
+  if (bookingsError) {
+    console.error("Error fetching bookings data:", bookingsError);
+    return [];
+  }
+
+  // Get orders data for products revenue
+  const { data: ordersData, error: ordersError } = await supabase
+    .from("orders")
+    .select("created_at, total_price")
+    .gte("created_at", new Date(new Date().getFullYear(), 0, 1).toISOString()) // From start of year
+    .lte("created_at", new Date().toISOString()); // To current date
+
+  if (ordersError) {
+    console.error("Error fetching orders data:", ordersError);
+    return [];
+  }
+
+  // Initialize revenue data for all months
+  const revenueData = months.map((month) => ({
+    month,
+    services: 0,
+    products: 0,
+  }));
+
+  // Process bookings data for services revenue
+  bookingsData.forEach((booking) => {
+    const bookingDate = new Date(booking.booking_time);
+    const monthIndex = bookingDate.getMonth();
+    revenueData[monthIndex].services += booking.service_price || 0;
   });
-  const [filteredData, setFilteredData] = useState({
-    revenue: revenueData,
-    appointments: appointmentData,
-    products: productData,
+
+  // Process orders data for products revenue
+  ordersData.forEach((order) => {
+    const orderDate = new Date(order.created_at);
+    const monthIndex = orderDate.getMonth();
+    revenueData[monthIndex].products += order.total_price || 0;
   });
 
-  // Filter data when date range changes
-  useEffect(() => {
-    // Filter revenue data based on dateRange
-    const filterDataByDateRange = () => {
-      // For demo purposes, we're just using the original data
-      // In a real app, you would filter based on dateRange.from and dateRange.to
+  return revenueData;
+}
 
-      // Example filtering logic (assuming data has actual dates):
-      // const filtered = revenueData.filter(item => {
-      //   const itemDate = new Date(item.date);
-      //   return itemDate >= dateRange.from && itemDate <= dateRange.to;
-      // });
+async function getAppointmentData() {
+  const supabase = await createClient();
 
-      setFilteredData({
-        revenue: revenueData,
-        appointments: appointmentData,
-        products: productData,
-      });
-    };
+  // Get service counts grouped by service name
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("service_name, id")
+    .gte(
+      "booking_time",
+      new Date(new Date().getFullYear(), 0, 1).toISOString()
+    );
 
-    filterDataByDateRange();
-  }, [dateRange]);
+  if (error) {
+    console.error("Error fetching appointment data:", error);
+    return [];
+  }
+
+  // Count services
+  const serviceCounts: Record<string, number> = {};
+  data.forEach((booking) => {
+    const serviceName = booking.service_name;
+    if (serviceName) {
+      serviceCounts[serviceName] = (serviceCounts[serviceName] || 0) + 1;
+    }
+  });
+
+  // Convert to array format needed for chart
+  return Object.keys(serviceCounts)
+    .map((name) => ({ name, count: serviceCounts[name] }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5); // Get top 5 services
+}
+
+async function getProductData() {
+  const supabase = await createClient();
+
+  // Get product sales by category
+  const { data: orderItems, error } = await supabase
+    .from("order_items")
+    .select("product_id, quantity")
+    .gte("created_at", new Date(new Date().getFullYear(), 0, 1).toISOString());
+
+  if (error) {
+    console.error("Error fetching product data:", error);
+    return [];
+  }
+
+  // Get product categories
+  const { data: products, error: productsError } = await supabase
+    .from("products")
+    .select("id, category");
+
+  if (productsError) {
+    console.error("Error fetching product categories:", productsError);
+    return [];
+  }
+
+  // Create product ID to category mapping
+  const productCategories: Record<string, string> = {};
+  products.forEach((product) => {
+    productCategories[product.id] = product.category;
+  });
+
+  // Count sales by category
+  const categoryCounts: Record<string, number> = {};
+  let totalSales = 0;
+
+  orderItems.forEach((item) => {
+    const category = productCategories[item.product_id] || "Other";
+    categoryCounts[category] =
+      (categoryCounts[category] || 0) + (item.quantity || 1);
+    totalSales += item.quantity || 1;
+  });
+
+  // Convert to percentage and array format for chart
+  return Object.keys(categoryCounts)
+    .map((category) => ({
+      name: category
+        .replace("_", " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase()),
+      value: Math.round((categoryCounts[category] / totalSales) * 100),
+    }))
+    .sort((a, b) => b.value - a.value);
+}
+
+async function getRevenueDistribution() {
+  const supabase = await createClient();
+
+  // Get revenue by service name
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("service_name, service_price")
+    .gte(
+      "booking_time",
+      new Date(new Date().getFullYear(), 0, 1).toISOString()
+    );
+
+  if (error) {
+    console.error("Error fetching revenue distribution data:", error);
+    return [];
+  }
+
+  // Calculate total revenue and distribution by service
+  const serviceRevenue: Record<string, number> = {};
+  let totalRevenue = 0;
+
+  data.forEach((booking) => {
+    const serviceName = booking.service_name || "Other";
+    const price = booking.service_price || 0;
+    serviceRevenue[serviceName] = (serviceRevenue[serviceName] || 0) + price;
+    totalRevenue += price;
+  });
+
+  // Define colors for the pie chart
+  const colors = ["#4CAF50", "#8BC34A", "#CDDC39", "#FFC107", "#FF9800"];
+
+  // Convert to percentage and format for chart
+  const result = Object.keys(serviceRevenue)
+    .map((name, index) => ({
+      name,
+      value: Math.round((serviceRevenue[name] / totalRevenue) * 100),
+      fill: colors[index % colors.length],
+    }))
+    .sort((a, b) => b.value - a.value);
+
+  // Group smaller services into "Other Services"
+  const topServices = result.slice(0, 4);
+  const otherServices = result.slice(4);
+
+  if (otherServices.length > 0) {
+    const otherValue = otherServices.reduce((sum, item) => sum + item.value, 0);
+    topServices.push({
+      name: "Other Services",
+      value: otherValue,
+      fill: colors[4],
+    });
+  }
+
+  return topServices;
+}
+
+async function getAnalyticsSummary() {
+  const supabase = await createClient();
+  const currentYear = new Date().getFullYear();
+  const startOfYear = new Date(currentYear, 0, 1).toISOString();
+
+  // Get total revenue from bookings (services)
+  const { data: bookingsData, error: bookingsError } = await supabase
+    .from("bookings")
+    .select("service_price")
+    .gte("booking_time", startOfYear);
+
+  if (bookingsError) {
+    console.error("Error fetching bookings revenue:", bookingsError);
+  }
+
+  // Get total revenue from orders (products)
+  const { data: ordersData, error: ordersError } = await supabase
+    .from("orders")
+    .select("total_price")
+    .gte("created_at", startOfYear);
+
+  if (ordersError) {
+    console.error("Error fetching orders revenue:", ordersError);
+  }
+
+  // Get total appointments
+  const { count: appointmentsCount, error: appointmentsError } = await supabase
+    .from("bookings")
+    .select("id", { count: "exact" })
+    .gte("booking_time", startOfYear);
+
+  if (appointmentsError) {
+    console.error("Error fetching appointments count:", appointmentsError);
+  }
+
+  // Get new clients (profiles created this year)
+  const { count: newClientsCount, error: clientsError } = await supabase
+    .from("profiles")
+    .select("user_id", { count: "exact" })
+    .gte("created_at", startOfYear);
+
+  if (clientsError) {
+    console.error("Error fetching new clients count:", clientsError);
+  }
+
+  // Calculate total revenue
+  const serviceRevenue = bookingsData
+    ? bookingsData.reduce(
+        (sum, booking) => sum + (booking.service_price || 0),
+        0
+      )
+    : 0;
+  const productRevenue = ordersData
+    ? ordersData.reduce((sum, order) => sum + (order.total_price || 0), 0)
+    : 0;
+  const totalRevenue = serviceRevenue + productRevenue;
+
+  return {
+    totalRevenue: `R${totalRevenue.toLocaleString()}`,
+    totalAppointments: appointmentsCount?.toString() || "0",
+    newClients: newClientsCount?.toString() || "0",
+    productSales: `R${productRevenue.toLocaleString()}`,
+  };
+}
+
+export default async function AnalyticsPage() {
+  // Fetch real data from the database
+  const revenueData = await getRevenueData();
+  const appointmentData = await getAppointmentData();
+  const productData = await getProductData();
+  const revenueDistribution = await getRevenueDistribution();
+  const summary = await getAnalyticsSummary();
 
   // Calculate total revenue for pie chart
-  const totalRevenue = useMemo(() => {
-    return revenueDistribution.reduce((sum, item) => sum + item.value, 0);
-  }, []);
+  const totalRevenue = revenueDistribution.reduce(
+    (sum, item) => sum + item.value,
+    0
+  );
 
   return (
     <div>
@@ -162,12 +337,7 @@ export default function AnalyticsPage() {
       />
 
       <div className="flex justify-between items-center mb-6">
-        <Tabs
-          defaultValue="overview"
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="w-[400px]"
-        >
+        <Tabs defaultValue="overview" className="w-[400px]">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
@@ -176,24 +346,11 @@ export default function AnalyticsPage() {
         </Tabs>
 
         <div className="flex gap-2 items-center">
-          <DatePicker
-            selected={dateRange.from}
-            onSelect={(date) =>
-              setDateRange((prev) => ({ ...prev, from: date || prev.from }))
-            }
-            placeholderText="From date"
-          />
+          <DatePicker placeholderText="From date" />
           <span>to</span>
-          <DatePicker
-            selected={dateRange.to}
-            onSelect={(date) =>
-              setDateRange((prev) => ({ ...prev, to: date || prev.to }))
-            }
-            placeholderText="To date"
-            minDate={dateRange.from}
-          />
+          <DatePicker placeholderText="To date" />
 
-          <Select value={timeframe} onValueChange={setTimeframe}>
+          <Select defaultValue="year">
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select timeframe" />
             </SelectTrigger>
@@ -208,268 +365,27 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-4 mb-8">
-        <StatCard title="Total Revenue" value="R98,450" />
-        <StatCard title="Total Appointments" value="543" />
-        <StatCard title="New Clients" value="87" />
-        <StatCard title="Product Sales" value="R42,350" />
+        <StatCard title="Total Revenue" value={summary.totalRevenue} />
+        <StatCard
+          title="Total Appointments"
+          value={summary.totalAppointments}
+        />
+        <StatCard title="New Clients" value={summary.newClients} />
+        <StatCard title="Product Sales" value={summary.productSales} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="space-y-1">
-              <CardTitle>Revenue Breakdown</CardTitle>
-              <CardDescription>Services vs Product Sales</CardDescription>
-            </div>
-            <div className="flex items-center gap-1">
-              <BarChart2 className="h-4 w-4 text-primary" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4 h-96">
-            <ChartContainer config={revenueChartConfig}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={filteredData.revenue}
-                  margin={{ left: 10, right: 10, top: 20, bottom: 10 }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    tickFormatter={(value) => `R${value}`}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <ChartTooltip
-                    cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
-                    content={
-                      <ChartTooltipContent
-                        formatter={(value) => `R${value.toLocaleString()}`}
-                        indicator="dashed"
-                      />
-                    }
-                  />
-                  <Bar
-                    dataKey="services"
-                    fill="var(--color-services)"
-                    radius={[4, 4, 0, 0]}
-                    name="Service Revenue"
-                    barSize={20}
-                  />
-                  <Bar
-                    dataKey="products"
-                    fill="var(--color-products)"
-                    radius={[4, 4, 0, 0]}
-                    name="Product Sales"
-                    barSize={20}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-          <CardFooter className="flex-col items-start gap-2 text-sm">
-            <div className="flex gap-2 font-medium leading-none">
-              Trending up by 12.4% this month <TrendingUp className="h-4 w-4" />
-            </div>
-            <div className="leading-none text-muted-foreground">
-              Revenue from services consistently outperforms product sales
-            </div>
-          </CardFooter>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="space-y-1">
-              <CardTitle>Revenue Distribution</CardTitle>
-              <CardDescription>By service type</CardDescription>
-            </div>
-            <div className="flex items-center gap-1">
-              <PieChart className="h-4 w-4 text-primary" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4 h-96">
-            <ChartContainer
-              config={distributionChartConfig}
-              className="mx-auto aspect-square max-h-[250px]"
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <RechartsPieChart>
-                  <ChartTooltip
-                    cursor={false}
-                    content={
-                      <ChartTooltipContent
-                        formatter={(value) => `${value}%`}
-                        nameKey="name"
-                        labelKey="name"
-                      />
-                    }
-                  />
-                  <Pie
-                    data={revenueDistribution}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
-                  >
-                    {revenueDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                    <Label
-                      content={({ viewBox }) => {
-                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                          return (
-                            <text
-                              x={viewBox.cx}
-                              y={viewBox.cy}
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                            >
-                              <tspan
-                                x={viewBox.cx}
-                                y={viewBox.cy}
-                                className="fill-foreground text-2xl font-bold"
-                              >
-                                {totalRevenue}%
-                              </tspan>
-                              <tspan
-                                x={viewBox.cx}
-                                y={(viewBox.cy || 0) + 20}
-                                className="fill-muted-foreground text-xs"
-                              >
-                                Total Revenue
-                              </tspan>
-                            </text>
-                          );
-                        }
-                        return null;
-                      }}
-                    />
-                  </Pie>
-                </RechartsPieChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-          <CardFooter className="flex-col items-start gap-2 text-sm">
-            <div className="flex gap-2 font-medium leading-none">
-              Microblading is our highest revenue service
-            </div>
-            <div className="leading-none text-muted-foreground">
-              Consider expanding offerings in this category
-            </div>
-          </CardFooter>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="space-y-1">
-              <CardTitle>Appointments by Service</CardTitle>
-              <CardDescription>
-                Number of bookings per service type
-              </CardDescription>
-            </div>
-            <div className="flex items-center gap-1">
-              <BarChart2 className="h-4 w-4 text-primary" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4 h-96">
-            <ChartContainer config={appointmentChartConfig}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={filteredData.appointments}
-                  layout="vertical"
-                  margin={{ left: 10, right: 10, top: 20, bottom: 20 }}
-                >
-                  <CartesianGrid horizontal={true} vertical={false} />
-                  <XAxis type="number" tickLine={false} axisLine={false} />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    tickLine={false}
-                    axisLine={false}
-                    width={120}
-                  />
-                  <ChartTooltip
-                    cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
-                    content={
-                      <ChartTooltipContent
-                        nameKey="name"
-                        indicator="dashed"
-                        formatter={(value) => `${value} appointments`}
-                      />
-                    }
-                  />
-                  <Bar
-                    dataKey="count"
-                    fill="var(--color-count)"
-                    radius={4}
-                    name="Appointments"
-                    barSize={20}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="space-y-1">
-              <CardTitle>Product Categories</CardTitle>
-              <CardDescription>Sales by product category</CardDescription>
-            </div>
-            <div className="flex items-center gap-1">
-              <BarChart2 className="h-4 w-4 text-primary" />
-            </div>
-          </CardHeader>
-          <CardContent className="pt-4 h-96">
-            <ChartContainer config={productChartConfig}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={filteredData.products}
-                  margin={{ left: 10, right: 10, top: 20, bottom: 10 }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <YAxis
-                    tickFormatter={(value) => `${value}%`}
-                    tickLine={false}
-                    axisLine={false}
-                  />
-                  <ChartTooltip
-                    cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
-                    content={
-                      <ChartTooltipContent
-                        nameKey="name"
-                        indicator="dashed"
-                        formatter={(value) => `${value}%`}
-                      />
-                    }
-                  />
-                  <Bar
-                    dataKey="value"
-                    fill="var(--color-value)"
-                    radius={4}
-                    name="Sales Percentage"
-                    barSize={20}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Use client component for charts */}
+      <AnalyticsCharts
+        revenueData={revenueData}
+        appointmentData={appointmentData}
+        productData={productData}
+        revenueDistribution={revenueDistribution}
+        totalRevenue={totalRevenue}
+        revenueChartConfig={revenueChartConfig}
+        appointmentChartConfig={appointmentChartConfig}
+        productChartConfig={productChartConfig}
+        distributionChartConfig={distributionChartConfig}
+      />
     </div>
   );
 }

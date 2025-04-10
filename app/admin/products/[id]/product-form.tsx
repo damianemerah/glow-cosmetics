@@ -41,7 +41,13 @@ const productSchema = z.object({
     .number()
     .min(0.01, "Price must be greater than 0")
     .multipleOf(0.01),
-  category: z.enum(["lip_gloss", "skin_care", "supplements"]),
+  category: z.enum([
+    "lip_gloss",
+    "skin_care",
+    "supplements",
+    "jewellery",
+    "makeup",
+  ]),
   image_url: z.array(z.string().url("Must be a valid URL")).default([]),
   stock_quantity: z.coerce
     .number()
@@ -296,6 +302,7 @@ export default function ProductForm({
                 <Controller
                   name="category"
                   control={control}
+                  rules={{ required: "Category is required" }}
                   render={({ field }) => (
                     <Select
                       onValueChange={field.onChange}

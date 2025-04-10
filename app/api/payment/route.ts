@@ -9,11 +9,20 @@ const paystackInstance = Paystack(process.env.PAYSTACK_SECRET_KEY!);
 
 export async function POST(req: Request) {
   try {
-    const { email, orderId, amount, name, cartId, address } = await req.json();
+    const {
+      email,
+      orderId,
+      amount,
+      name,
+      cartId,
+      address,
+      payment_method,
+      reference
+    } = await req.json();
 
-    if (!email || !orderId || !amount || !name || !cartId) {
+    if (!email || !orderId || !amount || !name || !cartId || !payment_method || !reference) {
       return NextResponse.json(
-        { error: "Email, order ID, amount, name, and cart ID are required" },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -46,28 +55,46 @@ export async function POST(req: Request) {
       );
     }
 
-    // Initiate payment with Paystack
-    const response = await paystackInstance.transaction.initialize({
-      email,
-      amount: Math.round(parseFloat(amount) * 100), // Convert to kobo (smallest currency unit)
-      reference: `order_${orderId}`,
-      name,
-      metadata: {
-        orderId,
-        cartId,
-        userId: user.id,
-        address: JSON.stringify(address),
-      },
-      callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/order-confirmation?id=${orderId}`,
-    });
-
-    // Update order status
+    // Update order with payment method
     await supabase
       .from("orders")
-      .update({ payment_reference: response.data.reference })
+      .update({
+        payment_method: payment_method,
+        status: payment_method === "bank_transfer" ? "awaiting_payment" : "pending_payment"
+      })
       .eq("id", orderId);
 
-    return NextResponse.json({ data: response.data }, { status: 200 });
+    // Different handling based on payment method
+    if (payment_method === "paystack") {
+      // Initiate payment with Paystack
+      const response = await paystackInstance.transaction.initialize({
+        email,
+        amount: Math.round(parseFloat(amount) * 100), // Convert to smallest currency unit
+        reference,
+        name,
+        metadata: {
+          order_id: orderId,
+          cart_id: cartId,
+          user_id: user.id,
+          payment_method: payment_method,
+          shipping_address: JSON.stringify(address),
+        },
+        callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/order-confirmation?id=${orderId}`,
+      });
+
+      // Return the Paystack authorization URL
+      return NextResponse.json({
+        data: response.data
+      }, { status: 200 });
+    } else {
+      // For bank transfer, just return success - no redirect needed
+      return NextResponse.json({
+        data: {
+          reference: reference,
+          message: "Bank transfer payment initiated",
+        }
+      }, { status: 200 });
+    }
   } catch (error) {
     console.error("Payment processing error:", error);
     return NextResponse.json(

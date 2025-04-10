@@ -1,13 +1,95 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { toast } from "sonner";
+import { setNotificationSettings } from "@/actions/dashboardAction";
+import { Loader2 } from "lucide-react";
 
-export default function AccountSettings() {
+interface AccountSettingsProps {
+  marketingEnabled: boolean;
+  appointmentEnabled: boolean;
+  birthdayEnabled: boolean;
+  user_id: string;
+}
+
+export default function AccountSettings({
+  marketingEnabled,
+  appointmentEnabled,
+  birthdayEnabled,
+  user_id,
+}: AccountSettingsProps) {
+  const [isMarketingEnabled, setIsMarketingEnabled] =
+    useState(marketingEnabled);
+  const [isAppointmentEnabled, setIsAppointmentEnabled] =
+    useState(appointmentEnabled);
+  const [isBirthdayEnabled, setIsBirthdayEnabled] = useState(birthdayEnabled);
+  const [userId] = useState(user_id);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleNotificationChange = async (type: string, checked: boolean) => {
+    if (!userId) return;
+    setIsLoading(true);
+    try {
+      switch (type) {
+        case "marketing":
+          setIsMarketingEnabled(checked);
+          await setNotificationSettings(
+            userId,
+            "marketing_notification_enabled",
+            checked
+          );
+          toast("Preferences Updated", {
+            description: "Your marketing email settings have been updated.",
+          });
+          break;
+        case "appointment":
+          setIsAppointmentEnabled(checked);
+          await setNotificationSettings(
+            userId,
+            "appointment_reminder",
+            checked
+          );
+          toast("Preferences Updated", {
+            description:
+              "Your appointment reminder settings have been updated.",
+          });
+          break;
+        case "birthday":
+          setIsBirthdayEnabled(checked);
+          await setNotificationSettings(
+            userId,
+            "birthday_notification_enabled",
+            checked
+          );
+          toast("Preferences Updated", {
+            description:
+              "Your birthday notification settings have been updated.",
+          });
+          break;
+        default:
+          break;
+      }
+    } catch (error) {
+      console.error("Error updating notification settings:", error);
+      toast.error("Failed to update notification settings.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 backdrop-blur-xs">
+          <div className="bg-white p-3 rounded-full shadow-md">
+            <Loader2 className="h-8 w-8 text-green-500 animate-spin" />
+          </div>
+        </div>
+      )}
       <div>
         <h3 className="text-lg font-medium mb-3">Email Preferences</h3>
         <div className="space-y-2">
@@ -15,39 +97,47 @@ export default function AccountSettings() {
             <div>
               <p className="font-medium">Marketing Emails</p>
               <p className="text-sm text-muted-foreground">
-                Receive updates about new products and promotions
+                Stay informed with our latest product updates and exclusive
+                promotions.
               </p>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                toast("Preferences Updated", {
-                  description: "Your email preferences have been updated.",
-                });
+            <Switch
+              checked={isMarketingEnabled}
+              onCheckedChange={(checked) => {
+                handleNotificationChange("marketing", checked);
               }}
-            >
-              Manage
-            </Button>
+            />
           </div>
 
           <div className="flex items-center justify-between p-3 border rounded-md">
             <div>
               <p className="font-medium">Appointment Reminders</p>
               <p className="text-sm text-muted-foreground">
-                Receive reminders about upcoming appointments
+                Receive timely notifications about your upcoming appointments.
               </p>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                toast("Preferences Updated", {
-                  description:
-                    "Your appointment reminder settings have been updated.",
-                });
+            <Switch
+              checked={isAppointmentEnabled}
+              onCheckedChange={(checked) => {
+                handleNotificationChange("appointment", checked);
               }}
-            >
-              Manage
-            </Button>
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-3 border rounded-md">
+            <div>
+              <p className="font-medium">Birthday Notifications</p>
+              <p className="text-sm text-muted-foreground">
+                We&apos;ll celebrate your birthday with special notifications
+                and exclusive offers.
+              </p>
+            </div>
+            <Switch
+              checked={isBirthdayEnabled}
+              onCheckedChange={(checked) => {
+                handleNotificationChange("birthday", checked);
+              }}
+            />
           </div>
         </div>
       </div>

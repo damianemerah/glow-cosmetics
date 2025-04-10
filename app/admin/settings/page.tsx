@@ -18,6 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import PageHeader from "@/components/admin/page-header";
+import PhoneInput from "react-phone-input-2";
 
 export default function SettingsPage() {
   const [businessInfo, setBusinessInfo] = useState({
@@ -40,6 +41,10 @@ export default function SettingsPage() {
   ) => {
     const { name, value } = e.target;
     setBusinessInfo((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handlePhoneChange = (value: string) => {
+    setBusinessInfo((prev) => ({ ...prev, phone: "+" + value }));
   };
 
   const handleNotificationChange = (name: string, checked: boolean) => {
@@ -104,11 +109,17 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    name="phone"
-                    value={businessInfo.phone}
-                    onChange={handleBusinessInfoChange}
+                  <PhoneInput
+                    country={"za"}
+                    value={businessInfo.phone || ""}
+                    onChange={handlePhoneChange}
+                    inputProps={{
+                      id: "phone",
+                      name: "phone",
+                      required: true,
+                    }}
+                    containerClass="w-full"
+                    inputClass="w-full p-2 border rounded-md"
                   />
                 </div>
                 <div className="space-y-2">

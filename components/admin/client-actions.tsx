@@ -17,6 +17,7 @@ import { Upload } from "lucide-react";
 import { addClient, importClientsFromCsv } from "@/actions/clientActions";
 import { toast } from "sonner";
 import type { Client } from "@/types/dashboard";
+import PhoneInput from "react-phone-input-2";
 
 interface ClientActionsProps {
   client?: Client;
@@ -159,7 +160,17 @@ export default function ClientActions({ client }: ClientActionsProps = {}) {
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input id="phone" name="phone" placeholder="(555) 123-4567" />
+                <PhoneInput
+                  country={"za"}
+                  inputProps={{
+                    id: "phone",
+                    name: "phone",
+                    required: true,
+                  }}
+                  containerClass="w-full"
+                  inputClass="w-full p-2 border rounded-md"
+                  placeholder="(555) 123-4567"
+                />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>

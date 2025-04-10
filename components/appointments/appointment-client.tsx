@@ -298,6 +298,9 @@ export default function AppointmentsClient({
         service_id: selectedService,
         booking_time: bookingDateTime.toISOString(),
         status: "pending",
+        service_price: services.find(
+          (service) => service.id === selectedService
+        )!.price,
       });
 
       // Check the shape of the result and extract the actual booking

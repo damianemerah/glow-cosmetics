@@ -24,7 +24,7 @@ export default function ProductCTA() {
             asChild
             size="lg"
             variant="outline"
-            className="border-white text-white hover:bg-white/10"
+            className="border-white text-[#5a6b47] hover:bg-white/10"
           >
             <Link href="/booking">Book a Consultation</Link>
           </Button>

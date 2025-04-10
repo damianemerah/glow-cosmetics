@@ -8,7 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CheckCircle, Package, CreditCard } from "lucide-react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { CheckCircle, Package, CreditCard, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
@@ -21,33 +26,15 @@ export const metadata: Metadata = {
 export default async function OrderConfirmationPage({
   searchParams,
 }: {
-  searchParams: { id?: string; reference?: string; trxref?: string };
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  const orderId = searchParams.id;
-  const paymentReference = searchParams.reference || searchParams.trxref;
+  const { id: orderId } = await searchParams;
 
   if (!orderId) {
     notFound();
   }
 
   const supabase = await createClient();
-
-  // Verify payment if reference is provided
-  if (paymentReference) {
-    try {
-      // Call our verify endpoint
-      const verifyResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/verify/${paymentReference}`,
-        { method: "GET" }
-      );
-
-      if (!verifyResponse.ok) {
-        console.error("Payment verification failed");
-      }
-    } catch (error) {
-      console.error("Error verifying payment:", error);
-    }
-  }
 
   // Get the order details
   const { data: order, error } = await supabase
@@ -73,7 +60,7 @@ export default async function OrderConfirmationPage({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user || user.id !== order.user_id) {
-    redirect("/login?redirect=/order-confirmation?id=" + orderId);
+    redirect("/?redirect=/order-confirmation?id=" + orderId);
   }
 
   // Format the shipping address for display
@@ -99,7 +86,7 @@ export default async function OrderConfirmationPage({
             Order Confirmed!
           </CardTitle>
           <CardDescription>
-            Your order (ID: {orderId}) has been received.
+            Order Reference: {order.payment_reference}
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
@@ -115,7 +102,7 @@ export default async function OrderConfirmationPage({
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="font-medium">Total Amount:</span>
+              <span className="font-medium">Total:</span>
               <span className="font-medium">
                 ${order.total_price?.toFixed(2)}
               </span>
@@ -123,21 +110,20 @@ export default async function OrderConfirmationPage({
           </div>
 
           <p className="mb-4">
-            Thank you for your purchase. Your order has been received and is
-            being processed.
-          </p>
-          <p className="text-sm text-muted-foreground mb-6">
-            A confirmation email has been sent to {order.email} with all the
-            details.
+            Thank you for your purchase. We&apos;ve sent a confirmation email to{" "}
+            {order.email}.
           </p>
 
           {shippingAddress && (
-            <div className="bg-gray-50 p-4 rounded-md mb-4">
-              <h3 className="font-medium mb-2 flex items-center">
-                <Package className="h-4 w-4 mr-2" />
-                Shipping Information
-              </h3>
-              <div className="text-sm text-muted-foreground text-left">
+            <Collapsible className="bg-gray-50 p-4 rounded-md mb-4">
+              <CollapsibleTrigger className="flex items-center justify-between w-full font-medium">
+                <div className="flex items-center">
+                  <Package className="h-4 w-4 mr-2" />
+                  Shipping Information
+                </div>
+                <ChevronDown className="h-4 w-4" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="text-sm text-muted-foreground text-left mt-2">
                 <p>
                   {shippingAddress.firstName} {shippingAddress.lastName}
                 </p>
@@ -150,12 +136,11 @@ export default async function OrderConfirmationPage({
                   {shippingAddress.zipCode}
                 </p>
                 <p>{shippingAddress.country}</p>
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                Your order will be shipped within 1-2 business days. You will
-                receive a tracking number once your order has been shipped.
-              </p>
-            </div>
+                <p className="mt-2">
+                  Your order will be shipped within 1-2 business days.
+                </p>
+              </CollapsibleContent>
+            </Collapsible>
           )}
 
           {order.status !== "paid" && (
@@ -165,9 +150,8 @@ export default async function OrderConfirmationPage({
                 Payment Pending
               </h3>
               <p className="text-sm text-orange-700">
-                We&apos;re still processing your payment. If you&apos;ve already
-                completed the payment, it should be confirmed shortly. If you
-                need to make a payment, please contact customer support.
+                We&apos;re still processing your payment. Please contact support
+                if you&apos;ve already paid.
               </p>
             </div>
           )}

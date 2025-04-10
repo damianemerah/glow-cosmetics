@@ -15,10 +15,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CreditCard } from "lucide-react";
+import { BanknoteIcon, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { supabaseClient } from "@/lib/supabaseClient";
 import { useUserStore } from "@/store/authStore";
+import { customAlphabet } from "nanoid";
+import PhoneInput from "react-phone-input-2";
+
+// Create nanoid generator for order references
+const nanoid = customAlphabet("0123456789", 6);
 
 interface CheckoutFormProps {
   userId: string;
@@ -42,15 +47,24 @@ export default function CheckoutForm({
 }: CheckoutFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("credit-card");
+  const [paymentMethod, setPaymentMethod] = useState<
+    "bank_transfer" | "paystack"
+  >("paystack");
+  const [bankDetails] = useState({
+    bank_name: "Standard Bank",
+    account_name: "Glow Cosmetics",
+    account_number: "1234567890",
+    branch_code: "051001",
+  });
+  const [whatsappNumber] = useState("+2347066765698");
+  const [paymentReference, setPaymentReference] = useState("");
   const user = useUserStore((state) => state.user);
 
   // Form state
   const [formData, setFormData] = useState({
     email: "",
     emailOffers: false,
-    joinRewards: false,
-    country: "United States",
+    country: "South Africa",
     firstName: "",
     lastName: "",
     address: "",
@@ -60,13 +74,7 @@ export default function CheckoutForm({
     zipCode: "",
     phone: "",
     textOffers: false,
-    cardNumber: "",
-    cardExpiry: "",
-    cardCvc: "",
-    nameOnCard: "",
-    useSameAddress: true,
     saveInfo: false,
-    mobileNumber: "",
   });
 
   // Form validation
@@ -88,11 +96,8 @@ export default function CheckoutForm({
   }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     // Clear error when field is edited
     if (formErrors[name]) {
@@ -102,6 +107,10 @@ export default function CheckoutForm({
         return newErrors;
       });
     }
+  };
+
+  const handlePhoneChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, phone: "+" + value }));
   };
 
   const handleSelectChange = (name: string, value: string) => {
@@ -131,15 +140,7 @@ export default function CheckoutForm({
     if (!formData.city) errors.city = "City is required";
     if (!formData.state) errors.state = "State is required";
     if (!formData.zipCode) errors.zipCode = "ZIP code is required";
-
-    // Payment validation depends on payment method
-    if (paymentMethod === "credit-card") {
-      if (!formData.cardNumber) errors.cardNumber = "Card number is required";
-      if (!formData.cardExpiry)
-        errors.cardExpiry = "Expiration date is required";
-      if (!formData.cardCvc) errors.cardCvc = "Security code is required";
-      if (!formData.nameOnCard) errors.nameOnCard = "Name on card is required";
-    }
+    if (!formData.phone) errors.phone = "Phone number is required";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -156,6 +157,9 @@ export default function CheckoutForm({
     setIsSubmitting(true);
 
     try {
+      // Generate payment reference
+      const orderReference = `ORD-${nanoid()}`;
+
       // Prepare shipping address
       const shippingAddress = {
         firstName: formData.firstName,
@@ -181,6 +185,8 @@ export default function CheckoutForm({
           email: formData.email,
           phone: formData.phone,
           status: "pending",
+          payment_reference: orderReference,
+          payment_method: paymentMethod,
         })
         .select()
         .single();
@@ -202,7 +208,14 @@ export default function CheckoutForm({
 
       if (itemsError) throw itemsError;
 
-      // Process payment
+      if (paymentMethod === "bank_transfer") {
+        // For bank transfer, just set the order ID and reference
+        setPaymentReference(orderReference);
+        router.push(`/order-confirmation?id=${order.id}`);
+        return;
+      }
+
+      // Process payment with Paystack
       const response = await fetch("/api/payment", {
         method: "POST",
         headers: {
@@ -215,22 +228,33 @@ export default function CheckoutForm({
           name: `${formData.firstName} ${formData.lastName}`,
           cartId: cartId,
           address: shippingAddress,
+          payment_method: paymentMethod,
+          reference: orderReference,
+          metadata: {
+            type: "product-purchase",
+            order_id: order.id,
+            cart_id: cartId,
+            payment_type: "full-payment",
+            payment_method: "paystack",
+          },
         }),
       });
 
       const paymentData = await response.json();
 
+      console.log(paymentData, "payment🥂");
+
       if (!response.ok) {
         throw new Error(paymentData.error || "Payment processing failed");
       }
 
-      // If using Paystack, redirect to their payment page
+      // Redirect to Paystack payment page
       if (paymentData.data && paymentData.data.authorization_url) {
         window.location.href = paymentData.data.authorization_url;
         return;
       }
 
-      // If not redirected, go to order confirmation
+      // If we get here, go to order confirmation
       router.push(`/order-confirmation?id=${order.id}`);
     } catch (error) {
       console.error("Error during checkout:", error);
@@ -240,13 +264,19 @@ export default function CheckoutForm({
     }
   };
 
+  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/\+/g, "")}?text=${encodeURIComponent(
+    `Hello, I have made a direct transfer for my order *${paymentReference || "pending"}* for *R${totalAmount.toFixed(
+      2
+    )}*. \n\n_*Please confirm and include a screenshot of your payment receipt.*_`
+  )}`;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Contact */}
       <div>
         <h2 className="text-lg font-semibold mb-4 font-montserrat">Contact</h2>
         <div className="space-y-4">
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -260,22 +290,24 @@ export default function CheckoutForm({
               <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
             )}
           </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="emailOffers"
-              name="emailOffers"
-              checked={formData.emailOffers}
-              onCheckedChange={(checked) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  emailOffers: checked === true,
-                }))
-              }
-            />
-            <Label htmlFor="emailOffers" className="text-sm">
-              Email me with news and offers
-            </Label>
-          </div>
+          {!user?.receive_emails && (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="emailOffers"
+                name="emailOffers"
+                checked={formData.emailOffers}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    emailOffers: checked === true,
+                  }))
+                }
+              />
+              <Label htmlFor="emailOffers" className="text-sm">
+                Email me with news and offers
+              </Label>
+            </div>
+          )}
         </div>
       </div>
 
@@ -283,7 +315,7 @@ export default function CheckoutForm({
       <div>
         <h2 className="text-lg font-semibold mb-4 font-montserrat">Delivery</h2>
         <div className="space-y-4">
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="country">Country/Region</Label>
             <Select
               value={formData.country}
@@ -293,16 +325,12 @@ export default function CheckoutForm({
                 <SelectValue placeholder="Select country" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="United States">United States</SelectItem>
-                <SelectItem value="Canada">Canada</SelectItem>
-                <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-                <SelectItem value="Australia">Australia</SelectItem>
                 <SelectItem value="South Africa">South Africa</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="firstName">First name</Label>
               <Input
                 id="firstName"
@@ -317,7 +345,7 @@ export default function CheckoutForm({
                 </p>
               )}
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="lastName">Last name</Label>
               <Input
                 id="lastName"
@@ -333,7 +361,26 @@ export default function CheckoutForm({
               )}
             </div>
           </div>
-          <div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone number</Label>
+            <PhoneInput
+              country={"za"}
+              value={formData.phone}
+              onChange={handlePhoneChange}
+              inputProps={{
+                id: "phone",
+                name: "phone",
+                required: true,
+              }}
+              containerClass="w-full"
+              inputClass={`w-full p-2 border rounded-md ${formErrors.phone ? "border-red-500" : ""}`}
+              placeholder="+27 12 345 6789"
+            />
+            {formErrors.phone && (
+              <p className="text-red-500 text-sm mt-1">{formErrors.phone}</p>
+            )}
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="address">Address</Label>
             <Input
               id="address"
@@ -346,7 +393,7 @@ export default function CheckoutForm({
               <p className="text-red-500 text-sm mt-1">{formErrors.address}</p>
             )}
           </div>
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="apartment">Apartment, suite, etc. (optional)</Label>
             <Input
               id="apartment"
@@ -356,7 +403,7 @@ export default function CheckoutForm({
             />
           </div>
           <div className="grid grid-cols-3 gap-4">
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="city">City</Label>
               <Input
                 id="city"
@@ -369,7 +416,7 @@ export default function CheckoutForm({
                 <p className="text-red-500 text-sm mt-1">{formErrors.city}</p>
               )}
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="state">State</Label>
               <Input
                 id="state"
@@ -382,7 +429,7 @@ export default function CheckoutForm({
                 <p className="text-red-500 text-sm mt-1">{formErrors.state}</p>
               )}
             </div>
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="zipCode">ZIP code</Label>
               <Input
                 id="zipCode"
@@ -405,109 +452,96 @@ export default function CheckoutForm({
       <div>
         <h2 className="text-lg font-semibold mb-4 font-montserrat">Payment</h2>
         <div className="space-y-4">
-          <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-            <div className="flex items-center space-x-2 mb-4">
-              <RadioGroupItem value="credit-card" id="credit-card" />
-              <Label htmlFor="credit-card" className="flex items-center">
+          <RadioGroup
+            value={paymentMethod}
+            onValueChange={(value) => {
+              setPaymentMethod(value as "bank_transfer" | "paystack");
+            }}
+            className="space-y-2"
+          >
+            <div className="flex items-center space-x-2 border p-3 rounded-md">
+              <RadioGroupItem value="paystack" id="paystack" />
+              <Label
+                htmlFor="paystack"
+                className="flex items-center cursor-pointer"
+              >
                 <CreditCard className="h-4 w-4 mr-2" />
-                Credit Card
+                Card Payment (Paystack)
               </Label>
             </div>
-            <div className="flex items-center space-x-2 mb-4">
-              <RadioGroupItem value="paystack" id="paystack" />
-              <Label htmlFor="paystack" className="flex items-center">
-                <CreditCard className="h-4 w-4 mr-2" />
-                Paystack
+            <div className="flex items-center space-x-2 border p-3 rounded-md">
+              <RadioGroupItem value="bank_transfer" id="bank_transfer" />
+              <Label
+                htmlFor="bank_transfer"
+                className="flex items-center cursor-pointer"
+              >
+                <BanknoteIcon className="h-4 w-4 mr-2" />
+                Bank Transfer
               </Label>
             </div>
           </RadioGroup>
 
-          {paymentMethod === "credit-card" && (
-            <div className="space-y-4 p-4 border rounded-md mt-4">
-              <div>
-                <Label htmlFor="cardNumber">Card number</Label>
-                <Input
-                  id="cardNumber"
-                  name="cardNumber"
-                  placeholder="1234 5678 9012 3456"
-                  value={formData.cardNumber}
-                  onChange={handleInputChange}
-                  className={formErrors.cardNumber ? "border-red-500" : ""}
-                />
-                {formErrors.cardNumber && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formErrors.cardNumber}
-                  </p>
-                )}
+          {/* Show bank details immediately if bank transfer is selected */}
+          {paymentMethod === "bank_transfer" && (
+            <div className="mt-4 space-y-4">
+              <p className="text-sm">
+                Please transfer the payment to the following bank details:
+              </p>
+              <div className="bg-gray-100 p-4 rounded-md text-sm">
+                <p>
+                  <strong>Bank:</strong> {bankDetails.bank_name}
+                </p>
+                <p>
+                  <strong>Account Name:</strong> {bankDetails.account_name}
+                </p>
+                <p>
+                  <strong>Account Number:</strong> {bankDetails.account_number}
+                </p>
+                <p>
+                  <strong>Branch Code:</strong> {bankDetails.branch_code}
+                </p>
+                <p className="mt-2">
+                  <strong>Amount:</strong> R{totalAmount.toFixed(2)}
+                </p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="cardExpiry">Expiration date (MM/YY)</Label>
-                  <Input
-                    id="cardExpiry"
-                    name="cardExpiry"
-                    placeholder="MM/YY"
-                    value={formData.cardExpiry}
-                    onChange={handleInputChange}
-                    className={formErrors.cardExpiry ? "border-red-500" : ""}
-                  />
-                  {formErrors.cardExpiry && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.cardExpiry}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <Label htmlFor="cardCvc">Security code</Label>
-                  <Input
-                    id="cardCvc"
-                    name="cardCvc"
-                    placeholder="CVC"
-                    value={formData.cardCvc}
-                    onChange={handleInputChange}
-                    className={formErrors.cardCvc ? "border-red-500" : ""}
-                  />
-                  {formErrors.cardCvc && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.cardCvc}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="nameOnCard">Name on card</Label>
-                <Input
-                  id="nameOnCard"
-                  name="nameOnCard"
-                  value={formData.nameOnCard}
-                  onChange={handleInputChange}
-                  className={formErrors.nameOnCard ? "border-red-500" : ""}
-                />
-                {formErrors.nameOnCard && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formErrors.nameOnCard}
-                  </p>
-                )}
-              </div>
+              <p className="text-sm text-muted-foreground">
+                After payment, use WhatsApp to confirm your transfer with a
+                screenshot.
+              </p>
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block mt-2"
+              >
+                <Button
+                  type="button"
+                  className="w-full bg-green-500 hover:bg-green-600"
+                >
+                  Confirm Transfer via WhatsApp
+                </Button>
+              </a>
             </div>
           )}
         </div>
       </div>
 
-      <Button
-        type="submit"
-        className="w-full bg-green-500 hover:bg-green-600 py-6 text-lg"
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? (
-          <span className="flex items-center">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-            Processing...
-          </span>
-        ) : (
-          `Pay ${totalAmount.toFixed(2)} now`
-        )}
-      </Button>
+      {paymentMethod !== "bank_transfer" && (
+        <Button
+          type="submit"
+          className="w-full bg-green-500 hover:bg-green-600 py-6 text-lg"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <span className="flex items-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Processing...
+            </span>
+          ) : (
+            `Complete Order - R${totalAmount.toFixed(2)}`
+          )}
+        </Button>
+      )}
 
       <div className="text-xs text-center text-muted-foreground space-x-2">
         <Link href="/refund-policy" className="hover:underline">

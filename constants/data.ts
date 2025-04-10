@@ -27,7 +27,7 @@ export const services: Service[] = [
     name: "Semi Permanent Makeup",
     description:
       "Enhance your natural beauty with our semi permanent makeup service.",
-    price: 900, // Sample price (R900)
+    price: 900,
     image: "/images/pic6.jpg",
     details:
       "Our semi permanent makeup service is designed to subtly define your features. Using advanced techniques and high-quality pigments, we create natural, long-lasting results that enhance your overall look.",
@@ -38,7 +38,7 @@ export const services: Service[] = [
     name: "Microblading",
     description:
       "Achieve beautifully defined brows with our microblading service.",
-    price: 1000, // Average price between R800 to R1200
+    price: 1000,
     image: "/images/microblading.jpg",
     details:
       "Microblading uses a precise hand-drawn technique to create realistic, natural-looking eyebrow hairs. This service is ideal for filling in sparse brows or creating a fuller brow shape.",
@@ -48,7 +48,7 @@ export const services: Service[] = [
     id: "lip-blush",
     name: "Lip Blush",
     description: "Get a soft, natural tint with our lip blush service.",
-    price: 1000, // Price: R1000
+    price: 1000,
     image: "/images/lip-blush.jpg",
     details:
       "Our lip blush procedure enhances your natural lip color, providing a subtle, youthful tint that lasts. Enjoy fuller, more defined lips without the need for constant reapplication.",
@@ -58,7 +58,7 @@ export const services: Service[] = [
     id: "eyeliner",
     name: "Eyeliner",
     description: "Define your eyes with our precision eyeliner service.",
-    price: 800, // Price: R800
+    price: 800,
     image: "/images/eyeliner.jpg",
     details:
       "Our eyeliner service offers a flawless, long-lasting application that enhances the natural shape of your eyes. Perfect for those looking for a defined yet natural look.",
@@ -69,7 +69,7 @@ export const services: Service[] = [
     name: "Consultation",
     description:
       "Book a one-on-one consultation session with our beauty and wellness experts.",
-    price: 200, // sample price (e.g., R200)
+    price: 200,
     image: "/images/consultation.jpg",
     details:
       "Our consultation service provides personalized advice on beauty and wellness. In this session, you can discuss your goals, ask questions about our services, and receive tailored recommendations to enhance your natural beauty.",

@@ -153,9 +153,6 @@ export default function BookingsList({
       </div>
 
       {sortedBookings.map((booking) => {
-        const bookingDate = new Date(`${booking.booking_time}`);
-        const isPast = bookingDate < new Date();
-
         return (
           <div
             key={booking.id}
@@ -184,16 +181,16 @@ export default function BookingsList({
                   booking.status === "confirmed"
                     ? "bg-green-100 text-green-800"
                     : booking.status === "pending"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : booking.status === "completed"
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-red-100 text-red-800"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : booking.status === "completed"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-red-100 text-red-800"
                 }
               >
                 {booking.status}
               </Badge>
 
-              {!isPast && booking.status !== "cancelled" && (
+              {booking.status === "pending" && (
                 <div className="ml-2 flex">
                   <Button
                     variant="ghost"

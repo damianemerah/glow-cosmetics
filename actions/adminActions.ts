@@ -75,8 +75,8 @@ export async function fetchProductById(id: string) {
         ? Array.isArray(data.image_url)
           ? data.image_url
           : data.image_url
-          ? [data.image_url]
-          : []
+            ? [data.image_url]
+            : []
         : [];
 
       return {
@@ -106,6 +106,8 @@ export async function saveProduct(data: Partial<Product>, id: string) {
       remove: /[*+~.()'"!:@]/g,
     });
 
+    console.log(data, "data🔥🔥");
+
     // Add slug to data
     const productData = {
       ...data,
@@ -118,6 +120,7 @@ export async function saveProduct(data: Partial<Product>, id: string) {
         : await supabase.from("products").update(productData).eq("id", id);
 
     if (error) {
+      console.error("Error saving product:", error);
       throw new Error(error.message);
     }
 
@@ -139,7 +142,7 @@ export async function saveProduct(data: Partial<Product>, id: string) {
 
 export async function fetchProducts(page: number = 1) {
   const supabase = await createClient();
-  const itemsPerPage = 1;
+  const itemsPerPage = 20;
 
   const getPagedProducts = unstable_cache(
     async (client: SupabaseClient, pageNum: number) => {

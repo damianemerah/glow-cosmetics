@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -10,134 +11,124 @@ import { Input } from "@/components/ui/input";
 import PageHeader from "@/components/admin/page-header";
 import DataTable from "@/components/admin/data-table";
 import { Badge } from "@/components/ui/badge";
+import { createClient } from "@/utils/supabase/server";
+import { formatZAR } from "@/utils/formattedCurrency";
+import { OrderDetail } from "@/components/admin/order-detail";
+import { Plus } from "lucide-react";
 
-// Mock data for orders
-const orders = [
-  {
-    id: "ORD-001",
-    date: "Mar 10, 2025",
-    client: "Sarah Johnson",
-    items: "Vitamin C Serum, Collagen Supplements",
-    total: "R89.98",
-    status: "Delivered",
-  },
-  {
-    id: "ORD-002",
-    date: "Mar 9, 2025",
-    client: "Emily Davis",
-    items: "Hydrating Lip Gloss",
-    total: "R24.99",
-    status: "Processing",
-  },
-  {
-    id: "ORD-003",
-    date: "Mar 8, 2025",
-    client: "Jessica Wilson",
-    items: "Gentle Cleanser, Retinol Night Cream",
-    total: "R84.98",
-    status: "Shipped",
-  },
-  {
-    id: "ORD-004",
-    date: "Mar 7, 2025",
-    client: "Michael Brown",
-    items: "Collagen Supplements",
-    total: "R39.99",
-    status: "Cancelled",
-  },
-  {
-    id: "ORD-005",
-    date: "Mar 6, 2025",
-    client: "David Miller",
-    items: "Vitamin C Serum",
-    total: "R49.99",
-    status: "Delivered",
-  },
-];
+interface Order {
+  id: string;
+  created_at: string;
+  first_name: string;
+  last_name: string;
+  total_price: number;
+  status: string;
+  payment_method: string;
+  payment_reference: string;
+  email: string;
+}
 
-const orderColumns = [
-  {
-    key: "id",
-    title: "Order ID",
-    render: (row: any) => (
-      <div>
-        <div className="font-medium">{row.id}</div>
-        <div className="text-sm text-muted-foreground">{row.date}</div>
-      </div>
-    ),
-  },
-  { key: "client", title: "Client" },
-  { key: "items", title: "Items" },
-  { key: "total", title: "Total" },
-  {
-    key: "status",
-    title: "Status",
-    render: (row: any) => {
-      const statusStyles = {
-        Delivered: "bg-green-100 text-green-800",
-        Processing: "bg-blue-100 text-blue-800",
-        Shipped: "bg-purple-100 text-purple-800",
-        Cancelled: "bg-red-100 text-red-800",
-      };
+export default async function OrdersPage() {
+  const supabase = await createClient();
 
-      // @ts-ignore - We know the status will be one of the keys
-      const style = statusStyles[row.status] || "bg-gray-100 text-gray-800";
+  // Get orders from database, sorted by creation date (newest first)
+  const { data: orders, error } = await supabase
+    .from("orders")
+    .select("*")
+    .order("created_at", { ascending: false });
 
-      return <Badge className={style}>{row.status}</Badge>;
+  if (error) {
+    console.error("Error loading orders:", error);
+    return <div>Error loading orders. Please try again later.</div>;
+  }
+
+  const orderColumns = [
+    {
+      key: "id",
+      title: "Order ID",
+      render: (row: Order) => (
+        <div>
+          <div className="font-medium">{row.payment_reference}</div>
+          <div className="text-sm text-muted-foreground">
+            {new Date(row.created_at).toLocaleDateString()}
+          </div>
+        </div>
+      ),
     },
-  },
-  {
-    key: "actions",
-    title: "Actions",
-    render: (row: any) => {
-      if (row.status === "Processing") {
-        return (
-          <Button
-            size="sm"
-            className="bg-primary text-white hover:bg-primary/90"
-          >
-            Mark as Shipped
-          </Button>
-        );
-      }
-
-      if (row.status === "Shipped") {
-        return (
-          <Button
-            size="sm"
-            className="bg-primary text-white hover:bg-primary/90"
-          >
-            Mark as Delivered
-          </Button>
-        );
-      }
-
-      return (
-        <Button size="sm" variant="outline">
-          View Details
-        </Button>
-      );
+    {
+      key: "client",
+      title: "Client",
+      render: (row: Order) => (
+        <div>
+          <div>{`${row.first_name} ${row.last_name}`}</div>
+          <div className="text-sm text-muted-foreground">{row.email}</div>
+        </div>
+      ),
     },
-  },
-];
+    {
+      key: "payment",
+      title: "Payment",
+      render: (row: Order) => (
+        <div>
+          <div>{formatZAR(row.total_price)}</div>
+          <div className="text-sm text-muted-foreground capitalize">
+            {row.payment_method?.replace("_", " ") || "Not specified"}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      title: "Status",
+      render: (row: Order) => {
+        const statusStyles: Record<string, string> = {
+          delivered: "bg-green-100 text-green-800",
+          processing: "bg-blue-100 text-blue-800",
+          shipped: "bg-purple-100 text-purple-800",
+          cancelled: "bg-red-100 text-red-800",
+          paid: "bg-emerald-100 text-emerald-800",
+          pending: "bg-yellow-100 text-yellow-800",
+          awaiting_payment: "bg-orange-100 text-orange-800",
+          pending_payment: "bg-cyan-100 text-cyan-800",
+        };
 
-export default function OrdersPage() {
+        const style = statusStyles[row.status] || "bg-gray-100 text-gray-800";
+
+        return (
+          <Badge className={style}>
+            {row.status?.replace("_", " ") || "Unknown"}
+          </Badge>
+        );
+      },
+    },
+    {
+      key: "actions",
+      title: "Actions",
+      render: (row: Order) => (
+        <OrderDetail orderId={row.id} initialStatus={row.status} />
+      ),
+    },
+  ];
+
   return (
     <div>
       <PageHeader
         title="Orders"
-        description="Manage product orders and shipments"
+        description="Manage customer orders and payment status"
       />
 
       <div className="flex justify-between items-center mb-6">
         <div className="flex gap-2">
           <Input placeholder="Search orders..." className="max-w-xs" />
-          <Select>
+          <Select defaultValue="all">
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="awaiting_payment">Awaiting Payment</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
               <SelectItem value="processing">Processing</SelectItem>
               <SelectItem value="shipped">Shipped</SelectItem>
               <SelectItem value="delivered">Delivered</SelectItem>
@@ -149,10 +140,16 @@ export default function OrdersPage() {
         <div className="flex gap-2">
           <Button variant="outline">Export</Button>
           <Button variant="outline">Print</Button>
+          <Link href="/admin/orders/create">
+            <Button className="bg-primary text-white hover:bg-primary/90">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Order
+            </Button>
+          </Link>
         </div>
       </div>
 
-      <DataTable columns={orderColumns} data={orders} />
+      <DataTable columns={orderColumns} data={orders || []} />
     </div>
   );
 }

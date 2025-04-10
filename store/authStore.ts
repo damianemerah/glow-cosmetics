@@ -25,7 +25,6 @@ export const useUserStore = create<UserStore>((set) => ({
       .eq("is_active", true)
       .single();
 
-
     if (error) {
       console.error("Error fetching user data:", error);
       return;

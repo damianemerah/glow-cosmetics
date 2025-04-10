@@ -3,12 +3,12 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 import { categories } from "@/constants/data";
 import type { Product } from "@/types/dashboard";
 import { useState, useTransition } from "react";
+import AddToCartButton from "@/components/product/add-to-cart-button";
 
 export default function ProductTabs({ products }: { products: Product[] }) {
   // Add transition state for tab switching
@@ -90,10 +90,11 @@ export default function ProductTabs({ products }: { products: Product[] }) {
                             ${product.price.toFixed(2)}
                           </p>
                         </CardContent>
-                        <CardFooter className="pb-4 md:pb-6 pt-0">
-                          <Button className="w-full bg-green-500 hover:bg-green-600 rounded-lg py-2 md:py-3 text-base md:text-lg">
-                            View Product
-                          </Button>
+                        <CardFooter className="pb-4 md:pb-6 pt-0 w-full">
+                          <AddToCartButton
+                            product={product}
+                            className="!w-full bg-green-500 hover:bg-green-600 rounded-lg py-2 md:py-3 text-base md:text-lg"
+                          />
                         </CardFooter>
                       </div>
                     </Card>

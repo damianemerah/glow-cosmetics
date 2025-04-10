@@ -46,7 +46,7 @@ const productColumns = [
         <span>{row.stock_quantity}</span>
         {row.stock_quantity === 0 ? (
           <Badge className="bg-red-100 text-red-800">Out of Stock</Badge>
-        ) : row.stock_quantity < 20 ? (
+        ) : row.stock_quantity < 10 ? (
           <Badge className="bg-yellow-100 text-yellow-800">Low Stock</Badge>
         ) : null}
       </div>
@@ -60,6 +60,8 @@ const productColumns = [
         lip_gloss: "Lip Gloss",
         skin_care: "Skin Care",
         supplements: "Supplements",
+        jewellery: "Jewellery",
+        makeup: "Makeup",
       };
       return (
         categoryLabels[row.category as keyof typeof categoryLabels] ||

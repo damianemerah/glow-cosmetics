@@ -6,7 +6,7 @@ import PageHeader from "@/components/admin/page-header";
 
 async function getAllBookings(page: number = 1) {
   const supabase = await createClient();
-  const itemsPerPage = 1;
+  const itemsPerPage = 20;
 
   const getBookings = unstable_cache(
     async (client: SupabaseClient) => {

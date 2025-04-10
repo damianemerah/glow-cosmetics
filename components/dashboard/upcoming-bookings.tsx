@@ -102,13 +102,13 @@ export default function UpcomingBookings({
                 booking.status === "confirmed"
                   ? "bg-green-100 text-green-800"
                   : booking.status === "pending"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-red-100 text-red-800"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-red-100 text-red-800"
               }
             >
               {booking.status}
             </Badge>
-            {booking.status !== "cancelled" && (
+            {booking.status === "pending" && (
               <Button
                 variant="ghost"
                 size="sm"

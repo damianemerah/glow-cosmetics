@@ -64,7 +64,9 @@ export default function OrderHistory({
             <div>
               <p className="font-medium">Order #{order.id.slice(0, 8)}</p>
               <p className="text-sm text-muted-foreground">
-                {new Date(order.created_at).toLocaleDateString()}
+                {order.created_at
+                  ? new Date(order.created_at).toLocaleDateString()
+                  : "Date not available"}
               </p>
             </div>
             <div className="mt-2 md:mt-0 flex items-center">
@@ -76,10 +78,10 @@ export default function OrderHistory({
                   order.status === "completed"
                     ? "ml-3 bg-green-100 text-green-800"
                     : order.status === "processing"
-                    ? "ml-3 bg-blue-100 text-blue-800"
-                    : order.status === "shipped"
-                    ? "ml-3 bg-purple-100 text-purple-800"
-                    : "ml-3 bg-red-100 text-red-800"
+                      ? "ml-3 bg-blue-100 text-blue-800"
+                      : order.status === "shipped"
+                        ? "ml-3 bg-purple-100 text-purple-800"
+                        : "ml-3 bg-red-100 text-red-800"
                 }
               >
                 {order.status}

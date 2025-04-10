@@ -52,9 +52,7 @@ export async function updateSession(request: NextRequest) {
     if (profileError || !profile || profile.role !== "admin") {
       return NextResponse.redirect(new URL("/", request.url));
     }
-  }
-  // Handle the case where there's no user but they're trying to access protected routes
-  else if (
+  } else if (
     !user &&
     (request.nextUrl.pathname.startsWith("/admin") ||
       request.nextUrl.pathname === "/dashboard")

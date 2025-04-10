@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Instagram,
@@ -28,14 +28,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { useUserStore } from "@/store/authStore";
 import { LoginPopup } from "@/components/auth/LoginPopup";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
+import { toast } from "sonner";
 import { CartPane } from "@/components/CartPane";
 import { getCartItemCount } from "@/actions/cartAction";
 import useSWR from "swr";
+import { mergeOfflineCart } from "@/actions/cartAction";
+import { useCartStore } from "@/store/cartStore";
 
 const supabase = createClient();
 
@@ -45,15 +47,24 @@ const Navbar = () => {
   const pathname = usePathname();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+  // Use a ref to track if merge has been attempted in this session
+  const mergeAttemptedThisSessionRef = useRef(false);
+  // Add state to track if component is mounted (client-side only)
+  const [isMounted, setIsMounted] = useState(false);
+
   const user = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
   const fetchUser = useUserStore((state) => state.fetchUser);
   const signOut = useUserStore((state) => state.signOut);
   const [cartOpen, setCartOpen] = useState(false);
 
+  // Get offline cart count from Zustand store
+  const offlineCartCount = useCartStore((state) => state.getOfflineCartCount());
+
   // Fetch cart item count using SWR
   const { data: cartCount, mutate: mutateCartCount } = useSWR(
-    user ? `cart-count-${user.user_id}` : null,
+    user && isOnline ? `cart-count-${user.user_id}` : null,
     async () => {
       if (!user) return 0;
       try {
@@ -71,27 +82,56 @@ const Navbar = () => {
     }
   );
 
+  // Add useEffect to set mounted state after hydration
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Track online status and update offline cart count
+  useEffect(() => {
+    // Set initial online status
+    const updateOnlineStatus = () => {
+      const online = typeof navigator !== "undefined" && navigator.onLine;
+      setIsOnline(online);
+    };
+
+    updateOnlineStatus();
+
+    // Update online status when it changes
+    const handleOnline = () => {
+      setIsOnline(true);
+      mutateCartCount();
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [mutateCartCount]);
+
+  // Handle authentication state changes
   useEffect(() => {
     const code = searchParams.get("code");
 
     const handleAuthChange = async () => {
       const {
-        data: { user },
+        data: { user: authUser },
         error,
       } = await supabase.auth.getUser();
-
-      const { data, error: e2 } = await supabase.auth.getSession();
-
-      console.log(data, e2, "🌐🌐🌐");
-
-      console.log(user, "user");
 
       if (error) {
         return;
       }
 
-      if (user) {
-        fetchUser(user.id);
+      if (authUser) {
+        fetchUser(authUser.id);
         mutateCartCount(); // Refresh cart count when user changes
 
         if (code) {
@@ -104,20 +144,106 @@ const Navbar = () => {
         }
       } else {
         setUser(null);
+        // Reset merge flag when user signs out
+        mergeAttemptedThisSessionRef.current = false;
       }
     };
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+    // Handle auth state change with specific events
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log(`Auth event: ${event}`);
+
+        if (event === "SIGNED_IN") {
+          handleAuthChange();
+
+          // Execute cart merge logic ONLY on SIGNED_IN event
+          if (
+            session?.user &&
+            !mergeAttemptedThisSessionRef.current &&
+            isOnline
+          ) {
+            const userId = session.user.id;
+            const offlineCart = useCartStore.getState().offlineItems;
+
+            if (offlineCart.length > 0) {
+              // Set flag to prevent multiple merge attempts in this session
+              mergeAttemptedThisSessionRef.current = true;
+              console.log(offlineCart, "offlineCart📁");
+              toast.promise(mergeOfflineCart(userId, offlineCart), {
+                loading: "Syncing your cart...",
+                success: (result) => {
+                  // Clear offline cart after successful merge
+                  useCartStore.getState().clearOfflineCart();
+
+                  // Refresh cart count
+                  mutateCartCount();
+
+                  // Return success message for toast
+                  return `Added ${result.itemsAdded} item(s) from your offline cart`;
+                },
+                error: (err) => {
+                  console.error("Error merging offline cart:", err);
+                  return "Failed to sync your offline cart";
+                },
+              });
+            }
+          }
+        } else if (event === "SIGNED_OUT") {
+          handleAuthChange();
+          mergeAttemptedThisSessionRef.current = false;
+        } else if (event === "TOKEN_REFRESHED") {
+          handleAuthChange();
+        }
+      }
+    );
+
+    // Initial check for user session
+    const checkInitialSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session?.user && !mergeAttemptedThisSessionRef.current && isOnline) {
+        const userId = session.user.id;
+        const offlineCart = useCartStore.getState().offlineItems;
+
+        if (offlineCart.length > 0) {
+          // Set flag to prevent multiple merge attempts in this session
+          mergeAttemptedThisSessionRef.current = true;
+
+          toast.promise(mergeOfflineCart(userId, offlineCart), {
+            loading: "Syncing your cart...",
+            success: (result) => {
+              // Clear offline cart after successful merge
+              useCartStore.getState().clearOfflineCart();
+
+              // Refresh cart count
+              mutateCartCount();
+
+              // Return success message for toast
+              return `Added ${result.itemsAdded} item(s) from your offline cart`;
+            },
+            error: (err) => {
+              console.error("Error merging offline cart:", err);
+              return "Failed to sync your offline cart";
+            },
+          });
+        }
+      }
+
+      // Also run the regular auth change handler
       handleAuthChange();
-    });
-
-    // Initial check
-    handleAuthChange();
-
-    return () => {
-      authListener.subscription.unsubscribe();
     };
-  }, [fetchUser, setUser, router, searchParams, mutateCartCount]);
+
+    // Run initial session check
+    checkInitialSession();
+
+    // Properly unsubscribe to prevent memory leaks
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
+  }, [fetchUser, setUser, router, searchParams, mutateCartCount, isOnline]);
 
   // Get initial letter of user's email for avatar fallback
   const getInitial = () => {
@@ -140,6 +266,9 @@ const Navbar = () => {
     { name: "Payment Plans", href: "/payment-plans" },
     { name: "Contact", href: "/contact" },
   ];
+
+  // Calculate total cart count based on online status and user
+  const totalCartCount = isOnline && user ? cartCount : offlineCartCount;
 
   if (pathname.startsWith("/admin")) {
     return null;
@@ -193,13 +322,11 @@ const Navbar = () => {
                     aria-label="Shopping cart"
                   >
                     <ShoppingBag className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
-                    {cartCount > 0 && (
-                      <Badge
-                        variant="destructive"
-                        className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-green-500"
-                      >
-                        {cartCount > 9 ? "9+" : cartCount}
-                      </Badge>
+                    {/* Only render the badge on the client side after hydration */}
+                    {isMounted && totalCartCount > 0 && (
+                      <span className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-green-500 text-xs text-white font-semibold">
+                        {totalCartCount > 9 ? "9+" : totalCartCount}
+                      </span>
                     )}
                   </button>
                 </div>
@@ -282,13 +409,11 @@ const Navbar = () => {
               <div className="relative">
                 <button onClick={() => setCartOpen(true)} className="p-1">
                   <ShoppingBag className="h-5 w-5 text-gray-700" />
-                  {cartCount > 0 && (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-green-500"
-                    >
-                      {cartCount > 9 ? "9+" : cartCount}
-                    </Badge>
+                  {/* Only render the badge on the client side after hydration */}
+                  {isMounted && totalCartCount > 0 && (
+                    <span className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-green-500 text-xs text-white font-semibold">
+                      {totalCartCount > 9 ? "9+" : totalCartCount}
+                    </span>
                   )}
                 </button>
               </div>
@@ -377,7 +502,11 @@ const Navbar = () => {
           </div>
         </div>
       </header>
-      <CartPane open={cartOpen} onOpenChange={setCartOpen} />
+      <CartPane
+        open={cartOpen}
+        onOpenChange={setCartOpen}
+        isOnline={isOnline}
+      />
     </>
   );
 };

@@ -42,6 +42,7 @@ export default function DataTable<T>({
             </TableRow>
           </TableHeader>
           <TableBody>
+            {/* eslint-disable @typescript-eslint/no-explicit-any */}
             {data.length === 0 ? (
               <TableRow>
                 <TableCell
@@ -64,6 +65,7 @@ export default function DataTable<T>({
                 </TableRow>
               ))
             )}
+            {/* eslint-enable @typescript-eslint/no-explicit-any */}
           </TableBody>
         </Table>
       </div>
@@ -80,6 +82,7 @@ export default function DataTable<T>({
           data.map((row, i) => (
             <Card key={i}>
               <CardContent className="py-4">
+                {/* eslint-disable @typescript-eslint/no-explicit-any */}
                 {columns.map((column) => (
                   <div
                     key={column.key}
@@ -93,6 +96,7 @@ export default function DataTable<T>({
                     </span>
                   </div>
                 ))}
+                {/* eslint-enable @typescript-eslint/no-explicit-any */}
               </CardContent>
             </Card>
           ))

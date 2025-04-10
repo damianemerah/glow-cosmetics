@@ -37,7 +37,7 @@ export default function EditBookingPopover({
   const bookingDate = new Date(booking.booking_time);
   const [date, setDate] = useState<Date | undefined>(bookingDate);
   const [time, setTime] = useState<string>(format(bookingDate, "h:mm a"));
-  const [status, setStatus] = useState<BookingStatus | null>(booking.status);
+  const [status, setStatus] = useState(booking.status as BookingStatus);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 

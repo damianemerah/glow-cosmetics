@@ -52,25 +52,28 @@ Your purpose is to deliver precise, actionable, and measurable solutions for the
 
 - **Queries & Schema:** Use Supabase for all database operations  
 - **Reference File:** Consult `database.types.ts` before database tasks to understand the schema.
+- **MCP:** Query the database with MCP when needed.
 
 ### Migrations
 
 #### Create Migration
 
+
 ```sh
-npx supabase migration new <migration-name>
+supabase migration new <migration-name>
 ```
+- Always generate migration filenames in the format YYYYMMDDHHMMSS_description.sql, e.g., 20250408000139_profile_notifications.sql. Run the command `supabase migration new <migration-name>` to do this automatically.
 
 #### Apply Migration
 
 ```sh
-npx supabase migration up
+supabase migration up
 ```
 
 #### Generate Types
 
 ```sh
-npx supabase gen types typescript --local > src/types/database.types.ts
+supabase gen types typescript --local > src/types/database.types.ts
 ```
 
 #### New Tables

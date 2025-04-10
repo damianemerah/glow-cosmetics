@@ -9,6 +9,28 @@ export const metadata: Metadata = {
   description: "Complete your purchase with Glow Cosmetics",
 };
 
+// Define types for cart items
+interface CartItemRaw {
+  id: string;
+  quantity: number;
+  price_at_time: number;
+  product_id: string;
+  products: {
+    name: string;
+    price: number;
+    image_url?: string[];
+  };
+}
+
+interface CartItem {
+  id: string;
+  product_id: string;
+  product_name: string;
+  quantity: number;
+  price: number;
+  image_url?: string;
+}
+
 export default async function CheckoutPage() {
   const supabase = await createClient();
 
@@ -20,7 +42,7 @@ export default async function CheckoutPage() {
 
   // Redirect if not logged in
   if (!userId) {
-    redirect("/login?redirect=/checkout");
+    redirect("/?redirect=/checkout");
   }
 
   // Get the active cart for the user
@@ -28,37 +50,64 @@ export default async function CheckoutPage() {
     .from("carts")
     .select("id")
     .eq("user_id", userId)
-    .eq("status", "active")
     .single();
+  // .eq("status", "active")
 
   if (cartError) {
+    console.log(cartError, "cartError");
     // No active cart found or error
     if (cartError.code === "PGRST116") {
-      redirect("/cart"); // Redirect to cart page if no active cart
+      redirect("/cart");
     }
     console.error("Error fetching cart:", cartError);
     // Handle other errors
   }
 
   // Get the cart items
-  const { data: cartItems, error: itemsError } = await supabase
-    .from("cart_items")
-    .select("id, product_id, product_name, quantity, price, image_url")
-    .eq("cart_id", cartData?.id);
+  const { data: rawCartItems, error: itemsError } =
+    cartData?.id &&
+    (await supabase
+      .from("cart_items")
+      .select(
+        `
+        id,
+        quantity,
+        price_at_time,
+        product_id,
+        products (
+          name,
+          price,
+          image_url
+        )
+      `
+      )
+      .eq("cart_id", cartData.id));
 
   if (itemsError) {
+    console.log(itemsError, "itemsError");
     console.error("Error fetching cart items:", itemsError);
     // Handle error
   }
 
   // If cart is empty, redirect to cart page
-  if (!cartItems || cartItems.length === 0) {
+  if (!rawCartItems || rawCartItems.length === 0) {
+    console.log("No cart items");
     redirect("/cart");
   }
 
-  // Calculate total amount
+  // Transform the cart items to the expected format
+  const cartItems: CartItem[] = rawCartItems.map((item: CartItemRaw) => ({
+    id: item.id,
+    product_id: item.product_id,
+    product_name: item.products.name, // Map from nested object
+    quantity: item.quantity,
+    price: item.price_at_time, // Use price_at_time as price
+    image_url: item.products.image_url ? item.products.image_url[0] : undefined,
+  }));
+
+  // Calculate total amount with proper type annotations
   const totalAmount = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total: number, item: CartItem) => total + item.price * item.quantity,
     0
   );
 

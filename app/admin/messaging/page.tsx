@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,98 +25,21 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import PageHeader from "@/components/admin/page-header";
 import DataTable from "@/components/admin/data-table";
 import { Badge } from "@/components/ui/badge";
+import { useMessaging } from "@/hooks/useMessaging";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { MessageData, MessageChannel } from "@/lib/messaging";
 
-// Mock data for sent messages
-const sentMessages = [
-  {
-    id: "MSG-001",
-    date: "Mar 10, 2025",
-    recipients: "All Clients",
-    subject: "March Special Offers",
-    channel: "Email",
-    status: "Delivered",
-  },
-  {
-    id: "MSG-002",
-    date: "Mar 5, 2025",
-    recipients: "VIP Clients",
-    subject: "Exclusive VIP Event",
-    channel: "Email",
-    status: "Delivered",
-  },
-  {
-    id: "MSG-003",
-    date: "Mar 1, 2025",
-    recipients: "Recent Customers",
-    subject: "Feedback Request",
-    channel: "SMS",
-    status: "Delivered",
-  },
-  {
-    id: "MSG-004",
-    date: "Feb 25, 2025",
-    recipients: "All Clients",
-    subject: "New Products Announcement",
-    channel: "Email",
-    status: "Delivered",
-  },
-  {
-    id: "MSG-005",
-    date: "Feb 20, 2025",
-    recipients: "Inactive Clients",
-    subject: "We Miss You - Special Offer",
-    channel: "WhatsApp",
-    status: "Delivered",
-  },
-];
+interface Message {
+  id: string;
+  date: string;
+  recipients: string;
+  subject: string;
+  channel: MessageChannel;
+  status: string;
+  messageId?: string;
+}
 
-const messageColumns = [
-  {
-    key: "id",
-    title: "ID",
-    render: (row: any) => (
-      <div>
-        <div className="font-medium">{row.id}</div>
-        <div className="text-sm text-muted-foreground">{row.date}</div>
-      </div>
-    ),
-  },
-  { key: "recipients", title: "Recipients" },
-  { key: "subject", title: "Subject" },
-  {
-    key: "channel",
-    title: "Channel",
-    render: (row: any) => {
-      const channelStyles = {
-        Email: "bg-blue-100 text-blue-800",
-        SMS: "bg-green-100 text-green-800",
-        WhatsApp: "bg-emerald-100 text-emerald-800",
-      };
-
-      // @ts-ignore - We know the channel will be one of the keys
-      const style = channelStyles[row.channel] || "bg-gray-100 text-gray-800";
-
-      return <Badge className={style}>{row.channel}</Badge>;
-    },
-  },
-  { key: "status", title: "Status" },
-  {
-    key: "actions",
-    title: "Actions",
-    render: () => (
-      <div className="flex gap-2">
-        <Button variant="outline" size="sm">
-          View
-        </Button>
-        <Button variant="outline" size="sm">
-          Resend
-        </Button>
-      </div>
-    ),
-  },
-];
-
-// Mock data for client groups
+// Mock data for client groups - replace with real data from your database
 const clientGroups = [
   { id: "all", name: "All Clients" },
   { id: "vip", name: "VIP Clients" },
@@ -125,11 +47,37 @@ const clientGroups = [
   { id: "inactive", name: "Inactive Clients" },
 ];
 
+const templates = [
+  {
+    id: "reminder",
+    name: "Appointment Reminder",
+    description:
+      "Reminder for upcoming appointments with date and time details",
+  },
+  {
+    id: "offer",
+    name: "Special Offer",
+    description: "Announce special discounts or promotions to clients",
+  },
+  {
+    id: "announcement",
+    name: "New Product Announcement",
+    description: "Introduce new products or services to your client base",
+  },
+  {
+    id: "thankyou",
+    name: "Thank You",
+    description: "Thank clients for their visit and request feedback",
+  },
+];
+
 export default function MessagingPage() {
-  const [messageForm, setMessageForm] = useState({
+  const { isLoading, sendMessage, resendMessage } = useMessaging();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [messageForm, setMessageForm] = useState<MessageData>({
+    recipients: [],
     subject: "",
     message: "",
-    recipients: "",
     channel: "email",
   });
 
@@ -144,19 +92,100 @@ export default function MessagingPage() {
     setMessageForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(messageForm);
-    // Here you would typically send the message
-    alert("Message sent successfully!");
-    setMessageForm({
-      subject: "",
-      message: "",
-      recipients: "",
-      channel: "email",
-    });
+    try {
+      await sendMessage(messageForm);
+
+      // Add the new message to the list
+      const newMessage: Message = {
+        id: `MSG-${messages.length + 1}`,
+        date: new Date().toLocaleDateString(),
+        recipients: messageForm.recipients.join(", "),
+        subject: messageForm.subject,
+        channel: messageForm.channel,
+        status: "Delivered",
+      };
+
+      setMessages((prev) => [newMessage, ...prev]);
+
+      // Reset form
+      setMessageForm({
+        recipients: [],
+        subject: "",
+        message: "",
+        channel: "email",
+      });
+    } catch (error) {
+      // Error is already handled by the useMessaging hook
+      console.error("Failed to send message:", error);
+    }
   };
 
+  const handleResend = async (message: Message) => {
+    try {
+      await resendMessage(message.messageId!, {
+        recipients: message.recipients.split(", "),
+        subject: message.subject,
+        message: "", // You might want to store the original message content
+        channel: message.channel,
+      });
+    } catch (error) {
+      // Error is already handled by the useMessaging hook
+      console.error("Failed to resend message:", error);
+    }
+  };
+
+  const messageColumns = [
+    {
+      key: "id",
+      title: "ID",
+      render: (row: Message) => (
+        <div>
+          <div className="font-medium">{row.id}</div>
+          <div className="text-sm text-muted-foreground">{row.date}</div>
+        </div>
+      ),
+    },
+    { key: "recipients", title: "Recipients" },
+    { key: "subject", title: "Subject" },
+    {
+      key: "channel",
+      title: "Channel",
+      render: (row: Message) => {
+        const channelStyles = {
+          email: "bg-blue-100 text-blue-800",
+          sms: "bg-green-100 text-green-800",
+          whatsapp: "bg-emerald-100 text-emerald-800",
+        };
+
+        return (
+          <Badge
+            className={
+              channelStyles[row.channel] || "bg-gray-100 text-gray-800"
+            }
+          >
+            {row.channel.toUpperCase()}
+          </Badge>
+        );
+      },
+    },
+    { key: "status", title: "Status" },
+    {
+      key: "actions",
+      title: "Actions",
+      render: (row: Message) => (
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">
+            View
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => handleResend(row)}>
+            Resend
+          </Button>
+        </div>
+      ),
+    },
+  ];
   return (
     <div>
       <PageHeader
@@ -178,7 +207,7 @@ export default function MessagingPage() {
                 <Label htmlFor="recipients">Recipients</Label>
                 <Select
                   name="recipients"
-                  value={messageForm.recipients}
+                  value={messageForm.recipients[0] || ""}
                   onValueChange={(value) =>
                     handleSelectChange("recipients", value)
                   }
@@ -225,7 +254,7 @@ export default function MessagingPage() {
                   defaultValue="email"
                   value={messageForm.channel}
                   onValueChange={(value) =>
-                    handleSelectChange("channel", value)
+                    handleSelectChange("channel", value as MessageChannel)
                   }
                   className="flex space-x-4"
                 >
@@ -248,8 +277,16 @@ export default function MessagingPage() {
               <Button
                 type="submit"
                 className="bg-primary text-white hover:bg-primary/90 w-full"
+                disabled={isLoading}
               >
-                Send Message
+                {isLoading ? (
+                  <>
+                    <Skeleton className="h-4 w-20" />
+                    <span className="ml-2">Sending...</span>
+                  </>
+                ) : (
+                  "Send Message"
+                )}
               </Button>
             </CardFooter>
           </form>
@@ -264,30 +301,17 @@ export default function MessagingPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-4">
-              <div className="border rounded-md p-3 cursor-pointer hover:bg-muted">
-                <h3 className="font-medium">Appointment Reminder</h3>
-                <p className="text-sm text-muted-foreground">
-                  Reminder for upcoming appointments with date and time details.
-                </p>
-              </div>
-              <div className="border rounded-md p-3 cursor-pointer hover:bg-muted">
-                <h3 className="font-medium">Special Offer</h3>
-                <p className="text-sm text-muted-foreground">
-                  Announce special discounts or promotions to clients.
-                </p>
-              </div>
-              <div className="border rounded-md p-3 cursor-pointer hover:bg-muted">
-                <h3 className="font-medium">New Product Announcement</h3>
-                <p className="text-sm text-muted-foreground">
-                  Introduce new products or services to your client base.
-                </p>
-              </div>
-              <div className="border rounded-md p-3 cursor-pointer hover:bg-muted">
-                <h3 className="font-medium">Thank You</h3>
-                <p className="text-sm text-muted-foreground">
-                  Thank clients for their visit and request feedback.
-                </p>
-              </div>
+              {templates.map((template) => (
+                <div
+                  key={template.id}
+                  className="border rounded-md p-3 cursor-pointer hover:bg-muted"
+                >
+                  <h3 className="font-medium">{template.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {template.description}
+                  </p>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -297,7 +321,7 @@ export default function MessagingPage() {
         <h2 className="text-lg font-semibold mb-4 font-montserrat">
           Message History
         </h2>
-        <DataTable columns={messageColumns} data={sentMessages} />
+        <DataTable columns={messageColumns} data={messages} />
       </div>
     </div>
   );

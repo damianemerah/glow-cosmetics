@@ -11,6 +11,7 @@ type SignupData = {
   lastName: string;
   dateOfBirth: Date;
   receiveEmails: boolean;
+  phone: string;
 };
 
 export async function login(email: string) {
@@ -22,7 +23,7 @@ export async function login(email: string) {
     email,
     options: {
       shouldCreateUser: false,
-      // emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
     },
   });
 
@@ -49,6 +50,7 @@ export async function signup(data: SignupData) {
         last_name: data.lastName,
         date_of_birth: data.dateOfBirth,
         receive_emails: data.receiveEmails,
+        phone: data.phone,
       },
     },
   });

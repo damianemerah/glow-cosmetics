@@ -5,9 +5,6 @@
         ├── project-rule.mdc
         └── refactor-rules.mdc
 .env.local
-[.vscode]
-    ├── extensions.json
-    └── settings.json
 [actions]
     ├── adminActions.ts
     ├── authAction.ts
@@ -15,7 +12,8 @@
     ├── cartAction.ts
     ├── clientActions.ts
     ├── dashboardAction.ts
-    └── orderAction.ts
+    ├── orderAction.ts
+    └── productActions.ts
 [app]
     ├── [about]
         └── page.tsx
@@ -30,6 +28,8 @@
         ├── [messaging]
             └── page.tsx
         ├── [orders]
+            ├── [create]
+                └── page.tsx
             └── page.tsx
         ├── page.tsx
         ├── [products]
@@ -45,11 +45,13 @@
             └── route.ts
         ├── [deposit]
             └── route.ts
+        ├── [messages]
+            ├── route.ts
+            └── [[messageId]]
+                └── [resend]
+                    └── route.ts
         └── [payment]
             ├── route.ts
-            ├── [verify]
-                └── [[reference]]
-                    └── route.ts
             └── [webhook]
                 └── route.ts
     ├── [booking]
@@ -63,7 +65,7 @@
         ├── loading.tsx
         └── page.tsx
     ├── [checkout]
-        ├── loading.js
+        ├── loading.tsx
         └── page.tsx
     ├── [components]
         └── [booking]
@@ -102,6 +104,7 @@
         ├── admin-sidebar.tsx
         ├── client-actions.tsx
         ├── data-table.tsx
+        ├── order-detail.tsx
         ├── page-header.tsx
         └── stat-card.tsx
     ├── [appointments]
@@ -137,7 +140,6 @@
         ├── product-cta.tsx
         ├── product-description.tsx
         ├── product-details.tsx
-        ├── product-gallery.tsx
         ├── product-hero.tsx
         ├── product-skeleton.tsx
         ├── product-tabs-skeleton.tsx
@@ -200,13 +202,17 @@ components.json
     └── project_structure_filtered.txt
 eslint.config.mjs
 [hooks]
-    └── use-mobile.ts
+    ├── use-mobile.ts
+    └── useMessaging.ts
 [lib]
+    ├── messaging.ts
     ├── supabaseAdmin.ts
     ├── supabaseClient.ts
     └── utils.ts
 middleware.ts
 next.config.ts
+npx
+OFFLINE_CART_README.md
 package-lock.json
 package.json
 postcss.config.mjs
@@ -226,8 +232,11 @@ postcss.config.mjs
     └── window.svg
 README-loading-optimizations.md
 README.md
+[scripts]
+    └── apply-migration.mjs
 [store]
-    └── authStore.ts
+    ├── authStore.ts
+    └── cartStore.ts
 [supabase]
     ├── [.branches]
         └── _current_branch
@@ -239,14 +248,26 @@ README.md
         ├── postgres-version
         ├── project-ref
         └── rest-version
+    ├── backup.sql
     ├── config.toml
+    ├── [functions]
+    ├── [images]
     ├── [migrations]
+        ├── 20240405_update_inventory_rpc.sql
         ├── 20250328160825_remote_schema.sql
         ├── 20250328200129_create_admin_user_role.sql
         ├── 20250328231200_product-constraints.sql
         ├── 20250328232109_cart-item-types.sql
         ├── 20250329021711_order-item-types.sql
-        └── 20250329051309_full_names.sql
+        ├── 20250329051309_full_names.sql
+        ├── 20250330223046_remote_schema.sql
+        ├── 20250330231318_check_on_schema.sql
+        ├── 20250331004236_new_migration.sql
+        ├── 20250401222811_notification_settings.sql
+        ├── 20250406000139_profile_notifications.sql
+        ├── 20250407153318_remote_schema.sql
+        ├── 20250407230112_add_timestamps_and_cart_constraints.sql
+        └── 20250408112233_add_cart_item_unique_constraint.sql
     └── seed.sql
 tables.sql
 tsconfig.json
@@ -254,6 +275,7 @@ tsconfig.json
     ├── dashboard.ts
     └── types.ts
 [utils]
+    ├── formattedCurrency.ts
     └── [supabase]
         ├── client.ts
         ├── middleware.ts
