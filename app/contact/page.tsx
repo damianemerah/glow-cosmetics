@@ -4,11 +4,14 @@ import type React from "react";
 
 import { useState } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Button,
+  Input,
+  Label,
+  Textarea,
+  Card,
+  CardContent,
+} from "@/constants/ui/index";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
 export default function ContactPage() {
@@ -141,8 +144,8 @@ export default function ContactPage() {
                         <MapPin className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
                         <div>
                           <h3 className="font-semibold mb-1">Our Location</h3>
-                          <p>6845 Providence Street</p>
-                          <p>Whitehouse, Ohio 43571</p>
+                          <p>4 Westminster Close, Bryanston</p>
+                          <p>Sandton, Gauteng 2196</p>
                         </div>
                       </div>
                     </CardContent>
@@ -153,7 +156,7 @@ export default function ContactPage() {
                         <Phone className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
                         <div>
                           <h3 className="font-semibold mb-1">Phone</h3>
-                          <p>(555) 123-4567</p>
+                          <p>+27781470504</p>
                         </div>
                       </div>
                     </CardContent>
@@ -164,7 +167,7 @@ export default function ContactPage() {
                         <Mail className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
                         <div>
                           <h3 className="font-semibold mb-1">Email</h3>
-                          <p>info@abaesthetics.com</p>
+                          <p>sylvia_emerah@yahoo.com</p>
                         </div>
                       </div>
                     </CardContent>
@@ -175,8 +178,8 @@ export default function ContactPage() {
                         <Clock className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
                         <div>
                           <h3 className="font-semibold mb-1">Business Hours</h3>
-                          <p>Monday - Friday: 9:00 AM - 5:00 PM</p>
-                          <p>Saturday: 10:00 AM - 3:00 PM</p>
+                          <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+                          <p>Saturday: 8:00 AM - 6:00 PM</p>
                           <p>Sunday: Closed</p>
                         </div>
                       </div>

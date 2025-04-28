@@ -2,26 +2,25 @@
 
 import { useState } from "react";
 import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon, Check, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+
 import {
+  Button,
+  Calendar,
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/constants/ui/index";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { updateBooking, rescheduleBooking } from "@/actions/dashboardAction";
-import type { Booking, BookingStatus } from "@/types/dashboard";
-import { timeSlots } from "@/constants/data";
+import { updateBooking } from "@/actions/dashboardAction";
+import type { Booking, BookingStatus } from "@/types/index";
+import { getTimeSlotsForDay } from "@/constants/data";
 
 interface EditBookingPopoverProps {
   booking: Booking;
@@ -45,12 +44,29 @@ export default function EditBookingPopover({
     try {
       setIsLoading(true);
 
-      // If date or time changed, use rescheduleBooking
-      if (
-        date &&
-        (date.toDateString() !== bookingDate.toDateString() ||
-          time !== format(bookingDate, "h:mm a"))
-      ) {
+      // Check if anything has changed
+      const isDateChanged =
+        date && date.toDateString() !== bookingDate.toDateString();
+      const isTimeChanged = time !== format(bookingDate, "h:mm a");
+      const isStatusChanged = status !== booking.status;
+
+      // If nothing changed, show info message and return
+      if (!isDateChanged && !isTimeChanged && !isStatusChanged) {
+        toast.info("No changes to update");
+        setOpen(false);
+        return;
+      }
+
+      // Prepare the update data
+      const updates: Partial<Booking> = {};
+
+      // If status has changed, add it to updates
+      if (isStatusChanged) {
+        updates.status = status;
+      }
+
+      // If date or time has changed, calculate the new booking time
+      if (isDateChanged || isTimeChanged) {
         // Parse the time string to get hours and minutes
         const timeMatch = time.match(/(\d+):(\d+)\s*(AM|PM)/i);
         if (!timeMatch) throw new Error("Invalid time format");
@@ -64,31 +80,21 @@ export default function EditBookingPopover({
         if (period === "AM" && hours === 12) hours = 0;
 
         // Create a new date with the selected date and time
-        const newDate = new Date(date);
+        const newDate = new Date(date!);
         newDate.setHours(hours, minutes, 0, 0);
 
-        const { booking: updatedBooking } = await rescheduleBooking(
-          booking.id,
-          newDate.toISOString()
-        );
-
-        if (updatedBooking) {
-          onBookingUpdated(updatedBooking as Booking);
-          toast.success("Booking rescheduled successfully");
-        }
+        updates.booking_time = newDate.toISOString();
       }
-      // If only status changed
-      else if (status !== booking.status) {
-        const { booking: updatedBooking } = await updateBooking(booking.id, {
-          status,
-        });
 
-        if (updatedBooking) {
-          onBookingUpdated(updatedBooking as Booking);
-          toast.success("Booking status updated successfully");
-        }
-      } else {
-        toast.info("No changes to update");
+      // Update the booking with all changes at once
+      const { booking: updatedBooking } = await updateBooking(
+        booking.id,
+        updates
+      );
+
+      if (updatedBooking) {
+        onBookingUpdated(updatedBooking as Booking);
+        toast.success("Booking updated successfully");
       }
 
       setOpen(false);
@@ -150,11 +156,12 @@ export default function EditBookingPopover({
                 <SelectValue placeholder="Select time" />
               </SelectTrigger>
               <SelectContent>
-                {timeSlots.map((timeSlot) => (
-                  <SelectItem key={timeSlot} value={timeSlot}>
-                    {timeSlot}
-                  </SelectItem>
-                ))}
+                {date &&
+                  getTimeSlotsForDay(date).map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </div>
@@ -171,6 +178,7 @@ export default function EditBookingPopover({
               <SelectContent>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="confirmed">Confirmed</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>

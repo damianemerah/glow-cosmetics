@@ -8,7 +8,10 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/constants/ui/index";
 import { BarChart2, PieChart, TrendingUp } from "lucide-react";
 import {
   Bar,
@@ -22,11 +25,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 
 interface RevenueDataItem {
   month: string;
@@ -251,6 +249,7 @@ export default function AnalyticsCharts({
             <ChartContainer config={appointmentChartConfig}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
+                  accessibilityLayer
                   data={appointmentData}
                   layout="vertical"
                   margin={{ left: 10, right: 10, top: 20, bottom: 20 }}
@@ -301,6 +300,7 @@ export default function AnalyticsCharts({
             <ChartContainer config={productChartConfig}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
+                  // accessibilityLayer
                   data={productData}
                   margin={{ left: 10, right: 10, top: 20, bottom: 10 }}
                 >

@@ -1,13 +1,14 @@
 import type React from "react";
 import {
+  Card,
+  CardContent,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent } from "@/components/ui/card";
+} from "@/constants/ui/index";
 
 interface DataTableProps<T> {
   columns: {
@@ -17,13 +18,22 @@ interface DataTableProps<T> {
   }[];
   data: T[];
   emptyState?: React.ReactNode;
+  isLoading?: boolean;
+  loadingState?: React.ReactNode;
 }
 
 export default function DataTable<T>({
   columns,
   data,
   emptyState,
+  isLoading,
+  loadingState,
 }: DataTableProps<T>) {
+  // Show loading state if specified
+  if (isLoading && loadingState) {
+    return loadingState;
+  }
+
   return (
     <div className="w-full overflow-hidden">
       {/* Desktop Table View */}

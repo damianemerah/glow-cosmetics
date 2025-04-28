@@ -4,7 +4,7 @@
 import { AlertCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import type { Product } from "@/types/dashboard";
+import type { Product } from "@/types/index";
 import { useState } from "react";
 
 interface ProductRecommendationsProps {

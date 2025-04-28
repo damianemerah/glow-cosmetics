@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button, Input } from "@/constants/ui/index";
 import {
   updateCartItemQuantity,
   removeCartItem,
@@ -14,11 +13,12 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { ShoppingBag, Loader2 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
-import type { CartItem, Profile } from "@/types/dashboard";
-import type { Cart } from "@/types/dashboard";
+import type { CartItem, Profile } from "@/types/index";
+import type { Cart } from "@/types/index";
 import { useUserStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import useSWR from "swr";
+import { supabaseClient } from "@/lib/supabaseClient";
 
 interface CartClientProps {
   initialCartItems: CartItem[];
@@ -140,6 +140,31 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
 
     setIsLoading(true);
     try {
+      // Check current product stock level first
+      const { data: productData, error: productError } = await supabaseClient
+        .from("products")
+        .select("stock_quantity, name")
+        .eq("id", productId)
+        .single();
+
+      if (productError) {
+        throw new Error(
+          `Failed to check product stock: ${productError.message}`
+        );
+      }
+
+      if (!productData) {
+        throw new Error(`Product not found`);
+      }
+
+      // Ensure new quantity doesn't exceed available stock
+      if (newQuantity > productData.stock_quantity) {
+        toast.error(
+          `Only ${productData.stock_quantity} units of ${productData.name} available`
+        );
+        return;
+      }
+
       if (isAuthenticated) {
         // Online cart update
         const result = await updateCartItemQuantity(itemId, newQuantity);
@@ -158,7 +183,11 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
-      toast.error("An error occurred while updating the quantity");
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "An error occurred while updating the quantity"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -309,7 +338,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
                   <div className="h-20 w-20 bg-gray-100 rounded-md mr-4 flex-shrink-0 overflow-hidden relative">
                     {item.product.image_url ? (
                       <Image
-                        src={item.product.image_url || "/placeholder.svg"}
+                        src={item.product.image_url[0] || "/placeholder.svg"}
                         alt={item.product.name}
                         fill
                         className="object-cover"

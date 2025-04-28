@@ -1,13 +1,11 @@
 import { Suspense } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import DataTable from "@/components/admin/data-table";
 import PageHeader from "@/components/admin/page-header";
 import ProductsFilter from "./products-filter";
 import { deleteProduct, fetchProducts } from "@/actions/adminActions";
 import { Loader2 } from "lucide-react";
-import type { Product, ProductCategory } from "@/types/dashboard";
+import type { Product, ProductWithCategories } from "@/types/index";
 import {
   Pagination,
   PaginationContent,
@@ -15,7 +13,9 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
+  Badge,
+  Button,
+} from "@/constants/ui/index";
 
 // Format price helper function
 function formatPrice(price: number) {
@@ -55,18 +55,21 @@ const productColumns = [
   {
     key: "category",
     title: "Category",
-    render: (row: Product) => {
-      const categoryLabels: Record<ProductCategory, string> = {
-        lip_gloss: "Lip Gloss",
-        skin_care: "Skin Care",
-        supplements: "Supplements",
-        jewellery: "Jewellery",
-        makeup: "Makeup",
-      };
-      return (
-        categoryLabels[row.category as keyof typeof categoryLabels] ||
-        row.category
-      );
+    render: (row: ProductWithCategories) => {
+      // const categoryLabels: Record<ProductCategory, string> = {
+      //   lip_gloss: "Lip Gloss",
+      //   skin_care: "Skin Care",
+      //   supplements: "Supplements",
+      //   jewellery: "Jewellery",
+      //   makeup: "Makeup",
+      // };
+      // return (
+      //   categoryLabels[row.category as keyof typeof categoryLabels] ||
+      //   row.category
+      // );
+      return row.product_categories
+        .map((cat) => cat?.categories?.name)
+        .join(", ");
     },
   },
   {
@@ -120,12 +123,18 @@ async function ProductsTable({
 }) {
   const { products, totalPages } = await fetchProducts(page);
 
+  console.log(products, "products");
+
   // Filter products based on search and category
-  const filteredProducts = products.filter((product: Product) => {
+  const filteredProducts = products.filter((product: ProductWithCategories) => {
     const matchesSearch = search
       ? product.name.toLowerCase().includes(search.toLowerCase())
       : true;
-    const matchesCategory = category === "all" || product.category === category;
+    const matchesCategory =
+      category === "all" ||
+      product.product_categories.some(
+        (cat) => cat?.categories?.id === category
+      );
     return matchesSearch && matchesCategory;
   });
 

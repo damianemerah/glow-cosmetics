@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { categoryOptions } from "@/constants/data";
+  Input,
+  Skeleton,
+} from "@/constants/ui/index";
+import { fetchCategoryById } from "@/actions/adminActions";
+import type { Category } from "@/types/index";
 
 interface ProductsFilterProps {
   search: string;
@@ -24,6 +26,27 @@ export default function ProductsFilter({
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState(search);
   const [categoryFilter, setCategoryFilter] = useState(category);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    async function loadCategories() {
+      setIsLoading(true);
+      try {
+        const result = await fetchCategoryById("parent-options");
+        if (result.success && result.categories) {
+          setCategories(result.categories);
+        }
+      } catch (error) {
+        console.error("Failed to load categories:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadCategories();
+  }, []);
 
   const handleFilter = (type: "search" | "category", val: string) => {
     // Get current URL and params
@@ -59,22 +82,27 @@ export default function ProductsFilter({
         value={searchQuery}
         onChange={(e) => handleFilter("search", e.target.value)}
       />
-      <Select
-        value={categoryFilter}
-        onValueChange={(val) => handleFilter("category", val)}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="All Categories" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Categories</SelectItem>
-          {categoryOptions.map((cat) => (
-            <SelectItem key={cat.value} value={cat.value}>
-              {cat.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+
+      {isLoading ? (
+        <Skeleton className="h-10 w-[180px]" />
+      ) : (
+        <Select
+          value={categoryFilter}
+          onValueChange={(val) => handleFilter("category", val)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="All Categories" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Categories</SelectItem>
+            {categories.map((cat) => (
+              <SelectItem key={cat.id} value={cat.id}>
+                {cat.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 }

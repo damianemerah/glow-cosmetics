@@ -1,0 +1,23 @@
+extends layout.pug
+
+block content
+  h2 Happy Birthday #{userName}! 🎂
+
+  p Everyone at Glow Cosmetics wishes you a fantastic birthday celebration!
+
+  .offer-box(style='background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;')
+    h3(style='color: var(--primary); margin-top: 0;') Our Gift to You
+    p(style='font-size: 18px;') As our gift to you, we're offering a special 20% discount on your next appointment with us.
+    p(style='font-weight: bold; letter-spacing: 1px; font-size: 20px; background-color: #f0f0f0; display: inline-block; padding: 8px 16px; border-radius: 4px;') BIRTHDAY20
+
+  p Just mention the discount code when booking your next appointment.
+
+  p
+    a.button(href=bookingUrl, target='_blank', rel='noopener noreferrer') Book Now
+
+  .divider
+
+  p We hope your day is filled with joy, laughter, and beautiful moments!
+
+  p
+    strong The Glow Cosmetics Team

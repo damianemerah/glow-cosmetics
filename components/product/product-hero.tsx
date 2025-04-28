@@ -1,16 +1,22 @@
-import Image from "next/image";
+// import Image from "next/image";
 
 export default function ProductHero() {
   return (
-    <section className="relative h-[400px] bg-secondary">
+    <section className="relative h-[400px] bg-secondary overflow-hidden">
       <div className="absolute inset-0">
-        <Image
-          src="/images/pic6.jpg"
-          alt="Beauty products"
-          fill
-          className="object-cover"
-          priority
-        />
+        <video
+          src="/videos/makeupkits.mp4"
+          poster="/images/pic6.jpg"
+          autoPlay
+          loop
+          muted
+          playsInline // Important for mobile browsers (especially iOS)
+          // Styling to cover the container, mimicking the Image behavior
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          {/* Fallback text for browsers that don't support the video tag */}
+          Your browser does not support the video tag.
+        </video>
         <div className="absolute inset-0 bg-black/40" />
       </div>
       <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">

@@ -1,0 +1,37 @@
+extends layout.pug
+
+block content
+  h2 Introducing Our Latest Products
+
+  p Dear #{userName},
+
+  p We're excited to announce the arrival of our newest products to the Glow Cosmetics collection. These high-quality additions have been carefully formulated to enhance your beauty routine with premium ingredients and innovative technology.
+
+  if productCategory
+    h3 New in #{productCategory}
+  else
+    h3 New Arrivals
+
+  if productImage
+    .product-image(style='text-align: center; margin: 24px 0;')
+      img(src=productImage, alt='New Products', style='max-width: 100%; border-radius: 8px;')
+
+  if productDescription
+    .product-description(style='margin: 24px 0;')
+      p #{productDescription}
+
+  p Our new collection features products that are:
+
+  ul(style='list-style: none; padding-left: 0;')
+    li(style='padding: 8px 0; border-bottom: 1px solid #f0f0f0;') ✓ Cruelty-free and vegan
+    li(style='padding: 8px 0; border-bottom: 1px solid #f0f0f0;') ✓ Made with sustainable ingredients
+    li(style='padding: 8px 0; border-bottom: 1px solid #f0f0f0;') ✓ Free from harmful chemicals
+    li(style='padding: 8px 0;') ✓ Designed for all skin types
+
+  p
+    a.button(href=websiteUrl, target='_blank', rel='noopener noreferrer') Explore New Products
+
+  p We highly recommend visiting our store to experience these products firsthand and receive personalized recommendations from our beauty experts.
+
+  p
+    strong Glow Cosmetics Team

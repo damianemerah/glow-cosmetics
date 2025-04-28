@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -9,19 +10,16 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+} from "@/constants/ui/index";
 import { Loader2, Eye } from "lucide-react";
 import { supabaseClient } from "@/lib/supabaseClient";
 import { toast } from "sonner";
-import { formatZAR } from "@/utils/formattedCurrency";
+import { formatZAR } from "@/utils";
 
 interface OrderDetailProps {
   orderId: string;
@@ -108,6 +106,7 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
   const updateOrderStatus = async () => {
     setIsUpdating(true);
     try {
+      console.log(status, "status");
       const { error } = await supabaseClient
         .from("orders")
         .update({
@@ -120,8 +119,7 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
 
       toast.success("Order status updated successfully");
 
-      // Special case: If marking as paid and it was awaiting payment
-      if (status === "paid" && initialStatus === "awaiting_payment") {
+      if (status === "paid" && initialStatus === "pending") {
         await handleMarkAsPaid();
       }
     } catch (error) {
@@ -135,17 +133,17 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
   // Handle marking as paid (triggers inventory update)
   const handleMarkAsPaid = async () => {
     try {
-      // Call the RPC function to update inventory
-      const { error: rpcError } = await supabaseClient.rpc(
-        "update_inventory_after_purchase",
-        { order_id: orderId }
-      );
+      // // Call the RPC function to update inventory
+      // const { error: rpcError } = await supabaseClient.rpc(
+      //   "update_inventory_after_purchase",
+      //   { order_id: orderId }
+      // );
 
-      if (rpcError) {
-        console.error("Error updating inventory:", rpcError);
-        toast.error("Order marked as paid but inventory update failed");
-        return;
-      }
+      // if (rpcError) {
+      //   console.error("Error updating inventory:", rpcError);
+      //   toast.error("Order marked as paid but inventory update failed");
+      //   return;
+      // }
 
       // Get cart ID from order
       if (orderData?.cart_id) {
@@ -154,12 +152,6 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
           .from("cart_items")
           .delete()
           .eq("cart_id", orderData.cart_id);
-
-        // Update cart status
-        // await supabaseClient
-        //   .from("carts")
-        //   .update({ status: "completed" })
-        //   .eq("id", orderData.cart_id);
       }
 
       toast.success("Payment recorded and inventory updated");
@@ -281,9 +273,6 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="awaiting_payment">
-                      Awaiting Payment
-                    </SelectItem>
                     <SelectItem value="paid">Paid</SelectItem>
                     <SelectItem value="processing">Processing</SelectItem>
                     <SelectItem value="shipped">Shipped</SelectItem>

@@ -2,17 +2,20 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+  Button,
+  Input,
+  Label,
+} from "@/constants/ui/index";
 import { customAlphabet } from "nanoid";
 import { supabaseClient } from "@/lib/supabaseClient";
 import { toast } from "sonner";
@@ -265,18 +268,18 @@ export default function CreateOrderPage() {
 
       if (itemsError) throw itemsError;
 
-      // If order is marked as paid, update inventory
-      if (orderData.status === "paid") {
-        const { error: rpcError } = await supabaseClient.rpc(
-          "update_inventory_after_purchase",
-          { order_id: order.id }
-        );
+      // // If order is marked as paid, update inventory
+      // if (orderData.status === "paid") {
+      //   const { error: rpcError } = await supabaseClient.rpc(
+      //     "update_inventory_after_purchase",
+      //     { order_id: order.id }
+      //   );
 
-        if (rpcError) {
-          console.error("Error updating inventory:", rpcError);
-          toast.error("Order created but inventory update failed");
-        }
-      }
+      //   if (rpcError) {
+      //     console.error("Error updating inventory:", rpcError);
+      //     toast.error("Order created but inventory update failed");
+      //   }
+      // }
 
       toast.success(`Order ${reference} created successfully`);
       router.push("/admin/orders");
@@ -570,9 +573,6 @@ export default function CreateOrderPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="awaiting_payment">
-                        Awaiting Payment
-                      </SelectItem>
                       <SelectItem value="paid">Paid</SelectItem>
                       <SelectItem value="processing">Processing</SelectItem>
                     </SelectContent>

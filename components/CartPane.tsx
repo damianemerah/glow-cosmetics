@@ -4,22 +4,22 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { X, ShoppingBag, Trash2, WifiOff } from "lucide-react";
 import {
+  Button,
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+} from "@/constants/ui/index";
 import Image from "next/image";
 import { useUserStore } from "@/store/authStore";
 import { getCartWithItems, removeCartItem } from "@/actions/cartAction";
 import { getProductsByIds } from "@/actions/productActions";
 import { toast } from "sonner";
-import type { CartItem } from "@/types/dashboard";
+import type { CartItem } from "@/types/index";
 import { Database } from "@/types/types";
 import CartPaneSkeleton from "@/components/cart/cart-pane-skeleton";
-import useSWR from "swr";
-import { formatZAR } from "@/utils/formattedCurrency";
+import useSWR, { mutate } from "swr";
+import { formatZAR } from "@/utils";
 import { useCartStore } from "@/store/cartStore";
 
 interface CartPaneProps {
@@ -169,6 +169,7 @@ export function CartPane({
         if (result.success) {
           // Update local state via SWR
           mutateOnlineCart();
+          mutate(`cart-count-${user.user_id}`);
           toast.success("Item removed from cart");
         } else {
           toast.error("Failed to remove item");

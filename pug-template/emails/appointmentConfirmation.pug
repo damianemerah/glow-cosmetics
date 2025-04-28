@@ -1,0 +1,50 @@
+extends layout.pug
+
+block content
+  h2 Your Appointment is Confirmed
+
+  p Dear #{userName},
+
+  p Thank you for booking an appointment with Glow Cosmetics. We're delighted to confirm your upcoming service.
+
+  .appointment-box(style='background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 24px 0;')
+    table(style='width: 100%; border-collapse: collapse;')
+      tr
+        td(style='padding: 8px 0; font-weight: bold;') Service:
+        td(style='padding: 8px 0;') #{serviceName}
+      tr
+        td(style='padding: 8px 0; font-weight: bold;') Date:
+        td(style='padding: 8px 0;') #{appointmentDate}
+      tr
+        td(style='padding: 8px 0; font-weight: bold;') Time:
+        td(style='padding: 8px 0;') #{appointmentTime}
+      tr
+        td(style='padding: 8px 0; font-weight: bold;') Booking Reference:
+        td(style='padding: 8px 0;') #{bookingId}
+
+  p We look forward to welcoming you to our salon. Please arrive 10 minutes before your appointment time to ensure a seamless experience.
+
+  if specialInstructions
+    .instructions-box(style='margin: 24px 0; padding: 16px; background-color: #f0f7ff; border-left: 4px solid var(--primary); border-radius: 4px;')
+      h4(style='margin-top: 0;') Special Instructions
+      p #{specialInstructions}
+
+  p
+    a.button(href=rescheduleUrl, target='_blank', rel='noopener noreferrer') Manage Appointment
+
+  .divider
+
+  h4 Appointment Policies
+
+  ul(style='list-style: none; padding-left: 0;')
+    li(style='padding: 8px 0; border-bottom: 1px solid #f0f0f0;')
+      strong Cancellation Policy:
+      | Please provide at least 24 hours notice for cancellations to avoid a cancellation fee.
+    li(style='padding: 8px 0; border-bottom: 1px solid #f0f0f0;')
+      strong Late Arrival:
+      | If you arrive late, your service may be shortened to accommodate other scheduled appointments.
+
+  p If you need to reschedule or have any questions, please contact us at (123) 456-7890.
+
+  p
+    strong Glow Cosmetics Team

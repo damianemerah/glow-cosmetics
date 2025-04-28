@@ -1,11 +1,11 @@
 // store/userStore.ts
 import { create } from "zustand";
 import { createClient } from "@/utils/supabase/client";
-import { Profile } from "@/types/dashboard";
+import { Profile } from "@/types/index";
 
 type UserStore = {
-  user: Partial<Profile> | null;
-  setUser: (user: Partial<Profile> | null) => void;
+  user: { id: string } & Partial<Profile> | null;
+  setUser: (user: { id: string } & Partial<Profile> | null) => void;
   fetchUser: (userId: string) => Promise<void>;
   signOut: () => Promise<void>;
   shouldShowModal: boolean;

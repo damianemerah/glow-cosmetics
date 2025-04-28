@@ -2,14 +2,14 @@
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@/constants/ui/index";
 
 interface DepositPopupProps {
   bookingId: string | null;

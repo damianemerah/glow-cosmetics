@@ -4,11 +4,10 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+  DatePicker,
+} from "@/constants/ui/index";
 import PageHeader from "@/components/admin/page-header";
 import StatCard from "@/components/admin/stat-card";
-import { DatePicker } from "@/components/ui/date-picker";
 import { createClient } from "@/utils/supabase/server";
 import AnalyticsCharts from "@/components/admin/analytics-charts";
 
@@ -336,15 +335,7 @@ export default async function AnalyticsPage() {
         description="View insights and performance metrics"
       />
 
-      <div className="flex justify-between items-center mb-6">
-        <Tabs defaultValue="overview" className="w-[400px]">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="services">Services</TabsTrigger>
-            <TabsTrigger value="products">Products</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
+      <div className="flex justify-end items-center mb-6">
         <div className="flex gap-2 items-center">
           <DatePicker placeholderText="From date" />
           <span>to</span>

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
-import { fetchProductById } from "@/actions/adminActions";
+import { fetchCategoryById, fetchProductById } from "@/actions/adminActions";
 import ProductForm from "./product-form";
 
 export default async function ProductPage({
@@ -24,6 +24,13 @@ export default async function ProductPage({
 
 async function ProductDetail({ id }: { id: string }) {
   const product = id?.toLowerCase() !== "new" && (await fetchProductById(id));
+  const result = await fetchCategoryById("parent-options");
 
-  return <ProductForm id={id} initialData={product} />;
+  return (
+    <ProductForm
+      id={id}
+      initialData={product}
+      categoryData={result.categories || []}
+    />
+  );
 }

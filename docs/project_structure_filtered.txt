@@ -1,9 +1,4 @@
 --- Folder Structure ---
-[.cursor]
-    └── [rules]
-        ├── loading-ui.mdc
-        ├── project-rule.mdc
-        └── refactor-rules.mdc
 .env.local
 [actions]
     ├── adminActions.ts
@@ -22,6 +17,13 @@
             └── page.tsx
         ├── [appointments]
             └── page.tsx
+        ├── [categories]
+            ├── loading.tsx
+            ├── page.tsx
+            └── [[id]]
+                ├── category-form.tsx
+                ├── loading.tsx
+                └── page.tsx
         ├── [clients]
             └── page.tsx
         ├── layout.tsx
@@ -41,18 +43,41 @@
         └── [settings]
             └── page.tsx
     ├── [api]
+        ├── [bookings]
+            └── [[id]]
+                └── [update-status]
+                    └── route.ts
+        ├── [clients]
+            └── [search]
+                └── route.ts
         ├── [createProfile]
             └── route.ts
+        ├── [cron]
+            └── [send-birthday-messages]
+                └── route.ts
         ├── [deposit]
             └── route.ts
         ├── [messages]
+            ├── [logs]
+                └── route.ts
             ├── route.ts
+            ├── [user]
+                └── route.ts
             └── [[messageId]]
                 └── [resend]
                     └── route.ts
-        └── [payment]
-            ├── route.ts
-            └── [webhook]
+        ├── [payment]
+            └── route.ts
+        └── [webhooks]
+            ├── [deposit-paid]
+                └── route.ts
+            ├── [order-paid]
+                └── route.ts
+            ├── [payments]
+                └── route.ts
+            ├── [resend]
+                └── route.ts
+            └── [twilio]
                 └── route.ts
     ├── [booking]
         ├── [confirmation]
@@ -67,8 +92,6 @@
     ├── [checkout]
         ├── loading.tsx
         └── page.tsx
-    ├── [components]
-        └── [booking]
     ├── [contact]
         └── page.tsx
     ├── [dashboard]
@@ -83,12 +106,14 @@
     ├── [payment]
         └── [deposit]
             └── page.tsx
-    ├── [payment-plans]
+    ├── [privacy]
         └── page.tsx
     ├── [products]
+        ├── [c]
+            └── [[...cat]]
+                └── page.tsx
         ├── loading.tsx
         ├── page.tsx
-        ├── product-tabs.tsx
         └── [[slug]]
             ├── loading.js
             ├── loading.tsx
@@ -96,14 +121,17 @@
     ├── [services]
         ├── loading.js
         └── page.tsx
-    └── [store]
+    ├── [store]
         └── bookingStore.ts
+    └── [terms]
+        └── page.tsx
 [components]
     ├── [admin]
         ├── admin-footer.tsx
         ├── admin-sidebar.tsx
-        ├── client-actions.tsx
+        ├── analytics-charts.tsx
         ├── data-table.tsx
+        ├── order-client.tsx
         ├── order-detail.tsx
         ├── page-header.tsx
         └── stat-card.tsx
@@ -132,17 +160,29 @@
         └── upcoming-bookings.tsx
     ├── DepositPopup.tsx
     ├── footer.tsx
+    ├── gallery.tsx
+    ├── [navbar]
+        ├── BrandLogo.tsx
+        ├── CartIndicator.tsx
+        ├── DesktopNavLinks.tsx
+        ├── MobileMenu.tsx
+        ├── MobileNavLinks.tsx
+        ├── SearchCommand.tsx
+        ├── SocialIcons.tsx
+        └── UserAuth.tsx
     ├── navbar.tsx
-    ├── order-history.tsx
     ├── [product]
         ├── add-to-cart-button.tsx
         ├── loyalty-program.tsx
+        ├── product-card.tsx
         ├── product-cta.tsx
         ├── product-description.tsx
         ├── product-details.tsx
         ├── product-hero.tsx
+        ├── product-navigation.tsx
         ├── product-skeleton.tsx
         ├── product-tabs-skeleton.tsx
+        ├── productQuickView.tsx
         ├── products-grid.tsx
         └── related-products.tsx
     ├── RichTextEditor.tsx
@@ -155,6 +195,7 @@
         ├── aspect-ratio.tsx
         ├── avatar.tsx
         ├── badge.tsx
+        ├── breadcrumb.tsx
         ├── button.tsx
         ├── calendar.tsx
         ├── card.tsx
@@ -162,6 +203,7 @@
         ├── chart.tsx
         ├── checkbox.tsx
         ├── collapsible.tsx
+        ├── command.tsx
         ├── context-menu.tsx
         ├── date-picker.tsx
         ├── dialog.tsx
@@ -191,11 +233,12 @@
         ├── textarea.tsx
         ├── toggle-group.tsx
         ├── toggle.tsx
-        ├── tooltip.tsx
-        └── use-mobile.tsx
+        └── tooltip.tsx
 components.json
 [constants]
-    └── data.ts
+    ├── data.ts
+    └── [ui]
+        └── index.ts
 [docs]
     ├── .project_structure_filter
     ├── .project_structure_ignore
@@ -203,12 +246,14 @@ components.json
 eslint.config.mjs
 [hooks]
     ├── use-mobile.ts
+    ├── useDebounce.ts
     └── useMessaging.ts
 [lib]
     ├── messaging.ts
     ├── supabaseAdmin.ts
     ├── supabaseClient.ts
-    └── utils.ts
+    ├── utils.ts
+    └── verifyWebhook.ts
 middleware.ts
 next.config.ts
 npx
@@ -229,9 +274,23 @@ postcss.config.mjs
         └── pic6.jpg
     ├── next.svg
     ├── vercel.svg
+    ├── [videos]
+        ├── makeupkits.mp4
+        └── makeupkits2.mp4
     └── window.svg
+[pug-template]
+    └── [emails]
+        ├── appointmentConfirmation.pug
+        ├── appointmentThankYou.pug
+        ├── birthday.pug
+        ├── booking-notification.pug
+        ├── deposit-notification.pug
+        ├── layout.pug
+        ├── newProduct.pug
+        └── specialOffer.pug
 README-loading-optimizations.md
 README.md
+schema.sql
 [scripts]
     └── apply-migration.mjs
 [store]
@@ -250,8 +309,6 @@ README.md
         └── rest-version
     ├── backup.sql
     ├── config.toml
-    ├── [functions]
-    ├── [images]
     ├── [migrations]
         ├── 20240405_update_inventory_rpc.sql
         ├── 20250328160825_remote_schema.sql
@@ -267,12 +324,24 @@ README.md
         ├── 20250406000139_profile_notifications.sql
         ├── 20250407153318_remote_schema.sql
         ├── 20250407230112_add_timestamps_and_cart_constraints.sql
-        └── 20250408112233_add_cart_item_unique_constraint.sql
+        ├── 20250408112233_add_cart_item_unique_constraint.sql
+        ├── 20250408193131_drop_merge_add_cart_item_rpc.sql
+        ├── 20250409195605_allow_anon_insert_booking.sql
+        ├── 20250409211018_remove_phone_constraint.sql
+        ├── 20250412183436_'booking_status_not_null'.sql
+        ├── 20250412210506_message_logs.sql
+        ├── 20250415222049_search_index.sql
+        ├── 20250418234642_notify_order_paid.sql
+        ├── 20250419011559_lowercase_and_deposit_webhook.sql
+        ├── 20250419194254_trigger_update_inventory_on_paid.sql
+        ├── 20250419225441_drop_and_update_inventory_after_purchase.sql
+        ├── 20250423130303_get_random_product.sql
+        └── 20250523120000_create_merge_add_cart_item_rpc.sql
     └── seed.sql
-tables.sql
 tsconfig.json
 [types]
-    ├── dashboard.ts
+    ├── index.ts
+    ├── pug.d.ts
     └── types.ts
 [utils]
     ├── formattedCurrency.ts

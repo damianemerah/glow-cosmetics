@@ -1,0 +1,36 @@
+extends layout.pug
+
+block content
+  h2 New Booking Alert
+
+  p A new booking has been created:
+
+  table(style="width: 100%; border-collapse: collapse; margin: 20px 0;")
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Client
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{user.firstName} #{user.lastName}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Service
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{booking.serviceName}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Date & Time
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{booking.dateFormatted} at #{booking.timeFormatted}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Contact
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;")
+        | Phone: #{user.phone}
+        br
+        | Email: #{user.email}
+
+    if booking.specialRequests
+      tr
+        th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Special Requests
+        td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{booking.specialRequests}
+
+  p.
+    Please review this booking in the admin panel to confirm or reschedule if needed.
+
+  a.button(href=`${siteUrl}/admin/appointments`) View in Admin Panel

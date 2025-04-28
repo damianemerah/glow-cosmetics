@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { Resend } from "resend";
+
+// Initialize Resend client
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Define the POST request handler
 export async function POST(req: Request) {
@@ -46,6 +50,26 @@ export async function POST(req: Request) {
         { error: profileError.message },
         { status: 500 },
       );
+    }
+
+    // If user opted in to email notifications, add them to Resend contacts
+    if (raw_user_meta_data?.receive_emails && email) {
+      try {
+        // Add contact to Resend
+        await resend.contacts.create({
+          email: email,
+          firstName: raw_user_meta_data?.first_name || "",
+          lastName: raw_user_meta_data?.last_name || "",
+          // You can add additional fields here if needed
+          unsubscribed: false,
+          audienceId: process.env.RESEND_AUDIENCE_ID as string, // Add required audienceId
+        });
+
+        console.log(`User ${email} added to Resend contacts`);
+      } catch (resendError) {
+        console.error("Error adding contact to Resend:", resendError);
+        // Continue execution - don't fail the whole request for Resend errors
+      }
     }
 
     // (Optional) Insert audit log

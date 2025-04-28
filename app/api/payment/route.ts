@@ -17,13 +17,16 @@ export async function POST(req: Request) {
       cartId,
       address,
       payment_method,
-      reference
+      reference,
     } = await req.json();
 
-    if (!email || !orderId || !amount || !name || !cartId || !payment_method || !reference) {
+    if (
+      !email || !orderId || !amount || !name || !cartId || !payment_method ||
+      !reference
+    ) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -36,7 +39,7 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -51,7 +54,7 @@ export async function POST(req: Request) {
       console.error("Error fetching order:", error);
       return NextResponse.json(
         { error: "Order not found or unauthorized" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -60,7 +63,7 @@ export async function POST(req: Request) {
       .from("orders")
       .update({
         payment_method: payment_method,
-        status: payment_method === "bank_transfer" ? "awaiting_payment" : "pending_payment"
+        status: "pending",
       })
       .eq("id", orderId);
 
@@ -79,12 +82,13 @@ export async function POST(req: Request) {
           payment_method: payment_method,
           shipping_address: JSON.stringify(address),
         },
-        callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/order-confirmation?id=${orderId}`,
+        callback_url:
+          `${process.env.NEXT_PUBLIC_APP_URL}/order-confirmation?id=${orderId}`,
       });
 
       // Return the Paystack authorization URL
       return NextResponse.json({
-        data: response.data
+        data: response.data,
       }, { status: 200 });
     } else {
       // For bank transfer, just return success - no redirect needed
@@ -92,14 +96,14 @@ export async function POST(req: Request) {
         data: {
           reference: reference,
           message: "Bank transfer payment initiated",
-        }
+        },
       }, { status: 200 });
     }
   } catch (error) {
     console.error("Payment processing error:", error);
     return NextResponse.json(
       { error: "An error occurred while processing your payment" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

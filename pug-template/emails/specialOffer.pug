@@ -1,0 +1,28 @@
+extends layout.pug
+
+block content
+  h2 Exclusive Offer for Our Valued Customers
+
+  p Dear #{userName},
+
+  p We're delighted to present you with an exclusive offer designed especially for our valued customers.
+
+  .offer-box(style='background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;')
+    h3(style='color: var(--primary); margin-top: 0;') #{offerTitle}
+    p(style='font-size: 18px;') #{offerDescription}
+    if offerCode
+      p(style='font-weight: bold; letter-spacing: 1px; font-size: 20px; background-color: #f0f0f0; display: inline-block; padding: 8px 16px; border-radius: 4px;') #{offerCode}
+    if expiryDate
+      p(style='margin-top: 16px; font-size: 14px; color: #666;') Valid until: #{expiryDate}
+
+  p To redeem this offer, simply use the code above during checkout on our website or present it when visiting our store.
+
+  p
+    a.button(href=websiteUrl, target='_blank', rel='noopener noreferrer') Shop Now
+
+  .divider
+
+  p If you have any questions about this offer, please don't hesitate to contact our customer service team. We're always here to assist you.
+
+  p
+    strong Glow Cosmetics Team

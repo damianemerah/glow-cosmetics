@@ -75,3 +75,18 @@ export async function checkUserExistsByEmail(email: string) {
 
   return data ? true : false;
 }
+
+export async function getUserById(userId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("profiles")
+    .select("*")
+    .eq("user_id", userId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching user by ID:", error);
+    return null;
+  }
+
+  return data;
+}

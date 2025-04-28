@@ -1,64 +1,147 @@
+"use client";
 import Link from "next/link";
 import { Instagram, Facebook } from "lucide-react";
+import AdminFooter from "@/components/admin/admin-footer"; // Assuming this component exists and is styled
+import { usePathname } from "next/navigation";
+// import { Button } from "@/constants/ui/index"; // Assuming this uses primary color styles
 
 const Footer = () => {
-  return (
-    <footer className="bg-[#5a6b47] text-white">
-      <div className="container mx-auto py-12 px-4">
-        <div className="flex flex-col items-center justify-center">
-          <div className="mb-8">
-            <Link href="/">
-              <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center">
-                <span className="text-xl font-bold font-montserrat">AB</span>
-              </div>
-            </Link>
-          </div>
+  const pathname = usePathname();
 
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 mb-8">
-            <Link href="/about" className="text-sm hover:underline">
-              About
-            </Link>
-            <Link href="/services" className="text-sm hover:underline">
-              Services
-            </Link>
-            <Link href="/skincare" className="text-sm hover:underline">
-              Skincare
-            </Link>
-            <Link href="/contact" className="text-sm hover:underline">
-              Contact
-            </Link>
-            <Link href="/booking" className="text-sm hover:underline">
-              Book
-            </Link>
-          </div>
+  // Conditionally render AdminFooter if on an admin path
+  if (pathname.startsWith("/admin")) {
+    return <AdminFooter />;
+  }
 
-          <div className="flex space-x-4 mb-8">
-            <Link
-              href="https://instagram.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Instagram className="h-5 w-5 text-white hover:text-gray-200 transition-colors" />
+  // --- Main Footer Section ---
+  const MainFooter = () => (
+    <footer className="bg-[#4a5a3a] text-gray-200">
+      {" "}
+      {/* Slightly adjusted darker green */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        {/* Grid Layout for Desktop, Stacked on Mobile */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 xl:gap-12">
+          {/* Column 1: Brand & Tagline */}
+          <div className="md:col-span-4 lg:col-span-5 text-center md:text-left">
+            <Link href="/" className="inline-block mb-4">
+              {/* Use text logo for now */}
+              <span className="text-2xl font-bold text-white font-montserrat tracking-tight">
+                Glow by UgoSylvia
+              </span>
             </Link>
-            <Link
-              href="https://facebook.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Facebook className="h-5 w-5 text-white hover:text-gray-200 transition-colors" />
-            </Link>
-          </div>
-
-          <div className="text-center text-sm text-white/70">
-            <p>
-              © {new Date().getFullYear()} Glow by UgoSylvia | All rights
-              reserved
+            <p className="text-[13px] text-gray-300 leading-relaxed">
+              Your premier destination for expert permanent makeup
+              (Microblading, Ombre, Eyeliner, Lip Blush), stunning lash
+              extensions, and professional makeup services. Discover our curated
+              collection of high-quality skincare, makeup, beauty supplements,
+              and unique jewellery.
             </p>
-            <p className="mt-1">Website designed with ♥</p>
           </div>
+
+          {/* Column 2: Quick Links */}
+          <div className="md:col-span-4 lg:col-span-3 text-center md:text-left">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">
+              Quick Links
+            </h3>
+            <ul className="space-y-2">
+              <li>
+                <FooterLink href="/about">About Us</FooterLink>
+              </li>
+              <li>
+                <FooterLink href="/services">Services</FooterLink>
+              </li>
+              <li>
+                <FooterLink href="/products">Products</FooterLink>
+              </li>
+              <li>
+                <FooterLink href="/booking">Book Appointment</FooterLink>
+              </li>
+              <li>
+                <FooterLink href="/contact">Contact</FooterLink>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Legal & Social */}
+          <div className="md:col-span-4 lg:col-span-4 text-center md:text-left">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">
+              Connect & Legal
+            </h3>
+            <ul className="space-y-2 mb-6">
+              <li>
+                <FooterLink href="/terms">Terms of Service</FooterLink>
+              </li>
+              <li>
+                <FooterLink href="/privacy">Privacy Policy</FooterLink>
+              </li>
+            </ul>
+            {/* Social Links */}
+            <div className="flex justify-center md:justify-start space-x-5">
+              <SocialLink href="https://instagram.com" ariaLabel="Instagram">
+                <Instagram className="h-6 w-6" />
+              </SocialLink>
+              <SocialLink href="https://facebook.com" ariaLabel="Facebook">
+                <Facebook className="h-6 w-6" />
+              </SocialLink>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Bottom: Copyright */}
+        <div className="mt-12 border-t border-gray-200/20 pt-8 text-center">
+          <p className="text-sm text-gray-400">
+            © {new Date().getFullYear()} Glow by UgoSylvia. All rights
+            reserved.
+          </p>
+          {/* Optional: Keep or remove the "designed with" line based on preference */}
+          {/* <p className="mt-1 text-xs text-gray-500">Website designed with ♥</p> */}
         </div>
       </div>
     </footer>
+  );
+
+  const FooterLink = ({
+    href,
+    children,
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => (
+    <Link
+      href={href}
+      className="text-sm text-gray-300 hover:text-white hover:underline transition-colors duration-200"
+    >
+      {children}
+    </Link>
+  );
+
+  // Helper component for social media links
+  const SocialLink = ({
+    href,
+    children,
+    ariaLabel,
+  }: {
+    href: string;
+    children: React.ReactNode;
+    ariaLabel: string;
+  }) => (
+    <Link
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={ariaLabel}
+      className="text-gray-400 hover:text-white transition-colors duration-200"
+    >
+      {children}
+    </Link>
+  );
+
+  // Render the sections
+  return (
+    <>
+      {/* <CTASection /> */}
+      <MainFooter />
+    </>
   );
 };
 

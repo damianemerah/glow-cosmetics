@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import CartClient from "@/components/cart/cart-client";
 import CartSkeleton from "@/components/cart/cart-skeleton";
 import { Suspense } from "react";
-import type { CartItem } from "@/types/dashboard";
+import type { CartItem } from "@/types/index";
 
 export const metadata: Metadata = {
   title: "Your Cart | Glow by UgoSylvia",

@@ -1,228 +1,374 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon, Trash2 } from "lucide-react";
 import {
+  Button,
+  Calendar,
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
+  Input,
+  Textarea,
+  Label,
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+  Separator,
+} from "@/constants/ui/index";
+
 import { cn } from "@/lib/utils";
-import { services, timeSlots } from "@/constants/data";
+import { services, getTimeSlotsForDay } from "@/constants/data";
 import { createBooking } from "../../actions/bookingAction";
 import { toast } from "sonner";
 import { useUserStore } from "@/store/authStore";
 import { useBookingStore } from "@/app/store/bookingStore";
-import { BookingStatus } from "@/types/dashboard";
+import { BookingStatus, Service } from "@/types/index";
 import { Clock, Phone, Info, CheckCircle } from "lucide-react";
 import { DepositPopup } from "@/components/DepositPopup";
 import { customAlphabet } from "nanoid";
 import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const nanoid = customAlphabet("0123456789", 6);
 
+interface PendingBooking {
+  id: string;
+  service: Service;
+  date: Date;
+  time: string;
+  special_requests: string;
+}
+
 export default function BookingPage() {
-  const [date, setDate] = useState<Date>(new Date());
+  const [date, setDate] = useState<Date | undefined>(new Date());
   const user = useUserStore((state) => state.user);
   const setShowModal = useUserStore((state) => state.setShowModal);
-  const { bookedSlots, isLoading, fetchSlotsForDate } = useBookingStore();
-  const [formData, setFormData] = useState({
-    firstName: user?.first_name || "",
-    lastName: user?.last_name || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    service: "",
+  const {
+    bookedSlots,
+    isLoading: slotsLoading,
+    fetchSlotsForDate,
+  } = useBookingStore();
+
+  const [currentSelection, setCurrentSelection] = useState<{
+    serviceId: string;
+    time: string;
+    special_requests: string;
+  }>({
+    serviceId: "",
     time: "",
     special_requests: "",
-    servicePrice: 0,
   });
-  const [openDepositPopup, setOpenDepositPopup] = useState(false);
-  const [bookingId, setBookingId] = useState<string | null>(null);
 
-  // Get booked slots for the currently selected date
-  const currentDateBookings = date
-    ? bookedSlots.get(date.toDateString()) || []
-    : [];
+  const [userDetails, setUserDetails] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+  });
+
+  const [pendingBookings, setPendingBookings] = useState<PendingBooking[]>([]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // State for the deposit popup (might need adjustment for multiple bookings)
+  const [openDepositPopup, setOpenDepositPopup] = useState(false);
+  const [lastCreatedBookingId, setLastCreatedBookingId] = useState<
+    string | null
+  >(null);
+
+  // Memoize fetched booked slots for the selected date
+  const currentDateBookedTimes = useMemo(() => {
+    if (!date) return [];
+    const slotsForDate = bookedSlots.get(date.toDateString()) || [];
+    return slotsForDate.map((slotDate) => format(slotDate, "h:mm a"));
+  }, [date, bookedSlots]);
+
+  // Memoize times already added to the cart for the selected date
+  const cartTimesForSelectedDate = useMemo(() => {
+    if (!date) return [];
+    return pendingBookings
+      .filter((b) => b.date.toDateString() === date.toDateString())
+      .map((b) => b.time);
+  }, [pendingBookings, date]);
 
   useEffect(() => {
     if (user) {
-      setFormData((prev) => ({
-        ...prev,
+      setUserDetails({
         firstName: user.first_name || "",
         lastName: user.last_name || "",
         email: user.email || "",
         phone: user.phone || "",
-      }));
+      });
+    } else {
+      setUserDetails({ firstName: "", lastName: "", email: "", phone: "" });
     }
   }, [user]);
 
-  // Fetch booked slots when the component mounts or date changes
   useEffect(() => {
     if (date) {
       fetchSlotsForDate(date);
     }
   }, [date, fetchSlotsForDate]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUserDetailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setUserDetails((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePhoneChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, phone: "+" + value }));
+    const phoneValue = value.startsWith("+") ? value : `+${value}`;
+    setUserDetails((prev) => ({ ...prev, phone: phoneValue }));
   };
 
   const handleTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setCurrentSelection((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => {
-      const selectedService = services.find((service) => service.id === value);
-      return {
-        ...prev,
-        [name]: value,
-        servicePrice: selectedService ? selectedService.price : 0,
-      };
-    });
+    setCurrentSelection((prev) => ({ ...prev, [name]: value }));
+    // Reset time when service changes, as duration/availability might differ (optional)
+    if (name === "serviceId") {
+      setCurrentSelection((prev) => ({ ...prev, time: "" }));
+    }
   };
 
   const handleDateSelect = (newDate: Date | undefined) => {
-    if (newDate) {
-      setDate(newDate);
+    setDate(newDate);
+    // Reset time when date changes
+    setCurrentSelection((prev) => ({ ...prev, time: "" }));
+  };
+  // --- ---
+
+  const handleAddBooking = () => {
+    if (!date) {
+      toast.error("Please select a date.");
+      return;
     }
+    if (!currentSelection.serviceId) {
+      toast.error("Please select a service.");
+      return;
+    }
+    if (!currentSelection.time) {
+      toast.error("Please select a time.");
+      return;
+    }
+    if (
+      !userDetails.firstName ||
+      !userDetails.lastName ||
+      !userDetails.email ||
+      !userDetails.phone ||
+      userDetails.phone.length < 5
+    ) {
+      toast.error("Please fill in all your contact details.");
+      return;
+    }
+
+    const selectedService = services.find(
+      (s) => s.id === currentSelection.serviceId
+    );
+    if (!selectedService) {
+      toast.error("Selected service not found.");
+      return;
+    }
+
+    const isAlreadyInCart = pendingBookings.some(
+      (b) =>
+        b.date.toDateString() === date.toDateString() &&
+        b.time === currentSelection.time
+    );
+    if (isAlreadyInCart) {
+      toast.error("This time slot is already in your booking request.");
+      return;
+    }
+
+    const newBookingItem: PendingBooking = {
+      id: `temp-${nanoid()}`,
+      service: selectedService,
+      date: new Date(date),
+      time: currentSelection.time,
+      special_requests: currentSelection.special_requests,
+    };
+
+    setPendingBookings((prev) => [...prev, newBookingItem]);
+
+    setCurrentSelection({
+      serviceId: "",
+      time: "",
+      special_requests: "",
+    });
+
+    toast.success(`${selectedService.name} added to your booking request.`);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    try {
-      e.preventDefault();
-      if (!date) {
-        toast.error("Select a date");
-        return;
-      }
-      if (!user) {
-        setShowModal(true);
-        return;
-      }
-      if (!formData.service) {
-        toast.error("Select a service");
-        return;
-      }
-      if (!formData.time) {
-        toast.error("Select a time");
-        return;
-      }
+  const handleRemoveBooking = (idToRemove: string) => {
+    setPendingBookings((prev) => prev.filter((b) => b.id !== idToRemove));
+    toast.info("Booking removed from your request.");
+  };
 
-      const [hours, minutes] = formData.time.split(":");
-      const isPM = formData.time.toLowerCase().includes("pm");
-      const timeHours =
-        parseInt(hours) + (isPM && parseInt(hours) !== 12 ? 12 : 0);
-
-      const bookingTime = new Date(date);
-      bookingTime.setHours(timeHours);
-      bookingTime.setMinutes(parseInt(minutes) || 0);
-      bookingTime.setSeconds(0);
-      bookingTime.setMilliseconds(0);
-      const booking_id = nanoid();
-
-      const selectedService = services.find(
-        (service) => service.id === formData.service
+  const handleFinalSubmit = async () => {
+    if (pendingBookings.length === 0) {
+      toast.error("Please add at least one booking to your request.");
+      return;
+    }
+    if (!user) {
+      setShowModal(true);
+      toast.info("Please log in or sign up to complete your booking.");
+      return;
+    }
+    if (
+      !userDetails.firstName ||
+      !userDetails.lastName ||
+      !userDetails.email ||
+      !userDetails.phone ||
+      userDetails.phone.length < 5
+    ) {
+      toast.error(
+        "Please ensure your contact details (First Name, Last Name, Email, Phone) are complete before submitting."
       );
+      return;
+    }
+
+    setIsSubmitting(true);
+    const bookingPromises = [];
+    const createdBookingIds: string[] = [];
+    let hasError = false;
+
+    const uniqueBookingId = `GLOW-${nanoid()}`;
+
+    for (const booking of pendingBookings) {
+      const [hoursStr, minutesStr] = booking.time.split(":");
+      const period = booking.time.includes("PM") ? "PM" : "AM";
+      let hours = parseInt(hoursStr);
+
+      if (period === "PM" && hours !== 12) {
+        hours += 12;
+      } else if (period === "AM" && hours === 12) {
+        hours = 0;
+      }
+
+      const bookingTime = new Date(booking.date);
+      bookingTime.setHours(hours, parseInt(minutesStr) || 0, 0, 0);
 
       const bookingData = {
-        user_id: user?.user_id || null,
-        service_id: formData.service,
-        service_name: selectedService?.name,
-        service_price: selectedService?.price,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        special_requests: formData.special_requests,
+        user_id: user.user_id,
+        service_id: booking.service.id,
+        service_name: booking.service.name,
+        service_price: booking.service.price,
+        first_name: userDetails.firstName,
+        last_name: userDetails.lastName,
+        email: userDetails.email,
+        phone: userDetails.phone,
+        special_requests: booking.special_requests,
         booking_time: bookingTime.toISOString(),
         status: "pending" as BookingStatus,
-        booking_id: `GLOW-${booking_id}`,
+        booking_id: uniqueBookingId,
       };
 
-      const { error, booking } = await createBooking(bookingData);
-      setBookingId(booking?.booking_id);
-      setOpenDepositPopup(true);
+      // Add the promise to the array
+      bookingPromises.push(createBooking(bookingData));
+    }
 
-      if (error) {
-        console.log(error, "error🎈");
-        throw new Error(error.message);
+    try {
+      // Execute all booking creations
+      const results = await Promise.all(bookingPromises);
+
+      // Check results for errors
+      results.forEach((result) => {
+        if (result.error) {
+          console.error("Booking creation error:", result.error);
+          toast.error(
+            `Failed to create booking for ${result.booking?.service_name || "one service"}: ${result.error.message}. Please try again or contact us.`
+          );
+          hasError = true;
+        } else if (result.booking) {
+          createdBookingIds.push(result.booking.booking_id);
+          const bookedDate = pendingBookings.find(
+            (pb) => pb.service.id === result.booking?.service_id
+          )?.date;
+          if (bookedDate) {
+            fetchSlotsForDate(bookedDate);
+          }
+        }
+      });
+
+      if (!hasError) {
+        toast.success(
+          `${pendingBookings.length} booking request(s) submitted successfully! We'll contact you to confirm.`
+        );
+        setPendingBookings([]);
+
+        if (createdBookingIds.length > 0) {
+          setLastCreatedBookingId(
+            createdBookingIds[createdBookingIds.length - 1]
+          );
+          setOpenDepositPopup(true);
+        }
+      } else {
+        toast.warning(
+          "Some booking requests could not be submitted. Please review any error messages."
+        );
       }
-
-      fetchSlotsForDate(date);
-
-      // toast.success(
-      //   "Booking request submitted! We'll contact you to confirm your appointment."
-      // );
-    } catch (err) {
-      const error = err as Error;
-      toast.error(error.message);
+    } catch (error) {
+      console.error("Error submitting bookings:", error);
+      toast.error(
+        "An unexpected error occurred while submitting bookings. Please try again."
+      );
+      hasError = true;
+    } finally {
+      setIsSubmitting(false);
     }
   };
+  // --- ---
+
+  // Calculate total price for the cart
+  const totalCartPrice = useMemo(() => {
+    return pendingBookings.reduce(
+      (sum, booking) => sum + booking.service.price,
+      0
+    );
+  }, [pendingBookings]);
 
   return (
     <>
       <DepositPopup
         open={openDepositPopup}
         onOpenChange={setOpenDepositPopup}
-        bookingId={bookingId}
+        bookingId={lastCreatedBookingId}
       />
       <div className="flex flex-col min-h-screen">
-        {/* Hero Section */}
         <section className="bg-secondary py-16">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-4xl font-bold mb-4 font-montserrat">
-              Book Your Appointment
-            </h1>
-            <p className="text-xl max-w-2xl mx-auto">
-              Schedule your beauty and wellness services with our experienced
-              professionals.
-            </p>
-          </div>
+          <h1 className="text-4xl font-bold mb-4 font-montserrat container">
+            Book Your Appointment(s)
+          </h1>
         </section>
 
         {/* Booking Form and Services Section */}
         <section className="py-16 bg-white">
-          <div className="px-4 sm:px-8 md:px-16 mx-auto grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-8">
-            {/* Booking Form */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-montserrat">
-                  Appointment Request
-                </CardTitle>
-                <CardDescription>
-                  Fill out the form below to request an appointment. We&apos;ll
-                  contact you to confirm.
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleSubmit}>
+          <div className="px-4 sm:px-8 md:px-16 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1fr] gap-8">
+            {/* Booking Form Column */}
+            <div className="flex flex-col gap-8">
+              {/* User Details Card (Now potentially editable) */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-montserrat">
+                    Your Details
+                  </CardTitle>
+                  <CardDescription>
+                    Please confirm or update your contact information.
+                  </CardDescription>
+                </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
@@ -230,8 +376,8 @@ export default function BookingPage() {
                       <Input
                         id="firstName"
                         name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
+                        value={userDetails.firstName}
+                        onChange={handleUserDetailChange}
                         required
                       />
                     </div>
@@ -240,13 +386,12 @@ export default function BookingPage() {
                       <Input
                         id="lastName"
                         name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
+                        value={userDetails.lastName}
+                        onChange={handleUserDetailChange}
                         required
                       />
                     </div>
                   </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
@@ -254,8 +399,8 @@ export default function BookingPage() {
                         id="email"
                         name="email"
                         type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
+                        value={userDetails.email}
+                        onChange={handleUserDetailChange}
                         required
                       />
                     </div>
@@ -263,7 +408,7 @@ export default function BookingPage() {
                       <Label htmlFor="phone">Phone</Label>
                       <PhoneInput
                         country={"za"}
-                        value={formData.phone || ""}
+                        value={userDetails.phone || ""}
                         onChange={handlePhoneChange}
                         inputProps={{
                           id: "phone",
@@ -275,12 +420,29 @@ export default function BookingPage() {
                       />
                     </div>
                   </div>
+                </CardContent>
+              </Card>
 
+              {/* Appointment Selection Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="font-montserrat">
+                    Select Appointment Slot
+                  </CardTitle>
+                  <CardDescription>
+                    Choose a service, date, and time, then add it to your
+                    booking request below.
+                  </CardDescription>
+                </CardHeader>
+                {/* Remove form tag here */}
+                <CardContent className="space-y-6">
+                  {/* Service Selection */}
                   <div className="space-y-2">
                     <Label htmlFor="service">Service</Label>
                     <Select
+                      value={currentSelection.serviceId} // Controlled component
                       onValueChange={(value) =>
-                        handleSelectChange("service", value)
+                        handleSelectChange("serviceId", value)
                       }
                       required
                     >
@@ -297,8 +459,11 @@ export default function BookingPage() {
                     </Select>
                   </div>
 
+                  {/* Date and Time Selection */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2 relative z-50">
+                    <div className="space-y-2 relative z-10">
+                      {" "}
+                      {/* Adjusted z-index */}
                       <Label>Preferred Date</Label>
                       <Popover>
                         <PopoverTrigger asChild>
@@ -319,10 +484,11 @@ export default function BookingPage() {
                             selected={date}
                             onSelect={handleDateSelect}
                             initialFocus
-                            disabled={(date) => {
+                            disabled={(d) => {
                               const today = new Date();
                               today.setHours(0, 0, 0, 0);
-                              return date < today || date.getDay() === 0;
+                              // Disable past dates and Sundays
+                              return d < today || d.getDay() === 0;
                             }}
                           />
                         </PopoverContent>
@@ -332,107 +498,237 @@ export default function BookingPage() {
                     <div className="space-y-2">
                       <Label htmlFor="time">Preferred Time</Label>
                       <Select
+                        value={currentSelection.time} // Controlled component
                         onValueChange={(value) =>
                           handleSelectChange("time", value)
                         }
                         required
+                        disabled={!date || !currentSelection.serviceId} // Disable if no date/service
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select a time" />
                         </SelectTrigger>
                         <SelectContent>
-                          {timeSlots.map((time) => {
-                            const isPastTime =
-                              date &&
-                              new Date().toDateString() ===
-                                date.toDateString() &&
-                              new Date().getHours() >
-                                parseInt(time.split(":")[0]) +
-                                  (time.includes("PM") &&
-                                  parseInt(time.split(":")[0]) !== 12
-                                    ? 12
-                                    : 0) &&
-                              new Date().getMinutes() > 0;
+                          {date ? (
+                            getTimeSlotsForDay(date).map((time: string) => {
+                              const isBooked =
+                                currentDateBookedTimes.includes(time);
+                              const isInCart =
+                                cartTimesForSelectedDate.includes(time);
+                              const isPastTime =
+                                date &&
+                                new Date().toDateString() ===
+                                  date.toDateString() &&
+                                (() => {
+                                  // IIFE for cleaner logic
+                                  const [hoursStr, minutesStr] =
+                                    time.split(":");
+                                  const period = time.includes("PM")
+                                    ? "PM"
+                                    : "AM";
+                                  let hours = parseInt(hoursStr);
+                                  if (period === "PM" && hours !== 12)
+                                    hours += 12;
+                                  if (period === "AM" && hours === 12)
+                                    hours = 0; // Midnight case
 
-                            return (
-                              <SelectItem
-                                key={time}
-                                value={time}
-                                disabled={
-                                  currentDateBookings.some(
-                                    (bookedSlot) =>
-                                      format(bookedSlot, "h:mm a") === time
-                                  ) || isPastTime
-                                }
-                              >
-                                {time}
-                                {isLoading && time === "Loading..."}
-                              </SelectItem>
-                            );
-                          })}
+                                  const now = new Date();
+                                  const slotTime = new Date(date);
+                                  slotTime.setHours(
+                                    hours,
+                                    parseInt(minutesStr) || 0,
+                                    0,
+                                    0
+                                  );
+
+                                  return now > slotTime;
+                                })();
+
+                              return (
+                                <SelectItem
+                                  key={time}
+                                  value={time}
+                                  disabled={
+                                    isBooked ||
+                                    isInCart ||
+                                    isPastTime ||
+                                    slotsLoading
+                                  }
+                                >
+                                  {time}
+                                  {isBooked && " (Booked)"}
+                                  {isInCart && " (In Request)"}
+                                  {isPastTime && " (Past)"}
+                                </SelectItem>
+                              );
+                            })
+                          ) : (
+                            <SelectItem value="" disabled>
+                              Select date first
+                            </SelectItem>
+                          )}
+                          {slotsLoading && date && (
+                            <SelectItem value="loading" disabled>
+                              Loading slots...
+                            </SelectItem>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
 
+                  {/* Special Requests */}
                   <div className="space-y-2">
-                    <Label htmlFor="special_requests">Special Request</Label>
+                    <Label htmlFor="special_requests">
+                      Special Request (Optional)
+                    </Label>
                     <Textarea
                       id="special_requests"
                       name="special_requests"
-                      value={formData.special_requests}
+                      value={currentSelection.special_requests}
                       onChange={handleTextAreaChange}
-                      placeholder="Enter your special requests or notes here"
-                      rows={5}
+                      placeholder="Enter any special requests for this specific appointment"
+                      rows={3} // Reduced rows maybe
                     />
                   </div>
                 </CardContent>
                 <CardFooter>
+                  {/* --- Changed Button --- */}
                   <Button
-                    type="submit"
-                    className="w-full bg-green-500 hover:bg-green-600"
-                    disabled={isLoading}
+                    type="button" // Change type to button
+                    onClick={handleAddBooking} // Call add handler
+                    className="w-full"
+                    disabled={
+                      slotsLoading ||
+                      !date ||
+                      !currentSelection.serviceId ||
+                      !currentSelection.time
+                    } // Disable if loading or fields missing
                   >
-                    Request Appointment
+                    Add to Booking Request
                   </Button>
+                  {/* --- --- */}
                 </CardFooter>
-              </form>
-            </Card>
+                {/* Removed form tag here */}
+              </Card>
 
-            {/* Service Details */}
-            <Card>
+              {/* --- Booking Cart Section --- */}
+              {pendingBookings.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="font-montserrat">
+                      Your Booking Request
+                    </CardTitle>
+                    <CardDescription>
+                      Review your selections below before submitting.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {pendingBookings.map((booking, index) => (
+                      <div
+                        key={booking.id}
+                        className="border p-4 rounded-md space-y-2 relative"
+                      >
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-2 right-2 h-7 w-7 text-destructive hover:bg-destructive/10"
+                          onClick={() => handleRemoveBooking(booking.id)}
+                          aria-label="Remove booking"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                        <p className="font-semibold">{booking.service.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Date: {format(booking.date, "PPP")}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Time: {booking.time}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Price: R{booking.service.price}
+                        </p>
+                        {booking.special_requests && (
+                          <p className="text-sm text-muted-foreground italic">
+                            Request: {booking.special_requests}
+                          </p>
+                        )}
+                        {/* Add a separator between items, but not after the last one */}
+                        {index < pendingBookings.length - 1 && (
+                          <Separator className="my-3" />
+                        )}
+                      </div>
+                    ))}
+                    <Separator className="my-4" />
+                    <div className="flex justify-between items-center font-semibold">
+                      <span>Total Estimated Price:</span>
+                      <span>R{totalCartPrice.toFixed(2)}</span>
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button
+                      type="button"
+                      onClick={handleFinalSubmit}
+                      className="w-full bg-green-500 hover:bg-green-600"
+                      disabled={isSubmitting || slotsLoading} // Disable while submitting or initial slots load
+                    >
+                      {isSubmitting
+                        ? "Submitting..."
+                        : `Submit ${pendingBookings.length} Booking(s)`}
+                    </Button>
+                  </CardFooter>
+                </Card>
+              )}
+              {/* --- --- */}
+            </div>
+
+            {/* Service Details Column (keep mostly as is) */}
+            <Card className="sticky top-24 self-start">
+              {" "}
+              {/* Make sticky */}
               <CardHeader>
                 <CardTitle className="font-montserrat">Our Services</CardTitle>
+                <CardDescription>
+                  Click a service below to select it in the form.
+                </CardDescription>{" "}
+                {/* Added hint */}
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
+                {/* Make services clickable to select them */}
+                <div className="space-y-4 max-h-[70vh] overflow-y-auto">
+                  {" "}
+                  {/* Added scroll */}
                   {services.map((service) => (
-                    <div
+                    <button // Change div to button for accessibility/semantics
                       key={service.id}
+                      type="button" // Prevent form submission if accidentally nested
+                      onClick={() =>
+                        handleSelectChange("serviceId", service.id)
+                      } // Select service on click
                       className={cn(
-                        "p-4 rounded-lg border relative",
-                        formData.service === service.id &&
-                          "border-primary bg-primary/10"
+                        "w-full text-left p-4 rounded-lg border relative transition-colors hover:bg-muted/50", // Added hover state
+                        currentSelection.serviceId === service.id && // Highlight based on current selection
+                          "border-primary bg-primary/10 ring-1 ring-primary"
                       )}
                     >
-                      {formData.service === service.id && (
+                      {currentSelection.serviceId === service.id && (
                         <span className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
                           Selected
                         </span>
                       )}
 
                       <h3 className="font-semibold">{service.name}</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground mt-1">
                         {service.description}
                       </p>
-                      <br />
-                      <p className="text-sm text-muted-foreground">
+                      {/* <br /> // Remove extra breaks for cleaner look */}
+                      <p className="text-sm text-muted-foreground mt-1">
                         {service.details}
                       </p>
-                      <p className="text-sm font-medium mt-1">
+                      <p className="text-sm font-medium mt-2">
                         R{service.price}
                       </p>
-                    </div>
+                    </button> // Close button tag
                   ))}
                 </div>
               </CardContent>
@@ -453,8 +749,8 @@ export default function BookingPage() {
                     <Clock className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
                     <div>
                       <p className="font-semibold">Business Hours</p>
-                      <p>Monday - Friday: 9:00 AM - 5:00 PM</p>
-                      <p>Saturday: 10:00 AM - 3:00 PM</p>
+                      <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
+                      <p>Saturday: 8:00 AM - 6:00 PM</p>
                       <p>Sunday: Closed</p>
                     </div>
                   </li>
@@ -462,8 +758,8 @@ export default function BookingPage() {
                     <Phone className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
                     <div>
                       <p className="font-semibold">Contact Information</p>
-                      <p>Phone: (555) 123-4567</p>
-                      <p>Email: info@abaesthetics.com</p>
+                      <p>Phone: +27781470504</p>
+                      <p>Email: sylvia_emerah@yahoo.com</p>
                     </div>
                   </li>
                   <li className="grid grid-cols-[auto_1fr] gap-1">
@@ -509,10 +805,7 @@ export default function BookingPage() {
                     <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
                     <div>
                       <p className="font-semibold">Payment</p>
-                      <p>
-                        We accept all major credit cards, cash, and offer
-                        financing options through Cherry.
-                      </p>
+                      <p>We accept all major credit cards and cash.</p>
                     </div>
                   </li>
                 </ul>

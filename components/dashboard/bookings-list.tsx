@@ -2,16 +2,24 @@
 
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge, Button } from "@/constants/ui/index";
 import { AlertCircle, Calendar, Clock, RefreshCw, X } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import type { Booking } from "@/types/dashboard";
+import type { Booking } from "@/types/index";
 import { useState } from "react";
 import { cancelBooking, getUserBookings } from "@/actions/dashboardAction";
 import { useUserStore } from "@/store/authStore";
 import useSWR from "swr";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface BookingsListProps {
   bookings: Booking[];
@@ -24,6 +32,8 @@ export default function BookingsList({
 }: BookingsListProps) {
   const user = useUserStore((state) => state.user);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const bookingsPerPage = 5; // Number of bookings to display per page
 
   // Use SWR for bookings data
   const {
@@ -63,6 +73,24 @@ export default function BookingsList({
         return dateA.getTime() - dateB.getTime();
       })
     : [];
+
+  // Pagination calculations
+  const totalBookings = sortedBookings.length;
+  const totalPages = Math.ceil(totalBookings / bookingsPerPage);
+
+  // Get current page bookings
+  const indexOfLastBooking = currentPage * bookingsPerPage;
+  const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
+  const currentBookings = sortedBookings.slice(
+    indexOfFirstBooking,
+    indexOfLastBooking
+  );
+
+  // Change page
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  const nextPage = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const prevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   const refreshBookings = async () => {
     if (!user) return;
@@ -141,7 +169,12 @@ export default function BookingsList({
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <p className="text-sm text-muted-foreground">
+          Showing {indexOfFirstBooking + 1} to{" "}
+          {Math.min(indexOfLastBooking, totalBookings)} of {totalBookings}{" "}
+          bookings
+        </p>
         <Button
           variant="outline"
           size="sm"
@@ -152,7 +185,7 @@ export default function BookingsList({
         </Button>
       </div>
 
-      {sortedBookings.map((booking) => {
+      {currentBookings.map((booking) => {
         return (
           <div
             key={booking.id}
@@ -206,6 +239,96 @@ export default function BookingsList({
           </div>
         );
       })}
+
+      {/* Pagination controls */}
+      {totalPages > 1 && (
+        <Pagination className="mt-6">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={prevPage}
+                className={
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
+            </PaginationItem>
+
+            {/* First page */}
+            {currentPage > 3 && (
+              <PaginationItem>
+                <PaginationLink onClick={() => paginate(1)}>1</PaginationLink>
+              </PaginationItem>
+            )}
+
+            {/* Ellipsis if needed */}
+            {currentPage > 3 && (
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            )}
+
+            {/* Page numbers */}
+            {Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
+              let pageNum;
+
+              if (currentPage <= 2) {
+                // Show first 3 pages
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 1) {
+                // Show last 3 pages
+                pageNum = totalPages - 2 + i;
+              } else {
+                // Show current page and surrounding pages
+                pageNum = currentPage - 1 + i;
+              }
+
+              // Ensure page numbers are within valid range
+              if (pageNum > 0 && pageNum <= totalPages) {
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationLink
+                      isActive={currentPage === pageNum}
+                      onClick={() => paginate(pageNum)}
+                    >
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              }
+              return null;
+            })}
+
+            {/* Ellipsis if needed */}
+            {currentPage < totalPages - 2 && (
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+            )}
+
+            {/* Last page */}
+            {currentPage < totalPages - 2 && (
+              <PaginationItem>
+                <PaginationLink onClick={() => paginate(totalPages)}>
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            )}
+
+            <PaginationItem>
+              <PaginationNext
+                onClick={nextPage}
+                className={
+                  currentPage === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
 
       <div className="text-center mt-6">
         <Button className="bg-green-500 hover:bg-green-600" asChild>

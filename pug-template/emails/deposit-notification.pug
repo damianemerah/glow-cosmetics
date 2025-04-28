@@ -1,0 +1,40 @@
+extends layout.pug
+
+block content
+  h2 Booking Deposit Received
+
+  p A deposit has been received for the following booking:
+
+  table(style="width: 100%; border-collapse: collapse; margin: 20px 0;")
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Client
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{user.firstName} #{user.lastName}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Service
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{booking.serviceName}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Date & Time
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{booking.dateFormatted} at #{booking.timeFormatted}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Deposit Amount
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") R#{booking.depositAmount.toFixed(2)}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Contact
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;")
+        | Phone: #{user.phone}
+        br
+        | Email: #{user.email}
+
+    if booking.specialRequests
+      tr
+        th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Special Notes
+        td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{booking.specialRequests}
+
+  p.
+    The booking has been confirmed. You can view the full details in the admin panel.
+
+  a.button(href=`${siteUrl}/admin/appointments`) View in Admin Panel

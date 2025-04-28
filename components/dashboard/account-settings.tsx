@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
+import { Button, Switch, Separator } from "@/constants/ui/index";
 import Link from "next/link";
 import { toast } from "sonner";
 import { setNotificationSettings } from "@/actions/dashboardAction";
@@ -37,11 +35,7 @@ export default function AccountSettings({
       switch (type) {
         case "marketing":
           setIsMarketingEnabled(checked);
-          await setNotificationSettings(
-            userId,
-            "marketing_notification_enabled",
-            checked
-          );
+          await setNotificationSettings(userId, "receive_emails", checked);
           toast("Preferences Updated", {
             description: "Your marketing email settings have been updated.",
           });

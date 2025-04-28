@@ -14,20 +14,18 @@ import Focus from "@tiptap/extension-focus";
 import TextStyle from "@tiptap/extension-text-style";
 import BulletList from "@tiptap/extension-bullet-list";
 import FontSize from "@tiptap/extension-font-size";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import {
+  Input,
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/constants/ui/index";
 import {
   Bold,
   Italic,

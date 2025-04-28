@@ -68,3 +68,44 @@ export function RelatedProductsSkeleton() {
     </div>
   );
 }
+
+export function ProductGridSkeletonWrapper() {
+  return (
+    <section className="py-8 md:py-12 bg-background">
+      <div className="container mx-auto px-4 relative">
+        <Skeleton className="h-6 w-1/4 mb-4" />
+        <Skeleton className="h-12 w-full mb-8" />
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+          {[...Array(8)].map((_, i) => (
+            <Skeleton key={i} className="h-80 w-full rounded-lg" />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export function LoyaltyProgramSkeleton() {
+  return (
+    <section className="py-16 bg-secondary">
+      <div className="container mx-auto px-4">
+        <Skeleton className="h-64 w-full max-w-4xl mx-auto rounded-lg" />
+      </div>
+    </section>
+  );
+}
+
+export function ProductCTASkeleton() {
+  return (
+    <section className="py-16 bg-[#5a6b47]">
+      <div className="container mx-auto px-4 text-center">
+        <Skeleton className="h-8 w-1/2 mx-auto mb-6 bg-white/20" />
+        <Skeleton className="h-6 w-3/4 mx-auto mb-8 bg-white/20" />
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Skeleton className="h-12 w-32 rounded-md bg-white/30" />
+          <Skeleton className="h-12 w-32 rounded-md bg-white/30" />
+        </div>
+      </div>
+    </section>
+  );
+}

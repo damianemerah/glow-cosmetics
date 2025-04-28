@@ -1,148 +1,99 @@
 "use client";
-
-import { useState } from "react";
-import { ShoppingBag, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
+import { ShoppingBag } from "lucide-react";
+import { Separator } from "@/constants/ui/index";
 import Image from "next/image";
-import { formatZAR } from "@/utils/formattedCurrency";
+import { formatZAR } from "@/utils";
 
-interface OrderSummaryProps {
-  cartItems: {
-    id: string;
-    product_id: string;
-    product_name: string;
-    quantity: number;
-    price: number;
-    image_url?: string;
-  }[];
+interface CartItem {
+  id: string;
+  product_id: string;
+  product_name: string;
+  quantity: number;
+  price: number;
+  image_url?: string;
 }
 
-export default function OrderSummary({ cartItems }: OrderSummaryProps) {
-  const [discountCode, setDiscountCode] = useState("");
-  const [discountApplied, setDiscountApplied] = useState(false);
+interface OrderSummaryProps {
+  cartItems: CartItem[];
+  subtotal: number;
+  deliveryMethodName: string;
+  deliveryFee: number;
+  totalAmount: number;
+}
 
-  const applyDiscount = () => {
-    if (!discountCode.trim()) return;
-
-    // Simulate discount application
-    toast.success(
-      `Discount code "${discountCode}" has been applied to your order.`
-    );
-    setDiscountApplied(true);
-  };
-
-  const calculateSubtotal = () => {
-    return cartItems.reduce(
-      (total: number, item: { price: number; quantity: number }) =>
-        total + item.price * item.quantity,
-      0
-    );
-  };
-
-  const calculateDiscount = () => {
-    return discountApplied ? calculateSubtotal() * 0.1 : 0; // 10% discount
-  };
-
-  const calculateShipping = () => {
-    return 0; // Free shipping for now
-  };
-
-  const calculateTotal = () => {
-    return calculateSubtotal() - calculateDiscount() + calculateShipping();
-  };
-
+export default function OrderSummary({
+  cartItems,
+  subtotal,
+  deliveryMethodName,
+  deliveryFee,
+  totalAmount,
+}: OrderSummaryProps) {
   return (
-    <div className="bg-gray-50 p-6 rounded-lg">
+    <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
       <h2 className="text-lg font-semibold mb-4 font-montserrat">
         Order Summary
       </h2>
-
       <div className="space-y-4 mb-6">
         {cartItems.map((item) => (
-          <div key={item.id} className="flex py-2 border-b">
-            <div className="h-16 w-16 bg-white rounded-md mr-4 flex-shrink-0  relative">
+          <div
+            key={item.id}
+            className="flex items-center py-2 border-b last:border-b-0"
+          >
+            <div className="h-16 w-16 bg-white rounded-md mr-4 flex-shrink-0 relative border">
               {item.image_url ? (
                 <Image
                   src={item.image_url}
                   alt={item.product_name}
-                  width={64}
-                  height={64}
-                  className="h-full w-full object-cover rounded-md"
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-md"
+                  sizes="(max-width: 768px) 10vw, 5vw"
                 />
               ) : (
                 <div className="h-full w-full flex items-center justify-center text-muted-foreground">
                   <ShoppingBag className="h-6 w-6" />
                 </div>
               )}
-              <div className="absolute -top-2 -right-2 bg-gray-200 rounded-full w-5 h-5 flex items-center justify-center text-xs">
+              <div className="absolute -top-2 -right-2 bg-gray-200 rounded-full w-5 h-5 flex items-center justify-center text-xs font-medium text-gray-700">
                 {item.quantity}
               </div>
             </div>
             <div className="flex-grow">
-              <h4 className="font-medium">{item.product_name}</h4>
+              <h4 className="font-medium text-sm leading-tight">
+                {item.product_name}
+              </h4>
             </div>
-            <div className="text-right">
-              <span className="font-medium">
+            <div className="text-right ml-2">
+              <span className="font-medium text-sm">
                 {formatZAR(item.price * item.quantity)}
               </span>
             </div>
           </div>
         ))}
       </div>
-
-      <div className="mb-6">
-        <div className="flex items-center space-x-2">
-          <Input
-            placeholder="Discount code"
-            value={discountCode}
-            onChange={(e) => setDiscountCode(e.target.value)}
-            className="flex-grow"
-          />
-          <Button
-            onClick={applyDiscount}
-            variant="outline"
-            disabled={!discountCode.trim() || discountApplied}
-          >
-            {discountApplied ? (
-              <span className="flex items-center">
-                <Check className="h-4 w-4 mr-1" />
-                Applied
-              </span>
-            ) : (
-              "Apply"
-            )}
-          </Button>
-        </div>
-      </div>
-
       <Separator className="my-4" />
-
-      <div className="space-y-2">
+      <div className="space-y-2 text-sm">
         <div className="flex justify-between">
-          <span>Subtotal</span>
-          <span>{formatZAR(calculateSubtotal())}</span>
+          <span className="text-muted-foreground">Subtotal</span>
+          <span className="font-medium">{formatZAR(subtotal)}</span>
         </div>
-        {discountApplied && (
-          <div className="flex justify-between text-green-600">
-            <span>Discount</span>
-            <span>-{formatZAR(calculateDiscount())}</span>
-          </div>
-        )}
+
         <div className="flex justify-between">
-          <span>Shipping</span>
-          <span>
-            {calculateShipping() === 0
-              ? "Free"
-              : `${formatZAR(calculateShipping())}`}
+          <span className="text-muted-foreground">
+            Delivery ({deliveryMethodName})
+          </span>
+          <span
+            className={`font-medium ${deliveryFee === 0 ? "text-green-600" : ""}`}
+          >
+            {deliveryFee === 0 ? "Free" : formatZAR(deliveryFee)}
           </span>
         </div>
+
         <Separator className="my-2" />
-        <div className="flex justify-between font-bold text-lg">
+
+        <div className="flex justify-between font-bold text-lg pt-1">
           <span>Total</span>
-          <span>{formatZAR(calculateTotal())}</span>
+          <span>{formatZAR(totalAmount)}</span>
         </div>
       </div>
     </div>

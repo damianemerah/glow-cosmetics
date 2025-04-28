@@ -1,35 +1,38 @@
 "use client";
-
 import type React from "react";
 
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import useSWR from "swr";
+import { format } from "date-fns";
 import { Edit, Upload, AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import PhoneInput from "react-phone-input-2";
+
 import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  Button,
+  Progress,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
-import {
+  Input,
+  Label,
+  Calendar,
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/constants/ui/index";
+
 import { cn } from "@/lib/utils";
+
 import { toast } from "sonner";
-import type { Profile } from "@/types/dashboard";
-import { useRouter } from "next/navigation";
-import useSWR from "swr";
-import PhoneInput from "react-phone-input-2";
+
+import type { Profile } from "@/types/index";
 
 import { uploadAvatar, updateProfile } from "@/actions/dashboardAction";
 

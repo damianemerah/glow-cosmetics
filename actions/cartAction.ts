@@ -1,23 +1,17 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-import { Database } from "@/types/types";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { revalidatePath } from "next/cache";
 import { OfflineCartItem } from "@/store/cartStore";
-
-type CartItem = Database["public"]["Tables"]["cart_items"]["Insert"];
-type Product = Database["public"]["Tables"]["products"]["Row"];
-
-export type CartProduct = Pick<Product, "id" | "name" | "price" | "image_url">;
+import { CartProduct } from "@/types/index";
 
 // Get or create cart for user
 export async function getOrCreateCart(userId: string) {
   console.log(`Finding or creating cart for user ${userId}`);
 
   // Check for existing active cart
-  const supabase = await createClient();
 
-  const { data: existingCart, error: cartError } = await supabase
+  const { data: existingCart, error: cartError } = await supabaseAdmin
     .from("carts")
     .select("*")
     .eq("user_id", userId)
@@ -26,7 +20,9 @@ export async function getOrCreateCart(userId: string) {
 
   if (cartError) {
     if (cartError.code === "PGRST116") {
-      console.log(`No existing cart found for user ${userId}, creating new cart`);
+      console.log(
+        `No existing cart found for user ${userId}, creating new cart`,
+      );
     } else {
       console.error("Error fetching cart:", cartError);
       throw cartError;
@@ -41,7 +37,7 @@ export async function getOrCreateCart(userId: string) {
 
   // Create new cart if none exists
   console.log(`Creating new cart for user ${userId}`);
-  const { data: newCart, error: createError } = await supabase
+  const { data: newCart, error: createError } = await supabaseAdmin
     .from("carts")
     .insert([{ user_id: userId }])
     .select()
@@ -63,77 +59,102 @@ export async function addToCart(
   quantity: number = 1,
 ) {
   try {
-    const supabase = await createClient();
+    // First, check current product stock
+    const { data: productData, error: productError } = await supabaseAdmin
+      .from("products")
+      .select("stock_quantity, is_active")
+      .eq("id", product.id)
+      .single();
 
-    // Get or create cart
+    if (productError) {
+      throw new Error(`Failed to check product stock: ${productError.message}`);
+    }
+
+    // If product is not active or out of stock, prevent adding to cart
+    if (!productData.is_active) {
+      throw new Error("This product is no longer available");
+    }
+
+    if (productData.stock_quantity <= 0) {
+      throw new Error("This product is out of stock");
+    }
+
+    // Get the cart for the user
     const cart = await getOrCreateCart(userId);
 
-    console.log(cart, "🌐");
+    console.log(cart);
 
-    // Check if product already exists in cart
-    const { data: existingItems, error: checkError } = await supabase
-      .from("cart_items")
-      .select("*")
-      .eq("cart_id", cart.id)
-      .eq("product_id", product.id);
-
-    if (checkError) {
-      console.error("Error checking cart items:", checkError);
-      throw checkError;
+    if (!cart) {
+      throw new Error("Failed to create cart");
     }
 
-    if (existingItems && existingItems.length > 0) {
-      // Update quantity if item exists
-      const existingItem = existingItems[0];
-      const newQuantity = existingItem.quantity + quantity;
+    // Check if this product is already in the cart
+    const { data: existingCartItem, error: existingItemError } =
+      await supabaseAdmin
+        .from("cart_items")
+        .select("id, quantity")
+        .eq("cart_id", cart.id)
+        .eq("product_id", product.id)
+        .single();
 
-      const { error: updateError } = await supabase
+    // Calculate the new quantity (existing + new quantity)
+    const newQuantity = (existingCartItem?.quantity || 0) + quantity;
+
+    // Verify we're not exceeding available stock
+    if (newQuantity > productData.stock_quantity) {
+      throw new Error(
+        `Only ${productData.stock_quantity} units available in stock`,
+      );
+    }
+
+    // Handle the case when the item already exists
+    if (existingCartItem && !existingItemError) {
+      // Update the existing item quantity
+      const { error: updateError } = await supabaseAdmin
         .from("cart_items")
         .update({ quantity: newQuantity })
-        .eq("id", existingItem.id);
+        .eq("id", existingCartItem.id);
 
       if (updateError) {
-        console.error("Error updating item quantity:", updateError);
-        throw updateError;
+        throw new Error(`Failed to update cart item: ${updateError.message}`);
       }
-    } else {
-      // Add new item to cart
-      const cartItem: CartItem = {
-        cart_id: cart.id,
-        product_id: product.id,
-        quantity: quantity,
-        price_at_time: product.price,
-      };
 
-      const { error: insertError } = await supabase
+      return { success: true, cart, message: "Cart updated" };
+    } else {
+      // Add a new item to the cart
+      const { error: insertError } = await supabaseAdmin
         .from("cart_items")
-        .insert([cartItem]);
+        .insert({
+          cart_id: cart.id,
+          product_id: product.id,
+          quantity,
+          price_at_time: product.price,
+        });
 
       if (insertError) {
-        console.error("Error adding item to cart:", insertError);
-        throw insertError;
+        throw new Error(`Failed to add item to cart: ${insertError.message}`);
       }
+
+      return { success: true, cart, message: "Item added to cart" };
     }
-
-    revalidatePath("/", "layout");
-
-    return { success: true };
   } catch (error) {
-    console.error("Error in addToCart:", error);
-    return { success: false, error };
+    return {
+      success: false,
+      error: error instanceof Error
+        ? error.message
+        : "An unknown error occurred",
+    };
   }
 }
 
 // Update cart item quantity
 export async function updateCartItemQuantity(itemId: string, quantity: number) {
-  const supabase = await createClient();
-
   try {
     if (quantity < 1) {
       return { success: false, error: "Quantity must be at least 1" };
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("cart_items")
       .update({ quantity })
       .eq("id", itemId);
@@ -152,10 +173,8 @@ export async function updateCartItemQuantity(itemId: string, quantity: number) {
 
 // Remove item from cart
 export async function removeCartItem(itemId: string) {
-  const supabase = await createClient();
-
   try {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("cart_items")
       .delete()
       .eq("id", itemId);
@@ -174,11 +193,9 @@ export async function removeCartItem(itemId: string) {
 
 // Get cart with items
 export async function getCartWithItems(userId: string) {
-  const supabase = await createClient();
-
   try {
     // Get active cart
-    const { data: cartData, error: cartError } = await supabase
+    const { data: cartData, error: cartError } = await supabaseAdmin
       .from("carts")
       .select("*")
       .eq("user_id", userId)
@@ -196,7 +213,7 @@ export async function getCartWithItems(userId: string) {
     }
 
     // Get cart items with product details
-    const { data: itemsData, error: itemsError } = await supabase
+    const { data: itemsData, error: itemsError } = await supabaseAdmin
       .from("cart_items")
       .select(
         `
@@ -237,46 +254,6 @@ export async function getCartItemsCount(userId: string): Promise<number> {
   }
 }
 
-// Get cart items count (returns the number of unique products in cart)
-export async function getCartItemCount(userId: string): Promise<number> {
-  try {
-    const supabase = await createClient();
-
-    // First get the user's cart
-    const { data: cart, error: cartError } = await supabase
-      .from("carts")
-      .select("id")
-      .eq("user_id", userId)
-      .single();
-    // .eq("status", "active")
-
-    if (cartError) {
-      if (cartError.code === "PGRST116") {
-        // No cart found
-        return 0;
-      }
-      console.error("Error fetching cart:", cartError);
-      return 0;
-    }
-
-    // Then count items in the cart
-    const { count, error: countError } = await supabase
-      .from("cart_items")
-      .select("*", { count: "exact", head: true })
-      .eq("cart_id", cart.id);
-
-    if (countError) {
-      console.error("Error counting cart items:", countError);
-      return 0;
-    }
-
-    return count || 0;
-  } catch (error) {
-    console.error("Error in getCartItemCount:", error);
-    return 0;
-  }
-}
-
 /**
  * Merge offline cart items with server cart
  *
@@ -285,21 +262,19 @@ export async function getCartItemCount(userId: string): Promise<number> {
  */
 export async function mergeOfflineCart(
   userId: string,
-  offlineItems: OfflineCartItem[]
+  offlineItems: OfflineCartItem[],
 ) {
   if (!userId || !offlineItems.length) {
     return { success: true, message: "No items to merge", itemsAdded: 0 };
   }
 
   try {
-    const supabase = await createClient();
-
     // Get or create user's cart
     const cart = await getOrCreateCart(userId);
 
     // Get fresh product data for all offline items to ensure current prices
-    const offlineProductIds = offlineItems.map(item => item.id);
-    const { data: currentProducts, error: productsError } = await supabase
+    const offlineProductIds = offlineItems.map((item) => item.id);
+    const { data: currentProducts, error: productsError } = await supabaseAdmin
       .from("products")
       .select("id, name, price")
       .in("id", offlineProductIds);
@@ -311,16 +286,20 @@ export async function mergeOfflineCart(
 
     // Map of product id to current price and name
     const productDataMap = new Map();
-    currentProducts?.forEach(product => {
-      productDataMap.set(product.id, { price: product.price, name: product.name });
+    currentProducts?.forEach((product) => {
+      productDataMap.set(product.id, {
+        price: product.price,
+        name: product.name,
+      });
     });
 
     // Get current cart items to check for existing products
-    const { data: existingCartItems, error: cartItemsError } = await supabase
-      .from("cart_items")
-      .select("id, product_id, quantity")
-      .eq("cart_id", cart.id)
-      .in("product_id", offlineProductIds);
+    const { data: existingCartItems, error: cartItemsError } =
+      await supabaseAdmin
+        .from("cart_items")
+        .select("id, product_id, quantity")
+        .eq("cart_id", cart.id)
+        .in("product_id", offlineProductIds);
 
     if (cartItemsError) {
       console.error("Error fetching existing cart items:", cartItemsError);
@@ -329,7 +308,7 @@ export async function mergeOfflineCart(
 
     // Map product_id to existing cart item for quick lookup
     const existingItemsMap = new Map();
-    existingCartItems?.forEach(item => {
+    existingCartItems?.forEach((item) => {
       existingItemsMap.set(item.product_id, item);
     });
 
@@ -338,7 +317,7 @@ export async function mergeOfflineCart(
       success: true,
       itemsProcessed: 0,
       itemsAdded: 0,
-      errors: [] as string[]
+      errors: [] as string[],
     };
 
     // Process items sequentially
@@ -356,13 +335,11 @@ export async function mergeOfflineCart(
       try {
         const existingItem = existingItemsMap.get(offlineItem.id);
 
-
-
         if (existingItem) {
           // Update existing cart item quantity
           const newQuantity = offlineItem.quantity;
 
-          const { error: updateError } = await supabase
+          const { error: updateError } = await supabaseAdmin
             .from("cart_items")
             .update({
               quantity: newQuantity,
@@ -370,17 +347,21 @@ export async function mergeOfflineCart(
             })
             .eq("id", existingItem.id);
 
-
           if (updateError) {
-            console.error(`Error updating cart item ${existingItem.id}:`, updateError);
-            results.errors.push(`Failed to update ${productData.name}: ${updateError.message}`);
+            console.error(
+              `Error updating cart item ${existingItem.id}:`,
+              updateError,
+            );
+            results.errors.push(
+              `Failed to update ${productData.name}: ${updateError.message}`,
+            );
           } else {
             results.itemsProcessed++;
             results.itemsAdded++;
           }
         } else {
           // Insert new cart item
-          const { error: insertError } = await supabase
+          const { error: insertError } = await supabaseAdmin
             .from("cart_items")
             .insert([{
               cart_id: cart.id,
@@ -390,8 +371,13 @@ export async function mergeOfflineCart(
             }]);
 
           if (insertError) {
-            console.error(`Error inserting cart item for product ${offlineItem.id}:`, insertError);
-            results.errors.push(`Failed to add ${productData.name}: ${insertError.message}`);
+            console.error(
+              `Error inserting cart item for product ${offlineItem.id}:`,
+              insertError,
+            );
+            results.errors.push(
+              `Failed to add ${productData.name}: ${insertError.message}`,
+            );
           } else {
             results.itemsProcessed++;
             results.itemsAdded++;
@@ -399,8 +385,12 @@ export async function mergeOfflineCart(
         }
       } catch (error) {
         console.error(`Exception processing item ${offlineItem.id}:`, error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        results.errors.push(`Error merging ${productData.name}: ${errorMessage}`);
+        const errorMessage = error instanceof Error
+          ? error.message
+          : "Unknown error";
+        results.errors.push(
+          `Error merging ${productData.name}: ${errorMessage}`,
+        );
       }
     }
 
@@ -418,14 +408,14 @@ export async function mergeOfflineCart(
         ? `Offline cart merged successfully: ${results.itemsAdded} items`
         : "Failed to merge offline cart",
       itemsAdded: results.itemsAdded,
-      errors: results.errors.length > 0 ? results.errors : undefined
+      errors: results.errors.length > 0 ? results.errors : undefined,
     };
   } catch (error) {
     console.error("Error merging offline cart:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      itemsAdded: 0
+      error: error instanceof Error ? error.message : "Unknown error",
+      itemsAdded: 0,
     };
   }
 }

@@ -9,11 +9,14 @@ const paystackInstance = Paystack(process.env.PAYSTACK_SECRET_KEY!);
 
 export async function POST(req: Request) {
   try {
-    const { email, bookingId, amount, name } = await req.json(); // Added name to destructuring
-    if (!email || !bookingId || !name) {
+    const body = await req.json();
+
+    console.log("Received deposit request:💰💰", body);
+    const { email, bookingId, amount, name, userId } = body;
+    if (!email || !bookingId || !name || !userId) {
       return NextResponse.json(
         { error: "Email, booking ID, and name are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -21,21 +24,21 @@ export async function POST(req: Request) {
     const { data: booking, error } = await supabaseAdmin
       .from("bookings")
       .select("*")
-      .eq("booking_id", bookingId)
-      .single();
+      .eq("user_id", userId)
+      .eq("booking_id", bookingId);
 
     if (error) {
       console.error(error);
       return NextResponse.json(
         { error: "An error occurred while processing your payment" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     if (!booking) {
       return NextResponse.json(
         { error: "Booking not found or expired" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -45,7 +48,8 @@ export async function POST(req: Request) {
       amount: parseInt(amount) * 100,
       reference: bookingId,
       name,
-      callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/booking/confirmation?bookingId=${bookingId}`,
+      callback_url:
+        `${process.env.NEXT_PUBLIC_APP_URL}/booking/confirmation?bookingId=${bookingId}`,
       metadata: {
         type: "deposit",
         booking_id: bookingId,
@@ -54,10 +58,10 @@ export async function POST(req: Request) {
           {
             display_name: "Booking ID",
             variable_name: "booking_id",
-            value: bookingId
-          }
-        ]
-      }
+            value: bookingId,
+          },
+        ],
+      },
     });
 
     return NextResponse.json({ data: response }, { status: 200 });
@@ -65,7 +69,7 @@ export async function POST(req: Request) {
     console.error(error);
     return NextResponse.json(
       { error: "An error occurred while processing your payment" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

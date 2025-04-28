@@ -1,18 +1,17 @@
 import { createClient } from "@/utils/supabase/server";
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from "@/constants/ui/index";
+
 import { CheckCircle, Package, CreditCard, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";

@@ -2,8 +2,13 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Montserrat, Open_Sans } from "next/font/google";
 import AdminSidebar from "@/components/admin/admin-sidebar";
-import AdminFooter from "@/components/admin/admin-footer";
 import "../globals.css";
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarRail,
+  SidebarInset,
+} from "@/components/ui/sidebar";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -32,11 +37,16 @@ export default function AdminLayout({
     <div
       className={`${montserrat.variable} ${openSans.variable} font-sans flex min-h-screen bg-background`}
     >
-      <div className="flex flex-col flex-1">
+      <SidebarProvider>
         <AdminSidebar />
-        <main className="flex-1 p-6 md:ml-[240px]">{children}</main>
-        <AdminFooter />
-      </div>
+        <SidebarRail />
+        <SidebarInset>
+          <div className="p-6">
+            <SidebarTrigger className="fixed top-4 left-4 z-50" />
+            {children}
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
     </div>
   );
 }

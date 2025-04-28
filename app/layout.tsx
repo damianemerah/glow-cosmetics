@@ -4,13 +4,13 @@ import { Open_Sans, Libre_Bodoni } from "next/font/google";
 // import { Montserrat, Open_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
-import { Suspense } from "react";
+// import { Suspense } from "react";
 
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { FaWhatsapp } from "react-icons/fa";
 import "react-phone-input-2/lib/style.css";
-import { Skeleton } from "@/components/ui/skeleton";
+// import { Skeleton } from "@/components/ui/skeleton";
 
 const montserrat = Libre_Bodoni({
   subsets: ["latin"],
@@ -38,9 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} ${openSans.variable} font-sans`}>
-        <Suspense fallback={<Skeleton className="h-12 w-full" />}>
-          <Navbar />
-        </Suspense>
+        <Navbar />
         <Toaster />
         <main>{children}</main>
         <Footer />
@@ -48,7 +46,7 @@ export default function RootLayout({
           href="https://wa.me/+2347066765698"
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-4 right-4 flex items-center gap-2 bg-green-500 text-white p-3 rounded-full shadow-lg hover:bg-green-600 transition"
+          className="fixed z-[1000] bottom-4 right-4 flex items-center gap-2 bg-green-500 text-white p-3 rounded-full shadow-lg hover:bg-green-600 transition"
           aria-label="Chat with us on WhatsApp"
         >
           <FaWhatsapp className="w-6 h-6" />

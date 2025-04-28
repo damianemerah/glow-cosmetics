@@ -1,48 +1,56 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import useSWR from "swr";
+import { customAlphabet } from "nanoid";
+import { Copy } from "lucide-react";
+
 import {
+  Button,
+  Calendar,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { Label } from "@/components/ui/label";
-import DataTable from "@/components/admin/data-table";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "sonner";
-import { services, timeSlots } from "@/constants/data";
-import AppointmentFilter from "@/components/appointments/appointment-filter";
-import EditBookingPopover from "@/components/booking/edit-booking-popover";
-import { createBooking } from "@/actions/dashboardAction";
-import type { Booking } from "@/types/dashboard";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
+  Label,
+  Badge,
+  Skeleton,
   Pagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination";
-import useSWR from "swr";
+  Input,
+} from "@/constants/ui/index";
+
+import DataTable from "@/components/admin/data-table";
+import AppointmentFilter from "@/components/appointments/appointment-filter";
+import EditBookingPopover from "@/components/booking/edit-booking-popover";
+
+import { useMessaging } from "@/hooks/useMessaging";
+
+import type { MessageChannel } from "@/lib/messaging";
+import type { Booking } from "@/types/index";
+
+import { services, getTimeSlotsForDay } from "@/constants/data";
+
+import { createBooking, updateBooking } from "@/actions/dashboardAction";
+
+import { toast } from "sonner";
+
+const nanoid = customAlphabet("0123456789", 6);
 
 type DateType = "all" | "today" | "week" | "month";
 
@@ -58,6 +66,27 @@ interface AppointmentsClientProps {
 
 // Define the column structure for the DataTable
 const appointmentColumns = [
+  //add bookingId column
+  {
+    key: "booking_id",
+    title: "Booking ID",
+    render: (booking: Booking) => {
+      const handleCopy = () => {
+        navigator.clipboard.writeText(booking.booking_id);
+        toast.success("Booking ID copied to clipboard");
+      };
+
+      return (
+        <div className="flex items-center space-x-2">
+          <span className="break-all">{booking.booking_id}</span>
+          <Copy
+            className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer"
+            onClick={handleCopy}
+          />
+        </div>
+      );
+    },
+  },
   {
     key: "date",
     title: "Date & Time",
@@ -195,21 +224,19 @@ export default function AppointmentsClient({
   const [selectedClient, setSelectedClient] = useState<string>("");
   const [selectedService, setSelectedService] = useState<string>("");
   const [selectedTime, setSelectedTime] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [clients] = useState<{ id: string; name: string }[]>(initialClients);
 
-  // Use SWR for bookings data
-  const { data, mutate } = useSWR<Booking[]>(
-    "appointments",
-    null, // No fetcher function because we're using initialData
-    {
-      fallbackData: initialBookings,
-      revalidateOnFocus: false,
-    }
-  );
+  // Use SWR for bookings data. No fetcher function because we're using initialData
+  const { data, mutate } = useSWR<Booking[]>("appointments", null, {
+    fallbackData: initialBookings,
+    revalidateOnFocus: false,
+  });
 
-  // Memoize bookings to avoid dependency changes in filteredBookings useMemo
   const bookings = useMemo(() => data || [], [data]);
 
   // Apply filters
@@ -270,9 +297,49 @@ export default function AppointmentsClient({
     return filtered;
   }, [bookings, dateFilter, status, search]);
 
+  // Update client selection handler to populate the fields
+  const handleClientSelect = (clientId: string) => {
+    setSelectedClient(clientId);
+
+    // Find the selected client to get their name and split it
+    const client = clients.find((c) => c.id === clientId);
+    if (client) {
+      const nameParts = client.name.split(" ");
+      setFirstName(nameParts[0] || "");
+      setLastName(nameParts.slice(1).join(" ") || "");
+
+      // Try to find the client's booking to get the phone number
+      const clientBooking = bookings.find((b) => b.user_id === clientId);
+      if (clientBooking && clientBooking.phone) {
+        setPhone(clientBooking.phone);
+      } else {
+        setPhone("");
+      }
+    }
+  };
+
+  // Reset form fields when the dialog closes
+  useEffect(() => {
+    if (!open) {
+      setSelectedClient("");
+      setSelectedService("");
+      setSelectedTime("");
+      setFirstName("");
+      setLastName("");
+      setPhone("");
+    }
+  }, [open]);
+
   const handleCreateAppointment = async () => {
-    if (!date || !selectedTime || !selectedService || !selectedClient) {
-      toast.error("Please fill in all fields");
+    if (
+      !date ||
+      !selectedTime ||
+      !selectedService ||
+      !selectedClient ||
+      !firstName ||
+      !phone
+    ) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
@@ -293,7 +360,12 @@ export default function AppointmentsClient({
       const bookingDateTime = new Date(date);
       bookingDateTime.setHours(hour, parseInt(mins), 0, 0);
 
+      const booking_id = nanoid();
+
       const result = await createBooking({
+        first_name: firstName,
+        last_name: lastName || undefined,
+        phone: phone,
         user_id: selectedClient,
         service_id: selectedService,
         booking_time: bookingDateTime.toISOString(),
@@ -301,6 +373,8 @@ export default function AppointmentsClient({
         service_price: services.find(
           (service) => service.id === selectedService
         )!.price,
+        booking_id: `GLOW-${booking_id}`,
+        service_name: services.find((s) => s.id === selectedService)!.name,
       });
 
       // Check the shape of the result and extract the actual booking
@@ -329,19 +403,169 @@ export default function AppointmentsClient({
     );
   };
 
-  const handleBookingDelete = (bookingId: string) => {
-    // Update SWR cache with the cancelled booking
+  const handleBookingDelete = async (bookingId: string) => {
+    await updateBooking(bookingId, { status: "cancelled" });
     mutate(
       bookings.map((booking) =>
         booking.id === bookingId ? { ...booking, status: "cancelled" } : booking
       ),
       false
     );
+    toast.success("Booking cancelled successfully");
   };
 
-  // Fix for the DataTable typings issue
-  // We create a new array of columns where the action column has a simpler render function
-  // that takes only one parameter (booking) but it internally calls the original render with handlers
+  // Add useMessaging hook
+  const { sendUserMessage } = useMessaging();
+
+  // Add a state to track which booking is currently sending a confirmation
+  const [sendingConfirmationId, setSendingConfirmationId] = useState<
+    string | null
+  >(null);
+
+  const [sendingThankYouId, setSendingThankYouId] = useState<string | null>(
+    null
+  );
+
+  const handleSendConfirmation = async (booking: Booking) => {
+    try {
+      // Check if user_id exists
+      if (!booking.user_id) {
+        toast.error(
+          "Cannot send confirmation: No user ID associated with this booking"
+        );
+        return;
+      }
+
+      // Check if confirmation was already sent
+      if (booking.sent_confirmation) {
+        toast.info("Confirmation already sent for this booking");
+        return;
+      }
+      setSendingConfirmationId(booking.id);
+
+      // Prepare variables for template substitution
+      const bookingDate = new Date(booking.booking_time);
+      const formattedDate = format(bookingDate, "MMMM dd, yyyy");
+      const formattedTime = format(bookingDate, "h:mm a");
+
+      const service = services.find((s) => s.id === booking.service_id);
+      const serviceName =
+        service?.name || booking.service_name || "your service";
+
+      const variables = {
+        bookingId: booking.booking_id,
+        serviceName,
+        appointmentDate: formattedDate,
+        appointmentTime: formattedTime,
+        userName:
+          `${booking.first_name || ""} ${booking.last_name || ""}`.trim() ||
+          "Valued Customer",
+        specialInstructions: booking.special_requests || "",
+      };
+
+      const messageData = {
+        userId: booking.user_id,
+        subject: "Appointment Confirmation",
+        message: "pug-template/emails/appointmentConfirmation.pug",
+        variables,
+        channel: "whatsapp" as MessageChannel,
+      };
+      await sendUserMessage(messageData);
+
+      await updateBooking(booking.id, {
+        sent_confirmation: true,
+      });
+
+      toast.success("Confirmation message sent successfully");
+
+      // Update the local state to reflect that confirmation was sent
+      mutate(
+        bookings.map((b) =>
+          b.id === booking.id ? { ...b, sent_confirmation: true } : b
+        ),
+        false
+      );
+    } catch (error) {
+      toast.error("Failed to send confirmation message");
+      console.error(error);
+    } finally {
+      // Clear loading state
+      setSendingConfirmationId(null);
+    }
+  };
+
+  const handleSendThankYou = async (booking: Booking) => {
+    try {
+      // Check if user_id exists
+      if (!booking.user_id) {
+        toast.error(
+          "Cannot send thank you: No user ID associated with this booking"
+        );
+        return;
+      }
+
+      // Check if thank you was already sent
+      if (booking.sent_thanks) {
+        toast.info("Thank you message already sent for this booking");
+        return;
+      }
+
+      // Set loading state for this specific booking
+      setSendingThankYouId(booking.id);
+
+      // Prepare variables for template substitution
+      const bookingDate = new Date(booking.booking_time);
+      const formattedDate = format(bookingDate, "MMMM dd, yyyy");
+
+      const service = services.find((s) => s.id === booking.service_id);
+      const serviceName =
+        service?.name || booking.service_name || "your service";
+
+      const variables = {
+        userName:
+          `${booking.first_name || ""} ${booking.last_name || ""}`.trim() ||
+          "Valued Customer",
+        serviceName,
+        appointmentDate: formattedDate,
+        bookingId: booking.booking_id,
+        bookingUrl: `${window.location.origin}/booking`,
+        feedbackUrl: `${window.location.origin}/feedback/${booking.id}`,
+      };
+
+      const messageData = {
+        userId: booking.user_id,
+        subject: "Thank You for Your Visit",
+        message: "pug-template/emails/appointmentThankYou.pug",
+        variables,
+        channel: "whatsapp" as MessageChannel,
+      };
+
+      // Send thank you message
+      await sendUserMessage(messageData);
+
+      // Update the booking in the database to mark thank you as sent
+      await updateBooking(booking.id, {
+        sent_thanks: true,
+      });
+
+      toast.success("Thank you message sent successfully");
+
+      // Update the local state to reflect that thank you was sent
+      mutate(
+        bookings.map((b) =>
+          b.id === booking.id ? { ...b, sent_thanks: true } : b
+        ),
+        false
+      );
+    } catch (error) {
+      toast.error("Failed to send thank you message");
+      console.error(error);
+    } finally {
+      // Clear loading state
+      setSendingThankYouId(null);
+    }
+  };
+
   const columnsWithHandlers = appointmentColumns.map((column) => {
     if (column.key === "actions") {
       return {
@@ -360,25 +584,44 @@ export default function AppointmentsClient({
                 </Button>
               }
             />
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-red-500"
-              onClick={async () => {
-                try {
-                  await fetch(`/api/bookings/${booking.id}/cancel`, {
-                    method: "POST",
-                  });
-                  toast.success("Booking cancelled");
-                  handleBookingDelete(booking.id);
-                } catch (err) {
-                  console.error("Failed to cancel booking:", err);
-                  toast.error("Failed to cancel booking");
-                }
-              }}
-            >
-              Cancel
-            </Button>
+            {booking.status === "pending" && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-red-500"
+                onClick={() => handleBookingDelete(booking.id)}
+              >
+                Cancel
+              </Button>
+            )}
+            {/* Show Send Confirmation button if confirmation not sent and status is not cancelled */}
+            {!booking.sent_confirmation && booking.status !== "cancelled" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSendConfirmation(booking)}
+                disabled={sendingConfirmationId === booking.id}
+              >
+                {sendingConfirmationId === booking.id
+                  ? "Sending..."
+                  : "Send Confirmation"}
+              </Button>
+            )}
+            {/* Show Send Thank You button if confirmation was sent, thank you not sent, and status is completed */}
+            {booking.sent_confirmation &&
+              !booking.sent_thanks &&
+              booking.status === "completed" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSendThankYou(booking)}
+                  disabled={sendingThankYouId === booking.id}
+                >
+                  {sendingThankYouId === booking.id
+                    ? "Sending..."
+                    : "Send Thank You"}
+                </Button>
+              )}
           </div>
         ),
       };
@@ -406,7 +649,7 @@ export default function AppointmentsClient({
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="client">Client</Label>
-              <Select onValueChange={setSelectedClient}>
+              <Select onValueChange={handleClientSelect} value={selectedClient}>
                 <SelectTrigger id="client">
                   <SelectValue placeholder="Select client" />
                 </SelectTrigger>
@@ -419,9 +662,46 @@ export default function AppointmentsClient({
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="grid gap-2">
+                <Label htmlFor="first_name">First Name</Label>
+                <Input
+                  id="first_name"
+                  placeholder="First name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="last_name">Last Name</Label>
+                <Input
+                  id="last_name"
+                  placeholder="Last name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                placeholder="Phone number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+              />
+            </div>
+
             <div className="grid gap-2">
               <Label htmlFor="service">Service</Label>
-              <Select onValueChange={setSelectedService}>
+              <Select
+                onValueChange={setSelectedService}
+                value={selectedService}
+              >
                 <SelectTrigger id="service">
                   <SelectValue placeholder="Select service" />
                 </SelectTrigger>
@@ -434,6 +714,7 @@ export default function AppointmentsClient({
                 </SelectContent>
               </Select>
             </div>
+
             <div className="grid gap-2">
               <Label>Date</Label>
               <Calendar
@@ -455,11 +736,12 @@ export default function AppointmentsClient({
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
                 <SelectContent>
-                  {timeSlots.map((time) => (
-                    <SelectItem key={time} value={time}>
-                      {time}
-                    </SelectItem>
-                  ))}
+                  {date &&
+                    getTimeSlotsForDay(date).map((time) => (
+                      <SelectItem key={time} value={time}>
+                        {time}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>

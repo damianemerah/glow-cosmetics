@@ -1,21 +1,14 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
-// import { revalidatePath } from "next/cache";
-// import { Database } from "@/types/types";
+import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
-/**
- * Fetch product details by array of product IDs
- */
 export async function getProductsByIds(productIds: string[]) {
   if (!productIds || productIds.length === 0) {
     return { products: [] };
   }
 
   try {
-    const supabase = await createClient();
-
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("products")
       .select("id, name, price, image_url, stock_quantity")
       .in("id", productIds);

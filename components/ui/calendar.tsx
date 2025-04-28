@@ -4,14 +4,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DayPicker, useDayPicker, useNavigation } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 import {
+  buttonVariants,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/constants/ui/index";
 
 interface CustomCaptionProps {
   displayMonth: Date;

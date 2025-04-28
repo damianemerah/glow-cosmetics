@@ -1,28 +1,35 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+  Button,
+  Input,
+  Checkbox,
+  Card,
+  CardContent,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  Label,
+} from "@/constants/ui/index";
 import { toast } from "sonner";
-import { Loader2, ArrowLeft, X, Plus } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Loader2,
+  ArrowLeft,
+  X,
+  Plus,
+  ChevronsUpDown,
+  Trash2,
+} from "lucide-react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { uploadImageToSupabase, saveProduct } from "@/actions/adminActions";
-import { categoryOptions } from "@/constants/data";
-import { ProductCategory } from "@/types/dashboard";
+import type { Category, ColorInfo } from "@/types/index";
 import useSWR from "swr";
 
 const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), {
@@ -32,7 +39,29 @@ const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), {
   ),
 });
 
-// Define the schema for form validation with image_url as string array
+// --- Define Color Options (remains the same) ---
+const skinToneColors: ColorInfo[] = [
+  { name: "Fair", hex: "#EFD1B3" },
+  { name: "Medium", hex: "#DDBAA0" },
+  { name: "Tan", hex: "#C49181" },
+  { name: "Deep", hex: "#755237" },
+];
+
+// --- Define Zod schema for ColorInfo (remains the same) ---
+const colorInfoSchema = z.object({
+  name: z.string(),
+  hex: z.string().regex(/^#[0-9A-F]{6}$/i, "Invalid hex color format"),
+});
+
+// --- Define Zod schema for AdditionalDetailItem ---
+const additionalDetailItemSchema = z.object({
+  id: z.string().optional(), // ID from useFieldArray, not for DB
+  key: z.string().min(1, "Key cannot be empty"),
+  value: z.string().min(1, "Value cannot be empty"),
+});
+// --- End Zod schema ---
+
+// --- Update productSchema ---
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   short_description: z.string().min(1, "Short description is required"),
@@ -41,13 +70,13 @@ const productSchema = z.object({
     .number()
     .min(0.01, "Price must be greater than 0")
     .multipleOf(0.01),
-  category: z.enum([
-    "lip_gloss",
-    "skin_care",
-    "supplements",
-    "jewellery",
-    "makeup",
-  ]),
+  compare_price: z.coerce
+    .number()
+    .min(0, "Compare price must be non-negative")
+    .multipleOf(0.01)
+    .nullable()
+    .optional(),
+  categoryIds: z.array(z.string()).min(1, "At least one category is required"),
   image_url: z.array(z.string().url("Must be a valid URL")).default([]),
   stock_quantity: z.coerce
     .number()
@@ -55,54 +84,79 @@ const productSchema = z.object({
     .min(0, "Stock quantity must be non-negative"),
   is_active: z.boolean(),
   is_bestseller: z.boolean(),
+  // --- color is now an array ---
+  color: z.array(colorInfoSchema).default([]),
+  // --- additional_details is now an array of key-value pairs ---
+  additional_details: z.array(additionalDetailItemSchema).default([]),
 });
+// --- End update productSchema ---
 
 type ProductFormData = z.infer<typeof productSchema>;
 
 export default function ProductForm({
   id,
   initialData,
+  categoryData,
 }: {
   id: string;
   initialData: ProductFormData;
+  categoryData: Category[];
 }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [categories] = useState<Category[]>(categoryData || []);
 
-  // Use SWR for product data
+  const normalizedInitialData = useMemo(
+    (): ProductFormData => ({
+      ...initialData,
+      color: Array.isArray(initialData.color) ? initialData.color : [],
+      additional_details: Array.isArray(initialData.additional_details)
+        ? initialData.additional_details
+        : [],
+    }),
+    [initialData]
+  );
+
   const { data: productData, mutate } = useSWR<ProductFormData>(
     `product-${id}`,
-    null, // No fetcher function because we're using initialData
+    null,
     {
-      fallbackData: initialData,
+      fallbackData: normalizedInitialData,
       revalidateOnFocus: false,
     }
   );
 
-  // Create a type-safe mutate function to handle partial updates
   const safeUpdateCache = useCallback(
     (newData: Partial<ProductFormData>) => {
-      // Ensure all required fields are present by merging with existing data
+      // Ensure arrays are handled correctly during merge
+      const currentProductData = productData || normalizedInitialData;
       const completeData: ProductFormData = {
-        name: newData.name ?? productData?.name ?? "",
+        name: newData.name ?? currentProductData.name,
         short_description:
-          newData.short_description ?? productData?.short_description ?? "",
-        description: newData.description ?? productData?.description ?? "",
-        price: newData.price ?? productData?.price ?? 0,
-        category: newData.category ?? productData?.category ?? "skin_care",
-        image_url: newData.image_url ?? productData?.image_url ?? [],
+          newData.short_description ?? currentProductData.short_description,
+        description: newData.description ?? currentProductData.description,
+        price: newData.price ?? currentProductData.price,
+        compare_price:
+          newData.compare_price !== undefined
+            ? newData.compare_price
+            : currentProductData.compare_price,
+        categoryIds: newData.categoryIds ?? currentProductData.categoryIds,
+        image_url: newData.image_url ?? currentProductData.image_url,
         stock_quantity:
-          newData.stock_quantity ?? productData?.stock_quantity ?? 0,
-        is_active: newData.is_active ?? productData?.is_active ?? true,
+          newData.stock_quantity ?? currentProductData.stock_quantity,
+        is_active: newData.is_active ?? currentProductData.is_active,
         is_bestseller:
-          newData.is_bestseller ?? productData?.is_bestseller ?? false,
+          newData.is_bestseller ?? currentProductData.is_bestseller,
+        // Ensure 'color' is always an array
+        color: newData.color ?? currentProductData.color,
+        // Ensure 'additional_details' is always an array
+        additional_details:
+          newData.additional_details ?? currentProductData.additional_details,
       };
-
-      // Now mutate with the complete data
-      mutate(completeData, false);
+      mutate(completeData, false); // Mutate with the potentially normalized data
     },
-    [mutate, productData]
+    [mutate, productData, normalizedInitialData]
   );
 
   const {
@@ -113,38 +167,59 @@ export default function ProductForm({
     formState: { errors, isDirty },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
+    // --- Update defaultValues to use arrays ---
     defaultValues: productData || {
       name: "",
       short_description: "",
       description: "",
       price: 0,
-      category: "skin_care" as ProductCategory,
+      compare_price: null,
+      categoryIds: [],
       image_url: [],
       stock_quantity: 0,
       is_active: true,
       is_bestseller: false,
+      color: [], // Default is empty array
+      additional_details: [], // Default is empty array
     },
+    // --- End update defaultValues ---
   });
 
-  // Watch the image_url for the UI
+  // --- Setup useFieldArray for additional_details ---
+  const {
+    fields: detailFields,
+    append: appendDetail,
+    remove: removeDetail,
+  } = useFieldArray({
+    control,
+    name: "additional_details",
+  });
+  // --- End setup ---
+
   const currentImages = watch("image_url");
+  const currentColors = watch("color"); // Watch selected colors for UI updates
 
   const onSubmit = async (data: ProductFormData) => {
     setIsLoading(true);
-
     try {
-      const result = await saveProduct(data, id);
+      const saveData = {
+        ...data,
+        additional_details: data.additional_details.map(({ ...rest }) => rest),
+      };
+
+      const result = await saveProduct(saveData, id);
 
       if (result.success) {
-        // Update SWR cache with new data
-        safeUpdateCache(data);
-
+        safeUpdateCache(saveData);
         toast.success(
           `Product ${id === "new" ? "created" : "updated"} successfully`
         );
         router.push("/admin/products");
+        router.refresh();
       } else {
-        toast.error(`Failed to save product: ${result.error}`);
+        toast.error(
+          `Failed to save product: ${result.error || "Unknown error"}`
+        );
       }
     } catch (error) {
       const err = error as Error;
@@ -154,6 +229,7 @@ export default function ProductForm({
     }
   };
 
+  // Image upload/remove logic remains the same
   const handleImageUpload = async (file: File) => {
     setIsUploading(true);
     try {
@@ -163,20 +239,12 @@ export default function ProductForm({
       const imageUrl = await uploadImageToSupabase(formData);
 
       if (imageUrl) {
-        // Update local form state
         const newImages = [...currentImages, imageUrl];
-        setValue("image_url", newImages, {
-          shouldDirty: true,
-        });
-
-        // Also update SWR cache to keep it in sync
-        safeUpdateCache({
-          image_url: newImages,
-        });
-
+        setValue("image_url", newImages, { shouldDirty: true });
+        safeUpdateCache({ image_url: newImages });
         toast.success("Image uploaded successfully");
       } else {
-        toast.error("Failed to upload image");
+        toast.error("Failed to upload image.");
       }
     } catch (error) {
       toast.error("Error uploading image");
@@ -188,20 +256,40 @@ export default function ProductForm({
 
   const removeImage = (index: number) => {
     const newImages = currentImages.filter((_, i) => i !== index);
-
-    // Update form state
     setValue("image_url", newImages, { shouldDirty: true });
+    safeUpdateCache({ image_url: newImages });
+  };
 
-    // Also update SWR cache to keep it in sync
-    safeUpdateCache({
-      image_url: newImages,
-    });
+  // --- Helper to check if a color is selected ---
+  // const isColorSelected = (colorName: string) => {
+  //   return currentColors?.some((c) => c.name === colorName);
+  // };
+
+  // --- Helper to handle color selection change ---
+  const handleColorChange = (checked: boolean, colorInfo: ColorInfo) => {
+    const currentSelection = currentColors || [];
+    let newSelection: ColorInfo[];
+
+    if (checked) {
+      // Add color if not already present
+      if (!currentSelection.some((c) => c.name === colorInfo.name)) {
+        newSelection = [...currentSelection, colorInfo];
+      } else {
+        newSelection = currentSelection; // Should not happen with checkbox logic, but safe guard
+      }
+    } else {
+      // Remove color
+      newSelection = currentSelection.filter((c) => c.name !== colorInfo.name);
+    }
+    setValue("color", newSelection, { shouldDirty: true });
+    safeUpdateCache({ color: newSelection }); // Update cache
   };
 
   return (
     <div className="min-h-screen bg-gray-50 sm:py-6">
       <Card className="max-w-6xl mx-auto sm:shadow-md border-none sm:border">
         <CardContent className="pt-6 p-0 sm:p-6">
+          {/* Header remains the same */}
           <div className="mb-6">
             <Button
               variant="ghost"
@@ -216,20 +304,25 @@ export default function ProductForm({
             </h1>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {" "}
+            {/* Added space-y */}
+            {/* --- Row 1: Basic Info --- */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Name */}
               <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <Label htmlFor="name" className="mb-1">
                   Product Name*
-                </label>
+                </Label>
                 <Controller
                   name="name"
                   control={control}
                   render={({ field }) => (
-                    <Input {...field} id="name" className="w-full" />
+                    <Input
+                      {...field}
+                      id="name"
+                      placeholder="e.g., Hydrating Foundation"
+                    />
                   )}
                 />
                 {errors.name && (
@@ -239,13 +332,11 @@ export default function ProductForm({
                 )}
               </div>
 
+              {/* Price */}
               <div>
-                <label
-                  htmlFor="price"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <Label htmlFor="price" className="mb-1">
                   Price*
-                </label>
+                </Label>
                 <Controller
                   name="price"
                   control={control}
@@ -255,7 +346,7 @@ export default function ProductForm({
                       id="price"
                       type="number"
                       step="0.01"
-                      className="w-full"
+                      placeholder="0.00"
                     />
                   )}
                 />
@@ -266,13 +357,42 @@ export default function ProductForm({
                 )}
               </div>
 
+              {/* Compare Price */}
               <div>
-                <label
-                  htmlFor="stock_quantity"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <Label htmlFor="compare_price" className="mb-1">
+                  Compare Price
+                </Label>
+                <Controller
+                  name="compare_price"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      value={field.value ?? ""}
+                      onChange={(e) =>
+                        field.onChange(
+                          e.target.value ? Number(e.target.value) : null
+                        )
+                      }
+                      id="compare_price"
+                      type="number"
+                      step="0.01"
+                      placeholder="Optional original price"
+                    />
+                  )}
+                />
+                {errors.compare_price && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.compare_price.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Stock Quantity */}
+              <div>
+                <Label htmlFor="stock_quantity" className="mb-1">
                   Stock Quantity*
-                </label>
+                </Label>
                 <Controller
                   name="stock_quantity"
                   control={control}
@@ -281,7 +401,7 @@ export default function ProductForm({
                       {...field}
                       id="stock_quantity"
                       type="number"
-                      className="w-full"
+                      placeholder="0"
                     />
                   )}
                 />
@@ -292,77 +412,186 @@ export default function ProductForm({
                 )}
               </div>
 
+              {/* Categories Dropdown */}
               <div>
-                <label
-                  htmlFor="category"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Category*
-                </label>
+                <Label htmlFor="categoryIds" className="mb-1">
+                  Categories*
+                </Label>
                 <Controller
-                  name="category"
+                  name="categoryIds"
                   control={control}
-                  rules={{ required: "Category is required" }}
-                  render={({ field }) => (
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categoryOptions.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                  render={({ field, fieldState }) => {
+                    const selectedNames = (field.value || [])
+                      .map((id) => categories.find((c) => c.id === id)?.name)
+                      .filter(Boolean)
+                      .join(", ");
+                    return (
+                      <div className="space-y-1">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-between text-left font-normal" // Adjust style
+                              id="categoryIds"
+                            >
+                              <span className="truncate pr-2">
+                                {selectedNames || "Select categories..."}
+                              </span>
+                              <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50 flex-shrink-0" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto">
+                            {" "}
+                            {/* Match trigger width */}
+                            {categories.map((category) => (
+                              <DropdownMenuCheckboxItem
+                                key={category.id}
+                                checked={field.value?.includes(category.id)}
+                                onCheckedChange={(checked) => {
+                                  const current = field.value || [];
+                                  if (checked) {
+                                    field.onChange([...current, category.id]);
+                                  } else {
+                                    field.onChange(
+                                      current.filter((id) => id !== category.id)
+                                    );
+                                  }
+                                }}
+                              >
+                                {category.name}
+                              </DropdownMenuCheckboxItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        {fieldState.error && (
+                          <p className="text-red-600 text-sm mt-1">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  }}
                 />
-                {errors.category && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.category.message}
-                  </p>
-                )}
+                {/* Note: errors.categoryIds might still be useful for general array errors */}
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Product Images
-                </label>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
-                  {currentImages.map((url, index) => (
-                    <div key={index} className="relative group aspect-square">
-                      <div className="h-full w-full border rounded-md overflow-hidden relative">
-                        <Image
-                          src={url}
-                          alt={`Product image ${index + 1}`}
-                          fill
-                          className="object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-1 right-1 bg-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="h-4 w-4 text-red-500" />
-                        </button>
+              {/* --- MULTI-SELECT COLOR DROPDOWN --- */}
+              <div>
+                <Label htmlFor="color-trigger" className="mb-1">
+                  Skin Tone Colors
+                </Label>
+                <Controller
+                  name="color" // Control the array
+                  control={control}
+                  render={({ field, fieldState }) => {
+                    const selectedColorNames = (field.value || [])
+                      .map((c) => c.name)
+                      .join(", ");
+                    return (
+                      <div className="space-y-1">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              id="color-trigger"
+                              variant="outline"
+                              className="w-full justify-between text-left font-normal"
+                            >
+                              <span className="truncate pr-2">
+                                {selectedColorNames || "Select colors..."}
+                              </span>
+                              <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50 flex-shrink-0" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]">
+                            {skinToneColors.map((colorOption) => (
+                              <DropdownMenuCheckboxItem
+                                key={colorOption.name}
+                                // Check if the current color name exists in the field value array
+                                checked={field.value?.some(
+                                  (c) => c.name === colorOption.name
+                                )}
+                                // Pass the boolean state and the full color object to the handler
+                                onCheckedChange={(checked) =>
+                                  handleColorChange(checked, colorOption)
+                                }
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className="h-4 w-4 rounded-full inline-block border"
+                                    style={{ backgroundColor: colorOption.hex }}
+                                  />
+                                  {colorOption.name}
+                                </div>
+                              </DropdownMenuCheckboxItem>
+                            ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        {fieldState.error && (
+                          // Display error for the 'color' array field itself if any
+                          <p className="text-red-600 text-sm mt-1">
+                            {fieldState.error.message}
+                          </p>
+                        )}
                       </div>
-                    </div>
-                  ))}
-
-                  <label className="border rounded-md flex items-center justify-center cursor-pointer aspect-square">
-                    <div className="flex flex-col items-center justify-center text-gray-500">
-                      <Plus className="h-8 w-8 mb-1" />
-                      <span className="text-xs">Add Image</span>
-                    </div>
+                    );
+                  }}
+                />
+              </div>
+              {/* --- END MULTI-SELECT COLOR DROPDOWN --- */}
+            </div>
+            {/* --- Row 2: Images --- */}
+            <div className="space-y-2">
+              <Label>Product Images</Label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {/* Image mapping and upload button - unchanged */}
+                {currentImages.map((url, index) => (
+                  <div
+                    key={url || index}
+                    className="relative group aspect-square"
+                  >
+                    {" "}
+                    {/* ... image display ... */}{" "}
+                    <Image
+                      src={url}
+                      alt={`Product image ${index + 1}`}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                      className="object-cover border rounded-md bg-gray-50"
+                    />{" "}
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-1 right-1 bg-white/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 hover:bg-white"
+                      aria-label="Remove image"
+                    >
+                      <X className="h-3.5 w-3.5 text-red-600" />
+                    </button>{" "}
+                  </div>
+                ))}
+                <div className="aspect-square">
+                  {" "}
+                  <label
+                    htmlFor="image-upload"
+                    className="h-full w-full border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors text-gray-400 hover:text-primary"
+                    aria-disabled={isUploading}
+                  >
+                    {" "}
+                    {isUploading ? (
+                      <div className="text-center">
+                        <Loader2 className="h-6 w-6 mx-auto animate-spin" />{" "}
+                        <p className="text-xs mt-1">Uploading...</p>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <Plus className="h-6 w-6 mx-auto" />{" "}
+                        <p className="text-xs mt-1">Add Image</p>
+                      </div>
+                    )}{" "}
                     <input
+                      id="image-upload"
                       type="file"
+                      accept="image/jpeg,image/png,image/webp,image/jpg"
                       className="hidden"
-                      accept="image/*"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
@@ -371,24 +600,23 @@ export default function ProductForm({
                         e.target.value = "";
                       }}
                       disabled={isUploading}
-                    />
-                  </label>
+                    />{" "}
+                  </label>{" "}
                 </div>
-
-                {errors.image_url && (
-                  <p className="text-sm text-red-500 mt-1">
-                    {errors.image_url.message}
-                  </p>
-                )}
               </div>
-
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="short_description"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+              {errors.image_url && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.image_url.message}
+                </p>
+              )}
+            </div>
+            {/* --- Row 3: Descriptions --- */}
+            <div className="grid grid-cols-1 gap-6">
+              {/* Short Description */}
+              <div>
+                <Label htmlFor="short_description" className="mb-1">
                   Short Description*
-                </label>
+                </Label>
                 <Controller
                   name="short_description"
                   control={control}
@@ -403,13 +631,11 @@ export default function ProductForm({
                 )}
               </div>
 
-              <div className="md:col-span-2">
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Description (Optional)
-                </label>
+              {/* Full Description */}
+              <div>
+                <Label htmlFor="description" className="mb-1">
+                  Full Description
+                </Label>
                 <Controller
                   name="description"
                   control={control}
@@ -418,27 +644,114 @@ export default function ProductForm({
                   )}
                 />
               </div>
-
+            </div>
+            {/* --- Row 4: Additional Details --- */}
+            <div className="space-y-4 p-4 border rounded-md bg-white">
+              <Label className="text-base font-medium">
+                Additional Details
+              </Label>
+              {detailFields.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="flex items-start gap-3 p-3 border rounded-md"
+                >
+                  <div className="grid grid-cols-2 gap-3 flex-grow">
+                    {/* Key Input */}
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor={`additional_details.${index}.key`}
+                        className="text-xs"
+                      >
+                        Detail Key
+                      </Label>
+                      <Controller
+                        name={`additional_details.${index}.key`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`additional_details.${index}.key`}
+                            placeholder="e.g., Weight"
+                          />
+                        )}
+                      />
+                      {errors.additional_details?.[index]?.key && (
+                        <p className="text-sm text-red-500">
+                          {errors.additional_details[index]?.key?.message}
+                        </p>
+                      )}
+                    </div>
+                    {/* Value Input */}
+                    <div className="space-y-1">
+                      <Label
+                        htmlFor={`additional_details.${index}.value`}
+                        className="text-xs"
+                      >
+                        Detail Value
+                      </Label>
+                      <Controller
+                        name={`additional_details.${index}.value`}
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            id={`additional_details.${index}.value`}
+                            placeholder="e.g., 100g"
+                          />
+                        )}
+                      />
+                      {errors.additional_details?.[index]?.value && (
+                        <p className="text-sm text-red-500">
+                          {errors.additional_details[index]?.value?.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {/* Remove Button */}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => removeDetail(index)}
+                    className="mt-5 flex-shrink-0 text-destructive hover:bg-destructive/10"
+                    aria-label="Remove detail"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+              {/* Add Button */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => appendDetail({ key: "", value: "" })}
+                className="mt-2"
+              >
+                <Plus className="mr-2 h-4 w-4" /> Add Detail
+              </Button>
+              {errors.additional_details?.root && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.additional_details.root.message}
+                </p>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
               <div className="flex items-center space-x-2">
                 <Controller
                   name="is_active"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="is_active"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <label
-                        htmlFor="is_active"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Is Active
-                      </label>
-                    </div>
+                    <Checkbox
+                      id="is_active"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   )}
                 />
+                <Label htmlFor="is_active" className="cursor-pointer">
+                  Active (visible)
+                </Label>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -446,41 +759,29 @@ export default function ProductForm({
                   name="is_bestseller"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="is_bestseller"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                      <label
-                        htmlFor="is_bestseller"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Is Bestseller
-                      </label>
-                    </div>
+                    <Checkbox
+                      id="is_bestseller"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   )}
                 />
+                <Label htmlFor="is_bestseller" className="cursor-pointer">
+                  Bestseller (featured)
+                </Label>
               </div>
             </div>
-
-            <div className="flex justify-end space-x-4 pt-4 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push("/admin/products")}
-              >
-                Cancel
-              </Button>
+            <div className="pt-6">
               <Button
                 type="submit"
-                className="bg-primary text-white hover:bg-primary/90"
-                disabled={isLoading || !isDirty || isUploading}
+                className="w-full"
+                disabled={isLoading || !isDirty}
+                size="lg"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
+                    {" "}
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...{" "}
                   </>
                 ) : (
                   "Save Product"

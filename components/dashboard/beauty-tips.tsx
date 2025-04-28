@@ -1,4 +1,4 @@
-import type { BeautyTip } from "@/types/dashboard";
+import type { BeautyTip } from "@/types/index";
 
 interface BeautyTipsProps {
   tips: BeautyTip[];

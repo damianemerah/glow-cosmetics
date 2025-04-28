@@ -17,6 +17,11 @@ import { cn } from "@/lib/utils";
 import { checkUserExistsByEmail, login, signup } from "@/actions/authAction";
 
 import {
+  Button,
+  Input,
+  Label,
+  Checkbox,
+  Calendar,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -24,17 +29,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Calendar } from "@/components/ui/calendar";
-import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/constants/ui/index";
 
 // Initialize Supabase client
 const supabase = createClient();
@@ -149,7 +147,7 @@ export function LoginPopup() {
         receiveEmails: data.receiveEmails,
       };
 
-      const isAtLeast13YearsOld = (dateOfBirth: Date): boolean => {
+      const isAtLeast18YearsOld = (dateOfBirth: Date): boolean => {
         const today = new Date();
         const birthDate = new Date(dateOfBirth);
         const age = today.getFullYear() - birthDate.getFullYear();
@@ -159,14 +157,14 @@ export function LoginPopup() {
           monthDifference < 0 ||
           (monthDifference === 0 && today.getDate() < birthDate.getDate())
         ) {
-          return age > 13;
+          return age > 18;
         }
 
-        return age >= 13;
+        return age >= 18;
       };
 
-      if (!isAtLeast13YearsOld(data.dateOfBirth)) {
-        throw new Error("You must be at least 13 years old to sign up.");
+      if (!isAtLeast18YearsOld(data.dateOfBirth)) {
+        throw new Error("You must be at least 18 years old to sign up.");
         return;
       }
 

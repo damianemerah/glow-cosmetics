@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+  Button,
+} from "@/constants/ui/index";
 import { services } from "@/constants/data";
 
 export default function ServicesPage() {

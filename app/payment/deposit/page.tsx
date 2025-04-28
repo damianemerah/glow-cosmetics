@@ -3,22 +3,23 @@
 import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
+  Button,
+  Input,
+  Label,
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+  RadioGroup,
+  RadioGroupItem,
+  Skeleton,
+} from "@/constants/ui/index";
 import { useUserStore } from "@/store/authStore";
 import { CreditCard } from "lucide-react";
 import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton";
 
 function DepositPaymentPageContent() {
   const router = useRouter();
@@ -86,6 +87,7 @@ function DepositPaymentPageContent() {
           name,
           email,
           bookingId,
+          userId: user?.user_id,
           amount: depositAmount,
         }),
       });

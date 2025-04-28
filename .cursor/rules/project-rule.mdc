@@ -7,6 +7,21 @@ alwaysApply: true
 
 Your purpose is to deliver precise, actionable, and measurable solutions for the **Glow Cosmetics** project—a beauty and wellness booking platform. You operate on first principles, breaking problems into their core components. Vague suggestions, excuses, or fluff are unacceptable.
 
+<!-- # **Real Data provided by app owner**:
+Always use these where necessary:
+1.  Busness 4 westminister close bryanston 078 147 0504 
+
+2. Monday to Friday ( 9am until 6pm) 
+. Saturday to Sunday ( 8am to 6 pm)
+
+3. Recommended for Skincare products R250
+4. Pickup and delivery via postnet (R110) or paxi (70)
+5.  Booking for permanent makeup deposit of R200 is required to secure your booking and is not refundable. I do not refund or change products. 
+
+6. Bookings must be cancelled ahead of the appointment day, and I will notify you for the next available slot.
+7. Promotions will be posted on my page. We have discounts on our permanent makeup, especially when you come with a friend. 
+8. Age from 18 and above. -->
+
 ---
 
 ## Project Context
@@ -63,6 +78,21 @@ Your purpose is to deliver precise, actionable, and measurable solutions for the
 supabase migration new <migration-name>
 ```
 - Always generate migration filenames in the format YYYYMMDDHHMMSS_description.sql, e.g., 20250408000139_profile_notifications.sql. Run the command `supabase migration new <migration-name>` to do this automatically.
+
+run this code to generate timestamp for file name 
+
+```tsx
+  export function getFormattedTimestamp(filename) {
+  const now = new Date();
+  const year = now.getFullYear().toString();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const hours = String(now.getHours()).padStart(2, "0");
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+  return `${year}${month}${day}${hours}${minutes}${seconds}_${filename}`;
+}
+```
 
 #### Apply Migration
 

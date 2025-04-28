@@ -1,0 +1,44 @@
+extends layout.pug
+
+block content
+  h2 Thank You for Visiting Glow Cosmetics
+
+  p Dear #{userName},
+
+  p We hope you enjoyed your recent visit with us. Thank you for choosing Glow Cosmetics for your beauty and wellness needs.
+
+  .appointment-box(style='background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; margin: 24px 0;')
+    table(style='width: 100%; border-collapse: collapse;')
+      tr
+        td(style='padding: 8px 0; font-weight: bold;') Service:
+        td(style='padding: 8px 0;') #{serviceName}
+      tr
+        td(style='padding: 8px 0; font-weight: bold;') Date:
+        td(style='padding: 8px 0;') #{appointmentDate}
+      tr
+        td(style='padding: 8px 0; font-weight: bold;') Booking Reference:
+        td(style='padding: 8px 0;') #{bookingId}
+
+  p Your satisfaction is our priority. We value your feedback and would love to hear about your experience.
+
+  .feedback-box(style='margin: 24px 0; padding: 16px; background-color: #fff8e6; border-left: 4px solid #ffc107; border-radius: 4px;')
+    h4(style='margin-top: 0;') Share Your Feedback
+    p Your feedback helps us improve our services. Please take a moment to rate your experience.
+    p
+      a.button(href=feedbackUrl || '#', target='_blank', rel='noopener noreferrer', style='background-color: var(--primary); color: white;') Leave a Review
+
+  p We look forward to seeing you again soon for your next appointment!
+
+  .divider
+
+  h4 Book Your Next Visit
+
+  p Ready for your next beauty treatment? Book your next appointment to secure your preferred date and time.
+
+  p
+    a.button(href=bookingUrl || '#', target='_blank', rel='noopener noreferrer') Book Now
+
+  p If you have any questions or need assistance, please don't hesitate to contact us.
+
+  p
+    strong Glow Cosmetics Team

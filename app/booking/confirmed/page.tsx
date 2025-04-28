@@ -1,12 +1,12 @@
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Card,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/constants/ui/index";
 import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 

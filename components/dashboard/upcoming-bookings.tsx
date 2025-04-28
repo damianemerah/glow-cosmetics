@@ -1,11 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-// import { Skeleton } from "@/components/ui/skeleton";
+import { Button, Badge } from "@/constants/ui/index";
 import { AlertCircle, Calendar, Clock } from "lucide-react";
 import Link from "next/link";
-import type { Booking } from "@/types/dashboard";
+import type { Booking } from "@/types/index";
 
 import { toast } from "sonner";
 import useSWR from "swr";

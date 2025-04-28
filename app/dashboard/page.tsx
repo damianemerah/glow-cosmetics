@@ -11,9 +11,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+  Skeleton,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/constants/ui/index";
 
 // Supabase Utils
 import { createClient } from "@/utils/supabase/server";
@@ -133,7 +136,7 @@ async function AccountSettingsData() {
 
   const profile = await getProfileData(session.user.id);
 
-  const marketingEnabled = profile.marketing_notification_enabled;
+  const marketingEnabled = profile.receive_emails;
   const appointmentEnabled = profile.appointment_reminder;
   const birthdayEnabled = profile.birthday_notification_enabled;
   const userId = profile.user_id;
@@ -162,7 +165,9 @@ async function BookingsData() {
 
   try {
     const bookings = await getBookingsData(session.user.id);
-    return <UpcomingBookings bookings={bookings} initialError={false} />;
+    return (
+      <UpcomingBookings bookings={bookings.slice(0, 4)} initialError={false} />
+    );
   } catch (error) {
     console.error("Error loading bookings:", error);
     return <UpcomingBookings bookings={[]} initialError={true} />;
