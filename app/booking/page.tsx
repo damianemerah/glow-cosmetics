@@ -153,15 +153,15 @@ export default function BookingPage() {
 
   const handleAddBooking = () => {
     if (!date) {
-      toast.error("Please select a date.");
+      toast.warning("Please select a date.");
       return;
     }
     if (!currentSelection.serviceId) {
-      toast.error("Please select a service.");
+      toast.warning("Please select a service.");
       return;
     }
     if (!currentSelection.time) {
-      toast.error("Please select a time.");
+      toast.warning("Please select a time.");
       return;
     }
     if (
@@ -171,7 +171,7 @@ export default function BookingPage() {
       !userDetails.phone ||
       userDetails.phone.length < 5
     ) {
-      toast.error("Please fill in all your contact details.");
+      toast.warning("Please fill in all your contact details.");
       return;
     }
 
@@ -179,7 +179,7 @@ export default function BookingPage() {
       (s) => s.id === currentSelection.serviceId
     );
     if (!selectedService) {
-      toast.error("Selected service not found.");
+      toast.warning("Selected service not found.");
       return;
     }
 
@@ -189,7 +189,7 @@ export default function BookingPage() {
         b.time === currentSelection.time
     );
     if (isAlreadyInCart) {
-      toast.error("This time slot is already in your booking request.");
+      toast.warning("This time slot is already in your booking request.");
       return;
     }
 
@@ -219,7 +219,7 @@ export default function BookingPage() {
 
   const handleFinalSubmit = async () => {
     if (pendingBookings.length === 0) {
-      toast.error("Please add at least one booking to your request.");
+      toast.warning("Please add at least one booking to your request.");
       return;
     }
     if (!user) {
@@ -234,7 +234,7 @@ export default function BookingPage() {
       !userDetails.phone ||
       userDetails.phone.length < 5
     ) {
-      toast.error(
+      toast.warning(
         "Please ensure your contact details (First Name, Last Name, Email, Phone) are complete before submitting."
       );
       return;
@@ -288,7 +288,7 @@ export default function BookingPage() {
       results.forEach((result) => {
         if (result.error) {
           console.error("Booking creation error:", result.error);
-          toast.error(
+          toast.warning(
             `Failed to create booking for ${result.booking?.service_name || "one service"}: ${result.error.message}. Please try again or contact us.`
           );
           hasError = true;
@@ -322,7 +322,7 @@ export default function BookingPage() {
       }
     } catch (error) {
       console.error("Error submitting bookings:", error);
-      toast.error(
+      toast.warning(
         "An unexpected error occurred while submitting bookings. Please try again."
       );
       hasError = true;

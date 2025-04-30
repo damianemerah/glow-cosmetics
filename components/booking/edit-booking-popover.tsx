@@ -100,7 +100,7 @@ export default function EditBookingPopover({
       setOpen(false);
     } catch (error) {
       console.error("Error updating booking:", error);
-      toast.error("Failed to update booking");
+      toast.warning("Failed to update booking");
     } finally {
       setIsLoading(false);
     }

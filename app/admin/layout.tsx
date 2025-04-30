@@ -1,4 +1,4 @@
-import type React from "react";
+import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import { Montserrat, Open_Sans } from "next/font/google";
 import AdminSidebar from "@/components/admin/admin-sidebar";
@@ -8,7 +8,8 @@ import {
   SidebarTrigger,
   SidebarRail,
   SidebarInset,
-} from "@/components/ui/sidebar";
+  SidebarMenuSkeleton,
+} from "@/constants/ui";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -38,7 +39,9 @@ export default function AdminLayout({
       className={`${montserrat.variable} ${openSans.variable} font-sans flex min-h-screen bg-background`}
     >
       <SidebarProvider>
-        <AdminSidebar />
+        <Suspense fallback={<SidebarMenuSkeleton />}>
+          <AdminSidebar />
+        </Suspense>
         <SidebarRail />
         <SidebarInset>
           <div className="p-6">

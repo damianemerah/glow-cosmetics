@@ -2,7 +2,7 @@ import { Resend } from "resend";
 import { Twilio } from "twilio";
 import { supabaseAdmin } from "./supabaseAdmin";
 import { htmlToText } from "html-to-text";
-import * as pug from "pug";
+import pug from "pug";
 import path from "path";
 
 // Helper function to chunk arrays (instead of using lodash)

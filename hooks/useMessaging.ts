@@ -53,7 +53,7 @@ export function useMessaging(): UseMessagingReturn {
       toast.success("Message sent successfully");
       return result;
     } catch (error) {
-      toast.error(
+      toast.warning(
         error instanceof Error ? error.message : "Failed to send message",
       );
       throw error;
@@ -90,7 +90,7 @@ export function useMessaging(): UseMessagingReturn {
       toast.success("Message resent successfully");
       return result;
     } catch (error) {
-      toast.error(
+      toast.warning(
         error instanceof Error ? error.message : "Failed to resend message",
       );
       throw error;
@@ -134,7 +134,7 @@ export function useMessaging(): UseMessagingReturn {
       toast.success("Message sent successfully");
       return result;
     } catch (error) {
-      toast.error(
+      toast.warning(
         error instanceof Error
           ? error.message
           : "Failed to send message to user",

@@ -3,7 +3,11 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { revalidatePath } from "next/cache";
 import { OfflineCartItem } from "@/store/cartStore";
-import { CartProduct } from "@/types/index";
+import { CartItemInputData } from "@/types/index";
+
+type CartActionResult =
+  | { success: true; message?: string }
+  | { success: false; error: string };
 
 // Get or create cart for user
 export async function getOrCreateCart(userId: string) {
@@ -55,95 +59,115 @@ export async function getOrCreateCart(userId: string) {
 // Add item to cart
 export async function addToCart(
   userId: string,
-  product: CartProduct,
+  item: CartItemInputData,
   quantity: number = 1,
-) {
+): Promise<CartActionResult> {
+  if (!userId || !item || !item.id || quantity < 1) {
+    return { success: false, error: "Invalid input provided." };
+  }
+
   try {
-    // First, check current product stock
     const { data: productData, error: productError } = await supabaseAdmin
       .from("products")
       .select("stock_quantity, is_active")
-      .eq("id", product.id)
+      .eq("id", item.id)
       .single();
 
     if (productError) {
-      throw new Error(`Failed to check product stock: ${productError.message}`);
+      throw new Error(`Product check failed: ${productError.message}`);
     }
-
-    // If product is not active or out of stock, prevent adding to cart
     if (!productData.is_active) {
-      throw new Error("This product is no longer available");
+      return { success: false, error: "Product is unavailable." };
     }
-
     if (productData.stock_quantity <= 0) {
-      throw new Error("This product is out of stock");
+      return { success: false, error: "Product is out of stock." };
     }
 
-    // Get the cart for the user
     const cart = await getOrCreateCart(userId);
-
-    console.log(cart);
-
     if (!cart) {
-      throw new Error("Failed to create cart");
+      return { success: false, error: "Could not retrieve or create cart." };
     }
 
-    // Check if this product is already in the cart
+    let existingItemQuery = supabaseAdmin
+      .from("cart_items")
+      .select("id, quantity")
+      .eq("cart_id", cart.id)
+      .eq("product_id", item.id);
+
+    if (item.color) {
+      existingItemQuery = existingItemQuery.eq("color", item.color.name);
+    } else {
+      existingItemQuery = existingItemQuery.is("color", null);
+    }
+
     const { data: existingCartItem, error: existingItemError } =
-      await supabaseAdmin
-        .from("cart_items")
-        .select("id, quantity")
-        .eq("cart_id", cart.id)
-        .eq("product_id", product.id)
-        .single();
+      await existingItemQuery.maybeSingle();
 
-    // Calculate the new quantity (existing + new quantity)
-    const newQuantity = (existingCartItem?.quantity || 0) + quantity;
-
-    // Verify we're not exceeding available stock
-    if (newQuantity > productData.stock_quantity) {
-      throw new Error(
-        `Only ${productData.stock_quantity} units available in stock`,
-      );
+    if (existingItemError) {
+      throw new Error(`Cart check failed: ${existingItemError.message}`);
     }
 
-    // Handle the case when the item already exists
-    if (existingCartItem && !existingItemError) {
-      // Update the existing item quantity
+    const currentCartQuantity = existingCartItem?.quantity || 0;
+    const requestedTotalQuantity = currentCartQuantity + quantity;
+
+    if (requestedTotalQuantity > productData.stock_quantity) {
+      const availableToAdd = productData.stock_quantity - currentCartQuantity;
+      return {
+        success: false,
+        error: `Only ${
+          availableToAdd > 0 ? availableToAdd : 0
+        } more item(s) can be added.`,
+      };
+    }
+
+    const cartItemPayload = {
+      cart_id: cart.id,
+      product_id: item.id,
+      quantity: requestedTotalQuantity,
+      price_at_time: item.price,
+      color: item.color?.name || null,
+    };
+
+    if (existingCartItem) {
       const { error: updateError } = await supabaseAdmin
         .from("cart_items")
-        .update({ quantity: newQuantity })
+        .update({
+          quantity: requestedTotalQuantity,
+          updated_at: new Date().toISOString(),
+        })
         .eq("id", existingCartItem.id);
 
       if (updateError) {
-        throw new Error(`Failed to update cart item: ${updateError.message}`);
+        throw new Error(`Failed to update cart: ${updateError.message}`);
       }
-
-      return { success: true, cart, message: "Cart updated" };
+      console.log(
+        `Cart item ${existingCartItem.id} quantity updated to ${requestedTotalQuantity}`,
+      );
+      return { success: true, message: "Item quantity updated in cart." };
     } else {
-      // Add a new item to the cart
       const { error: insertError } = await supabaseAdmin
         .from("cart_items")
         .insert({
-          cart_id: cart.id,
-          product_id: product.id,
-          quantity,
-          price_at_time: product.price,
+          ...cartItemPayload,
+          quantity: quantity,
         });
 
       if (insertError) {
-        throw new Error(`Failed to add item to cart: ${insertError.message}`);
+        throw new Error(`Failed to add item: ${insertError.message}`);
       }
-
-      return { success: true, cart, message: "Item added to cart" };
+      console.log(
+        `New cart item added for product ${item.id} with color ${
+          item.color?.name || "N/A"
+        }`,
+      );
+      return { success: true, message: "Item added to cart." };
     }
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error
-        ? error.message
-        : "An unknown error occurred",
-    };
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error
+      ? error.message
+      : "An unknown error occurred";
+    console.error("addToCart Action Failed:", errorMessage);
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -222,7 +246,8 @@ export async function getCartWithItems(userId: string) {
         product_id,
         quantity,
         price_at_time,
-        product:products(id, name, price, image_url)
+        color,
+        product:products(id, name, price, image_url, slug)
       `,
       )
       .eq("cart_id", cartData.id);
@@ -254,12 +279,6 @@ export async function getCartItemsCount(userId: string): Promise<number> {
   }
 }
 
-/**
- * Merge offline cart items with server cart
- *
- * This function is called when a user logs in with items in their offline cart.
- * It adds the offline items to the user's server cart using direct database operations.
- */
 export async function mergeOfflineCart(
   userId: string,
   offlineItems: OfflineCartItem[],
@@ -297,7 +316,7 @@ export async function mergeOfflineCart(
     const { data: existingCartItems, error: cartItemsError } =
       await supabaseAdmin
         .from("cart_items")
-        .select("id, product_id, quantity")
+        .select("id, product_id, quantity, color")
         .eq("cart_id", cart.id)
         .in("product_id", offlineProductIds);
 
@@ -337,13 +356,20 @@ export async function mergeOfflineCart(
 
         if (existingItem) {
           // Update existing cart item quantity
-          const newQuantity = offlineItem.quantity;
+          let newQuantity = offlineItem.quantity + existingItem.quantity;
+          const availableStock = productData.stock_quantity;
+          if (newQuantity > availableStock) {
+            console.warn(
+              `Offline cart exceeds stock for ${offlineItem.id}. Clamping.`,
+            );
+            newQuantity = availableStock;
+          }
 
           const { error: updateError } = await supabaseAdmin
             .from("cart_items")
             .update({
               quantity: newQuantity,
-              price_at_time: productData.price, // Update with current price
+              price_at_time: productData.price,
             })
             .eq("id", existingItem.id);
 
@@ -368,6 +394,7 @@ export async function mergeOfflineCart(
               product_id: offlineItem.id,
               quantity: offlineItem.quantity,
               price_at_time: productData.price,
+              color: offlineItem.color?.name || null,
             }]);
 
           if (insertError) {

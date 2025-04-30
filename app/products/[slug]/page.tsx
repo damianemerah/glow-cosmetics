@@ -9,10 +9,12 @@ import { htmlToText } from "html-to-text";
 import ProductDetails from "@/components/product/product-details";
 import ProductDescriptionAndDetails from "@/components/product/product-description";
 import RelatedProducts from "@/components/product/related-products";
+import RecentlyViewedProducts from "@/components/product/recently-viewed-products";
 
 import {
   ProductDescriptionSkeleton,
   RelatedProductsSkeleton,
+  RecentlyViewedProductsSkeleton,
 } from "@/components/product/product-skeleton";
 
 import { transformToAdditionalDetails } from "@/utils";
@@ -57,11 +59,12 @@ export async function generateStaticParams() {
 }
 
 // Generate metadata for the page
-export async function generateMetadata(context: {
-  params: { slug: string };
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { params } = await context;
-  const { slug } = params;
+  const { slug } = await params;
   const product = await getCachedProduct(slug);
 
   if (!product) {
@@ -117,6 +120,10 @@ export default async function ProductInfo({
 
       <Suspense fallback={<RelatedProductsSkeleton />}>
         <RelatedProducts productId={product.id} />
+      </Suspense>
+
+      <Suspense fallback={<RecentlyViewedProductsSkeleton />}>
+        <RecentlyViewedProducts currentProduct={product} />
       </Suspense>
     </div>
   );

@@ -8,6 +8,7 @@ type DbCartItem = Database["public"]["Tables"]["cart_items"]["Row"];
 type DbOrder = Database["public"]["Tables"]["orders"]["Row"];
 type DbOrderItem = Database["public"]["Tables"]["order_items"]["Row"];
 type DBCategory = Database["public"]["Tables"]["categories"]["Row"];
+type DBWishlist = Database["public"]["Tables"]["wishlists"]["Row"];
 
 export type Profile = DbProfile;
 
@@ -18,10 +19,51 @@ export type ShippingAddress = {
   country: string;
   postal_code: string;
 };
+
 export type Order = Omit<DbOrder, "shipping_address"> & {
   shipping_address: ShippingAddress | null;
-  items: DbOrderItem[]; // Extend items which is DbOrderItem
+  items: DbOrderItem[];
 };
+
+export type CheckoutCartItem = {
+  id: string;
+  quantity: number;
+  price_at_time: number;
+  product_id: string;
+  color: ColorInfo | null;
+  products: {
+    name: string;
+    image_url?: string[] | null;
+  } | null;
+};
+
+export interface OrderInputData {
+  userId: string;
+  cartId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  shippingAddress: { // Define structure clearly
+    address: string;
+    apartment?: string; // Optional
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
+  deliveryMethod: string;
+  deliveryFee: number;
+  paymentMethod: "bank_transfer" | "paystack";
+  totalAmount: number; // Total including delivery
+  emailOffers: boolean; // Whether user opted in
+  cartItems: Array<
+    Pick<
+      CheckoutCartItem,
+      "id" | "product_id" | "quantity" | "price_at_time" | "color"
+    > & { product_name: string }
+  >; // Data needed to create order_items
+}
 
 export type OrderItem = DbOrderItem;
 
@@ -77,17 +119,27 @@ export interface Service {
   price: number;
   category: "makeup" | "consultation" | "skincare";
   image: string;
+  videoUrl?: string;
   details: string;
 }
 
 export type Cart = DbCart;
 
-export type CartProduct = Pick<Product, "id" | "name" | "price" | "image_url">;
+export type CartProduct = Pick<
+  Product,
+  "id" | "name" | "price" | "image_url" | "color"
+>;
 
-type SimpleProduct = Pick<DbProduct, "id" | "name" | "price" | "image_url">;
+export type CartItemInputData = {
+  id: string;
+  name: string;
+  price: number;
+  image_url?: string[] | null;
+  color?: ColorInfo | null;
+};
 
 export interface CartItem extends DbCartItem {
-  product: SimpleProduct;
+  product: CartItemInputData;
 }
 
 export interface BeautyTip {
@@ -103,4 +155,36 @@ export interface Client {
   email: string;
   lastVisit: string;
   totalSpent: string;
+}
+
+export interface Wishlist extends DBWishlist {
+  products?: Pick<
+    Product,
+    | "id"
+    | "name"
+    | "price"
+    | "image_url"
+    | "slug"
+    | "stock_quantity"
+    | "is_bestseller"
+    | "compare_price"
+  >;
+}
+
+export interface WishlistItem {
+  id: string;
+  user_id: string;
+  product_id: string;
+  created_at?: string;
+  products: Pick<
+    Product,
+    | "id"
+    | "name"
+    | "price"
+    | "image_url"
+    | "slug"
+    | "stock_quantity"
+    | "is_bestseller"
+    | "compare_price"
+  >;
 }

@@ -14,6 +14,8 @@ interface BirthdayUser {
     birth_date?: string;
 }
 
+export const dynamic = "force-dynamic";
+
 // This API is intended to be called by a CRON job daily
 export async function GET(request: Request) {
     try {

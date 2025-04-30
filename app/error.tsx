@@ -26,9 +26,11 @@ export default function GlobalError({ error, reset }: ErrorProps) {
         <p className="text-base text-[#727272] font-open-sans mb-6">
           We encountered an unexpected error. Don’t worry, let’s try again.
         </p>
-        <p className="text-sm text-red-500 font-open-sans mb-4">
-          Error: {error.message || "An unknown error occurred"}
-        </p>
+        {process.env.NODE_ENV === "development" && (
+          <p className="text-sm text-red-500 font-open-sans mb-4">
+            Error: {error.message || "An unknown error occurred"}
+          </p>
+        )}
         <Button
           onClick={reset}
           className="bg-[#4CAF50] hover:bg-green-600 text-white rounded-lg py-3 px-6 text-lg"

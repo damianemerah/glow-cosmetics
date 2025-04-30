@@ -44,3 +44,15 @@ export function transformToAdditionalDetails(
 
   return validDetails;
 }
+
+export function sanitizeTitle(raw: string) {
+  return raw
+    // 1) replace any run of whitespace with a single underscore
+    .replace(/\s+/g, "_")
+    // 2) remove any character that is not A–Z, a–z, 0–9, dot, dash or underscore
+    .replace(/[^A-Za-z0-9._-]/g, "")
+    // 3) collapse multiple underscores (optional)
+    .replace(/_+/g, "_")
+    // 4) trim leading/trailing underscores (optional)
+    .replace(/^_+|_+$/g, "");
+}

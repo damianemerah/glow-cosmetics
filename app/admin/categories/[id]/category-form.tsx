@@ -54,10 +54,10 @@ export default function CategoryForm({
 
   // Use SWR for category data - Corrected Key
   const { data: category, mutate } = useSWR<CategoryFormData | null>(
-    id === "new" ? null : `category-${id}`, // Use specific key, null for 'new'
-    null, // No fetcher needed here, relies on initialData or manual setting
+    id === "new" ? null : `category-${id}`,
+    null,
     {
-      fallbackData: initialData, // Use provided initial data
+      fallbackData: initialData,
       revalidateOnFocus: false,
     }
   );
@@ -111,26 +111,29 @@ export default function CategoryForm({
     setIsLoading(true);
 
     try {
+      if (data.pinned && !data.images.length) {
+        toast.warning(
+          "Please upload at least one image for pinned categories."
+        );
+        return;
+      }
       const result = await saveCategory(data, id);
 
       if (result.success) {
-        // Update SWR cache with the successfully saved data if it's an edit
         if (id !== "new") {
           safeUpdateCache(data);
         }
-        // Optional: Invalidate the list view cache if you have one
-        // mutate('/api/admin/categories'); // Example key
 
         toast.success(
           `Category ${id === "new" ? "created" : "updated"} successfully`
         );
-        router.push("/admin/categories"); // Redirect after success
+        // router.push("/admin/categories");
       } else {
-        toast.error(`Failed to save category: ${result.error}`);
+        toast.warning(`Failed to save category: ${result.error}`);
       }
     } catch (error) {
       const err = error as Error;
-      toast.error(`Failed to save category: ${err.message}`);
+      toast.warning(`Failed to save category: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -142,6 +145,7 @@ export default function CategoryForm({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("bucket", "product-images");
+      formData.append("title", watch("name") || "Category Image");
       const imageUrl = await uploadImageToSupabase(formData);
 
       if (imageUrl) {
@@ -156,10 +160,10 @@ export default function CategoryForm({
 
         toast.success("Image uploaded successfully");
       } else {
-        toast.error("Failed to upload image");
+        toast.warning("Failed to upload image");
       }
     } catch (error) {
-      toast.error("Error uploading image");
+      toast.warning("Error uploading image");
       console.error(error);
     } finally {
       setIsUploading(false);
@@ -255,10 +259,8 @@ export default function CategoryForm({
                   render={({ field }) => (
                     <Select
                       onValueChange={(val) =>
-                        // Ensure null is passed if 'none' is selected
                         field.onChange(val === "none" ? null : val)
                       }
-                      // Ensure value is 'none' if field.value is null/undefined
                       value={field.value ?? "none"}
                     >
                       <SelectTrigger className="w-full">
@@ -267,7 +269,6 @@ export default function CategoryForm({
                       <SelectContent>
                         <SelectItem value="none">None (Top Level)</SelectItem>
                         {parentCategories
-                          // Prevent selecting itself as parent
                           .filter((cat) => cat.id !== id)
                           .map((cat) => (
                             <SelectItem key={cat.id} value={cat.id}>
@@ -278,7 +279,6 @@ export default function CategoryForm({
                     </Select>
                   )}
                 />
-                {/* No error message needed here unless specifically added to schema */}
               </div>
               <div className="flex items-center space-x-2">
                 <Controller
@@ -354,10 +354,19 @@ export default function CategoryForm({
                         className="hidden"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
+                          const categoryName = watch("name");
+
+                          if (!categoryName || categoryName.trim() === "") {
+                            toast.warning(
+                              "Please enter a category name before uploading an image."
+                            );
+                            e.target.value = "";
+                            return;
+                          }
+
                           if (file) {
                             handleImageUpload(file);
                           }
-                          // Reset input value to allow uploading the same file again if needed
                           e.target.value = "";
                         }}
                         disabled={isUploading}

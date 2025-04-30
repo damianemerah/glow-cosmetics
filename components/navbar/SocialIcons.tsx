@@ -1,23 +1,24 @@
 import Link from "next/link";
-import { Instagram, Facebook } from "lucide-react";
+import { keys } from "@/constants/data";
+import { FaInstagram, FaFacebookF } from "react-icons/fa";
 
 export const SocialIcons = ({ className = "" }: { className?: string }) => (
   <div className={`flex items-center space-x-4 ${className}`}>
     <Link
-      href="https://instagram.com"
+      href={keys.instagram}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Instagram"
     >
-      <Instagram className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
+      <FaInstagram className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
     </Link>
     <Link
-      href="https://facebook.com"
+      href={keys.facebook}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Facebook"
     >
-      <Facebook className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
+      <FaFacebookF className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
     </Link>
   </div>
 );

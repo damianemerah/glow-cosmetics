@@ -69,7 +69,7 @@ export default function AccountSettings({
       }
     } catch (error) {
       console.error("Error updating notification settings:", error);
-      toast.error("Failed to update notification settings.");
+      toast.warning("Failed to update notification settings.");
     } finally {
       setIsLoading(false);
     }

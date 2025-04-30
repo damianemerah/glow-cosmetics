@@ -1,7 +1,6 @@
-// src/components/products/ProductCard.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -24,28 +23,59 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/constants/ui/index";
-import type { ProductWithCategories, CartProduct } from "@/types/index";
+import type {
+  ProductWithCategories,
+  CartItemInputData,
+  ColorInfo,
+} from "@/types/index";
 import { formatZAR } from "@/utils";
 import { useUserStore } from "@/store/authStore";
 import { addToCart } from "@/actions/cartAction";
 import { ProductQuickView } from "@/components/product/productQuickView";
+import { toggleWishlistItem } from "@/actions/wishlistActions";
+import { useWishlistStatus } from "@/lib/swr/wishlist";
 
 interface ProductCardProps {
   product: ProductWithCategories;
 }
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function isValidColorInfo(obj: any): obj is ColorInfo {
+  return (
+    typeof obj === "object" &&
+    obj !== null &&
+    typeof obj.name === "string" &&
+    typeof obj.hex === "string"
+  );
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const user = useUserStore((state) => state.user);
   const setShowModal = useUserStore((state) => state.setShowModal);
-
-  const primaryImageUrl =
+  const [imageUrl, setImageUrl] = useState<string>(
     product.image_url && product.image_url.length > 0
       ? product.image_url[0]
-      : "/placeholder.svg";
+      : "/placeholder.svg"
+  );
+
+  const {
+    data: isInWishlist,
+    mutate,
+    isValidating: isWishlistLoading,
+  } = useWishlistStatus(user?.id, product.id);
+
+  useEffect(() => {
+    if (isHovered && product.image_url.length > 1) {
+      const hoverImageUrl = product.image_url[1];
+      setImageUrl(hoverImageUrl);
+    }
+  }, [isHovered, product.image_url]);
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -58,23 +88,55 @@ export function ProductCard({ product }: ProductCardProps) {
     }
     setIsAddingToCart(true);
     try {
-      const cartProduct: CartProduct = {
+      const firstValidColor =
+        Array.isArray(product.color) &&
+        product.color.length > 0 &&
+        isValidColorInfo(product.color[0])
+          ? product.color[0] // If it's an array and the first item is valid ColorInfo
+          : null;
+
+      const cartProduct: CartItemInputData = {
         id: product.id,
         name: product.name,
         price: product.price,
         image_url: product.image_url,
+        color: firstValidColor, // Assign the extracted (or null) color
       };
       const result = await addToCart(user.id, cartProduct, 1);
       if (result.success) {
         toast.success(`${product.name} added to cart!`);
       } else {
-        toast.error(result.error || "Failed to add item to cart.");
+        toast.warning(result.error || "Failed to add item to cart.");
       }
     } catch (error) {
       console.error("Add to cart error:", error);
-      toast.error("Could not add item to cart.");
+      toast.warning("Could not add item to cart.");
     } finally {
       setIsAddingToCart(false);
+    }
+  };
+
+  const handleToggleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user?.id) {
+      setShowModal(true);
+      toast.info("Please log in to add items to your wishlist.");
+      return;
+    }
+
+    try {
+      const result = await toggleWishlistItem(user.id, product.id);
+      if (result.success) {
+        toast.success(result.message);
+        mutate();
+      } else {
+        toast.warning(result.error || "Failed to update wishlist");
+      }
+    } catch (error) {
+      console.error("Wishlist toggle error:", error);
+      toast.warning("Could not update wishlist");
     }
   };
 
@@ -89,22 +151,30 @@ export function ProductCard({ product }: ProductCardProps) {
     }
     setIsBuyingNow(true);
     try {
-      const cartProduct: CartProduct = {
+      const firstValidColor =
+        Array.isArray(product.color) &&
+        product.color.length > 0 &&
+        isValidColorInfo(product.color[0])
+          ? product.color[0]
+          : null;
+
+      const cartProduct: CartItemInputData = {
         id: product.id,
         name: product.name,
         price: product.price,
         image_url: product.image_url,
+        color: firstValidColor,
       };
       const result = await addToCart(user.id, cartProduct, 1);
 
       if (result.success || result.error === "Item already in cart") {
         router.push("/checkout");
       } else {
-        toast.error(result.error || "Failed to add item before checkout.");
+        toast.warning(result.error || "Failed to add item before checkout.");
       }
     } catch (error) {
       console.error("Buy Now error:", error);
-      toast.error("Could not proceed to checkout.");
+      toast.warning("Could not proceed to checkout.");
     } finally {
       setIsBuyingNow(false);
     }
@@ -121,16 +191,20 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <TooltipProvider delayDuration={100}>
-        <div className="group relative border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
+        <div
+          className="group relative border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           <div className="relative w-full overflow-hidden bg-gray-100">
-            <div style={{ paddingTop: "110%" }}></div>
+            <div style={{ paddingTop: "110%" }} />
             <div className="absolute inset-0">
               <Link
                 href={`/products/${product.slug}`}
                 className="absolute inset-0 z-0"
               >
                 <Image
-                  src={primaryImageUrl}
+                  src={imageUrl}
                   alt={product.name}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -139,13 +213,13 @@ export function ProductCard({ product }: ProductCardProps) {
               </Link>
               <div className="absolute top-4 left-4">
                 {product.is_bestseller && (
-                  <Badge className=" bg-green-500 mr-3">Bestseller</Badge>
+                  <Badge className="bg-green-500 mr-3">Bestseller</Badge>
                 )}
                 {calculateDiscountPercentage(
                   product.price,
                   product.compare_price
                 ) && (
-                  <Badge className=" bg-red-500">
+                  <Badge className="bg-red-500">
                     {calculateDiscountPercentage(
                       product.price,
                       product.compare_price
@@ -155,23 +229,35 @@ export function ProductCard({ product }: ProductCardProps) {
                 )}
               </div>
 
+              {/* Wishlist & Actions Overlay */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
-                    className="absolute top-2 right-2 z-10 p-1.5 bg-white rounded-full shadow-md hover:bg-red-100 text-gray-500 hover:text-red-500 transition-colors cursor-not-allowed opacity-60"
-                    title="Wishlist coming soon"
-                    disabled
-                    onClick={(e) => e.stopPropagation()}
+                    className={`absolute top-2 right-2 z-10 p-1.5 bg-white rounded-full shadow-md hover:bg-red-100 text-gray-500 hover:text-red-500 transition-colors ${
+                      isWishlistLoading ? "opacity-50 cursor-wait" : ""
+                    }`}
+                    title={
+                      isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"
+                    }
+                    disabled={isWishlistLoading}
+                    onClick={handleToggleWishlist}
                   >
-                    <Heart className="w-4 h-4" />
+                    <Heart
+                      className={`w-4 h-4 ${
+                        isInWishlist ? "fill-red-500 text-red-500" : ""
+                      }`}
+                    />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Add to Wishlist (Coming Soon)</p>
+                  <p>
+                    {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+                  </p>
                 </TooltipContent>
               </Tooltip>
 
               <div className="absolute bottom-0 left-0 right-0 z-10 p-2 flex justify-center items-center space-x-2 bg-gradient-to-t from-black/30 via-black/10 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {/* Add to Cart */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -194,6 +280,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   </TooltipContent>
                 </Tooltip>
 
+                {/* Quick View */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <DialogTrigger asChild>
@@ -212,13 +299,13 @@ export function ProductCard({ product }: ProductCardProps) {
                   </TooltipContent>
                 </Tooltip>
 
+                {/* Compare (disabled) */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="secondary"
                       size="icon"
                       className="bg-white/80 hover:bg-white text-primary rounded-full shadow cursor-not-allowed opacity-60"
-                      title="Compare coming soon"
                       disabled
                       onClick={(e) => e.stopPropagation()}
                       aria-label="Compare"
@@ -243,6 +330,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 {product.name}
               </h3>
             </Link>
+
             <div className="mt-auto">
               <p className="text-lg font-semibold text-gray-800 mb-3">
                 {formatZAR(product.price)}
@@ -253,6 +341,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </span>
                   )}
               </p>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -262,9 +351,9 @@ export function ProductCard({ product }: ProductCardProps) {
                   isBuyingNow || isAddingToCart || product.stock_quantity <= 0
                 }
               >
-                {isBuyingNow ? (
+                {isBuyingNow && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : null}
+                )}
                 Buy Now
               </Button>
             </div>

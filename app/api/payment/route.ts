@@ -86,6 +86,8 @@ export async function POST(req: Request) {
           `${process.env.NEXT_PUBLIC_APP_URL}/order-confirmation?id=${orderId}`,
       });
 
+      console.log(response, "`😎😎😎");
+
       // Return the Paystack authorization URL
       return NextResponse.json({
         data: response.data,

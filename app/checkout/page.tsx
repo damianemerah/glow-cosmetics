@@ -1,51 +1,47 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
-// Ensure this path points to the refactored combined component file
-import CheckoutComponent from "@/components/checkout/checkout-form";
+import CheckoutForm from "@/components/checkout/checkout-form";
 import { Metadata } from "next";
+import type { CheckoutCartItem, ColorInfo } from "@/types";
+import { AuthSessionMissingError } from "@supabase/supabase-js";
+import { transformToAdditionalDetails } from "@/utils";
+import CheckoutSkeleton from "@/components/checkout/checkout-skeleton";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Checkout | Glow Cosmetics",
   description: "Complete your purchase with Glow Cosmetics",
 };
 
-// Type for data directly from Supabase query
-interface CartItemRaw {
-  id: string;
-  quantity: number;
-  price_at_time: number;
-  product_id: string;
-  // This MUST match the shape returned by the query: an OBJECT, not an array
-  products: {
-    name: string;
-    price: number; // Current price from products table
-    image_url?: string[] | null;
-  } | null; // Allow products to be potentially null if the relation fails or product deleted
-}
-
-// Type expected by the CheckoutComponent (and OrderSummary)
-interface CartItem {
-  id: string;
-  product_id: string;
-  product_name: string;
-  quantity: number;
-  price: number; // This will be price_at_time
-  image_url?: string;
-}
+const isColorInfo = (colorJson: unknown): colorJson is ColorInfo => {
+  return (
+    typeof colorJson === "object" &&
+    colorJson !== null &&
+    !Array.isArray(colorJson) &&
+    "name" in colorJson &&
+    typeof colorJson.name === "string" &&
+    "hex" in colorJson &&
+    typeof colorJson.hex === "string"
+  );
+};
 
 export default async function CheckoutPage() {
   const supabase = await createClient();
-
-  // Get user
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser();
-  if (!user?.id) {
-    redirect("/login?redirect=/checkout");
+
+  // Handle auth errors or missing user
+  if (authError || !user?.id) {
+    console.error(
+      "Auth Error or No User:",
+      authError instanceof AuthSessionMissingError
+    );
+    redirect("/?login=true");
   }
   const userId = user.id;
 
-  // Get active cart
   const { data: cartData, error: cartError } = await supabase
     .from("carts")
     .select("id")
@@ -53,17 +49,16 @@ export default async function CheckoutPage() {
     .maybeSingle();
 
   if (cartError) {
-    console.error("Error fetching cart:", cartError);
+    console.error(`Error fetching active cart for user ${userId}:`, cartError);
     redirect("/cart?error=cart_fetch_failed");
   }
   if (!cartData?.id) {
-    console.log("No active cart found for user:", userId);
+    console.log(`No active cart found for user ${userId}.`);
     redirect("/cart?message=empty_cart");
   }
   const cartId = cartData.id;
 
-  // Get cart items using the fetched cartId
-  const { data: rawCartItemsData, error: itemsError } = await supabase
+  const { data: cartItemsData, error: itemsError } = await supabase
     .from("cart_items")
     .select(
       `
@@ -71,6 +66,7 @@ export default async function CheckoutPage() {
         quantity,
         price_at_time,
         product_id,
+        color,
         products (
           name,
           price,
@@ -81,66 +77,82 @@ export default async function CheckoutPage() {
     .eq("cart_id", cartId);
 
   if (itemsError) {
-    console.error("Error fetching cart items:", itemsError);
+    console.error(`Error fetching cart items for cart ${cartId}:`, itemsError);
     redirect(`/cart?error=item_fetch_failed&cartId=${cartId}`);
   }
 
-  if (!rawCartItemsData || rawCartItemsData.length === 0) {
-    console.log("Cart is empty, redirecting.");
+  if (!cartItemsData || cartItemsData.length === 0) {
+    console.log(`Cart ${cartId} is empty, redirecting.`);
     redirect("/cart?message=empty_cart");
   }
 
-  // FIX: Apply type assertion here
-  const rawCartItems = rawCartItemsData as unknown as CartItemRaw[];
+  const cartItems: CheckoutCartItem[] = cartItemsData
+    .map((item) => {
+      let parsedColor: ColorInfo | null = null;
+      if (typeof item.color === "string") {
+        try {
+          const jsonParsed = transformToAdditionalDetails(item.color);
+          if (isColorInfo(jsonParsed)) {
+            parsedColor = jsonParsed;
+          }
+        } catch (e) {
+          console.warn(
+            "Failed to parse color JSON, treating as null:",
+            item.color,
+            e
+          );
+        }
+      } else if (isColorInfo(item.color)) {
+        parsedColor = item.color;
+      } else if (item.color !== null) {
+        console.warn("Unexpected color format, treating as null:", item.color);
+      }
 
-  // Transform cart items
-  const cartItems: CartItem[] = rawCartItems
-    .filter((item): item is CartItemRaw => item.products !== null)
-    .map((item) => ({
-      id: item.id,
-      product_id: item.product_id,
-      product_name: item.products!.name,
-      quantity: item.quantity,
-      price: item.price_at_time,
-      image_url: item.products!.image_url?.[0] ?? undefined,
-    }));
+      const productData = item.products;
 
-  // Recalculate initial total amount based on potentially filtered items
+      return {
+        id: item.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price_at_time: item.price_at_time,
+        color: parsedColor, // Use the parsed color object or null
+        products: item.products
+          ? {
+              // @ts-expect-error: we know item.products isn’t really an array here
+              name: productData.name,
+              // @ts-expect-error: we know item.image_url isn’t really an array here
+              image_url: productData.image_url,
+            }
+          : null,
+      };
+    })
+    .filter((item) => item.products !== null); // Ensure product data exists after mapping
+
   const initialTotalAmount = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + item.price_at_time * item.quantity,
     0
   );
 
-  // Add a final check if filtering removed all items
   if (cartItems.length === 0) {
-    console.log("All cart items missing product data, redirecting.");
+    console.log(
+      "All cart items missing product data after mapping, redirecting."
+    );
     redirect("/cart?message=cart_items_invalid");
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {" "}
-      {/* Original container */}
       <h1 className="text-2xl font-bold mb-6 font-montserrat text-center">
-        {" "}
-        {/* Original H1 */}
         Checkout
       </h1>
-      {/* Original Grid Layout */}
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Render the single combined component, passing needed props */}
-        <CheckoutComponent
+      <Suspense fallback={<CheckoutSkeleton />}>
+        <CheckoutForm
           userId={userId}
           cartId={cartId}
           cartItems={cartItems}
           initialTotalAmount={initialTotalAmount}
         />
-        {/* The CheckoutComponent will internally render the necessary parts
-            which we will then structure correctly in its own file.
-            Or, more cleanly, CheckoutComponent renders the parts and this
-            page places them. Let's go with the cleaner approach.
-         */}
-      </div>
+      </Suspense>
     </div>
   );
 }

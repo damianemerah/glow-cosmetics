@@ -1,22 +1,32 @@
 import { Suspense } from "react";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { unstable_cache } from "next/cache";
 import type { Metadata } from "next";
-import type { ProductWithCategories } from "@/types/index";
+import {
+  fetchNewlyAddedProducts,
+  fetchDealsOfTheWeek,
+  fetchBestSellingProducts,
+  fetchRecommendedProducts,
+  getCachedCategories,
+  fetchFilteredProducts,
+  type FetchProductsParams,
+  type ProductSortOption,
+  type ProductFilterOption,
+} from "@/actions/productActions";
 
-// Import components
 import ProductHero from "@/components/product/product-hero";
+import {
+  ProductGroupSection,
+  ProductGroupSkeleton,
+} from "@/components/product/product-group-section";
 import ProductsGrid from "@/components/product/products-grid";
 import LoyaltyProgram from "@/components/product/loyalty-program";
 import ProductCTA from "@/components/product/product-cta";
-
 import {
   ProductGridSkeletonWrapper,
   LoyaltyProgramSkeleton,
   ProductCTASkeleton,
 } from "@/components/product/product-skeleton";
-
-import { fetchCategories } from "@/actions/adminActions";
+import Pagination from "@/components/common/pagination";
+import ProductNavigation from "@/components/product/product-navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -32,70 +42,136 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-async function getAllProducts() {
-  const {
-    data: products,
-    error,
-    count,
-  } = await supabaseAdmin
-    .from("products")
-    .select(
-      `*,
-       product_categories (
-        categories ( id, name, slug )
-      )`,
-      { count: "exact" }
-    )
-    .eq("is_active", true)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Error fetching products:", error);
-    return { products: [], count: 0 };
-  }
-
-  return { products: products as ProductWithCategories[], count: count ?? 0 };
-}
-
-// Cache the products data
-const getCachedProducts = unstable_cache(
-  async () => getAllProducts(),
-  ["products"],
-  { revalidate: 300, tags: ["products"] }
-);
-
-// Cache the categories data (using the assumed action)
-const getCachedCategories = unstable_cache(
-  async () => fetchCategories(),
-  ["categories"],
-  { revalidate: 3600, tags: ["categories", "products"] } // Revalidate less often, tag appropriately
-);
-
-async function ProductsGridSection() {
-  const [{ products, count: productsCountFromQuery }, { categories }] =
-    await Promise.all([getCachedProducts(), getCachedCategories()]);
-
-  const displayCount = productsCountFromQuery;
-
+async function NewlyAddedSection() {
+  const products = await fetchNewlyAddedProducts();
   return (
-    <ProductsGrid
+    <ProductGroupSection
+      title="Newly Added"
       products={products}
-      categories={categories}
-      productCount={displayCount}
+      viewAllHref="/products?sort=latest"
     />
   );
 }
 
-// MAIN PAGE COMPONENT
-export default async function ProductsPage() {
+async function DealsSection() {
+  const products = await fetchDealsOfTheWeek();
+  return (
+    <ProductGroupSection
+      title="Deals of the Week"
+      products={products}
+      viewAllHref="/products?filter=deals"
+    />
+  );
+}
+
+async function BestSellingSection() {
+  const products = await fetchBestSellingProducts();
+  return (
+    <ProductGroupSection
+      title="Best Selling"
+      products={products}
+      viewAllHref="/products?filter=bestseller"
+    />
+  );
+}
+
+async function RecommendedSection() {
+  const products = await fetchRecommendedProducts();
+  return (
+    <ProductGroupSection
+      title="Recommended For You"
+      products={products}
+      viewAllHref="/products?sort=popularity"
+    />
+  );
+}
+
+interface FilteredProductsGridProps {
+  // searchParams: Promise<{
+  //   sort?: ProductSortOption;
+  //   filter?: ProductFilterOption;
+  //   page?: string;
+  // }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+async function FilteredProductsGrid({
+  searchParams,
+}: FilteredProductsGridProps) {
+  const searchParamsObj = await searchParams;
+  const { sort, filter, page = 1 } = searchParamsObj;
+  const fetchParams: FetchProductsParams = {
+    sort: sort as ProductSortOption | undefined,
+    filter: filter as ProductFilterOption | undefined,
+    page: parseInt(page as string, 10),
+  };
+
+  const { products, count } = await fetchFilteredProducts(fetchParams);
+
+  const totalPages = Math.ceil(count / 12);
+
+  return (
+    <>
+      <ProductsGrid
+        products={products}
+        productCount={count}
+        initialSort={sort as ProductSortOption | undefined}
+        initialFilter={filter as ProductFilterOption | undefined}
+      />
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={parseInt(page as string, 10)}
+          totalPages={totalPages}
+          baseUrl="/products"
+          searchParams={searchParamsObj}
+        />
+      )}
+    </>
+  );
+}
+
+export default async function ProductsPage({
+  searchParams,
+}: FilteredProductsGridProps) {
+  const { sort, page, filter } = await searchParams;
+  const showFilteredGrid = sort || filter || page;
+
+  const { categories } = await getCachedCategories();
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Ensure consistent background */}
       <ProductHero />
-      <Suspense fallback={<ProductGridSkeletonWrapper />}>
-        <ProductsGridSection />
-      </Suspense>
-      {/* Other sections with Suspense */}
+      <div>
+        <div className="container sticky top-0 z-25 bg-background border-b border-border">
+          <ProductNavigation categoryData={categories} />
+        </div>
+
+        {showFilteredGrid ? (
+          <Suspense fallback={<ProductGridSkeletonWrapper />}>
+            <FilteredProductsGrid searchParams={searchParams} />
+          </Suspense>
+        ) : (
+          <>
+            <Suspense fallback={<ProductGroupSkeleton title="Newly Added" />}>
+              <NewlyAddedSection />
+            </Suspense>
+            <Suspense
+              fallback={<ProductGroupSkeleton title="Deals of the Week" />}
+            >
+              <DealsSection />
+            </Suspense>
+            <Suspense fallback={<ProductGroupSkeleton title="Best Selling" />}>
+              <BestSellingSection />
+            </Suspense>
+            <Suspense
+              fallback={<ProductGroupSkeleton title="Recommended For You" />}
+            >
+              <RecommendedSection />
+            </Suspense>
+          </>
+        )}
+      </div>
+
       <Suspense fallback={<LoyaltyProgramSkeleton />}>
         <LoyaltyProgram />
       </Suspense>

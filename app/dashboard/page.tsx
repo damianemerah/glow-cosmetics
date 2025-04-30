@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { redirect } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import { type SupabaseClient } from "@supabase/supabase-js";
+import DashboardTabs from "@/components/dashboard/dashboard-tabs";
 
 // UI Components
 import {
@@ -12,7 +13,6 @@ import {
   CardHeader,
   CardTitle,
   Skeleton,
-  Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
@@ -292,7 +292,7 @@ export default function DashboardPage() {
           My Dashboard
         </h1>
 
-        <Tabs defaultValue="overview" className="w-full">
+        <DashboardTabs defaultValue="overview">
           <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
@@ -390,7 +390,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
+        </DashboardTabs>
       </div>
     </div>
   );

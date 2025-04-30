@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button, Input } from "@/constants/ui/index";
 import {
   updateCartItemQuantity,
@@ -32,13 +33,14 @@ interface DisplayCartItem {
     name: string;
     price: number;
     image_url: string | null;
+    slug: string;
   };
+  color: string | null;
   quantity: number;
   price_at_time?: number;
 }
 
-// WhatsApp business phone number (including country code, no + or spaces)
-const WHATSAPP_PHONE = "1234567890"; // Replace with your actual number
+const WHATSAPP_PHONE = process.env.WHATSAPP_PHONE_NUMBER;
 
 export default function CartClient({ initialCartItems }: CartClientProps) {
   const router = useRouter();
@@ -134,7 +136,8 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
   const updateQuantity = async (
     itemId: string,
     productId: string,
-    newQuantity: number
+    newQuantity: number,
+    color: string | null
   ) => {
     if (newQuantity < 1) return; // Prevent quantity from going below 1
 
@@ -159,7 +162,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
 
       // Ensure new quantity doesn't exceed available stock
       if (newQuantity > productData.stock_quantity) {
-        toast.error(
+        toast.warning(
           `Only ${productData.stock_quantity} units of ${productData.name} available`
         );
         return;
@@ -174,16 +177,16 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
           mutateOnlineCart();
           toast.success("Quantity updated");
         } else {
-          toast.error("Failed to update quantity");
+          toast.warning("Failed to update quantity");
         }
       } else {
         // Offline cart update using Zustand store
-        setOfflineItemQuantity(productId, newQuantity);
+        setOfflineItemQuantity(productId, color, newQuantity);
         toast.success("Quantity updated");
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
-      toast.error(
+      toast.warning(
         error instanceof Error
           ? error.message
           : "An error occurred while updating the quantity"
@@ -194,7 +197,11 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
   };
 
   // Remove an item from the cart
-  const removeItem = async (itemId: string, productId: string) => {
+  const removeItem = async (
+    itemId: string,
+    productId: string,
+    color: string | null
+  ) => {
     setIsLoading(true);
     try {
       if (isAuthenticated) {
@@ -206,16 +213,16 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
           mutateOnlineCart();
           toast.success("Item removed from cart");
         } else {
-          toast.error("Failed to remove item");
+          toast.warning("Failed to remove item");
         }
       } else {
         // Offline cart removal using Zustand store
-        removeOfflineItem(productId);
+        removeOfflineItem(productId, color);
         toast.success("Item removed from cart");
       }
     } catch (error) {
       console.error("Error removing item:", error);
-      toast.error("An error occurred while removing the item");
+      toast.warning("An error occurred while removing the item");
     } finally {
       setIsLoading(false);
     }
@@ -350,9 +357,21 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
                     )}
                   </div>
                   <div>
-                    <h3 className="font-medium">{item.product.name}</h3>
+                    <Link
+                      href={`/product/${item.product.slug}`}
+                      className="font-medium block"
+                    >
+                      {item.product.name}
+                    </Link>
+                    {item.color && (
+                      <p className="text-xs text-gray-500">
+                        Color: {item.color}
+                      </p>
+                    )}
                     <button
-                      onClick={() => removeItem(item.id, item.product.id)}
+                      onClick={() =>
+                        removeItem(item.id, item.product.id, item.color)
+                      }
                       className="text-sm text-red-500 hover:text-red-700 mt-1"
                       disabled={isLoading}
                     >
@@ -378,7 +397,8 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
                         updateQuantity(
                           item.id,
                           item.product.id,
-                          item.quantity - 1
+                          item.quantity - 1,
+                          item.color
                         )
                       }
                       disabled={isLoading || item.quantity <= 1}
@@ -399,7 +419,8 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
                         updateQuantity(
                           item.id,
                           item.product.id,
-                          item.quantity + 1
+                          item.quantity + 1,
+                          item.color
                         )
                       }
                       disabled={isLoading}

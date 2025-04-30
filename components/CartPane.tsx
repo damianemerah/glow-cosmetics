@@ -98,6 +98,7 @@ export function CartPane({
               product_id: product.id,
               quantity: cartItem?.quantity || 0,
               price_at_time: product.price,
+              color: cartItem?.color?.name || null, // Update color property to match type
               product: {
                 id: product.id,
                 name: product.name,
@@ -114,7 +115,7 @@ export function CartPane({
         setOfflineCartItems(items);
       } catch (error) {
         console.error("Error loading offline cart:", error);
-        toast.error("Failed to load offline cart items");
+        toast.warning("Failed to load offline cart items");
       } finally {
         setLoadingOfflineItems(false);
       }
@@ -132,6 +133,7 @@ export function CartPane({
         product_id: item.product_id,
         quantity: item.quantity || 0,
         price_at_time: item.price_at_time || 0,
+        color: item.color || null,
         product: item.product
           ? {
               id: item.product.id,
@@ -161,7 +163,7 @@ export function CartPane({
     onOpenChange(false);
   };
 
-  const handleRemoveItem = async (itemId: string) => {
+  const handleRemoveItem = async (itemId: string, color: string) => {
     if (isOnline && user) {
       try {
         const result = await removeCartItem(itemId);
@@ -172,20 +174,20 @@ export function CartPane({
           mutate(`cart-count-${user.user_id}`);
           toast.success("Item removed from cart");
         } else {
-          toast.error("Failed to remove item");
+          toast.warning("Failed to remove item");
         }
       } catch (err) {
         console.error("Error removing item:", err);
-        toast.error("An error occurred while removing the item");
+        toast.warning("An error occurred while removing the item");
       }
     } else {
       // Handle removal from offline cart using Zustand store
       try {
-        removeOfflineItem(itemId);
+        removeOfflineItem(itemId, color);
         toast.success("Item removed from cart");
       } catch (err) {
         console.error("Error removing offline item:", err);
-        toast.error("Failed to remove item from cart");
+        toast.warning("Failed to remove item from cart");
       }
     }
   };
@@ -294,7 +296,7 @@ export function CartPane({
                     </div>
                   </div>
                   <button
-                    onClick={() => handleRemoveItem(item.id)}
+                    onClick={() => handleRemoveItem(item.id, item.color || "")}
                     className="text-muted-foreground hover:text-red-500 opacity-50 group-hover:opacity-100 transition-opacity"
                     aria-label="Remove item"
                   >

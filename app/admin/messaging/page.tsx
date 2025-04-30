@@ -190,11 +190,11 @@ export default function MessagingPage() {
           }
         }
       } else {
-        toast.error("Booking not found");
+        toast.warning("Booking not found");
       }
     } catch (error) {
       console.error("Error searching for booking:", error);
-      toast.error("Error searching for booking");
+      toast.warning("Error searching for booking");
     } finally {
       setBookingLoading(false);
     }

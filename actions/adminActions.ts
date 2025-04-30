@@ -6,6 +6,7 @@ import { unstable_cache } from "next/cache";
 import type { Category, ProductWithCategories } from "@/types/index";
 import slugify from "slugify";
 import { sendMessageWithFallback } from "@/lib/messaging";
+import { sanitizeTitle } from "@/utils";
 
 // Image upload function
 export const uploadImageToSupabase = async (
@@ -14,6 +15,7 @@ export const uploadImageToSupabase = async (
   try {
     const file = formData.get("file") as File;
     const bucket = formData.get("bucket") as string;
+    const title = sanitizeTitle(formData.get("title") as string || "");
 
     if (!file || !bucket) {
       throw new Error("File or bucket name is missing.");
@@ -21,23 +23,28 @@ export const uploadImageToSupabase = async (
 
     const allowedExtensions = ["jpg", "jpeg", "webp"];
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
-
     if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
       throw new Error(
         "Invalid file type. Only JPG, JPEG, and WEBP are allowed.",
       );
     }
 
-    const uniqueFilename = `${Date.now()}_${file.name.replace(/\s+/g, "_")}`;
+    const shortTs = Date.now().toString().slice(-5);
+    const safeOriginal = file.name.replace(/\s+/g, "_");
+    const uniqueFilename = title
+      ? `${title}_${shortTs}_${safeOriginal}`
+      : `${shortTs}_${safeOriginal}`;
 
     const { data, error } = await supabaseAdmin.storage
       .from(bucket)
       .upload(uniqueFilename, file, {
         cacheControl: "3600",
         upsert: false,
+        metadata: { title },
       });
 
     if (error) {
+      console.log(error);
       throw new Error(error.message);
     }
 
@@ -46,8 +53,8 @@ export const uploadImageToSupabase = async (
       .getPublicUrl(data.path);
 
     return urlData.publicUrl;
-  } catch (error) {
-    console.error("Error uploading image:", error);
+  } catch (err) {
+    console.error("Error uploading image:", err);
     return null;
   }
 };
@@ -343,71 +350,119 @@ export async function saveProduct(
   }
 }
 
-export async function fetchProducts(page: number = 1) {
+export async function fetchProducts(
+  page: number = 1,
+  search: string = "",
+  category: string = "all",
+) {
   const itemsPerPage = 20;
 
-  const getPagedProducts = unstable_cache(
-    async (pageNum: number) => {
-      const {
-        data: products,
-        error,
-        count,
-      } = await supabaseAdmin
+  const cacheKey = `products-page-${page}-search-${search}-cat-${category}`;
+
+  const getFilteredPagedProducts = unstable_cache(
+    async (pageNum: number, searchTerm: string, categoryId: string) => {
+      let query = supabaseAdmin
         .from("products")
         .select(
           `
-          *,
-          product_categories (
-            category_id,
-            categories:category_id (id, name)
-          )
-        `,
+                  *,
+                  product_categories!inner (
+                      category_id,
+                      categories:category_id (id, name, slug)
+                  )
+                  `,
           { count: "exact" },
-        )
+        );
+
+      if (searchTerm) {
+        query = query.ilike("name", `%${searchTerm.trim()}%`);
+      }
+
+      if (categoryId && categoryId !== "all") {
+        query = query.eq("product_categories.category_id", categoryId);
+      }
+
+      query = query
         .order("created_at", { ascending: false })
         .range((pageNum - 1) * itemsPerPage, pageNum * itemsPerPage - 1);
 
+      const { data: products, error, count } = await query;
+
       if (error) {
-        console.error("Error fetching products:", error);
-        throw new Error(error.message);
+        console.error(
+          `Error fetching products (Page: ${pageNum}, Search: "${searchTerm}", Category: "${categoryId}")`,
+          error,
+        );
+        throw new Error(
+          `Database error fetching products: ${error.message}. Check if category relation exists and filtering syntax is correct.`,
+        );
       }
 
       return {
-        products: products || [],
+        products: (products || []) as ProductWithCategories[],
         totalCount: count || 0,
         totalPages: Math.ceil((count || 0) / itemsPerPage),
       };
     },
-    [`products-page-${page}`],
+    [cacheKey],
     {
       revalidate: 60,
-      tags: ["products"],
+      tags: [
+        "products",
+        `products_search_${search}`,
+        `products_category_${category}`,
+      ],
     },
   );
 
-  return getPagedProducts(page);
+  return getFilteredPagedProducts(page, search, category);
 }
 
-// Delete product by ID
-export async function deleteProduct(id: string) {
-  try {
-    const { error } = await supabaseAdmin.from("products").delete().eq(
-      "id",
-      id,
-    );
+export async function deleteProduct(
+  id: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) {
+    return { success: false, error: "Product ID is required." };
+  }
 
-    if (error) {
-      throw new Error(error.message);
+  try {
+    const { error: categoryError } = await supabaseAdmin
+      .from("product_categories")
+      .delete()
+      .eq("product_id", id);
+
+    if (categoryError) {
+      console.error("Error deleting product categories:", categoryError);
+      return {
+        success: false,
+        error:
+          `Failed to delete associated categories: ${categoryError.message}`,
+      };
     }
 
-    // Revalidate products list
-    revalidatePath("/admin/products");
+    // Delete the main product
+    const { error } = await supabaseAdmin
+      .from("products")
+      .delete()
+      .eq("id", id);
 
+    if (error) {
+      console.error("Error deleting product:", error);
+      return { success: false, error: `Database error: ${error.message}` };
+    }
+
+    revalidateTag("products");
+    revalidatePath("/admin/products");
+    revalidatePath(`/admin/products/${id}`);
+    revalidatePath("/products");
     return { success: true };
   } catch (error) {
     const err = error as Error;
-    console.error("Error deleting product:", err);
-    return { success: false, error: err.message };
+    console.error("Unexpected error deleting product:", err);
+    return {
+      success: false,
+      error: err.message || "An unexpected error occurred.",
+    };
   }
 }
 

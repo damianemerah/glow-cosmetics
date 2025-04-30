@@ -102,7 +102,7 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
         }
         side="bottom"
         align={variant === "desktop" ? "end" : "center"}
-        onOpenAutoFocus={(e) => e.preventDefault()} // Prevent default focus stealing
+        onOpenAutoFocus={(e) => e.preventDefault()}
       >
         {/* Command is always rendered when PopoverContent is open */}
         <Command

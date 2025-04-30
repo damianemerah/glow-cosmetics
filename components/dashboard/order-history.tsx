@@ -91,7 +91,7 @@ export default function OrderHistory({
                 className={
                   order.status === "completed"
                     ? "ml-3 bg-green-100 text-green-800"
-                    : order.status === "processing"
+                    : order.status === "paid"
                       ? "ml-3 bg-blue-100 text-blue-800"
                       : order.status === "shipped"
                         ? "ml-3 bg-purple-100 text-purple-800"
@@ -136,12 +136,12 @@ export default function OrderHistory({
                   <Badge
                     className={
                       selectedOrder.status === "completed"
-                        ? "bg-green-100 text-green-800"
-                        : selectedOrder.status === "processing"
-                          ? "bg-blue-100 text-blue-800"
+                        ? "ml-3 bg-green-100 text-green-800"
+                        : selectedOrder.status === "paid"
+                          ? "ml-3 bg-blue-100 text-blue-800"
                           : selectedOrder.status === "shipped"
-                            ? "bg-purple-100 text-purple-800"
-                            : "bg-red-100 text-red-800"
+                            ? "ml-3 bg-purple-100 text-purple-800"
+                            : "ml-3 bg-red-100 text-red-800"
                     }
                   >
                     {selectedOrder.status}

@@ -11,7 +11,6 @@ import {
   ShoppingCart,
   BarChart2,
   MessageSquare,
-  Settings,
   Layers,
 } from "lucide-react";
 import {
@@ -35,7 +34,6 @@ const navItems = [
   { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
   { name: "Analytics", href: "/admin/analytics", icon: BarChart2 },
   { name: "Messaging", href: "/admin/messaging", icon: MessageSquare },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 function NavContent() {

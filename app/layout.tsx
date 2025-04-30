@@ -1,16 +1,15 @@
-import type React from "react";
+import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import { Open_Sans, Libre_Bodoni } from "next/font/google";
 // import { Montserrat, Open_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
-// import { Suspense } from "react";
 
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { FaWhatsapp } from "react-icons/fa";
 import "react-phone-input-2/lib/style.css";
-// import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const montserrat = Libre_Bodoni({
   subsets: ["latin"],
@@ -38,7 +37,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} ${openSans.variable} font-sans`}>
-        <Navbar />
+        <Suspense
+          fallback={
+            <div className="flex justify-center items-center h-screen">
+              <Skeleton className="w-full h-10 animate-pulse" />
+            </div>
+          }
+        >
+          <Navbar />
+        </Suspense>
         <Toaster />
         <main>{children}</main>
         <Footer />

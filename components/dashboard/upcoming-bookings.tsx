@@ -46,7 +46,7 @@ export default function UpcomingBookings({
       });
     } catch (error) {
       console.error("Error cancelling booking:", error);
-      toast.error("Failed to cancel booking. Please try again.");
+      toast.warning("Failed to cancel booking. Please try again.");
 
       // Revalidate to get the correct state
       mutate();

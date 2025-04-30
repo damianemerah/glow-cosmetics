@@ -170,10 +170,10 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
           editor.chain().focus().setImage({ src: imageUrl }).run();
           toast.success("Image uploaded successfully");
         } else {
-          toast.error("Failed to upload image");
+          toast.warning("Failed to upload image");
         }
       } catch (error) {
-        toast.error("Error uploading image");
+        toast.warning("Error uploading image");
         console.error(error);
       } finally {
         setIsUploading(false);

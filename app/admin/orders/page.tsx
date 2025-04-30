@@ -1,46 +1,40 @@
 import PageHeader from "@/components/admin/page-header";
-import { createClient } from "@/utils/supabase/server";
+import { fetchOrders } from "@/actions/orderAction";
 import OrderClient from "@/components/admin/order-client";
 
 export default async function OrdersPage({
   searchParams,
 }: {
-  searchParams: { page?: string };
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  const supabase = await createClient();
-  const currentPage = searchParams.page ? parseInt(searchParams.page) : 1;
-  const itemsPerPage = 10;
+  // const page = searchParams?.page || "1";
+  // const status = searchParams?.status || "all";
+  // const userSearch = searchParams?.userSearch || "";
 
-  // Count total orders for pagination
-  const { count } = await supabase
-    .from("orders")
-    .select("*", { count: "exact", head: true });
+  const { page = "1", status = "all", userSearch = "" } = await searchParams;
 
-  const totalPages = count ? Math.ceil(count / itemsPerPage) : 0;
+  const currentPage = parseInt(page, 10);
+  const validatedPage =
+    !isNaN(currentPage) && currentPage > 0 ? currentPage : 1;
 
-  // Get orders from database with pagination
-  const { data: orders, error } = await supabase
-    .from("orders")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .range((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage - 1);
-
-  if (error) {
-    console.error("Error loading orders:", error);
-    return <div>Error loading orders. Please try again later.</div>;
-  }
+  const { orders, totalPages } = await fetchOrders(
+    validatedPage,
+    status,
+    userSearch
+  );
 
   return (
-    <div>
+    <div className="container mx-auto py-6 px-4 md:px-6">
       <PageHeader
         title="Orders"
         description="Manage customer orders and payment status"
       />
-
       <OrderClient
-        initialOrders={orders || []}
+        initialOrders={orders}
         totalPages={totalPages}
-        currentPage={currentPage}
+        currentPage={validatedPage}
+        currentStatus={status}
+        currentUserSearch={userSearch}
       />
     </div>
   );

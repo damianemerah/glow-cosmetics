@@ -339,7 +339,7 @@ export default function AppointmentsClient({
       !firstName ||
       !phone
     ) {
-      toast.error("Please fill in all required fields");
+      toast.warning("Please fill in all required fields");
       return;
     }
 
@@ -387,7 +387,7 @@ export default function AppointmentsClient({
       mutate([...(bookings || []), newBooking as Booking], false);
     } catch (err) {
       console.error("Error creating appointment:", err);
-      toast.error("Failed to create appointment");
+      toast.warning("Failed to create appointment");
     } finally {
       setIsLoading(false);
     }
@@ -430,7 +430,7 @@ export default function AppointmentsClient({
     try {
       // Check if user_id exists
       if (!booking.user_id) {
-        toast.error(
+        toast.warning(
           "Cannot send confirmation: No user ID associated with this booking"
         );
         return;
@@ -486,7 +486,7 @@ export default function AppointmentsClient({
         false
       );
     } catch (error) {
-      toast.error("Failed to send confirmation message");
+      toast.warning("Failed to send confirmation message");
       console.error(error);
     } finally {
       // Clear loading state
@@ -498,7 +498,7 @@ export default function AppointmentsClient({
     try {
       // Check if user_id exists
       if (!booking.user_id) {
-        toast.error(
+        toast.warning(
           "Cannot send thank you: No user ID associated with this booking"
         );
         return;
@@ -558,7 +558,7 @@ export default function AppointmentsClient({
         false
       );
     } catch (error) {
-      toast.error("Failed to send thank you message");
+      toast.warning("Failed to send thank you message");
       console.error(error);
     } finally {
       // Clear loading state

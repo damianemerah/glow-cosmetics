@@ -14,10 +14,10 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function POST(
   request: Request,
-  { params }: { params: { messageId: string } },
+  { params }: { params: Promise<{ messageId: string }> },
 ) {
   try {
-    const { messageId } = params;
+    const { messageId } = await params;
     if (!messageId) {
       return NextResponse.json(
         { success: false, error: "Message ID is required" },

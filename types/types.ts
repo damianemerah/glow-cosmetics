@@ -141,6 +141,7 @@ export type Database = {
       cart_items: {
         Row: {
           cart_id: string | null
+          color: string | null
           created_at: string | null
           id: string
           price_at_time: number
@@ -151,6 +152,7 @@ export type Database = {
         }
         Insert: {
           cart_id?: string | null
+          color?: string | null
           created_at?: string | null
           id?: string
           price_at_time: number
@@ -161,6 +163,7 @@ export type Database = {
         }
         Update: {
           cart_id?: string | null
+          color?: string | null
           created_at?: string | null
           id?: string
           price_at_time?: number
@@ -217,7 +220,7 @@ export type Database = {
           images: string[] | null
           name: string
           parent_id: string | null
-          pinned: boolean | null
+          pinned: boolean
           search_vector: unknown | null
           slug: string
         }
@@ -227,7 +230,7 @@ export type Database = {
           images?: string[] | null
           name: string
           parent_id?: string | null
-          pinned?: boolean | null
+          pinned?: boolean
           search_vector?: unknown | null
           slug: string
         }
@@ -237,7 +240,7 @@ export type Database = {
           images?: string[] | null
           name?: string
           parent_id?: string | null
-          pinned?: boolean | null
+          pinned?: boolean
           search_vector?: unknown | null
           slug?: string
         }
@@ -295,6 +298,7 @@ export type Database = {
       }
       order_items: {
         Row: {
+          color: string | null
           created_at: string | null
           id: string
           order_id: string
@@ -305,6 +309,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          color?: string | null
           created_at?: string | null
           id?: string
           order_id: string
@@ -315,6 +320,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          color?: string | null
           created_at?: string | null
           id?: string
           order_id?: string
@@ -536,7 +542,7 @@ export type Database = {
           last_name: string | null
           last_purchase_date: string | null
           phone: string
-          receive_emails: boolean | null
+          receive_emails: boolean
           role: string
           updated_at: string | null
           user_id: string
@@ -557,7 +563,7 @@ export type Database = {
           last_name?: string | null
           last_purchase_date?: string | null
           phone: string
-          receive_emails?: boolean | null
+          receive_emails?: boolean
           role?: string
           updated_at?: string | null
           user_id: string
@@ -578,7 +584,7 @@ export type Database = {
           last_name?: string | null
           last_purchase_date?: string | null
           phone?: string
-          receive_emails?: boolean | null
+          receive_emails?: boolean
           role?: string
           updated_at?: string | null
           user_id?: string

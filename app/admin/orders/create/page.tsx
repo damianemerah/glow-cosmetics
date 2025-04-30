@@ -78,7 +78,7 @@ export default function CreateOrderPage() {
         setProducts(data || []);
       } catch (error) {
         console.error("Error loading products:", error);
-        toast.error("Failed to load products");
+        toast.warning("Failed to load products");
       } finally {
         setIsLoading(false);
       }
@@ -167,43 +167,43 @@ export default function CreateOrderPage() {
   // Validate the form
   const validateForm = () => {
     if (!orderData.first_name) {
-      toast.error("First name is required");
+      toast.warning("First name is required");
       return false;
     }
     if (!orderData.last_name) {
-      toast.error("Last name is required");
+      toast.warning("Last name is required");
       return false;
     }
     if (!orderData.email) {
-      toast.error("Email is required");
+      toast.warning("Email is required");
       return false;
     }
     if (!orderData.phone) {
-      toast.error("Phone number is required");
+      toast.warning("Phone number is required");
       return false;
     }
     if (!orderData.address) {
-      toast.error("Address is required");
+      toast.warning("Address is required");
       return false;
     }
     if (!orderData.city) {
-      toast.error("City is required");
+      toast.warning("City is required");
       return false;
     }
     if (!orderData.state) {
-      toast.error("State is required");
+      toast.warning("State is required");
       return false;
     }
     if (!orderData.zipCode) {
-      toast.error("ZIP code is required");
+      toast.warning("ZIP code is required");
       return false;
     }
     if (orderItems.length === 0) {
-      toast.error("Please add at least one product to the order");
+      toast.warning("Please add at least one product to the order");
       return false;
     }
     if (orderItems.some((item) => !item.product_id)) {
-      toast.error("Please select a product for all order items");
+      toast.warning("Please select a product for all order items");
       return false;
     }
 
@@ -277,7 +277,7 @@ export default function CreateOrderPage() {
 
       //   if (rpcError) {
       //     console.error("Error updating inventory:", rpcError);
-      //     toast.error("Order created but inventory update failed");
+      //     toast.warning("Order created but inventory update failed");
       //   }
       // }
 
@@ -285,7 +285,7 @@ export default function CreateOrderPage() {
       router.push("/admin/orders");
     } catch (error) {
       console.error("Error creating order:", error);
-      toast.error("Failed to create order");
+      toast.warning("Failed to create order");
     } finally {
       setIsSaving(false);
     }

@@ -96,7 +96,7 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
       });
     } catch (error) {
       console.error("Error fetching order details:", error);
-      toast.error("Failed to load order details");
+      toast.warning("Failed to load order details");
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +124,7 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
       }
     } catch (error) {
       console.error("Error updating order status:", error);
-      toast.error("Failed to update order status");
+      toast.warning("Failed to update order status");
     } finally {
       setIsUpdating(false);
     }
@@ -141,7 +141,7 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
 
       // if (rpcError) {
       //   console.error("Error updating inventory:", rpcError);
-      //   toast.error("Order marked as paid but inventory update failed");
+      //   toast.warning("Order marked as paid but inventory update failed");
       //   return;
       // }
 

@@ -52,7 +52,7 @@ export default function BookingsList({
       dedupingInterval: 10000, // 10 seconds
       onError: (error) => {
         console.error("Error fetching bookings:", error);
-        toast.error("Failed to load bookings");
+        toast.warning("Failed to load bookings");
       },
     }
   );
@@ -101,7 +101,7 @@ export default function BookingsList({
       toast.success("Bookings refreshed");
     } catch (err) {
       console.error("Error refreshing bookings:", err);
-      toast.error("Failed to refresh bookings");
+      toast.warning("Failed to refresh bookings");
     } finally {
       setLoading(false);
     }
@@ -123,7 +123,7 @@ export default function BookingsList({
       });
     } catch (error) {
       console.error("Error cancelling booking:", error);
-      toast.error("Failed to cancel booking. Please try again.");
+      toast.warning("Failed to cancel booking. Please try again.");
 
       // Revalidate on error
       mutate();

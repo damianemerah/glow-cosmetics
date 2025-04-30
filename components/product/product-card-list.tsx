@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { htmlToText } from "html-to-text";
-import { ShoppingCart, Eye, Loader2 } from "lucide-react";
+import { ShoppingCart, Eye, Loader2, Heart } from "lucide-react";
 import {
   Badge,
   Button,
@@ -18,11 +18,13 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/constants/ui/index";
-import type { ProductWithCategories, CartProduct } from "@/types/index";
+import type { ProductWithCategories, CartItemInputData } from "@/types/index";
 import { formatZAR } from "@/utils";
 import { useUserStore } from "@/store/authStore";
 import { addToCart } from "@/actions/cartAction";
+import { toggleWishlistItem } from "@/actions/wishlistActions";
 import { ProductQuickView } from "@/components/product/productQuickView";
+import { useWishlistStatus } from "@/lib/swr/wishlist";
 
 interface ProductCardListProps {
   product: ProductWithCategories;
@@ -35,6 +37,12 @@ export function ProductCardList({ product }: ProductCardListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const user = useUserStore((state) => state.user);
   const setShowModal = useUserStore((state) => state.setShowModal);
+
+  const {
+    data: isInWishlist,
+    mutate,
+    isValidating: isWishlistLoading,
+  } = useWishlistStatus(user?.id, product.id);
 
   const primaryImageUrl =
     product.image_url && product.image_url.length > 0
@@ -61,7 +69,7 @@ export function ProductCardList({ product }: ProductCardListProps) {
     }
     setIsAddingToCart(true);
     try {
-      const cartProduct: CartProduct = {
+      const cartProduct: CartItemInputData = {
         id: product.id,
         name: product.name,
         price: product.price,
@@ -71,13 +79,37 @@ export function ProductCardList({ product }: ProductCardListProps) {
       if (result.success) {
         toast.success(`${product.name} added to cart!`);
       } else {
-        toast.error(result.error || "Failed to add item to cart.");
+        toast.warning(result.error || "Failed to add item to cart.");
       }
     } catch (error) {
       console.error("Add to cart error:", error);
-      toast.error("Could not add item to cart.");
+      toast.warning("Could not add item to cart.");
     } finally {
       setIsAddingToCart(false);
+    }
+  };
+
+  const handleToggleWishlist = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user?.id) {
+      setShowModal(true);
+      toast.info("Please log in to add items to your wishlist.");
+      return;
+    }
+
+    try {
+      const result = await toggleWishlistItem(user.id, product.id);
+      if (result.success) {
+        toast.success(result.message);
+        mutate(); // Revalidate the wishlist status
+      } else {
+        toast.warning(result.error || "Failed to update wishlist");
+      }
+    } catch (error) {
+      console.error("Wishlist toggle error:", error);
+      toast.warning("Could not update wishlist");
     }
   };
 
@@ -92,7 +124,7 @@ export function ProductCardList({ product }: ProductCardListProps) {
     }
     setIsBuyingNow(true);
     try {
-      const cartProduct: CartProduct = {
+      const cartProduct: CartItemInputData = {
         id: product.id,
         name: product.name,
         price: product.price,
@@ -103,12 +135,12 @@ export function ProductCardList({ product }: ProductCardListProps) {
       if (result.success || result.error === "Item already in cart") {
         router.push("/checkout");
       } else {
-        toast.error(result.error || "Failed to add item before checkout.");
+        toast.warning(result.error || "Failed to add item before checkout.");
         setIsBuyingNow(false);
       }
     } catch (error) {
       console.error("Buy Now error:", error);
-      toast.error("Could not proceed to checkout.");
+      toast.warning("Could not proceed to checkout.");
       setIsBuyingNow(false);
     }
   };
@@ -130,8 +162,8 @@ export function ProductCardList({ product }: ProductCardListProps) {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <TooltipProvider delayDuration={100}>
-        <div className="group relative border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 p-4 flex flex-col md:flex-row gap-4">
-          <div className="relative w-full h-48 md:w-48 md:h-auto md:aspect-square flex-shrink-0 overflow-hidden rounded-md bg-gray-50">
+        <div className="group relative border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 p-4 flex flex-row gap-4">
+          <div className="relative w-36 h-auto aspect-square flex-shrink-0 overflow-hidden rounded-md bg-gray-50">
             <Link
               href={`/products/${product.slug}`}
               className="absolute inset-0 z-10"
@@ -142,9 +174,9 @@ export function ProductCardList({ product }: ProductCardListProps) {
               alt={product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300 ease-in-out"
-              sizes="(max-width: 767px) 100vw, 192px"
+              sizes="(max-width: 640px) 144px, 144px"
             />
-            <div className="absolute top-2 left-2 z-20 flex flex-col gap-1">
+            <div className="absolute top-2 left-2 z-15 flex flex-col gap-1">
               {product.is_bestseller && (
                 <Badge variant="default" className="bg-green-600 text-white">
                   Bestseller
@@ -187,7 +219,7 @@ export function ProductCardList({ product }: ProductCardListProps) {
               <Button
                 size="sm"
                 variant={hasStock ? "default" : "outline"}
-                className="flex-grow xs:flex-grow-0 bg-primary/90 hover:bg-primary disabled:bg-gray-300"
+                className="bg-primary/90 hover:bg-primary disabled:bg-gray-300"
                 onClick={handleAddToCart}
                 disabled={isAddingToCart || isBuyingNow || !hasStock}
                 aria-label={hasStock ? "Add to cart" : "Product out of stock"}
@@ -204,7 +236,6 @@ export function ProductCardList({ product }: ProductCardListProps) {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="flex-grow xs:flex-grow-0"
                   onClick={handleBuyNow}
                   disabled={isBuyingNow || isAddingToCart}
                   aria-label="Buy now"
@@ -215,6 +246,31 @@ export function ProductCardList({ product }: ProductCardListProps) {
                   Buy Now
                 </Button>
               )}
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`p-0 h-9 px-2 ${isWishlistLoading ? "opacity-50 cursor-wait" : ""}`}
+                    aria-label={
+                      isInWishlist ? "Remove from wishlist" : "Add to wishlist"
+                    }
+                    onClick={handleToggleWishlist}
+                    disabled={isWishlistLoading}
+                  >
+                    <Heart
+                      className={`h-4 w-4 mr-1 ${isInWishlist ? "fill-red-500 text-red-500" : ""}`}
+                    />
+                    {isInWishlist ? "Remove" : "Wishlist"}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>
+                    {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
 
               <Tooltip>
                 <TooltipTrigger asChild>

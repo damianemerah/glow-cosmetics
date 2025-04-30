@@ -109,3 +109,29 @@ export function ProductCTASkeleton() {
     </section>
   );
 }
+
+export function RecentlyViewedProductsSkeleton() {
+  return (
+    <div className="mt-10 md:mt-16 mb-16">
+      <div className="flex items-center justify-between mb-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-8 w-24" />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, index) => (
+          <ProductCardSkeleton key={index} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function ProductCardSkeleton() {
+  return (
+    <div className="space-y-3">
+      <Skeleton className="aspect-square w-full rounded-md" />
+      <Skeleton className="h-5 w-3/4" />
+      <Skeleton className="h-4 w-1/2" />
+    </div>
+  );
+}

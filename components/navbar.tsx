@@ -1,11 +1,11 @@
 "use client";
-//Copilot: remove all comments
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
 import useSWR from "swr";
+import { AuthSessionMissingError, User } from "@supabase/supabase-js";
 
 import { useUserStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
@@ -42,18 +42,23 @@ const Navbar = () => {
   const [isOnline, setIsOnline] = useState(true);
   const mergeAttemptedThisSessionRef = useRef(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [initialAuthCheckComplete, setInitialAuthCheckComplete] =
+    useState(false);
 
   const user = useUserStore((state) => state.user);
+  const isFetchingUser = useUserStore((state) => state.isFetchingUser);
   const setUser = useUserStore((state) => state.setUser);
   const fetchUser = useUserStore((state) => state.fetchUser);
   const signOut = useUserStore((state) => state.signOut);
 
   const { mutate: mutateCartCount } = useSWR(
-    user && isOnline ? `cart-count-${user.user_id}` : null,
-    { revalidateOnMount: false, revalidateOnFocus: false }
+    initialAuthCheckComplete && user && !isFetchingUser && isOnline
+      ? `cart-count-${user.id}`
+      : null,
+    null,
+    { revalidateOnMount: false, revalidateOnFocus: true }
   );
 
-  // Track online status
   useEffect(() => {
     const updateOnlineStatus = () => setIsOnline(navigator.onLine);
     updateOnlineStatus();
@@ -65,97 +70,139 @@ const Navbar = () => {
     };
   }, []);
 
-  const handleAuthChange = useCallback(async () => {
-    const {
-      data: { user: authUser },
-      error,
-    } = await supabase.auth.getUser();
-    if (error) return;
-
-    if (authUser) {
-      await fetchUser(authUser.id);
-      mutateCartCount();
-
-      const code = searchParams.get("code");
-      if (code) {
-        const newSearchParams = new URLSearchParams(window.location.search);
-        newSearchParams.delete("code");
-        const newUrl = `${window.location.pathname}?${newSearchParams.toString()}`;
-        router.replace(newUrl);
-      }
-    } else {
-      setUser(null);
-      mergeAttemptedThisSessionRef.current = false;
-      mutateCartCount();
-    }
-  }, [fetchUser, setUser, router, searchParams, mutateCartCount]);
-
   const attemptCartMerge = useCallback(
     async (userId: string) => {
-      if (!isOnline || mergeAttemptedThisSessionRef.current) return;
+      if (!isOnline || mergeAttemptedThisSessionRef.current) {
+        return;
+      }
 
       const offlineCart = useCartStore.getState().offlineItems;
       if (offlineCart.length > 0) {
         mergeAttemptedThisSessionRef.current = true;
-        console.log("Attempting to merge offline cart:", offlineCart);
-
         try {
           const result = await mergeOfflineCart(userId, offlineCart);
-          toast.success(
-            `Synced cart: Added ${result.itemsAdded} offline item(s)`
-          );
-          useCartStore.getState().clearOfflineCart();
-          mutateCartCount(); // Refresh cart count after successful merge
+          if (result.success) {
+            toast.success(
+              `Synced cart: Added/updated ${result.itemsAdded || offlineCart.length} offline item(s).`
+            );
+            useCartStore.getState().clearOfflineCart();
+            await mutateCartCount();
+          } else {
+            toast.warning(
+              `Failed to sync offline cart: ${result.error || "Unknown reason"}. Items remain saved locally.`
+            );
+            mergeAttemptedThisSessionRef.current = false;
+          }
         } catch (err) {
-          console.error("Error merging offline cart:", err);
-          toast.error(
-            "Failed to sync your offline cart. Items remain saved locally."
+          const error = err as Error;
+          toast.warning(
+            `Failed to sync offline cart: ${error.message || "Unknown error"}. Items remain saved locally.`
           );
+          console.error("Error merging offline cart:", error);
+          mergeAttemptedThisSessionRef.current = false;
         }
+      } else {
+        mergeAttemptedThisSessionRef.current = true;
       }
     },
     [isOnline, mutateCartCount]
   );
 
+  const processAuthUser = useCallback(
+    async (authUser: User | null) => {
+      if (authUser) {
+        const profileFetched = await fetchUser(authUser.id);
+        if (profileFetched) {
+          mutateCartCount();
+          await attemptCartMerge(authUser.id);
+          if (searchParams.get("code")) {
+            const newSearchParams = new URLSearchParams(window.location.search);
+            newSearchParams.delete("code");
+            const newUrl = `${window.location.pathname}${newSearchParams.toString() ? "?" + newSearchParams.toString() : ""}`;
+            router.replace(newUrl, { scroll: false });
+          }
+        } else {
+          console.warn(
+            "Profile fetch failed or user inactive for authUser:",
+            authUser.id
+          );
+          setUser(null);
+          mergeAttemptedThisSessionRef.current = false;
+          mutateCartCount();
+        }
+      } else {
+        setUser(null);
+        mergeAttemptedThisSessionRef.current = false;
+        mutateCartCount();
+      }
+      setInitialAuthCheckComplete(true);
+    },
+    [
+      fetchUser,
+      setUser,
+      router,
+      searchParams,
+      mutateCartCount,
+      attemptCartMerge,
+    ]
+  );
+
   useEffect(() => {
+    let isMounted = true;
+    const checkInitialSession = async () => {
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
+        if (!isMounted) return;
+
+        if (error) {
+          if (!(error instanceof AuthSessionMissingError)) {
+            console.error("Error getting initial session:", error);
+          }
+          await processAuthUser(null);
+        } else if (session) {
+          await processAuthUser(session.user);
+        } else {
+          await processAuthUser(null);
+        }
+      } catch (error) {
+        if (!isMounted) return;
+        if (!(error instanceof AuthSessionMissingError)) {
+          console.error(
+            "Unexpected error during initial session check:",
+            error
+          );
+        }
+        await processAuthUser(null);
+      }
+    };
+
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log(`Auth event: ${event}`);
-        await handleAuthChange();
-
-        if (event === "SIGNED_IN" && session?.user) {
-          await attemptCartMerge(session.user.id);
-        } else if (event === "SIGNED_OUT") {
+        await processAuthUser(session?.user ?? null);
+        if (event === "SIGNED_OUT") {
           mergeAttemptedThisSessionRef.current = false;
         }
       }
     );
 
-    const checkInitialSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      await handleAuthChange();
-      if (session?.user) {
-        await attemptCartMerge(session.user.id);
-      }
-    };
-
     checkInitialSession();
 
     return () => {
+      isMounted = false;
       authListener?.subscription?.unsubscribe();
     };
-  }, [handleAuthChange, attemptCartMerge]);
+  }, [processAuthUser]);
 
   const handleLogout = useCallback(async () => {
     await signOut();
     if (pathname.startsWith("/admin") || pathname === "/dashboard") {
       router.push("/");
     }
-    mergeAttemptedThisSessionRef.current = false;
-    mutateCartCount();
-  }, [signOut, router, pathname, mutateCartCount]);
+  }, [signOut, router, pathname]);
 
   if (pathname.startsWith("/admin")) {
     return null;
@@ -163,38 +210,51 @@ const Navbar = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full bg-white/80 backdrop-blur-sm">
-        <div className="container mx-auto flex h-20 items-center justify-between px-4">
+      <header
+        className={`${pathname === "/" && "sticky top-0 z-40"} w-full bg-white/80 backdrop-blur-sm shadow-sm`}
+      >
+        <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4">
           <BrandLogo />
-
           <div className="hidden lg:flex items-center space-x-6">
             <DesktopNavLinks navLinks={navLinks} />
             <div className="flex items-center space-x-4">
               <SearchCommand variant="desktop" />
               <SocialIcons />
-              {pathname !== "/cart" && (
+              {!pathname.startsWith("/cart") &&
+                !pathname.startsWith("/checkout") && (
+                  <CartIndicator
+                    onClick={() => setCartOpen(true)}
+                    isOnline={isOnline}
+                  />
+                )}
+            </div>
+            <UserAuth
+              onLogout={handleLogout}
+              isLoading={isFetchingUser || !initialAuthCheckComplete}
+            />
+            <Button
+              asChild
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              <Link href="/booking">Book Appointment</Link>
+            </Button>
+          </div>
+          <div className="lg:hidden flex items-center space-x-2 sm:space-x-4">
+            <SearchCommand variant="mobile" />
+            <SocialIcons className="hidden sm:flex" />
+            {!pathname.startsWith("/cart") &&
+              !pathname.startsWith("/checkout") && (
                 <CartIndicator
                   onClick={() => setCartOpen(true)}
                   isOnline={isOnline}
                 />
               )}
-            </div>
-            <UserAuth onLogout={handleLogout} />
-            <Button asChild className="bg-green-500 hover:bg-green-600">
-              <Link href="/booking">Book Your Appointment</Link>
-            </Button>
-          </div>
-
-          <div className="lg:hidden flex items-center space-x-2 sm:space-x-4">
-            <SearchCommand variant="mobile" />
-            <SocialIcons className="hidden sm:flex" />{" "}
-            {pathname !== "/cart" && (
-              <CartIndicator
-                onClick={() => setCartOpen(true)}
-                isOnline={isOnline}
-              />
-            )}
-            <MobileMenu navLinks={navLinks} onLogout={handleLogout} />
+            <MobileMenu
+              navLinks={navLinks}
+              onLogout={handleLogout}
+              isLoading={isFetchingUser || !initialAuthCheckComplete}
+            />
           </div>
         </div>
       </header>

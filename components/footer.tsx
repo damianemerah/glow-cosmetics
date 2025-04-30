@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { Instagram, Facebook } from "lucide-react";
+import { keys } from "@/constants/data";
+import { FaInstagram, FaFacebookF } from "react-icons/fa";
 import AdminFooter from "@/components/admin/admin-footer"; // Assuming this component exists and is styled
 import { usePathname } from "next/navigation";
-// import { Button } from "@/constants/ui/index"; // Assuming this uses primary color styles
 
 const Footer = () => {
   const pathname = usePathname();
@@ -77,11 +77,11 @@ const Footer = () => {
             </ul>
             {/* Social Links */}
             <div className="flex justify-center md:justify-start space-x-5">
-              <SocialLink href="https://instagram.com" ariaLabel="Instagram">
-                <Instagram className="h-6 w-6" />
+              <SocialLink href={keys.instagram} ariaLabel="Instagram">
+                <FaInstagram className="h-6 w-6" />
               </SocialLink>
-              <SocialLink href="https://facebook.com" ariaLabel="Facebook">
-                <Facebook className="h-6 w-6" />
+              <SocialLink href={keys.facebook} ariaLabel="Facebook">
+                <FaFacebookF className="h-6 w-6" />
               </SocialLink>
             </div>
           </div>

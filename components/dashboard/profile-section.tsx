@@ -126,7 +126,7 @@ export default function ProfileSection({
     setIsSubmitting(true);
 
     if (!profile?.user_id) {
-      toast.error("User ID not found");
+      toast.warning("User ID not found");
       setIsSubmitting(false);
       return;
     }
@@ -160,7 +160,7 @@ export default function ProfileSection({
           updateData.avatar = avatarUrl;
         } catch (uploadError) {
           const err = uploadError as Error;
-          toast.error("Failed to upload profile picture", {
+          toast.warning("Failed to upload profile picture", {
             description: err?.message || "An error occurred",
             icon: <AlertCircle className="text-red-500 w-5 h-5" />,
             duration: 8000,
@@ -189,7 +189,7 @@ export default function ProfileSection({
       router.refresh();
     } catch (error) {
       console.error("Profile update error:", error);
-      toast.error("Failed to update profile");
+      toast.warning("Failed to update profile");
 
       // Revalidate on error
       mutate();
@@ -199,7 +199,7 @@ export default function ProfileSection({
   };
 
   if (error || initialError) {
-    toast.error("Failed", {
+    toast.warning("Failed", {
       description: "Unable to load profile data. Please try again.",
     });
   }

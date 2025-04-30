@@ -1,17 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Badge,
   Button,
   Input,
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
   Select,
   SelectContent,
   SelectItem,
@@ -24,81 +19,116 @@ import { Plus, Search, X, Loader2 } from "lucide-react";
 import { formatZAR } from "@/utils";
 import { getOrderByRef } from "@/actions/orderAction";
 import { toast } from "sonner";
-
-interface Order {
-  id: string;
-  created_at: string;
-  first_name: string;
-  last_name: string;
-  total_price: number;
-  status: string;
-  payment_method: string;
-  payment_reference: string;
-  email: string;
-}
+import { Order } from "@/types/index";
+import Pagination from "@/components/common/pagination";
 
 interface OrderClientProps {
   initialOrders: Order[];
   totalPages: number;
   currentPage: number;
+  currentStatus: string;
+  currentUserSearch: string;
 }
 
 export default function OrderClient({
   initialOrders,
   totalPages,
   currentPage,
+  currentStatus,
+  currentUserSearch,
 }: OrderClientProps) {
-  const [orders, setOrders] = useState<Order[]>(initialOrders);
-  const [statusFilter, setStatusFilter] = useState("all");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [statusFilter, setStatusFilter] = useState(currentStatus);
+  const [userSearchQuery, setUserSearchQuery] = useState(currentUserSearch);
   const [searchRef, setSearchRef] = useState("");
+
+  const [displayedOrders, setDisplayedOrders] =
+    useState<Order[]>(initialOrders);
+
+  const [isPending, startTransition] = useTransition();
   const [isRefSearching, setIsRefSearching] = useState(false);
 
-  // Filter orders based on status
   useEffect(() => {
-    if (statusFilter === "all") {
-      setOrders(initialOrders);
-      return;
+    setStatusFilter(currentStatus);
+    setUserSearchQuery(currentUserSearch);
+    if (!searchRef) {
+      setDisplayedOrders(initialOrders);
+    }
+  }, [currentStatus, currentUserSearch, initialOrders, searchRef]);
+
+  const handleFilterChange = (type: "status" | "userSearch", value: string) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+
+    if (type === "status") {
+      if (value === "all") {
+        newParams.delete("status");
+      } else {
+        newParams.set("status", value);
+      }
+      setStatusFilter(value);
+    } else if (type === "userSearch") {
+      if (value) {
+        newParams.set("userSearch", value);
+      } else {
+        newParams.delete("userSearch");
+      }
+      setUserSearchQuery(value);
     }
 
-    const filtered = initialOrders.filter(
-      (order) => order.status === statusFilter
-    );
-    setOrders(filtered);
-  }, [statusFilter, initialOrders]);
+    newParams.set("page", "1");
 
-  // Search for order by payment reference
+    setSearchRef("");
+
+    startTransition(() => {
+      router.push(`/admin/orders?${newParams.toString()}`, { scroll: false });
+    });
+  };
+
   const handleRefSearch = async () => {
     if (!searchRef.trim()) {
-      toast.error("Please enter a payment reference");
+      toast.warning("Please enter a payment reference");
       return;
     }
-
     setIsRefSearching(true);
+    setStatusFilter("all");
+    setUserSearchQuery("");
     try {
       const order = await getOrderByRef(searchRef.trim());
       if (order) {
-        setOrders([order]);
+        setDisplayedOrders([order]);
+        toast.success("Order found.");
       } else {
-        setOrders([]);
-        toast.error("No order found with that reference");
+        setDisplayedOrders([]);
+        toast.warning("No order found with that reference");
       }
     } catch (error) {
-      console.error("Error searching for order:", error);
-      toast.error("Failed to find order");
+      console.error("Error searching for order by reference:", error);
+      toast.warning("Failed to find order");
     } finally {
       setIsRefSearching(false);
     }
   };
 
-  const resetSearch = () => {
+  const resetRefSearch = () => {
     setSearchRef("");
-    setOrders(initialOrders);
+    const currentParams = new URLSearchParams(searchParams.toString());
+    if (!currentParams.has("page")) {
+      currentParams.set("page", "1");
+    }
+    startTransition(() => {
+      router.push(`/admin/orders?${currentParams.toString()}`, {
+        scroll: false,
+      });
+    });
   };
 
+  // --- Define Table Columns ---
   const orderColumns = [
     {
       key: "id",
-      title: "Order ID",
+      title: "Order Ref / Date",
       render: (row: Order) => (
         <div>
           <div className="font-medium">{row.payment_reference}</div>
@@ -113,7 +143,9 @@ export default function OrderClient({
       title: "Client",
       render: (row: Order) => (
         <div>
-          <div>{`${row.first_name} ${row.last_name}`}</div>
+          <div>
+            {`${row.first_name || ""} ${row.last_name || ""}`.trim() || "N/A"}
+          </div>
           <div className="text-sm text-muted-foreground">{row.email}</div>
         </div>
       ),
@@ -125,7 +157,7 @@ export default function OrderClient({
         <div>
           <div>{formatZAR(row.total_price)}</div>
           <div className="text-sm text-muted-foreground capitalize">
-            {row.payment_method?.replace("_", " ") || "Not specified"}
+            {row.payment_method?.replace(/_/g, " ") || "N/A"}
           </div>
         </div>
       ),
@@ -135,20 +167,16 @@ export default function OrderClient({
       title: "Status",
       render: (row: Order) => {
         const statusStyles: Record<string, string> = {
-          delivered: "bg-green-100 text-green-800",
-          processing: "bg-blue-100 text-blue-800",
           shipped: "bg-purple-100 text-purple-800",
           cancelled: "bg-red-100 text-red-800",
           paid: "bg-emerald-100 text-emerald-800",
           pending: "bg-yellow-100 text-yellow-800",
-          pending_payment: "bg-cyan-100 text-cyan-800",
         };
-
-        const style = statusStyles[row.status] || "bg-gray-100 text-gray-800";
-
+        const style =
+          statusStyles[row.status || "all"] || "bg-gray-100 text-gray-800";
         return (
-          <Badge className={style}>
-            {row.status?.replace("_", " ") || "Unknown"}
+          <Badge className={`${style} capitalize`}>
+            {row.status?.replace(/_/g, " ") || "Unknown"}
           </Badge>
         );
       },
@@ -157,39 +185,68 @@ export default function OrderClient({
       key: "actions",
       title: "Actions",
       render: (row: Order) => (
-        <OrderDetail orderId={row.id} initialStatus={row.status} />
+        <OrderDetail orderId={row.id} initialStatus={row.status || "all"} />
       ),
     },
   ];
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex gap-2">
-          <div className="relative">
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-wrap gap-2">
+          <Input
+            placeholder="Search by Name/Email..."
+            className="w-full sm:w-auto md:max-w-xs"
+            value={userSearchQuery}
+            onChange={(e) => handleFilterChange("userSearch", e.target.value)}
+            disabled={isPending || !!searchRef}
+          />
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => handleFilterChange("status", value)}
+            disabled={isPending || !!searchRef}
+          >
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
+              <SelectItem value="shipped">Shipped</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Payment Reference Search */}
+          <div className="relative w-full sm:w-auto">
             <Input
-              placeholder="Search by order ID..."
-              className="max-w-xs"
+              placeholder="Search by Order Ref..."
+              className="w-full md:max-w-xs pr-16" // Added padding for buttons
               value={searchRef}
               onChange={(e) => setSearchRef(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleRefSearch()}
+              disabled={isRefSearching || isPending}
             />
             {searchRef && (
               <Button
                 variant="ghost"
-                size="sm"
-                className="absolute right-8 top-1/2 transform -translate-y-1/2"
-                onClick={resetSearch}
+                size="icon" // Use icon size
+                className="absolute right-9 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground hover:text-foreground" // Adjusted position/size
+                onClick={resetRefSearch}
+                disabled={isRefSearching || isPending}
+                aria-label="Clear reference search"
               >
                 <X className="h-4 w-4" />
               </Button>
             )}
             <Button
-              size="sm"
+              size="icon" // Use icon size
               variant="ghost"
-              className="absolute right-0 top-1/2 transform -translate-y-1/2"
+              className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground hover:text-foreground" // Adjusted position/size
               onClick={handleRefSearch}
-              disabled={isRefSearching}
+              disabled={isRefSearching || !searchRef.trim() || isPending}
+              aria-label="Search by reference"
             >
               {isRefSearching ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -198,88 +255,56 @@ export default function OrderClient({
               )}
             </Button>
           </div>
-          <Select
-            defaultValue="all"
-            value={statusFilter}
-            onValueChange={setStatusFilter}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="paid">Paid</SelectItem>
-              <SelectItem value="processing">Processing</SelectItem>
-              <SelectItem value="shipped">Shipped</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline">Export</Button>
-          <Button variant="outline">Print</Button>
+        <div className="flex gap-2 flex-shrink-0">
           <Link href="/admin/orders/create">
-            <Button className="bg-primary text-white hover:bg-primary/90">
+            <Button>
               <Plus className="h-4 w-4 mr-2" />
               Create Order
             </Button>
           </Link>
         </div>
       </div>
-
       <DataTable
         columns={orderColumns}
-        data={orders}
+        data={displayedOrders}
         loadingState={
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
+          isPending ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : null
         }
         emptyState={
           <div className="text-center py-8">
-            <p className="text-muted-foreground">No orders found</p>
+            <p className="text-muted-foreground">
+              {searchRef
+                ? "No order found for that reference."
+                : "No orders match the current filters."}
+            </p>
+            {!searchRef && (currentStatus !== "all" || currentUserSearch) && (
+              <Button
+                variant="link"
+                onClick={() => {
+                  setStatusFilter("all");
+                  setUserSearchQuery("");
+                  handleFilterChange("status", "all");
+                }}
+              >
+                Clear Filters
+              </Button>
+            )}
           </div>
         }
       />
-
-      {totalPages > 1 && !searchRef && (
-        <Pagination className="mt-4">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href={`/admin/orders?page=${Math.max(1, currentPage - 1)}`}
-                className={
-                  currentPage <= 1 ? "pointer-events-none opacity-50" : ""
-                }
-              />
-            </PaginationItem>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-              (pageNum) => (
-                <PaginationItem key={pageNum}>
-                  <PaginationLink
-                    href={`/admin/orders?page=${pageNum}`}
-                    isActive={pageNum === currentPage}
-                  >
-                    {pageNum}
-                  </PaginationLink>
-                </PaginationItem>
-              )
-            )}
-            <PaginationItem>
-              <PaginationNext
-                href={`/admin/orders?page=${Math.min(totalPages, currentPage + 1)}`}
-                className={
-                  currentPage >= totalPages
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+      {!searchRef && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          baseUrl="/admin/orders"
+          searchParams={searchParams}
+        />
       )}
     </div>
   );

@@ -72,7 +72,7 @@ function DepositPaymentPageContent() {
     }
 
     if (!email || !name) {
-      toast.error("Name and email are required for payment.");
+      toast.warning("Name and email are required for payment.");
       return;
     }
 
@@ -103,17 +103,17 @@ function DepositPaymentPageContent() {
       if (authorization_url) {
         window.location.href = authorization_url;
       } else if (responseData.data.code === "duplicate_reference") {
-        toast.error(responseData.data.message, {
+        toast.warning(responseData.data.message, {
           description: "Please try again with a different booking ID.",
         });
       } else {
-        toast.error("Payment failed", {
+        toast.warning("Payment failed", {
           description: "There was an error processing your payment.",
         });
       }
     } catch (error) {
       console.error(error);
-      toast.error("Payment failed", {
+      toast.warning("Payment failed", {
         description: "There was an error processing your payment.",
       });
     } finally {

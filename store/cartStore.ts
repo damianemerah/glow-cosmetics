@@ -1,135 +1,177 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { ColorInfo } from "@/types";
 
-// Define the cart item type
 export interface OfflineCartItem {
     id: string;
     quantity: number;
     addedAt: number;
+    color: ColorInfo | null;
+    name: string;
+    price: number;
+    image_url: string[] | null;
+    stock_quantity: number;
+}
+
+interface OfflineProductDetails {
+    name: string;
+    price: number;
+    image_url: string[] | null;
+    stock_quantity: number;
 }
 
 interface CartState {
-    // State
     offlineItems: OfflineCartItem[];
-
-    // Actions
-    addOrUpdateOfflineItem: (productId: string, quantityChange: number) => void;
-    setOfflineItemQuantity: (productId: string, newQuantity: number) => void;
-    removeOfflineItem: (productId: string) => void;
+    addOrUpdateOfflineItem: (
+        productId: string,
+        quantityChange: number,
+        color: ColorInfo | null,
+        productDetails: OfflineProductDetails,
+    ) => void;
+    setOfflineItemQuantity: (
+        productId: string,
+        colorName: string | null,
+        newQuantity: number,
+    ) => void;
+    removeOfflineItem: (productId: string, colorName: string | null) => void;
     clearOfflineCart: () => void;
-
-    // Selectors
     getOfflineCartCount: () => number;
+    getOfflineItemQuantity: (
+        productId: string,
+        colorName: string | null,
+    ) => number;
 }
 
 export const useCartStore = create<CartState>()(
     persist(
         (set, get) => ({
-            // State
             offlineItems: [],
-
-            // Actions
-            addOrUpdateOfflineItem: (productId, quantityChange) => {
+            addOrUpdateOfflineItem: (
+                productId,
+                quantityChange,
+                color,
+                productDetails,
+            ) => {
                 set((state) => {
-                    const existingItemIndex = state.offlineItems.findIndex(
-                        (item) => item.id === productId,
+                    const items = [...state.offlineItems];
+                    const existingItemIndex = items.findIndex(
+                        (item) =>
+                            item.id === productId &&
+                            item.color?.name === color?.name,
                     );
 
-                    const newItems = [...state.offlineItems];
+                    const availableStock = productDetails.stock_quantity;
 
-                    if (existingItemIndex >= 0) {
-                        // Item exists, update quantity
-                        const currentQuantity =
-                            newItems[existingItemIndex].quantity;
-                        const newQuantity = currentQuantity + quantityChange;
+                    if (existingItemIndex > -1) {
+                        const existingItem = items[existingItemIndex];
+                        let newQuantity = existingItem.quantity +
+                            quantityChange;
 
+                        if (newQuantity > availableStock) {
+                            console.warn(
+                                `Offline cart exceeds stock for ${productId} (${
+                                    color?.name || "N/A"
+                                }). Clamping.`,
+                            );
+                            newQuantity = availableStock;
+                        }
                         if (newQuantity <= 0) {
-                            // Remove item if quantity becomes zero or negative
-                            newItems.splice(existingItemIndex, 1);
+                            items.splice(existingItemIndex, 1);
                         } else {
-                            // Update the item with new quantity
-                            newItems[existingItemIndex] = {
-                                ...newItems[existingItemIndex],
+                            items[existingItemIndex] = {
+                                ...existingItem,
                                 quantity: newQuantity,
                                 addedAt: Date.now(),
+                                price: productDetails.price,
                             };
                         }
                     } else if (quantityChange > 0) {
-                        // Item doesn't exist and we're adding a positive quantity
-                        newItems.push({
-                            id: productId,
-                            quantity: quantityChange,
-                            addedAt: Date.now(),
-                        });
+                        let initialQuantity = quantityChange;
+
+                        if (initialQuantity > availableStock) {
+                            console.warn(
+                                `Offline cart exceeds stock for new item ${productId} (${
+                                    color?.name || "N/A"
+                                }). Clamping.`,
+                            );
+                            initialQuantity = availableStock;
+                        }
+
+                        if (initialQuantity > 0) {
+                            items.push({
+                                id: productId,
+                                quantity: initialQuantity,
+                                addedAt: Date.now(),
+                                color: color,
+                                name: productDetails.name,
+                                price: productDetails.price,
+                                image_url: productDetails.image_url,
+                                stock_quantity: availableStock,
+                            });
+                        }
                     }
 
-                    return { offlineItems: newItems };
+                    return { offlineItems: items };
                 });
             },
-
-            setOfflineItemQuantity: (productId, newQuantity) => {
+            setOfflineItemQuantity: (productId, colorName, newQuantity) => {
                 set((state) => {
-                    if (newQuantity <= 0) {
-                        // Remove item if quantity is zero or negative
-                        return {
-                            offlineItems: state.offlineItems.filter(
-                                (item) => item.id !== productId,
-                            ),
-                        };
-                    }
-
-                    const existingItemIndex = state.offlineItems.findIndex(
-                        (item) => item.id === productId,
+                    const items = [...state.offlineItems];
+                    const itemIndex = items.findIndex(
+                        (item) =>
+                            item.id === productId &&
+                            item.color?.name === colorName,
                     );
 
-                    if (existingItemIndex >= 0) {
-                        // Item exists, update quantity
-                        const newItems = [...state.offlineItems];
-                        newItems[existingItemIndex] = {
-                            ...newItems[existingItemIndex],
-                            quantity: newQuantity,
-                            addedAt: Date.now(),
-                        };
-                        return { offlineItems: newItems };
+                    if (itemIndex === -1) return state;
+
+                    if (newQuantity <= 0) {
+                        items.splice(itemIndex, 1);
+                        return { offlineItems: items };
                     }
 
-                    // Item doesn't exist, add it with the specified quantity
-                    return {
-                        offlineItems: [
-                            ...state.offlineItems,
-                            {
-                                id: productId,
-                                quantity: newQuantity,
-                                addedAt: Date.now(),
-                            },
-                        ],
+                    const currentItem = items[itemIndex];
+                    const finalQuantity = Math.min(
+                        newQuantity,
+                        currentItem.stock_quantity,
+                    );
+
+                    items[itemIndex] = {
+                        ...currentItem,
+                        quantity: finalQuantity,
+                        addedAt: Date.now(),
                     };
+                    return { offlineItems: items };
                 });
             },
-
-            removeOfflineItem: (productId) => {
+            removeOfflineItem: (productId, colorName) => {
                 set((state) => ({
                     offlineItems: state.offlineItems.filter(
-                        (item) => item.id !== productId,
+                        (item) =>
+                            !(item.id === productId &&
+                                item.color?.name === colorName),
                     ),
                 }));
             },
-
             clearOfflineCart: () => {
                 set({ offlineItems: [] });
             },
-
-            // Selectors
             getOfflineCartCount: () => {
                 return get().offlineItems.reduce(
                     (total, item) => total + item.quantity,
                     0,
                 );
             },
+            getOfflineItemQuantity: (productId, colorName) => {
+                const item = get().offlineItems.find(
+                    (i) => i.id === productId && i.color?.name === colorName,
+                );
+                return item?.quantity || 0;
+            },
         }),
         {
-            name: "offlineUserCart", // localStorage key
-            partialize: (state) => ({ offlineItems: state.offlineItems }), // Only persist the offlineItems
+            name: "offline-user-cart-v2",
+            partialize: (state) => ({ offlineItems: state.offlineItems }),
         },
     ),
 );

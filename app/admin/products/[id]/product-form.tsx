@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -82,14 +82,11 @@ const productSchema = z.object({
     .number()
     .int()
     .min(0, "Stock quantity must be non-negative"),
-  is_active: z.boolean(),
-  is_bestseller: z.boolean(),
-  // --- color is now an array ---
+  is_active: z.boolean().optional().default(false),
+  is_bestseller: z.boolean().optional().default(false),
   color: z.array(colorInfoSchema).default([]),
-  // --- additional_details is now an array of key-value pairs ---
   additional_details: z.array(additionalDetailItemSchema).default([]),
 });
-// --- End update productSchema ---
 
 type ProductFormData = z.infer<typeof productSchema>;
 
@@ -148,13 +145,13 @@ export default function ProductForm({
         is_active: newData.is_active ?? currentProductData.is_active,
         is_bestseller:
           newData.is_bestseller ?? currentProductData.is_bestseller,
-        // Ensure 'color' is always an array
-        color: newData.color ?? currentProductData.color,
-        // Ensure 'additional_details' is always an array
+        color: newData.color ?? currentProductData.color ?? [],
         additional_details:
-          newData.additional_details ?? currentProductData.additional_details,
+          newData.additional_details ??
+          currentProductData.additional_details ??
+          [],
       };
-      mutate(completeData, false); // Mutate with the potentially normalized data
+      mutate(completeData, false);
     },
     [mutate, productData, normalizedInitialData]
   );
@@ -164,10 +161,10 @@ export default function ProductForm({
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isDirty },
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    // --- Update defaultValues to use arrays ---
     defaultValues: productData || {
       name: "",
       short_description: "",
@@ -179,13 +176,17 @@ export default function ProductForm({
       stock_quantity: 0,
       is_active: true,
       is_bestseller: false,
-      color: [], // Default is empty array
-      additional_details: [], // Default is empty array
+      color: [],
+      additional_details: [],
     },
-    // --- End update defaultValues ---
   });
 
-  // --- Setup useFieldArray for additional_details ---
+  useEffect(() => {
+    if (id === "new") {
+      reset();
+    }
+  }, [reset, id]);
+
   const {
     fields: detailFields,
     append: appendDetail,
@@ -197,33 +198,47 @@ export default function ProductForm({
   // --- End setup ---
 
   const currentImages = watch("image_url");
-  const currentColors = watch("color"); // Watch selected colors for UI updates
+  const currentColors = watch("color");
 
   const onSubmit = async (data: ProductFormData) => {
     setIsLoading(true);
     try {
+      console.log("Adding products");
       const saveData = {
         ...data,
-        additional_details: data.additional_details.map(({ ...rest }) => rest),
+        additional_details: data.additional_details.map(
+          ({ id: _, ...rest }) => rest
+        ),
       };
-
+      if (saveData.compare_price && saveData.compare_price <= saveData.price) {
+        toast.warning("Compare price must be greater than the price");
+        return;
+      }
       const result = await saveProduct(saveData, id);
-
+      console.log("Product added", result);
       if (result.success) {
-        safeUpdateCache(saveData);
         toast.success(
           `Product ${id === "new" ? "created" : "updated"} successfully`
         );
+
+        if (id !== "new") {
+          safeUpdateCache(saveData);
+        }
+        if (id === "new") {
+          reset();
+        }
+
+        // empty the form cache
         router.push("/admin/products");
         router.refresh();
       } else {
-        toast.error(
+        toast.warning(
           `Failed to save product: ${result.error || "Unknown error"}`
         );
       }
     } catch (error) {
       const err = error as Error;
-      toast.error(`Failed to save product: ${err.message}`);
+      toast.warning(`Failed to save product: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -236,18 +251,20 @@ export default function ProductForm({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("bucket", "product-images");
+      formData.append("title", watch("name") || "Product Image");
+
       const imageUrl = await uploadImageToSupabase(formData);
 
       if (imageUrl) {
-        const newImages = [...currentImages, imageUrl];
+        const newImages = [...(currentImages || []), imageUrl];
         setValue("image_url", newImages, { shouldDirty: true });
         safeUpdateCache({ image_url: newImages });
         toast.success("Image uploaded successfully");
       } else {
-        toast.error("Failed to upload image.");
+        toast.warning("Failed to upload image.");
       }
     } catch (error) {
-      toast.error("Error uploading image");
+      toast.warning("Error uploading image");
       console.error(error);
     } finally {
       setIsUploading(false);
@@ -255,15 +272,10 @@ export default function ProductForm({
   };
 
   const removeImage = (index: number) => {
-    const newImages = currentImages.filter((_, i) => i !== index);
+    const newImages = (currentImages || []).filter((_, i) => i !== index);
     setValue("image_url", newImages, { shouldDirty: true });
     safeUpdateCache({ image_url: newImages });
   };
-
-  // --- Helper to check if a color is selected ---
-  // const isColorSelected = (colorName: string) => {
-  //   return currentColors?.some((c) => c.name === colorName);
-  // };
 
   // --- Helper to handle color selection change ---
   const handleColorChange = (checked: boolean, colorInfo: ColorInfo) => {
@@ -275,7 +287,7 @@ export default function ProductForm({
       if (!currentSelection.some((c) => c.name === colorInfo.name)) {
         newSelection = [...currentSelection, colorInfo];
       } else {
-        newSelection = currentSelection; // Should not happen with checkbox logic, but safe guard
+        newSelection = currentSelection; // Already exists, no change needed
       }
     } else {
       // Remove color
@@ -305,9 +317,6 @@ export default function ProductForm({
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            {" "}
-            {/* Added space-y */}
-            {/* --- Row 1: Basic Info --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name */}
               <div>
@@ -320,6 +329,7 @@ export default function ProductForm({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      value={field.value ?? ""}
                       id="name"
                       placeholder="e.g., Hydrating Foundation"
                     />
@@ -343,6 +353,7 @@ export default function ProductForm({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      value={field.value ?? ""}
                       id="price"
                       type="number"
                       step="0.01"
@@ -399,6 +410,7 @@ export default function ProductForm({
                   render={({ field }) => (
                     <Input
                       {...field}
+                      value={field.value ?? ""}
                       id="stock_quantity"
                       type="number"
                       placeholder="0"
@@ -441,7 +453,6 @@ export default function ProductForm({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width] max-h-60 overflow-y-auto">
-                            {" "}
                             {/* Match trigger width */}
                             {categories.map((category) => (
                               <DropdownMenuCheckboxItem
@@ -507,7 +518,8 @@ export default function ProductForm({
                               <DropdownMenuCheckboxItem
                                 key={colorOption.name}
                                 // Check if the current color name exists in the field value array
-                                checked={field.value?.some(
+                                checked={(field.value || []).some(
+                                  // Add safe check
                                   (c) => c.name === colorOption.name
                                 )}
                                 // Pass the boolean state and the full color object to the handler
@@ -544,50 +556,52 @@ export default function ProductForm({
               <Label>Product Images</Label>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                 {/* Image mapping and upload button - unchanged */}
-                {currentImages.map((url, index) => (
-                  <div
-                    key={url || index}
-                    className="relative group aspect-square"
-                  >
-                    {" "}
-                    {/* ... image display ... */}{" "}
-                    <Image
-                      src={url}
-                      alt={`Product image ${index + 1}`}
-                      fill
-                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                      className="object-cover border rounded-md bg-gray-50"
-                    />{" "}
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-white/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 hover:bg-white"
-                      aria-label="Remove image"
+                {(currentImages || []).map(
+                  (
+                    url,
+                    index // Add safe check
+                  ) => (
+                    <div
+                      key={url || index}
+                      className="relative group aspect-square"
                     >
-                      <X className="h-3.5 w-3.5 text-red-600" />
-                    </button>{" "}
-                  </div>
-                ))}
+                      {/* ... image display ... */}
+                      <Image
+                        src={url}
+                        alt={`Product image ${index + 1}`}
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                        className="object-cover border rounded-md bg-gray-50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute top-1 right-1 bg-white/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 hover:bg-white"
+                        aria-label="Remove image"
+                      >
+                        <X className="h-3.5 w-3.5 text-red-600" />
+                      </button>
+                    </div>
+                  )
+                )}
                 <div className="aspect-square">
-                  {" "}
                   <label
                     htmlFor="image-upload"
                     className="h-full w-full border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors text-gray-400 hover:text-primary"
                     aria-disabled={isUploading}
                   >
-                    {" "}
                     {isUploading ? (
                       <div className="text-center">
-                        <Loader2 className="h-6 w-6 mx-auto animate-spin" />{" "}
+                        <Loader2 className="h-6 w-6 mx-auto animate-spin" />
                         <p className="text-xs mt-1">Uploading...</p>
                       </div>
                     ) : (
                       <div className="text-center">
-                        <Plus className="h-6 w-6 mx-auto" />{" "}
+                        <Plus className="h-6 w-6 mx-auto" />
                         <p className="text-xs mt-1">Add Image</p>
                       </div>
-                    )}{" "}
-                    <input
+                    )}
+                    {/* <input
                       id="image-upload"
                       type="file"
                       accept="image/jpeg,image/png,image/webp,image/jpg"
@@ -597,16 +611,43 @@ export default function ProductForm({
                         if (file) {
                           handleImageUpload(file);
                         }
+                        e.target.value = ""; // Reset input to allow re-uploading the same file
+                      }}
+                      disabled={isUploading}
+                    /> */}
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/jpg"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        const productName = watch("name");
+
+                        if (!productName || productName.trim() === "") {
+                          toast.warning(
+                            "Please enter a product name before uploading an image."
+                          );
+                          e.target.value = "";
+                          return;
+                        }
+
+                        if (file) {
+                          handleImageUpload(file);
+                        }
                         e.target.value = "";
                       }}
                       disabled={isUploading}
-                    />{" "}
-                  </label>{" "}
+                    />
+                  </label>
                 </div>
               </div>
               {errors.image_url && (
                 <p className="text-sm text-red-500 mt-1">
-                  {errors.image_url.message}
+                  {/* Displaying array-level errors if needed */}
+                  {typeof errors.image_url.message === "string"
+                    ? errors.image_url.message
+                    : "Error with images"}
                 </p>
               )}
             </div>
@@ -650,9 +691,10 @@ export default function ProductForm({
               <Label className="text-base font-medium">
                 Additional Details
               </Label>
-              {detailFields.map((item, index) => (
+              {/* *** THE FIX IS HERE *** */}
+              {(detailFields || []).map((item, index) => (
                 <div
-                  key={item.id}
+                  key={item.id} // useFieldArray provides a stable id
                   className="flex items-start gap-3 p-3 border rounded-md"
                 >
                   <div className="grid grid-cols-2 gap-3 flex-grow">
@@ -662,7 +704,7 @@ export default function ProductForm({
                         htmlFor={`additional_details.${index}.key`}
                         className="text-xs"
                       >
-                        Detail Key
+                        Detail Key*
                       </Label>
                       <Controller
                         name={`additional_details.${index}.key`}
@@ -670,13 +712,14 @@ export default function ProductForm({
                         render={({ field }) => (
                           <Input
                             {...field}
+                            value={field.value ?? ""}
                             id={`additional_details.${index}.key`}
                             placeholder="e.g., Weight"
                           />
                         )}
                       />
                       {errors.additional_details?.[index]?.key && (
-                        <p className="text-sm text-red-500">
+                        <p className="text-sm text-red-500 mt-1">
                           {errors.additional_details[index]?.key?.message}
                         </p>
                       )}
@@ -687,7 +730,7 @@ export default function ProductForm({
                         htmlFor={`additional_details.${index}.value`}
                         className="text-xs"
                       >
-                        Detail Value
+                        Detail Value*
                       </Label>
                       <Controller
                         name={`additional_details.${index}.value`}
@@ -701,7 +744,7 @@ export default function ProductForm({
                         )}
                       />
                       {errors.additional_details?.[index]?.value && (
-                        <p className="text-sm text-red-500">
+                        <p className="text-sm text-red-500 mt-1">
                           {errors.additional_details[index]?.value?.message}
                         </p>
                       )}
@@ -713,7 +756,7 @@ export default function ProductForm({
                     variant="ghost"
                     size="icon"
                     onClick={() => removeDetail(index)}
-                    className="mt-5 flex-shrink-0 text-destructive hover:bg-destructive/10"
+                    className="mt-5 flex-shrink-0 text-destructive hover:bg-destructive/10" // Adjusted margin-top
                     aria-label="Remove detail"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -730,12 +773,23 @@ export default function ProductForm({
               >
                 <Plus className="mr-2 h-4 w-4" /> Add Detail
               </Button>
-              {errors.additional_details?.root && (
-                <p className="text-sm text-red-500 mt-1">
-                  {errors.additional_details.root.message}
-                </p>
-              )}
+              {/* Display root errors for the array (e.g., minimum length if added to schema) */}
+              {errors.additional_details &&
+                !Array.isArray(errors.additional_details) &&
+                errors.additional_details.root && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.additional_details.root.message}
+                  </p>
+                )}
+              {/* Display generic array errors if needed */}
+              {errors.additional_details &&
+                typeof errors.additional_details.message === "string" && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.additional_details.message}
+                  </p>
+                )}
             </div>
+            {/* --- Row 5: Flags --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
               <div className="flex items-center space-x-2">
                 <Controller
@@ -771,6 +825,7 @@ export default function ProductForm({
                 </Label>
               </div>
             </div>
+            {/* --- Row 6: Actions --- */}
             <div className="pt-6">
               <Button
                 type="submit"
@@ -780,8 +835,7 @@ export default function ProductForm({
               >
                 {isLoading ? (
                   <>
-                    {" "}
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...{" "}
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
                   </>
                 ) : (
                   "Save Product"

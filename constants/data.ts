@@ -32,6 +32,7 @@ export const services: Service[] = [
     details:
       "Our semi permanent makeup service is designed to subtly define your features. Using advanced techniques and high-quality pigments, we create natural, long-lasting results that enhance your overall look.",
     category: "makeup",
+    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "microblading",
@@ -39,10 +40,11 @@ export const services: Service[] = [
     description:
       "Achieve beautifully defined brows with our microblading service.",
     price: 1000,
-    image: "/images/microblading.jpg",
+    image: "/images/pic5.jpg",
     details:
       "Microblading uses a precise hand-drawn technique to create realistic, natural-looking eyebrow hairs. This service is ideal for filling in sparse brows or creating a fuller brow shape.",
     category: "makeup",
+    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "ombrebrows",
@@ -53,6 +55,7 @@ export const services: Service[] = [
     details:
       "Our ombre brows technique uses a shading method to create a soft, filled-in look that mimics the effect of brow makeup. Perfect for clients wanting a defined yet natural look.",
     category: "makeup",
+    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "lip-blush",
@@ -63,6 +66,7 @@ export const services: Service[] = [
     details:
       "Our lip blush procedure enhances your natural lip color, providing a subtle, youthful tint that lasts. Enjoy fuller, more defined lips without the need for constant reapplication.",
     category: "makeup",
+    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "eyeliner",
@@ -73,6 +77,7 @@ export const services: Service[] = [
     details:
       "Our eyeliner service offers a flawless, long-lasting application that enhances the natural shape of your eyes. Perfect for those looking for a defined yet natural look.",
     category: "makeup",
+    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "eyelash-extensions",
@@ -84,6 +89,7 @@ export const services: Service[] = [
     details:
       "Our individual eyelash extensions are applied one by one to your natural lashes, creating a customizable look that ranges from subtle enhancement to full glamour.",
     category: "makeup",
+    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "makeup-application",
@@ -94,6 +100,7 @@ export const services: Service[] = [
     details:
       "Whether it's for a wedding, photoshoot, or night out, our professional makeup application service will create a flawless look tailored to your style and preferences.",
     category: "makeup",
+    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "skincare-treatment",
@@ -104,6 +111,7 @@ export const services: Service[] = [
     details:
       "Our skincare treatments include deep cleansing, exfoliation, and hydration tailored to your skin type, helping you achieve a radiant, healthy complexion.",
     category: "skincare",
+    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "consultation",
@@ -211,3 +219,9 @@ export const bookingTemplateVariables = [
   { name: "{{booking.name}}", description: "Service name" },
   { name: "{{booking.specialRequests}}", description: "Special requests" },
 ];
+
+export const keys: Record<string, string> = {
+  instagram: "https://www.instagram.com/glowbyugosylviacosmetics",
+  facebook: "https://www.facebook.com/profile.php?id=100069551504619",
+  phone: "+27781470504",
+};

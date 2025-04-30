@@ -37,14 +37,14 @@ export default function ProductSortView({
 }: ProductSortViewProps) {
   return (
     <div
-      className={`flex flex-wrap items-center justify-between gap-4 py-3 ${className}`}
+      className={`flex  items-center justify-between gap-4 py-3 ${className}`}
     >
       <div className="text-sm text-muted-foreground">
-        Showing {displayCount} of {productCount} total result
+        Showing {displayCount} of {productCount} result
         {productCount !== 1 ? "s" : ""}
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex items-center gap-4">
         <Select
           value={currentSort}
           onValueChange={(value) => onSortChange(value as SortOption)}
