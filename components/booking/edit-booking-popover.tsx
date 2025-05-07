@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Check, X } from "lucide-react";
 
@@ -21,6 +21,8 @@ import { cn } from "@/lib/utils";
 import { updateBooking } from "@/actions/dashboardAction";
 import type { Booking, BookingStatus } from "@/types/index";
 import { getTimeSlotsForDay } from "@/constants/data";
+import { useBookingStore } from "@/app/store/bookingStore";
+import { Skeleton } from "@/constants/ui";
 
 interface EditBookingPopoverProps {
   booking: Booking;
@@ -35,10 +37,31 @@ export default function EditBookingPopover({
 }: EditBookingPopoverProps) {
   const bookingDate = new Date(booking.booking_time);
   const [date, setDate] = useState<Date | undefined>(bookingDate);
-  const [time, setTime] = useState<string>(format(bookingDate, "h:mm a"));
+  const [time, setTime] = useState<string>(format(bookingDate, "hh:mm a"));
   const [status, setStatus] = useState(booking.status as BookingStatus);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Get booked slots from bookingStore
+  const {
+    bookedSlots,
+    isLoading: slotsLoading,
+    fetchSlotsForDate,
+  } = useBookingStore();
+
+  // Fetch slots when date changes
+  useEffect(() => {
+    if (date) {
+      fetchSlotsForDate(date);
+    }
+  }, [date, fetchSlotsForDate]);
+
+  // Memoize fetched booked slots for the selected date
+  const currentDateBookedTimes = useMemo(() => {
+    if (!date) return [];
+    const slotsForDate = bookedSlots.get(date.toDateString()) || [];
+    return slotsForDate.map((slotDate) => format(slotDate, "hh:mm a"));
+  }, [date, bookedSlots]);
 
   const handleUpdate = async () => {
     try {
@@ -47,7 +70,7 @@ export default function EditBookingPopover({
       // Check if anything has changed
       const isDateChanged =
         date && date.toDateString() !== bookingDate.toDateString();
-      const isTimeChanged = time !== format(bookingDate, "h:mm a");
+      const isTimeChanged = time !== format(bookingDate, "hh:mm a");
       const isStatusChanged = status !== booking.status;
 
       // If nothing changed, show info message and return
@@ -95,6 +118,11 @@ export default function EditBookingPopover({
       if (updatedBooking) {
         onBookingUpdated(updatedBooking as Booking);
         toast.success("Booking updated successfully");
+
+        // Refresh slots data for the new date if changed
+        if (isDateChanged && date) {
+          fetchSlotsForDate(date);
+        }
       }
 
       setOpen(false);
@@ -156,12 +184,58 @@ export default function EditBookingPopover({
                 <SelectValue placeholder="Select time" />
               </SelectTrigger>
               <SelectContent>
-                {date &&
-                  getTimeSlotsForDay(date).map((time) => (
-                    <SelectItem key={time} value={time}>
-                      {time}
-                    </SelectItem>
-                  ))}
+                {slotsLoading ? (
+                  <div className="p-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full mt-2" />
+                    <Skeleton className="h-4 w-full mt-2" />
+                  </div>
+                ) : (
+                  date &&
+                  getTimeSlotsForDay(date).map((time) => {
+                    const isBooked =
+                      currentDateBookedTimes.includes(time) &&
+                      // Exclude current booking time from being "booked"
+                      !(
+                        date.toDateString() === bookingDate.toDateString() &&
+                        time === format(bookingDate, "hh:mm a")
+                      );
+                    const isPastTime =
+                      date &&
+                      new Date().toDateString() === date.toDateString() &&
+                      (() => {
+                        // IIFE for cleaner logic
+                        const [hoursStr, minutesStr] = time.split(":");
+                        const period = time.includes("PM") ? "PM" : "AM";
+                        let hours = parseInt(hoursStr);
+                        if (period === "PM" && hours !== 12) hours += 12;
+                        if (period === "AM" && hours === 12) hours = 0;
+
+                        const now = new Date();
+                        const slotTime = new Date(date);
+                        slotTime.setHours(
+                          hours,
+                          parseInt(minutesStr) || 0,
+                          0,
+                          0
+                        );
+
+                        return now > slotTime;
+                      })();
+
+                    return (
+                      <SelectItem
+                        key={time}
+                        value={time}
+                        disabled={isBooked || isPastTime}
+                      >
+                        {time}
+                        {isBooked && " (Booked)"}
+                        {isPastTime && " (Past)"}
+                      </SelectItem>
+                    );
+                  })
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -199,7 +273,16 @@ export default function EditBookingPopover({
               disabled={isLoading}
               className="bg-green-500 hover:bg-green-600"
             >
-              <Check className="h-4 w-4 mr-1" /> Update
+              {isLoading ? (
+                <>
+                  <span className="mr-2 h-4 w-4 animate-spin">⟳</span>{" "}
+                  Updating...
+                </>
+              ) : (
+                <>
+                  <Check className="h-4 w-4 mr-1" /> Update
+                </>
+              )}
             </Button>
           </div>
         </div>

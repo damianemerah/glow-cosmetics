@@ -106,6 +106,7 @@ CREATE OR REPLACE FUNCTION public.search_items(term text, limit_count integer)
  RETURNS TABLE(id uuid, name text, item_type text)
  LANGUAGE sql
  STABLE
+ SET search_path = ''
 AS $function$
 WITH
   -- 1. Product prefix/full-text
@@ -201,10 +202,13 @@ LIMIT limit_count;
 $function$
 ;
 
+DROP FUNCTION IF EXISTS public.get_random_products(integer);
+
 CREATE OR REPLACE FUNCTION public.get_random_products(count integer)
  RETURNS SETOF jsonb
  LANGUAGE sql
  STABLE
+ SET search_path = pg_catalog, public
 AS $function$
 SELECT
   -- Convert the product row to jsonb
@@ -245,6 +249,7 @@ $function$
 CREATE OR REPLACE FUNCTION public.lowercase_text_fields_products()
  RETURNS trigger
  LANGUAGE plpgsql
+ SET search_path = pg_catalog, public
 AS $function$
 BEGIN
   NEW.name = LOWER(NEW.name);
@@ -258,6 +263,7 @@ $function$
 CREATE OR REPLACE FUNCTION public.notify_order_paid()
  RETURNS trigger
  LANGUAGE plpgsql
+ SET search_path = pg_catalog, public, extensions
 AS $function$BEGIN
   IF NEW.status = 'paid' AND OLD.status IS DISTINCT FROM NEW.status THEN
     PERFORM net.http_post(
@@ -278,6 +284,7 @@ END;$function$
 CREATE OR REPLACE FUNCTION public.trigger_deposit_paid_webhook()
  RETURNS trigger
  LANGUAGE plpgsql
+ SET search_path = pg_catalog, public, extensions
 AS $function$BEGIN
   -- Only trigger if the deposit amount has changed and is now greater than 0
   IF (OLD.initial_deposit IS NULL OR OLD.initial_deposit <= 0) AND NEW.initial_deposit > 0 THEN

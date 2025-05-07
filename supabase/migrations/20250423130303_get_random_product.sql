@@ -1,26 +1,15 @@
-drop trigger if exists "update_inventory_on_paid" on "public"."orders";
+-- drop trigger if exists "update_inventory_on_paid" on "public"."orders";
 
-drop function if exists "public"."update_inventory_after_purchase"();
+-- drop function if exists "public"."update_inventory_after_purchase"();
 
 set check_function_bodies = off;
 
-CREATE OR REPLACE FUNCTION public.get_random_products(count integer)
- RETURNS SETOF products
- LANGUAGE sql
- STABLE
-AS $function$
-  select *
-  from products
-  where is_active = true
-  order by random()
-  limit count;
-$function$
-;
 
 CREATE OR REPLACE FUNCTION public.update_inventory_after_order()
  RETURNS trigger
  LANGUAGE plpgsql
  SECURITY DEFINER
+ SET search_path = ''
 AS $function$
 DECLARE
   order_item RECORD;
@@ -29,19 +18,18 @@ BEGIN
   -- Loop through each product in the new order
   FOR order_item IN
     SELECT product_id, quantity
-    FROM order_items
+    FROM public.order_items
     WHERE order_id = NEW.id
   LOOP
     -- Fetch current stock for the product
     SELECT stock_quantity
     INTO current_stock
-    FROM products
+    FROM public.products
     WHERE id = order_item.product_id;
 
     IF current_stock IS NULL THEN
       RAISE EXCEPTION 'No stock record found for product %', order_item.product_id;
     END IF;
-
 
     -- Ensure sufficient stock is available
     IF current_stock < order_item.quantity THEN
@@ -49,7 +37,7 @@ BEGIN
     END IF;
 
     -- Update product stock
-    UPDATE products
+    UPDATE public.products
     SET stock_quantity = current_stock - order_item.quantity,
         updated_at = NOW()
     WHERE id = order_item.product_id;
@@ -60,32 +48,32 @@ END;
 $function$
 ;
 
-CREATE OR REPLACE FUNCTION public.lowercase_text_fields_bookings()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-BEGIN
-  NEW.service_name = LOWER(NEW.service_name);
-  NEW.status = LOWER(NEW.status);
-  -- END IF;
-  RETURN NEW;
-END;
-$function$
-;
+-- CREATE OR REPLACE FUNCTION public.lowercase_text_fields_bookings()
+--  RETURNS trigger
+--  LANGUAGE plpgsql
+-- AS $function$
+-- BEGIN
+--   NEW.service_name = LOWER(NEW.service_name);
+--   NEW.status = LOWER(NEW.status);
+--   -- END IF;
+--   RETURN NEW;
+-- END;
+-- $function$
+-- ;
 
-CREATE OR REPLACE FUNCTION public.lowercase_text_fields_products()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-BEGIN
-  NEW.name = LOWER(NEW.name);
-  NEW.category = LOWER(NEW.category);
-  NEW.slug = LOWER(NEW.slug);
-  -- END IF;
-  RETURN NEW;
-END;
-$function$
-;
+-- CREATE OR REPLACE FUNCTION public.lowercase_text_fields_products()
+--  RETURNS trigger
+--  LANGUAGE plpgsql
+-- AS $function$
+-- BEGIN
+--   NEW.name = LOWER(NEW.name);
+--   NEW.category = LOWER(NEW.category);
+--   NEW.slug = LOWER(NEW.slug);
+--   -- END IF;
+--   RETURN NEW;
+-- END;
+-- $function$
+-- ;
 
 CREATE OR REPLACE FUNCTION public.notify_order_paid()
  RETURNS trigger

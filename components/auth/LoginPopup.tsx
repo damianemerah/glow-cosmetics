@@ -19,9 +19,8 @@ import { checkUserExistsByEmail, login, signup } from "@/actions/authAction";
 import {
   Button,
   Input,
-  Label,
   Checkbox,
-  Calendar,
+  Calendar, // Use updated Calendar import
   Dialog,
   DialogContent,
   DialogDescription,
@@ -30,9 +29,20 @@ import {
   DialogTitle,
   DialogTrigger,
   Popover,
-  PopoverContent,
+  // PopoverContent, // Use standard PopoverContent now
   PopoverTrigger,
-} from "@/constants/ui/index";
+  // Import Form components
+  Form,
+  FormControl,
+  // FormDescription, // Optional
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/constants/ui/index"; // Ensure path is correct
+
+// No longer need ContainedPopoverContent if we use standard PopoverContent
+import { ContainedPopoverContent } from "@/components/ui/ContainedPopoverContent";
 
 // Initialize Supabase client
 const supabase = createClient();
@@ -45,7 +55,9 @@ const emailSchema = z.object({
 const userDetailsSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
-  dateOfBirth: z.date({ required_error: "Date of birth is required" }),
+  dateOfBirth: z.date({
+    required_error: "A date of birth is required.",
+  }),
   phone: z.string().min(1, { message: "Phone number is required" }),
   receiveEmails: z.boolean().default(false),
 });
@@ -68,11 +80,11 @@ export function LoginPopup() {
   const [currentView, setCurrentView] = useState<PopupView>("email");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [date, setDate] = useState<Date>();
+  // Date picker popover state
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [tempEmail, setTempEmail] = useState<string>("");
   const shouldShowModal = useUserStore((state) => state.shouldShowModal);
 
-  // Open the modal if shouldShowModal is true
   useEffect(() => {
     if (shouldShowModal) {
       setOpen(true);
@@ -82,12 +94,10 @@ export function LoginPopup() {
   // Email form
   const emailForm = useForm<EmailFormData>({
     resolver: zodResolver(emailSchema),
-    defaultValues: {
-      email: "",
-    },
+    defaultValues: { email: "" },
   });
 
-  // User details form with added phone default value
+  // User details form
   const userDetailsForm = useForm<UserDetailsFormData>({
     resolver: zodResolver(userDetailsSchema),
     defaultValues: {
@@ -95,27 +105,20 @@ export function LoginPopup() {
       lastName: "",
       phone: "",
       receiveEmails: false,
+      dateOfBirth: undefined, // Initialize as undefined
     },
   });
-
-  // Handler to update phone number in the form state
-  const handlePhoneChange = (value: string) => {
-    userDetailsForm.setValue("phone", value);
-  };
 
   // Handle email form submission
   const handleEmailSubmit = async (data: EmailFormData) => {
     setIsLoading(true);
     setError(null);
     setTempEmail(data.email);
-
     try {
       const userExists = await checkUserExistsByEmail(data.email);
       if (userExists) {
         const loginData = await login(data.email);
-        if (loginData) {
-          setCurrentView("magicLinkSent");
-        }
+        if (loginData) setCurrentView("magicLinkSent");
       } else {
         setCurrentView("newUserDetails");
       }
@@ -136,35 +139,37 @@ export function LoginPopup() {
   const handleUserDetailsSubmit = async (data: UserDetailsFormData) => {
     setIsLoading(true);
     setError(null);
-
     try {
+      // Zod ensures dateOfBirth is a Date here
       const signupData = {
         email: tempEmail,
         firstName: data.firstName,
         lastName: data.lastName,
         dateOfBirth: data.dateOfBirth,
-        phone: data.phone, // include phone number in signup data
+        phone: data.phone,
         receiveEmails: data.receiveEmails,
       };
 
       const isAtLeast18YearsOld = (dateOfBirth: Date): boolean => {
         const today = new Date();
         const birthDate = new Date(dateOfBirth);
-        const age = today.getFullYear() - birthDate.getFullYear();
+        let age = today.getFullYear() - birthDate.getFullYear();
         const monthDifference = today.getMonth() - birthDate.getMonth();
-
         if (
           monthDifference < 0 ||
           (monthDifference === 0 && today.getDate() < birthDate.getDate())
         ) {
-          return age > 18;
+          age--;
         }
-
         return age >= 18;
       };
 
       if (!isAtLeast18YearsOld(data.dateOfBirth)) {
-        throw new Error("You must be at least 18 years old to sign up.");
+        userDetailsForm.setError("dateOfBirth", {
+          type: "manual",
+          message: "You must be at least 18 years old.",
+        });
+        setIsLoading(false);
         return;
       }
 
@@ -173,11 +178,8 @@ export function LoginPopup() {
     } catch (err) {
       console.error("Error in signup process:", err);
       setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to complete signup. Please try again."
+        err instanceof Error ? err.message : "Failed to complete signup."
       );
-      setCurrentView("error");
     } finally {
       setIsLoading(false);
     }
@@ -187,38 +189,25 @@ export function LoginPopup() {
   const handleOAuthSignIn = async (provider: "google" | "apple") => {
     setIsLoading(true);
     setError(null);
-
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        // Renamed error variable
         provider,
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
+        options: { redirectTo: `${window.location.origin}/dashboard` },
       });
-
-      if (error) {
-        throw error;
-      }
+      if (oauthError) throw oauthError; // Throw if error
     } catch (err) {
       console.error(`Error signing in with ${provider}:`, err);
       setError(
         err instanceof Error
           ? err.message
-          : `Failed to sign in with ${provider}. Please try again.`
+          : `Failed to sign in with ${provider}.`
       );
       setCurrentView("error");
       setIsLoading(false);
     }
+    // No finally setIsLoading(false) here, as OAuth redirects
   };
-
-  // Reset the popup state
-  // const resetPopup = () => {
-  //   setCurrentView("email");
-  //   setError(null);
-  //   emailForm.reset();
-  //   userDetailsForm.reset();
-  //   setDate(undefined);
-  // };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -227,7 +216,7 @@ export function LoginPopup() {
           Login / Sign Up
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[400px] max-h-[85vh] overflow-y-auto login-dialog-content">
         {currentView === "email" && (
           <>
             <DialogHeader>
@@ -238,73 +227,72 @@ export function LoginPopup() {
                 Enter your email to continue or create an account
               </DialogDescription>
             </DialogHeader>
-            <form
-              onSubmit={emailForm.handleSubmit(handleEmailSubmit)}
-              className="space-y-4 py-4"
-            >
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  {...emailForm.register("email")}
-                  className="w-full"
-                />
-                {emailForm.formState.errors.email && (
-                  <p className="text-sm text-red-500">
-                    {emailForm.formState.errors.email.message}
-                  </p>
-                )}
-              </div>
-              <Button
-                type="submit"
-                className="w-full bg-green-500 hover:bg-green-600"
-                disabled={isLoading}
+            {/* Shadcn Form for Email */}
+            <Form {...emailForm}>
+              <form
+                onSubmit={emailForm.handleSubmit(handleEmailSubmit)}
+                className="space-y-4 py-4"
               >
-                {isLoading ? (
-                  <>
+                <FormField
+                  control={emailForm.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="you@example.com"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button
+                  type="submit"
+                  className="w-full bg-green-500 hover:bg-green-600"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Please wait
-                  </>
-                ) : (
-                  <>
+                  ) : (
                     <Mail className="mr-2 h-4 w-4" />
-                    Continue with Email
-                  </>
-                )}
-              </Button>
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleOAuthSignIn("google")}
-                  disabled={isLoading}
-                >
-                  <FaGoogle className="mr-2 h-4 w-4" />
-                  Google
+                  )}
+                  {isLoading ? "Please wait" : "Continue with Email"}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => handleOAuthSignIn("apple")}
-                  disabled={isLoading}
-                >
-                  <FaApple className="mr-2 h-4 w-4" />
-                  Apple
-                </Button>
-              </div>
-            </form>
+                {/* OAuth Buttons remain the same */}
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Or continue with
+                    </span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleOAuthSignIn("google")}
+                    disabled={isLoading}
+                  >
+                    <FaGoogle className="mr-2 h-4 w-4" /> Google
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => handleOAuthSignIn("apple")}
+                    disabled={isLoading}
+                  >
+                    <FaApple className="mr-2 h-4 w-4" /> Apple
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </>
         )}
 
@@ -318,151 +306,206 @@ export function LoginPopup() {
                 Please provide a few more details to create your account
               </DialogDescription>
             </DialogHeader>
-            <form
-              onSubmit={userDetailsForm.handleSubmit(handleUserDetailsSubmit)}
-              className="space-y-4 py-4"
-            >
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input
-                    id="firstName"
-                    {...userDetailsForm.register("firstName")}
-                    className="w-full"
+            {/* Shadcn Form for User Details */}
+            <Form {...userDetailsForm}>
+              <form
+                onSubmit={userDetailsForm.handleSubmit(handleUserDetailsSubmit)}
+                className="space-y-4 py-4"
+              >
+                {/* First Name / Last Name Fields */}
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={userDetailsForm.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  {userDetailsForm.formState.errors.firstName && (
-                    <p className="text-sm text-red-500">
-                      {userDetailsForm.formState.errors.firstName.message}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input
-                    id="lastName"
-                    {...userDetailsForm.register("lastName")}
-                    className="w-full"
+                  <FormField
+                    control={userDetailsForm.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  {userDetailsForm.formState.errors.lastName && (
-                    <p className="text-sm text-red-500">
-                      {userDetailsForm.formState.errors.lastName.message}
-                    </p>
-                  )}
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <PhoneInput
-                  country={"za"}
-                  value={userDetailsForm.watch("phone") || ""}
-                  onChange={handlePhoneChange}
-                  inputProps={{
-                    id: "phone",
-                    name: "phone",
-                    required: true,
-                  }}
-                  containerClass="w-full"
-                  inputClass="w-full p-2 border rounded-md"
+
+                {/* Phone Field */}
+                <FormField
+                  control={userDetailsForm.control}
+                  name="phone"
+                  render={(
+                    { field } // field contains { value, onChange, onBlur, name, ref }
+                  ) => (
+                    <FormItem>
+                      <FormLabel>Phone</FormLabel>
+                      <FormControl>
+                        <PhoneInput
+                          country={"za"}
+                          value={field.value || ""}
+                          // Use field.onChange which updates form state
+                          onChange={(phoneValue) => field.onChange(phoneValue)}
+                          inputProps={{
+                            id: "phone",
+                            name: field.name,
+                            onBlur: field.onBlur, // Pass onBlur for validation triggers
+                          }}
+                          containerClass="w-full"
+                          inputClass="w-full p-2 border rounded-md"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                {userDetailsForm.formState.errors.phone && (
-                  <p className="text-sm text-red-500">
-                    {userDetailsForm.formState.errors.phone.message}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !date && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : "Select your date of birth"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto p-0"
-                    align="start"
-                    side="top"
+
+                {/* Date of Birth Field */}
+                <FormField
+                  control={userDetailsForm.control}
+                  name="dateOfBirth"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Date of birth</FormLabel>
+                      <Popover
+                        open={isDatePickerOpen}
+                        onOpenChange={setIsDatePickerOpen}
+                      >
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant={"outline"}
+                              role="combobox"
+                              aria-expanded={isDatePickerOpen}
+                              className={cn(
+                                "w-full justify-start text-left font-normal", // Use full width
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Select your date of birth</span>
+                              )}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        {/* Using standard PopoverContent now */}
+                        <ContainedPopoverContent
+                          containerSelector=".login-dialog-content"
+                          className="w-auto p-0 z-[1000]"
+                          align="start"
+                          onInteractOutside={(e) => {
+                            if (
+                              (e.target as HTMLElement)?.closest(
+                                '[data-slot="popover-trigger"]'
+                              )
+                            ) {
+                              e.preventDefault();
+                            }
+                          }}
+                        >
+                          <Calendar
+                            mode="single"
+                            showCustomCaption={true} // Use year-only dropdown caption
+                            selected={field.value}
+                            onSelect={(
+                              currentValue,
+                              _selectedDay,
+                              _activeModifiers,
+                              e
+                            ) => {
+                              e?.stopPropagation();
+                              field.onChange(currentValue);
+                              setIsDatePickerOpen(false);
+                            }}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
+                            fromYear={1920}
+                            toYear={new Date().getFullYear()}
+                          />
+                        </ContainedPopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Receive Emails Field */}
+                <FormField
+                  control={userDetailsForm.control}
+                  name="receiveEmails"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="text-sm font-normal">
+                        I want to receive emails about promotions and new
+                        products
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Terms Links */}
+                <p className="text-xs text-muted-foreground">
+                  By continuing, you agree to our{" "}
+                  <Link href="/terms" className="text-primary hover:underline">
+                    Terms of Service
+                  </Link>{" "}
+                  and{" "}
+                  <Link
+                    href="/privacy"
+                    className="text-primary hover:underline"
                   >
-                    <Calendar
-                      showCustomCaption={true}
-                      mode="single"
-                      selected={date}
-                      onSelect={(selectedDate) => {
-                        setDate(selectedDate);
-                        if (selectedDate) {
-                          userDetailsForm.setValue("dateOfBirth", selectedDate);
-                        }
-                      }}
-                      disabled={(date) => {
-                        const today = new Date();
-                        return date > today;
-                      }}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                {userDetailsForm.formState.errors.dateOfBirth && (
-                  <p className="text-sm text-red-500">
-                    {userDetailsForm.formState.errors.dateOfBirth.message}
-                  </p>
-                )}
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="receiveEmails"
-                  onCheckedChange={(checked) => {
-                    userDetailsForm.setValue("receiveEmails", checked === true);
-                  }}
-                />
-                <Label htmlFor="receiveEmails" className="text-sm">
-                  I want to receive emails about promotions and new products
-                </Label>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                By continuing, you agree to our{" "}
-                <Link href="/terms" className="text-primary hover:underline">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link href="/privacy" className="text-primary hover:underline">
-                  Privacy Policy
-                </Link>
-              </p>
-              <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setCurrentView("email")}
-                  className="mb-2 sm:mb-0"
-                >
-                  Back
-                </Button>
-                <Button
-                  type="submit"
-                  className="bg-green-500 hover:bg-green-600"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
+                    Privacy Policy
+                  </Link>
+                </p>
+
+                {/* Footer Buttons */}
+                <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setCurrentView("email")}
+                    className="mb-2 sm:mb-0"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-green-500 hover:bg-green-600"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating Account
-                    </>
-                  ) : (
-                    "Create Account"
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
+                    ) : null}
+                    {isLoading ? "Creating Account" : "Create Account"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
           </>
         )}
 
+        {/* magicLinkSent View */}
         {currentView === "magicLinkSent" && (
           <>
             <DialogHeader>
@@ -493,6 +536,7 @@ export function LoginPopup() {
           </>
         )}
 
+        {/* error View */}
         {currentView === "error" && (
           <>
             <DialogHeader>

@@ -37,11 +37,11 @@ export async function POST(request: Request) {
         // Fetch the user's details to log properly
         const { data: user, error: userError } = await supabaseAdmin
             .from("profiles")
-            .select("email, phone, receive_emails")
+            .select("email, receive_emails")
             .eq("user_id", userId)
             .single();
 
-        if (type === "offer" && user) {
+        if (type === "offer" && !user?.receive_emails) {
             return NextResponse.json({
                 success: false,
                 message: "User has opted out of receiving offers",
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
         }
 
         const recipients = user
-            ? (result.messageId?.startsWith("wh") ? user.phone : user.email)
+            ? (!result.messageId?.startsWith("wh") && user.email)
             : userId;
 
         const { error: logError } = await supabaseAdmin.from("message_logs")

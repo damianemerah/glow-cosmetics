@@ -26,7 +26,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
     if (!userId) return false;
     // Prevent fetching if already fetching or if user is already set with this ID
     if (get().isFetchingUser || get().user?.id === userId) {
-      // console.log("Fetch user skipped - already fetching or user already set.");
       return !!get().user; // Return true if user already exists
     }
 

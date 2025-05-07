@@ -226,8 +226,6 @@ async function getOrdersData(userId: string) {
         .eq("user_id", uid)
         .order("created_at", { ascending: false });
 
-      console.log("Orders:", orders);
-
       return orders || [];
     },
     [`orders-${userId}`],

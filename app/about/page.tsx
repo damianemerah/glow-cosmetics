@@ -123,9 +123,9 @@ export default function AboutPage() {
                   Quality
                 </h3>
                 <p>
-                  We are committed to providing the highest quality services and
-                  products, using only premium ingredients and state-of-the-art
-                  techniques.
+                  We source our products from reputable manufacturers known for
+                  rigorous testing and proven quality, ensuring consistently
+                  exceptional results.
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
@@ -313,7 +313,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-[#5a6b47] text-white">
+      <section className="py-16 md:py-20 bg-gradient-to-t from-[#4a5a3a] to-[#5a6b47]/80 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6 font-montserrat">
             Ready to book your appointment?

@@ -15,11 +15,11 @@ import { mergeOfflineCart } from "@/actions/cartAction";
 import { CartPane } from "@/components/CartPane";
 
 import { BrandLogo } from "./navbar/BrandLogo";
-import { UserAuth } from "./navbar/UserAuth";
 import { DesktopNavLinks } from "./navbar/DesktopNavLinks";
 import { SocialIcons } from "./navbar/SocialIcons";
 import { SearchCommand } from "./navbar/SearchCommand";
 import { CartIndicator } from "./navbar/CartIndicator";
+import { UserAuth } from "./navbar/UserAuth";
 import { MobileMenu } from "./navbar/MobileMenu";
 import Link from "next/link";
 import { Button } from "@/constants/ui/index";
@@ -118,8 +118,7 @@ const Navbar = () => {
           if (searchParams.get("code")) {
             const newSearchParams = new URLSearchParams(window.location.search);
             newSearchParams.delete("code");
-            const newUrl = `${window.location.pathname}${newSearchParams.toString() ? "?" + newSearchParams.toString() : ""}`;
-            router.replace(newUrl, { scroll: false });
+            router.push("/dashboard");
           }
         } else {
           console.warn(
@@ -148,7 +147,7 @@ const Navbar = () => {
   );
 
   useEffect(() => {
-    let isMounted = true;
+    // let isMounted = true;
     const checkInitialSession = async () => {
       try {
         const {
@@ -156,7 +155,7 @@ const Navbar = () => {
           error,
         } = await supabase.auth.getSession();
 
-        if (!isMounted) return;
+        // if (!isMounted) return;
 
         if (error) {
           if (!(error instanceof AuthSessionMissingError)) {
@@ -169,7 +168,7 @@ const Navbar = () => {
           await processAuthUser(null);
         }
       } catch (error) {
-        if (!isMounted) return;
+        // if (!isMounted) return;
         if (!(error instanceof AuthSessionMissingError)) {
           console.error(
             "Unexpected error during initial session check:",
@@ -192,7 +191,7 @@ const Navbar = () => {
     checkInitialSession();
 
     return () => {
-      isMounted = false;
+      // isMounted = false;
       authListener?.subscription?.unsubscribe();
     };
   }, [processAuthUser]);
@@ -215,11 +214,10 @@ const Navbar = () => {
       >
         <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4">
           <BrandLogo />
-          <div className="hidden lg:flex items-center space-x-6">
-            <DesktopNavLinks navLinks={navLinks} />
-            <div className="flex items-center space-x-4">
+          <DesktopNavLinks navLinks={navLinks} />
+          <div className="hidden lg:flex items-center">
+            <div className="flex items-center space-x-4 ml-8">
               <SearchCommand variant="desktop" />
-              <SocialIcons />
               {!pathname.startsWith("/cart") &&
                 !pathname.startsWith("/checkout") && (
                   <CartIndicator
@@ -228,21 +226,24 @@ const Navbar = () => {
                   />
                 )}
             </div>
-            <UserAuth
-              onLogout={handleLogout}
-              isLoading={isFetchingUser || !initialAuthCheckComplete}
-            />
+            <div className="ml-4">
+              <UserAuth
+                onLogout={handleLogout}
+                isLoading={isFetchingUser || !initialAuthCheckComplete}
+              />
+            </div>
+            {/* <SocialIcons className="ml-6" /> */}
             <Button
               asChild
               size="sm"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              // Added ml-8 for significant separation before the primary CTA
+              className="bg-primary hover:bg-primary/90 text-primary-foreground ml-8"
             >
               <Link href="/booking">Book Appointment</Link>
             </Button>
           </div>
           <div className="lg:hidden flex items-center space-x-2 sm:space-x-4">
             <SearchCommand variant="mobile" />
-            <SocialIcons className="hidden sm:flex" />
             {!pathname.startsWith("/cart") &&
               !pathname.startsWith("/checkout") && (
                 <CartIndicator
@@ -255,6 +256,7 @@ const Navbar = () => {
               onLogout={handleLogout}
               isLoading={isFetchingUser || !initialAuthCheckComplete}
             />
+            <SocialIcons className="hidden sm:flex" />
           </div>
         </div>
       </header>

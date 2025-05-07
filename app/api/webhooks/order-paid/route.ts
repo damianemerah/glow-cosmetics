@@ -72,7 +72,7 @@ export async function POST(request: Request) {
         const orderDetails = {
             orderReference: payment_reference,
             dateFormatted: format(orderCreatedAt, "MMMM d, yyyy"),
-            timeFormatted: format(orderCreatedAt, "h:mm a"),
+            timeFormatted: format(orderCreatedAt, "hh:mm a"),
             total: total_price,
             items: orderData.order_items,
             paymentMethod: orderData.payment_method?.replace("_", " ") ||
@@ -105,7 +105,6 @@ export async function POST(request: Request) {
                 subject: `New Order Payment Received - ${payment_reference}`,
                 message: "pug-template/emails/booking-notification.pug",
                 variables: emailVariables,
-                channel: "whatsapp",
             });
         });
 

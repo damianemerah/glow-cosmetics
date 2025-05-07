@@ -360,7 +360,7 @@ export async function getProductsByIds(
   try {
     const { data, error } = await supabaseAdmin
       .from("products")
-      .select("id, name, price, image_url, stock_quantity, color")
+      .select("id, name, price, image_url, stock_quantity, color, slug")
       .in("id", productIds);
 
     if (error) {

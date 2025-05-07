@@ -830,7 +830,7 @@ export default function ProductForm({
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isLoading || !isDirty}
+                disabled={isLoading || !isDirty || isUploading}
                 size="lg"
               >
                 {isLoading ? (

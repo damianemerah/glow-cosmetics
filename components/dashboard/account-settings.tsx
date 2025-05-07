@@ -2,10 +2,15 @@
 
 import { useState } from "react";
 import { Button, Switch, Separator } from "@/constants/ui/index";
-import Link from "next/link";
+// import Link from "next/link";
 import { toast } from "sonner";
-import { setNotificationSettings } from "@/actions/dashboardAction";
+import {
+  setNotificationSettings,
+  deleteUserAccount,
+} from "@/actions/dashboardAction";
 import { Loader2 } from "lucide-react";
+import ConfirmDialog from "@/components/common/confirm-dialog";
+import { useRouter } from "next/navigation";
 
 interface AccountSettingsProps {
   marketingEnabled: boolean;
@@ -20,6 +25,7 @@ export default function AccountSettings({
   birthdayEnabled,
   user_id,
 }: AccountSettingsProps) {
+  const router = useRouter();
   const [isMarketingEnabled, setIsMarketingEnabled] =
     useState(marketingEnabled);
   const [isAppointmentEnabled, setIsAppointmentEnabled] =
@@ -27,6 +33,8 @@ export default function AccountSettings({
   const [isBirthdayEnabled, setIsBirthdayEnabled] = useState(birthdayEnabled);
   const [userId] = useState(user_id);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleNotificationChange = async (type: string, checked: boolean) => {
     if (!userId) return;
@@ -72,6 +80,33 @@ export default function AccountSettings({
       toast.warning("Failed to update notification settings.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!userId) return;
+
+    setIsDeleting(true);
+    try {
+      const result = await deleteUserAccount(userId);
+      if (result.success) {
+        toast.success(
+          "Account deleted successfully. You will be logged out shortly."
+        );
+        // Redirect to home page or logout page after a brief delay
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+      } else {
+        toast.warning(`Failed to delete account: ${result.error}`);
+        setIsDeleteDialogOpen(false);
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      toast.warning("An error occurred while deleting your account.");
+      setIsDeleteDialogOpen(false);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -138,7 +173,7 @@ export default function AccountSettings({
 
       <Separator />
 
-      <div>
+      {/* <div>
         <h3 className="text-lg font-medium mb-3">Security</h3>
         <div className="space-y-2">
           <div className="flex items-center justify-between p-3 border rounded-md">
@@ -165,7 +200,7 @@ export default function AccountSettings({
             </Button>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <Separator />
 
@@ -201,19 +236,25 @@ export default function AccountSettings({
             </div>
             <Button
               variant="destructive"
-              onClick={() => {
-                // This would typically open a confirmation modal
-                toast.warning("Warning", {
-                  description:
-                    "Account deletion requires confirmation. Please contact support.",
-                });
-              }}
+              onClick={() => setIsDeleteDialogOpen(true)}
             >
               Delete
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Delete Account Confirmation Dialog */}
+      <ConfirmDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteAccount}
+        title="Delete Your Account"
+        description="Are you sure you want to delete your account? This action is permanent and cannot be undone. All your data, including booking history, will be permanently removed."
+        confirmText="Yes, delete my account"
+        confirmVariant="destructive"
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

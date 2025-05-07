@@ -22,40 +22,37 @@ export const beautyTips: BeautyTip[] = [
 ];
 
 export const services: Service[] = [
-  {
-    id: "semi-permanent-makeup",
-    name: "Semi Permanent Makeup",
-    description:
-      "Enhance your natural beauty with our semi permanent makeup service.",
-    price: 900,
-    image: "/images/pic6.jpg",
-    details:
-      "Our semi permanent makeup service is designed to subtly define your features. Using advanced techniques and high-quality pigments, we create natural, long-lasting results that enhance your overall look.",
-    category: "makeup",
-    videoUrl: "/videos/pum.mp4",
-  },
+  // {
+  //   id: "semi-permanent-makeup",
+  //   name: "Semi Permanent Makeup",
+  //   description:
+  //     "Enhance your natural beauty with our semi permanent makeup service.",
+  //   price: 900,
+  //   image: "/images/spm.jpg",
+  //   details:
+  //     "Our semi permanent makeup service is designed to subtly define your features. Using advanced techniques and high-quality pigments, we create natural, long-lasting results that enhance your overall look.",
+  //   category: "makeup",
+  // },
   {
     id: "microblading",
     name: "Microblading",
     description:
       "Achieve beautifully defined brows with our microblading service.",
     price: 1000,
-    image: "/images/pic5.jpg",
+    image: "/images/microblading.jpg",
     details:
       "Microblading uses a precise hand-drawn technique to create realistic, natural-looking eyebrow hairs. This service is ideal for filling in sparse brows or creating a fuller brow shape.",
     category: "makeup",
-    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "ombrebrows",
     name: "Ombre Brows",
     description: "Get soft-shaded, powdery brows with our ombre brows service.",
     price: 1200,
-    image: "/images/ombre-brows.jpg",
+    image: "/images/ombre-brow.jpg",
     details:
       "Our ombre brows technique uses a shading method to create a soft, filled-in look that mimics the effect of brow makeup. Perfect for clients wanting a defined yet natural look.",
     category: "makeup",
-    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "lip-blush",
@@ -66,7 +63,6 @@ export const services: Service[] = [
     details:
       "Our lip blush procedure enhances your natural lip color, providing a subtle, youthful tint that lasts. Enjoy fuller, more defined lips without the need for constant reapplication.",
     category: "makeup",
-    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "eyeliner",
@@ -77,7 +73,6 @@ export const services: Service[] = [
     details:
       "Our eyeliner service offers a flawless, long-lasting application that enhances the natural shape of your eyes. Perfect for those looking for a defined yet natural look.",
     category: "makeup",
-    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "eyelash-extensions",
@@ -85,33 +80,30 @@ export const services: Service[] = [
     description:
       "Achieve fuller, longer lashes with our individual eyelash extensions.",
     price: 800,
-    image: "/images/eyelash-extensions.jpg",
+    image: "/images/eyelash.jpg",
     details:
       "Our individual eyelash extensions are applied one by one to your natural lashes, creating a customizable look that ranges from subtle enhancement to full glamour.",
     category: "makeup",
-    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "makeup-application",
     name: "Makeup Application",
     description: "Professional makeup application for any occasion.",
     price: 700,
-    image: "/images/makeup-application.jpg",
+    image: "/images/makeup.jpg",
     details:
       "Whether it's for a wedding, photoshoot, or night out, our professional makeup application service will create a flawless look tailored to your style and preferences.",
     category: "makeup",
-    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "skincare-treatment",
     name: "Skincare Treatment",
     description: "Personalized facial and skincare treatments.",
     price: 600,
-    image: "/images/skincare.jpg",
+    image: "/images/skin-care.jpg",
     details:
       "Our skincare treatments include deep cleansing, exfoliation, and hydration tailored to your skin type, helping you achieve a radiant, healthy complexion.",
     category: "skincare",
-    videoUrl: "/videos/pum.mp4",
   },
   {
     id: "consultation",
@@ -121,7 +113,7 @@ export const services: Service[] = [
     price: 200,
     image: "/images/consultation.jpg",
     details:
-      "Our consultation service provides personalized advice on beauty and wellness. In this session, you can discuss your goals, ask questions about our services, and receive tailored recommendations to enhance your natural beauty.",
+      "Our consultation service provides personalized advice on beauty and wellness. In this session, you can discuss your goals, ask questions about our services, and receive tailored recommendations to enhance your natural beauty. Free when you book a service.",
     category: "consultation",
   },
 ];

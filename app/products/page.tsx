@@ -142,7 +142,7 @@ export default async function ProductsPage({
     <div className="flex flex-col min-h-screen bg-background">
       <ProductHero />
       <div>
-        <div className="container sticky top-0 z-25 bg-background border-b border-border">
+        <div className="container sticky top-0 z-25 bg-background border-b border-border overflow-x-auto">
           <ProductNavigation categoryData={categories} />
         </div>
 

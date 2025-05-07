@@ -99,7 +99,7 @@ const CustomCaption = React.memo(function CustomCaption({
   );
 });
 
-type CalendarProps = React.ComponentPropsWithoutRef<typeof DayPicker> & {
+type CalendarProps = React.ComponentProps<typeof DayPicker> & {
   showCustomCaption?: boolean;
 };
 

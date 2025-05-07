@@ -8,6 +8,7 @@ import type { Booking } from "@/types/index";
 import { toast } from "sonner";
 import useSWR from "swr";
 import { cancelBooking } from "@/actions/dashboardAction";
+import { capitalize } from "@/utils";
 
 interface UpcomingBookingsProps {
   bookings: Booking[];
@@ -81,7 +82,7 @@ export default function UpcomingBookings({
           className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-md"
         >
           <div>
-            <h4 className="font-medium">{booking.service_name}</h4>
+            <h4 className="font-medium">{capitalize(booking.service_name)}</h4>
             <div className="flex items-center text-sm text-muted-foreground mt-1">
               <Calendar className="h-4 w-4 mr-1" />
               <span>{new Date(booking.booking_time).toLocaleDateString()}</span>
@@ -121,7 +122,7 @@ export default function UpcomingBookings({
       ))}
       <div className="text-center">
         <Button variant="outline" asChild>
-          <Link href="/booking">View All Bookings</Link>
+          <a href="#bookings">View All Bookings</a>
         </Button>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { getBookingWithId } from "@/actions/bookingAction";
 import { getUserById } from "@/actions/authAction";
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import {
   Button,
@@ -38,7 +38,7 @@ import {
 
 import PageHeader from "@/components/admin/page-header";
 import DataTable from "@/components/admin/data-table";
-import RichTextEditor from "@/components/RichTextEditor";
+import RichTextEditor, { RichTextEditorRef } from "@/components/RichTextEditor";
 
 import { useMessaging } from "@/hooks/useMessaging";
 
@@ -69,6 +69,7 @@ interface Message {
 interface Client {
   id: string;
   name: string;
+  firstName: string;
   email: string;
   phone: string;
 }
@@ -100,9 +101,11 @@ export default function MessagingPage() {
     recipients: [],
     subject: "",
     message: "",
-    channel: "whatsapp",
+    channel: "email",
     type: "",
   });
+
+  const richTextEditorRef = useRef<RichTextEditorRef>(null);
 
   // State for selected message in the View dialog
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
@@ -257,7 +260,6 @@ export default function MessagingPage() {
       [name]: name === "recipients" ? [value] : value,
     }));
   };
-
   // Handle rich text change
   const handleRichTextChange = (value: string) => {
     setMessageForm((prev) => ({ ...prev, message: value }));
@@ -265,35 +267,34 @@ export default function MessagingPage() {
 
   // Handle template selection
   const handleTemplateSelect = (template: (typeof templates)[0]) => {
-    if (template.id === "offer") {
-      setMessageForm((prev) => ({
-        ...prev,
-        type: "offer",
-      }));
-    }
-    //clear previously input text
-    setMessageForm((prev) => ({ ...prev, message: "" }));
+    const newChannelIsEmail = template.channel === "email";
 
-    setMessageForm({
-      ...messageForm,
+    setMessageForm((prev) => ({
+      ...prev,
       subject: template.subject,
-      message: template.content,
       channel: template.channel as MessageChannel,
-    });
-    setIsRichText(template.channel === "email");
+      type: template.id === "offer" ? "offer" : prev.type || "",
+      message: newChannelIsEmail ? prev.message : template.content,
+    }));
+
+    setIsRichText(newChannelIsEmail);
+
+    if (newChannelIsEmail) {
+      setTimeout(() => {
+        if (richTextEditorRef.current) {
+          richTextEditorRef.current.setContent(template.content);
+        }
+      }, 0);
+    }
   };
 
   // Handle template variable insertion
   const handleInsertVariable = (variable: string) => {
-    // For rich text, we need to handle insertion differently
     if (isRichText) {
-      // For now, just append to the end
-      setMessageForm((prev) => ({
-        ...prev,
-        message: prev.message + " " + variable,
-      }));
+      if (richTextEditorRef.current) {
+        richTextEditorRef.current.insertContent(variable + " ");
+      }
     } else {
-      // For plain text, insert at cursor position or append
       const textarea = document.getElementById(
         "message"
       ) as HTMLTextAreaElement;
@@ -307,8 +308,12 @@ export default function MessagingPage() {
           ...prev,
           message: newText,
         }));
+        requestAnimationFrame(() => {
+          textarea.focus();
+          textarea.selectionStart = textarea.selectionEnd =
+            start + variable.length + 1;
+        });
       } else {
-        // Fallback if we can't access the textarea
         setMessageForm((prev) => ({
           ...prev,
           message: prev.message + " " + variable,
@@ -348,7 +353,14 @@ export default function MessagingPage() {
         userId: selectedClient.id,
         subject: messageForm.subject,
         message: messageForm.message,
-        variables: { user: selectedClient, booking: bookingVariables },
+        variables: {
+          user: {
+            ...selectedClient,
+            name: selectedClient.name || "Customer",
+            firstName: selectedClient.firstName || "Customer",
+          },
+          booking: bookingVariables,
+        },
         channel: messageForm.channel,
         ...(messageForm.type && { type: messageForm.type }),
       };
@@ -394,7 +406,7 @@ export default function MessagingPage() {
         recipients: [],
         subject: "",
         message: "",
-        channel: "whatsapp",
+        channel: "email",
       });
       setIsRichText(false);
     } catch (error) {
@@ -434,7 +446,6 @@ export default function MessagingPage() {
       render: (row: Message) => {
         const channelStyles = {
           email: "bg-blue-100 text-blue-800",
-          whatsapp: "bg-emerald-100 text-emerald-800",
         };
         return (
           <Badge
@@ -509,14 +520,10 @@ export default function MessagingPage() {
                             <RadioGroupItem value="email" id="email" />
                             <Label htmlFor="email">Email</Label>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="whatsapp" id="whatsapp" />
-                            <Label htmlFor="whatsapp">WhatsApp</Label>
-                          </div>
                         </RadioGroup>
                       </TooltipTrigger>
                       <TooltipContent>
-                        WhatsApp is preferred for direct messages, Email for
+                        Email is preferred for direct messages, Email for
                         marketing
                       </TooltipContent>
                     </Tooltip>
@@ -669,9 +676,7 @@ export default function MessagingPage() {
                         placeholder="Enter message subject"
                       />
                     </TooltipTrigger>
-                    <TooltipContent>
-                      Required for email messages, optional for WhatsApp
-                    </TooltipContent>
+                    <TooltipContent>Required for email messages</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
@@ -684,6 +689,7 @@ export default function MessagingPage() {
                       {isRichText ? (
                         <div className="min-h-[200px] border rounded-md">
                           <RichTextEditor
+                            ref={richTextEditorRef}
                             value={messageForm.message}
                             onChange={handleRichTextChange}
                             placeholder="Enter your message content..."

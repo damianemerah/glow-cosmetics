@@ -16,17 +16,10 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
 } from "@/constants/ui/index";
 import { Loader2 } from "lucide-react";
 import { formatZAR } from "@/utils";
+import ConfirmDialog from "@/components/common/confirm-dialog";
 
 // Format price helper function (can be moved to a utils file)
 function formatPrice(price: number | null | undefined): string {
@@ -234,44 +227,17 @@ export default function ProductList({
         </Pagination>
       )}
 
-      {/* --- Delete Confirmation Dialog --- */}
-      <AlertDialog
+      {/* --- Use ConfirmDialog component instead of the inline AlertDialog --- */}
+      <ConfirmDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              product &quot;
-              <strong>{productToDelete?.name || "this product"}</strong>&quot;
-              and all associated data.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={() => setProductToDelete(null)}
-              disabled={isPending} // Disable cancel while action is pending
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              disabled={isPending} // Disable confirm while action is pending
-              className="bg-red-600 hover:bg-red-700" // Style confirm button
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
-                </>
-              ) : (
-                "Yes, delete product"
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        onConfirm={confirmDelete}
+        title="Are you absolutely sure?"
+        description={`This action cannot be undone. This will permanently delete the product "${productToDelete?.name || "this product"}" and all associated data.`}
+        confirmText="Yes, delete product"
+        confirmVariant="destructive"
+        isLoading={isPending}
+      />
     </>
   );
 }

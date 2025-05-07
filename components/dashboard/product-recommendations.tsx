@@ -41,7 +41,7 @@ export default function ProductRecommendations({
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {products.map((product) => (
         <Link
-          href={`/products/${product.id}`}
+          href={`/products/${product.slug}`}
           key={product.id}
           className="group"
         >

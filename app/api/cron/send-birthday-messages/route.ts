@@ -66,11 +66,6 @@ export async function GET(request: Request) {
             });
         }
 
-        // Birthday message templates
-        const whatsappTemplate =
-            "Happy Birthday, {{user.name}}! 🎂 We hope you have a wonderful day filled with joy and celebration. As a birthday gift, enjoy 20% off your next appointment with us! Simply mention BIRTHDAY20 when booking. - The Glow Cosmetics Team";
-
-        // Use Pug template for email
         const templatePath = path.join(
             process.cwd(),
             "pug-template/emails/birthday.pug",
@@ -115,26 +110,20 @@ export async function GET(request: Request) {
 
                 try {
                     let messageTemplate;
-                    const channel = user.phone ? "whatsapp" : "email";
+                    const channel = "email";
 
-                    // Use the appropriate template based on the channel
-                    if (channel === "whatsapp") {
-                        messageTemplate = whatsappTemplate;
-                    } else {
-                        // For email, use the pug template for better styling
-                        try {
-                            messageTemplate = pug.renderFile(templatePath, {
-                                userName: userName,
-                                bookingUrl: bookingUrl,
-                            });
-                        } catch (templateError) {
-                            console.error(
-                                "Failed to render Pug template:",
-                                templateError,
-                            );
-                            // Fallback to plain HTML if Pug template fails
-                            messageTemplate = emailTemplate;
-                        }
+                    try {
+                        messageTemplate = pug.renderFile(templatePath, {
+                            userName: userName,
+                            bookingUrl: bookingUrl,
+                        });
+                    } catch (templateError) {
+                        console.error(
+                            "Failed to render Pug template:",
+                            templateError,
+                        );
+                        // Fallback to plain HTML if Pug template fails
+                        messageTemplate = emailTemplate;
                     }
 
                     // Send with preferred channel

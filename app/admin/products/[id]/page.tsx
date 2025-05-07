@@ -25,12 +25,14 @@ export default async function ProductPage({
 async function ProductDetail({ id }: { id: string }) {
   const product = id?.toLowerCase() !== "new" && (await fetchProductById(id));
   const result = await fetchCategoryById("parent-options");
+  const categories =
+    result.success && result.categories
+      ? Array.isArray(result.categories)
+        ? result.categories
+        : []
+      : [];
 
   return (
-    <ProductForm
-      id={id}
-      initialData={product}
-      categoryData={result.categories || []}
-    />
+    <ProductForm id={id} initialData={product} categoryData={categories} />
   );
 }

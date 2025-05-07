@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Layers, CalendarCheck, HeartHandshake } from "lucide-react";
+import { LogOut, Layers, CalendarCheck, Heart } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
@@ -79,10 +79,10 @@ export const UserAuth = ({ onLogout, isLoading }: UserAuthProps) => {
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link
-              href="/dashboard#wishlist"
+              href="/dashboard#wishlists"
               className="flex items-center cursor-pointer"
             >
-              <HeartHandshake className="mr-2 h-4 w-4" />
+              <Heart className="mr-2 h-4 w-4" />
               <span>Wishlist</span>
             </Link>
           </DropdownMenuItem>

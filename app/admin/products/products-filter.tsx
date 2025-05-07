@@ -35,7 +35,7 @@ export default function ProductsFilter({
       setIsLoading(true);
       try {
         const result = await fetchCategoryById("parent-options");
-        if (result.success && result.categories) {
+        if (result.success && Array.isArray(result.categories)) {
           setCategories(result.categories);
         }
       } catch (error) {

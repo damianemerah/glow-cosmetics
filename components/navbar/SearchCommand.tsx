@@ -93,7 +93,7 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
           className="h-9 w-9 p-0"
           aria-label="Search"
         >
-          <Search className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
+          <Search className="h-7 w-7 text-gray-700 hover:text-primary transition-colors" />
         </Button>
       </PopoverTrigger>
       <PopoverContent

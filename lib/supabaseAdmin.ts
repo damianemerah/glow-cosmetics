@@ -8,5 +8,5 @@ export const supabaseAdmin = createClient(
     auth: {
       persistSession: false, // Admin client does not need session storage
     },
-  }
+  },
 );

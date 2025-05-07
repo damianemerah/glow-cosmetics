@@ -2,6 +2,15 @@
 
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { unstable_cache } from "next/cache";
+import { MessageData, sendEmail } from "@/lib/messaging";
+
+interface ContactFormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  subject: string;
+  message: string;
+}
 
 export async function getClients(page = 1, itemsPerPage = 10) {
   const fetchClients = unstable_cache(
@@ -83,4 +92,68 @@ export async function getClients(page = 1, itemsPerPage = 10) {
   );
 
   return fetchClients(page, itemsPerPage);
+}
+
+export async function sendClientEmail(
+  formData: ContactFormData,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // 1. Fetch the Admin's Email from the database
+    const { data: adminProfile, error: adminError } = await supabaseAdmin
+      .from("profiles") // Your profiles table name
+      .select("email") // Select only the email column
+      .eq("role", "admin") // Filter by role 'admin'
+      .single(); // Expect only one admin profile
+
+    if (adminError || !adminProfile?.email) {
+      console.error("Error fetching admin email:", adminError);
+      throw new Error(
+        adminError?.message || "Admin profile not found or missing email.",
+      );
+    }
+
+    const adminEmail = adminProfile.email;
+    const messageBody = `
+      <h2>New Contact Form Submission</h2>
+      <hr>
+      <p><strong>Name:</strong> ${formData.firstName} ${formData.lastName}</p>
+      <p><strong>Email:</strong> ${formData.email}</p>
+      <p><strong>Subject:</strong> ${formData.subject}</p>
+      <hr>
+      <h3>Message:</h3>
+      <p>${formData.message.replace(/\n/g, "<br>")}</p>
+    `;
+
+    const messageData: MessageData = {
+      recipients: [adminEmail],
+      subject: `New Contact Form: ${formData.subject}`,
+      message: messageBody,
+      channel: "email",
+      type: "contact-form-submission",
+    };
+
+    const emailResponse = await sendEmail(messageData);
+
+    if (!emailResponse.success) {
+      console.error("Messaging service error:", emailResponse.error);
+      throw new Error(
+        emailResponse.error || "Failed to send email via messaging service.",
+      );
+    }
+
+    console.log(
+      "Client email sent successfully to admin:",
+      emailResponse.messageId,
+    );
+
+    return { success: true };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    // eslint-enable-next-line @typescript-eslint/no-explicit-any
+    console.error("Error in sendClientEmail action:", error);
+    return {
+      success: false,
+      error: error.message || "An unexpected error occurred.",
+    };
+  }
 }

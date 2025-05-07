@@ -1,7 +1,5 @@
 import { Resend } from "resend";
-import { Twilio } from "twilio";
 import { supabaseAdmin } from "./supabaseAdmin";
-import { htmlToText } from "html-to-text";
 import pug from "pug";
 import path from "path";
 
@@ -14,12 +12,7 @@ function chunkArray<T>(array: T[], size: number): T[][] {
   return result;
 }
 
-const toText = (htmlContent: string) =>
-  htmlToText(htmlContent, {
-    wordwrap: 130,
-  });
-
-export type MessageChannel = "email" | "whatsapp";
+export type MessageChannel = "email";
 
 export interface MessageData {
   recipients: string[];
@@ -53,7 +46,6 @@ interface UserVariables {
 }
 
 export interface UserPreferences {
-  canSendWhatsApp: boolean;
   canSendEmail: boolean;
   phoneNumber?: string;
   email?: string;
@@ -61,26 +53,12 @@ export interface UserPreferences {
 
 class Messaging {
   private resend: Resend;
-  private twilioClient: Twilio | null = null;
   private fromEmail: string;
-  private whatsappNumber: string | undefined;
 
   constructor() {
     // Initialize Resend client
     this.resend = new Resend(process.env.RESEND_API_KEY);
     this.fromEmail = "Glow Cosmetics <no-reply@ugosylviacosmetics.co.za>";
-
-    // Initialize Twilio client if credentials are available
-    if (
-      process.env.TWILIO_ACCOUNT_SID &&
-      process.env.TWILIO_AUTH_TOKEN
-    ) {
-      this.twilioClient = new Twilio(
-        process.env.TWILIO_ACCOUNT_SID,
-        process.env.TWILIO_AUTH_TOKEN,
-      );
-      this.whatsappNumber = process.env.TWILIO_WHATSAPP_NUMBER;
-    }
   }
 
   /**
@@ -92,20 +70,18 @@ class Messaging {
     const { data, error } = await supabaseAdmin
       .from("profiles")
       .select(
-        "email, phone, email_notifications_enabled, whatsapp_notifications_enabled",
+        "email, email_notifications_enabled",
       )
       .eq("user_id", userId)
       .single();
 
     if (error || !data) {
       console.error("Error fetching user preferences:", error);
-      return { canSendWhatsApp: false, canSendEmail: false };
+      return { canSendEmail: false };
     }
 
     return {
-      canSendWhatsApp: !!data.phone && !!data.whatsapp_notifications_enabled,
       canSendEmail: !!data.email && !!data.email_notifications_enabled,
-      phoneNumber: data.phone,
       email: data.email,
     };
   }
@@ -215,83 +191,12 @@ class Messaging {
       // Wait for all emails to be sent
       const results = await Promise.all(sendEmailPromises);
 
+      console.log(results[0], "🎈🎈");
+
       return { success: true, messageId: results[0]?.data?.id };
     } catch (error) {
       console.log(error);
       return { success: false, error: "Failed to send email" };
-    }
-  }
-
-  /**
-   * Send WhatsApp message to recipients
-   * @param recipients Array of phone numbers to send to
-   * @param message Message content
-   * @param variables Variables for template substitution
-   * @returns Message response with success status and message ID
-   */
-  async sendWhatsApp(
-    recipients: string[],
-    message: string,
-    variables: Record<string, unknown> = {},
-  ): Promise<MessageResponse> {
-    try {
-      if (!this.twilioClient || !this.whatsappNumber) {
-        return { success: false, error: "Twilio client not configured" };
-      }
-
-      const results = await Promise.all(
-        recipients.map((to) => {
-          const userPhoneMap: Record<string, string> = {};
-          // Loop through variables to find if it contains user data with phone numbers
-          if (typeof variables === "object" && variables !== null) {
-            Object.keys(variables).forEach((userId) => {
-              const userData = variables[userId] as UserVariables;
-              if (userData?.user?.phone) {
-                userPhoneMap[userData.user.phone] = userId;
-              }
-            });
-          }
-
-          const userId = userPhoneMap[to];
-
-          const processedMessage = this.substituteVariables(
-            message,
-            variables,
-            userId,
-          );
-
-          // Default htmlContent is the processed plain message
-
-          if (processedMessage.startsWith("pug-template/")) {
-            let htmlContent = processedMessage;
-            // If the message starts with 'pug-template/', render it using Pug
-            const templatePath = path.join(
-              process.cwd(),
-              processedMessage,
-            );
-            htmlContent = pug.renderFile(templatePath, {
-              ...variables,
-            });
-
-            return this.twilioClient!.messages.create({
-              body: toText(htmlContent),
-              to: `whatsapp:${to}`,
-              from: `whatsapp:${this.whatsappNumber}`,
-            });
-          }
-
-          return this.twilioClient!.messages.create({
-            body: toText(processedMessage),
-            to: `whatsapp:${to}`,
-            from: `whatsapp:${this.whatsappNumber}`,
-          });
-        }),
-      );
-
-      return { success: true, messageId: results[0]?.sid };
-    } catch (error) {
-      console.log(error);
-      return { success: false, error: "Failed to send WhatsApp message" };
     }
   }
 
@@ -301,7 +206,7 @@ class Messaging {
    * @param subject Email subject
    * @param message Message content
    * @param variables Template variables
-   * @param channel Preferred channel (email or whatsapp)
+   * @param channel Preferred channel (email)
    * @returns Message response
    */
 
@@ -319,33 +224,9 @@ class Messaging {
     channel?: MessageChannel;
   }): Promise<MessageResponse> {
     const {
-      canSendWhatsApp,
       canSendEmail,
-      phoneNumber,
       email,
     } = await this.checkUserPreferences(userId);
-
-    // First try preferred channel
-    if (channel === "whatsapp" && canSendWhatsApp && phoneNumber) {
-      const result = await this.sendWhatsApp([phoneNumber], message, variables);
-      if (result.success) return result;
-
-      // Fallback to email
-      if (canSendEmail && email) {
-        return await this.sendEmail({
-          recipients: [email],
-          subject,
-          message,
-          channel: "email",
-          variables,
-        });
-      }
-
-      return {
-        success: false,
-        error: "WhatsApp failed and email fallback not available.",
-      };
-    }
 
     if (channel === "email" && canSendEmail && email) {
       const result = await this.sendEmail({
@@ -357,14 +238,9 @@ class Messaging {
       });
       if (result.success) return result;
 
-      // Fallback to WhatsApp
-      if (canSendWhatsApp && phoneNumber) {
-        return await this.sendWhatsApp([phoneNumber], message, variables);
-      }
-
       return {
         success: false,
-        error: "Email failed and WhatsApp fallback not available.",
+        error: "Sending email failed.",
       };
     }
 
@@ -379,59 +255,11 @@ class Messaging {
       });
     }
 
-    if (canSendWhatsApp && phoneNumber) {
-      return await this.sendWhatsApp([phoneNumber], message, variables);
-    }
-
     return {
       success: false,
       error: "No communication channel available.",
     };
   }
-
-  // async sendMessageWithFallback(
-  //   userId: string,
-  //   subject: string,
-  //   message: string,
-  //   variables: Record<string, unknown> = {},
-  //   channel?: MessageChannel,
-  // ): Promise<MessageResponse> {
-  //   const { canSendWhatsApp, canSendEmail, phoneNumber, email } = await this
-  //     .checkUserPreferences(userId);
-
-  //   // WhatsApp Preferred
-  //   if (channel === "whatsapp") {
-  //     if (!canSendWhatsApp || !phoneNumber) {
-  //       return {
-  //         success: false,
-  //         error: "WhatsApp notifications disabled or no phone number available",
-  //       };
-  //     }
-
-  //     return this.sendWhatsApp([phoneNumber], message, variables);
-  //   } else if (channel === "email") {
-  //     if (!canSendEmail || !email) {
-  //       return {
-  //         success: false,
-  //         error: "Email notifications disabled or no email available",
-  //       };
-  //     }
-
-  //     const emailData = {
-  //       recipients: [email],
-  //       subject,
-  //       message,
-  //       channel: "email" as MessageChannel,
-  //       variables,
-  //     };
-  //     return await this.sendEmail(emailData);
-  //   }
-
-  //   return {
-  //     success: false,
-  //     error: "No valid communication channel specified",
-  //   };
-  // }
 
   /**
    * Send batch messages to multiple recipients
@@ -458,7 +286,7 @@ class Messaging {
           };
           return this.sendEmail(emailData);
         } else {
-          return this.sendWhatsApp([recipient], message, variables);
+          return { success: false, error: "Invalid Channel" };
         }
       });
 
@@ -494,7 +322,6 @@ export const checkUserPreferences = messaging.checkUserPreferences.bind(
   messaging,
 );
 export const sendEmail = messaging.sendEmail.bind(messaging);
-export const sendWhatsApp = messaging.sendWhatsApp.bind(messaging);
 export const sendMessageWithFallback = messaging.sendMessageWithFallback.bind(
   messaging,
 );

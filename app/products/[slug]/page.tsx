@@ -98,7 +98,6 @@ export default async function ProductInfo({
 }) {
   const { slug } = await params;
   const product = await getCachedProduct(slug);
-  console.log(product, "111");
 
   if (!product) {
     notFound();

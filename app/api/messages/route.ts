@@ -6,11 +6,9 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 interface Recipient {
   user_id: string;
   email?: string;
-  phone?: string;
   first_name?: string;
   last_name?: string;
   email_notifications_enabled?: boolean;
-  whatsapp_notifications_enabled?: boolean;
 }
 
 export async function POST(request: Request) {
@@ -35,7 +33,7 @@ export async function POST(request: Request) {
     ) {
       // Define queries based on recipient group
       let query = supabaseAdmin.from("profiles").select(
-        "user_id, email, phone, first_name, last_name, email_notifications_enabled, whatsapp_notifications_enabled, receive_emails",
+        "user_id, email, first_name, last_name, email_notifications_enabled, receive_emails",
       );
 
       // Apply filters based on group
@@ -58,11 +56,10 @@ export async function POST(request: Request) {
           "is",
           null,
         );
-      } else if (messageData.channel === "whatsapp") {
-        query = query.eq("whatsapp_notifications_enabled", true).not(
-          "phone",
-          "is",
-          null,
+      } else {
+        return NextResponse.json(
+          { success: false, error: "Failed to send email" },
+          { status: 500 },
         );
       }
 
@@ -90,14 +87,13 @@ export async function POST(request: Request) {
 
       // Map user data to variables with userId as keys
       (filteredRecipients as Recipient[]).forEach((recipient) => {
-        const { first_name, last_name, email, phone, user_id } = recipient;
+        const { first_name, last_name, email, user_id } = recipient;
         variables[user_id] = {
           user: {
             name: `${first_name || ""} ${last_name || ""}`.trim(),
             firstName: first_name || "",
             lastName: last_name || "",
             email: email || "",
-            phone: phone || "",
           },
         };
       });
@@ -107,7 +103,6 @@ export async function POST(request: Request) {
 
       // Transform recipients to the format expected by sendMessage
       let recipientEmails: string[] = [];
-      let recipientPhones: string[] = [];
 
       if (messageData.channel === "email") {
         recipientEmails = (filteredRecipients as Recipient[])
@@ -119,16 +114,11 @@ export async function POST(request: Request) {
           .map((r) => r.email);
 
         messageData.recipients = recipientEmails;
-      } else if (messageData.channel === "whatsapp") {
-        recipientPhones = (filteredRecipients as Recipient[])
-          .map((r) => ({
-            phone: r.phone || "",
-            userId: r.user_id,
-          }))
-          .filter((r) => r.phone)
-          .map((r) => r.phone);
-
-        messageData.recipients = recipientPhones;
+      } else {
+        return NextResponse.json(
+          { success: false, error: "Failed to send email" },
+          { status: 500 },
+        );
       }
 
       // If no valid recipients found

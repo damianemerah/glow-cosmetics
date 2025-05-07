@@ -20,7 +20,7 @@ import {
   Skeleton,
 } from "@/constants/ui/index";
 import { toast } from "sonner";
-import { ArrowLeft, X, ImageIcon, Loader2 } from "lucide-react"; // Added Loader2
+import { ArrowLeft, X, ImageIcon, Loader2, RefreshCw } from "lucide-react"; // Added RefreshCw icon
 import Image from "next/image";
 import { saveCategory, uploadImageToSupabase } from "@/actions/adminActions";
 import type { Category } from "@/types/index";
@@ -34,7 +34,7 @@ const categorySchema = z.object({
   images: z.array(z.string().url("Must be a valid URL")).default([]),
 });
 
-type CategoryFormData = z.infer<typeof categorySchema>;
+export type CategoryFormData = z.infer<typeof categorySchema>;
 
 export default function CategoryForm({
   id,
@@ -48,6 +48,7 @@ export default function CategoryForm({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [shouldRedirect, setShouldRedirect] = useState(true);
 
   // Ensure parentCategories is always an array
   const [parentCategories] = useState<Category[]>(categoryData || []);
@@ -91,7 +92,8 @@ export default function CategoryForm({
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, isDirty }, // Added isDirty
+    reset,
+    formState: { errors, isDirty }, // Added dirtyFields
   } = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
     // Use SWR data if available, otherwise initialData, then defaults
@@ -106,6 +108,31 @@ export default function CategoryForm({
 
   // Watch images for the UI - ensure it's always an array
   const currentImages = watch("images") || [];
+
+  const clearForm = () => {
+    // Reset to initial data for edits, or empty for new
+    if (id === "new") {
+      reset({
+        name: "",
+        parent_id: null,
+        pinned: true,
+        images: [],
+      });
+      toast.info("Form cleared");
+    } else {
+      // For existing categories, reset to the original data
+      reset(
+        initialData || {
+          name: "",
+          parent_id: null,
+          pinned: true,
+          images: [],
+        }
+      );
+      toast.info("Form reset to original values");
+      router.replace("/admin/categories/new");
+    }
+  };
 
   const onSubmit = async (data: CategoryFormData) => {
     setIsLoading(true);
@@ -127,7 +154,24 @@ export default function CategoryForm({
         toast.success(
           `Category ${id === "new" ? "created" : "updated"} successfully`
         );
-        // router.push("/admin/categories");
+
+        // Only redirect if shouldRedirect is true
+        if (shouldRedirect) {
+          router.push("/admin/categories");
+        } else {
+          // If we don't redirect, reset the form and mark as clean
+          if (id === "new") {
+            reset({
+              name: "",
+              parent_id: null,
+              pinned: true,
+              images: [],
+            });
+          } else {
+            // For edits, update the initialData
+            reset(data, { keepValues: true });
+          }
+        }
       } else {
         toast.warning(`Failed to save category: ${result.error}`);
       }
@@ -144,7 +188,7 @@ export default function CategoryForm({
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("bucket", "product-images");
+      formData.append("bucket", "category-images");
       formData.append("title", watch("name") || "Category Image");
       const imageUrl = await uploadImageToSupabase(formData);
 
@@ -384,13 +428,27 @@ export default function CategoryForm({
                 )}
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-4">
+              {/* Redirect Option */}
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="shouldRedirect"
+                  checked={shouldRedirect}
+                  onCheckedChange={(checked) => setShouldRedirect(!!checked)}
+                />
+                <Label htmlFor="shouldRedirect" className="cursor-pointer">
+                  Redirect after saving
+                </Label>
+              </div>
+
+              {/* Submit Button and Clear Form Button */}
+              <div className="pt-4 flex flex-col gap-3">
                 <Button
                   type="submit"
                   className="w-full bg-primary text-white"
                   // Disable if loading OR if it's an edit and form isn't dirty
-                  disabled={isLoading || (id !== "new" && !isDirty)}
+                  disabled={
+                    isLoading || (id !== "new" && !isDirty) || isUploading
+                  }
                 >
                   {isLoading ? (
                     <>
@@ -400,6 +458,16 @@ export default function CategoryForm({
                   ) : (
                     "Save Category"
                   )}
+                </Button>
+                <Button
+                  type="button"
+                  className="w-full"
+                  variant="outline"
+                  onClick={clearForm}
+                  disabled={!isDirty || isLoading || isUploading}
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Clear Form
                 </Button>
               </div>
             </div>

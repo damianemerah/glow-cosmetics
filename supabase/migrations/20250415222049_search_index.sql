@@ -1,4 +1,4 @@
-create extension if not exists "pg_trgm" with schema "public" version '1.6';
+CREATE EXTENSION IF NOT EXISTS "pg_trgm" WITH SCHEMA "extensions" VERSION '1.6';
 
 alter table "public"."profiles" add column if not exists "last_purchase_date" timestamp without time zone;
 
@@ -15,6 +15,7 @@ set check_function_bodies = off;
 CREATE OR REPLACE FUNCTION public.update_last_purchase_date_on_update()
  RETURNS trigger
  LANGUAGE plpgsql
+ SET search_path = ''
 AS $function$
 BEGIN
   IF NEW.status = 'paid' AND OLD.status <> 'paid' THEN

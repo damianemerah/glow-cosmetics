@@ -56,3 +56,8 @@ export function sanitizeTitle(raw: string) {
     // 4) trim leading/trailing underscores (optional)
     .replace(/^_+|_+$/g, "");
 }
+
+export function capitalize(str: string | null | undefined) {
+  if (!str) return "";
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}

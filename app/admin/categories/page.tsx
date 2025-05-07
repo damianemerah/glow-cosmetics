@@ -1,71 +1,13 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import DataTable from "@/components/admin/data-table";
 import PageHeader from "@/components/admin/page-header";
 import { fetchCategories } from "@/actions/adminActions";
-import type { Category } from "@/types/index";
-import { Badge, Button, Skeleton } from "@/constants/ui/index";
+import { Button, Skeleton } from "@/constants/ui/index";
+import CategoryList from "@/components/admin/category-list";
 
-async function CategoriesTable() {
+async function CategoriesContent() {
   const { categories, productsCount } = await fetchCategories();
-
-  // Category columns definition
-  const categoryColumns = [
-    { key: "name", title: "Name" },
-    {
-      key: "slug",
-      title: "Slug",
-      render: (row: Category) => row.name.toLowerCase().replace(/\s+/g, "-"),
-    },
-    {
-      key: "productCount",
-      title: "Products",
-      render: (row: Category) => (
-        <Badge variant="outline" className="font-normal">
-          {productsCount[row.id] || 0}
-        </Badge>
-      ),
-    },
-    {
-      key: "parent",
-      title: "Parent Category",
-      render: (row: Category) => {
-        if (!row.parent_id) return "None";
-        const parent = categories.find((c) => c.id === row.parent_id);
-        return parent ? parent.name : "Unknown";
-      },
-    },
-    {
-      key: "actions",
-      title: "Actions",
-      render: (row: Category) => (
-        <div className="flex gap-2">
-          <Link href={`/admin/categories/${row.id}`}>
-            <Button variant="outline" size="sm">
-              Edit
-            </Button>
-          </Link>
-        </div>
-      ),
-    },
-  ];
-
-  return (
-    <div>
-      <DataTable
-        columns={categoryColumns}
-        data={categories}
-        emptyState={
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">No categories found</p>
-            <Link href="/admin/categories/new" className="mt-4 inline-block">
-              <Button>Add Your First Category</Button>
-            </Link>
-          </div>
-        }
-      />
-    </div>
-  );
+  return <CategoryList categories={categories} productsCount={productsCount} />;
 }
 
 function CategoriesTableSkeleton() {
@@ -98,7 +40,7 @@ export default function CategoriesPage() {
       </div>
 
       <Suspense fallback={<CategoriesTableSkeleton />}>
-        <CategoriesTable />
+        <CategoriesContent />
       </Suspense>
     </div>
   );

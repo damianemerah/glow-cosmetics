@@ -873,7 +873,6 @@ REVOKE ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") FROM PU
 GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "anon";
 GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "service_role";
-GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "admin_user";
 
 
 

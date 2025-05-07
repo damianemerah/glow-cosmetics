@@ -29,7 +29,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { services, getTimeSlotsForDay } from "@/constants/data";
-import { createBooking } from "../../actions/bookingAction";
+import { createBooking } from "@/actions/bookingAction";
 import { toast } from "sonner";
 import { useUserStore } from "@/store/authStore";
 import { useBookingStore } from "@/app/store/bookingStore";
@@ -91,7 +91,7 @@ export default function BookingPage() {
   const currentDateBookedTimes = useMemo(() => {
     if (!date) return [];
     const slotsForDate = bookedSlots.get(date.toDateString()) || [];
-    return slotsForDate.map((slotDate) => format(slotDate, "h:mm a"));
+    return slotsForDate.map((slotDate) => format(slotDate, "hh:mm a"));
   }, [date, bookedSlots]);
 
   // Memoize times already added to the cart for the selected date
@@ -305,7 +305,7 @@ export default function BookingPage() {
 
       if (!hasError) {
         toast.success(
-          `${pendingBookings.length} booking request(s) submitted successfully! We'll contact you to confirm.`
+          `${pendingBookings.length} booking request(s) submitted successfully! Proceed to confirm your booking.`
         );
         setPendingBookings([]);
 
@@ -358,7 +358,7 @@ export default function BookingPage() {
         <section className="py-16 bg-white">
           <div className="px-4 sm:px-8 md:px-16 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1fr] gap-8">
             {/* Booking Form Column */}
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8 order-2 md:order-1">
               {/* User Details Card (Now potentially editable) */}
               <Card>
                 <CardHeader>
@@ -683,7 +683,7 @@ export default function BookingPage() {
             </div>
 
             {/* Service Details Column (keep mostly as is) */}
-            <Card className="sticky top-24 self-start">
+            <Card className="md:sticky top-24 self-start order-1 md:order-2">
               {" "}
               {/* Make sticky */}
               <CardHeader>

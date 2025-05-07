@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, Layers, LogOut } from "lucide-react";
+import { Menu, Layers, LogOut, CalendarCheck } from "lucide-react";
 import {
   Button,
   Sheet,
@@ -47,7 +47,7 @@ export const MobileMenu = ({
   };
 
   const handleLogoutClick = () => {
-    closeSheet();
+    // closeSheet();
     onLogout();
   };
 
@@ -93,15 +93,20 @@ export const MobileMenu = ({
               <>
                 <Link
                   href="/dashboard"
-                  onClick={closeSheet}
                   className="flex items-center text-lg font-medium text-gray-700 hover:text-primary transition-colors"
                 >
                   <Layers className="mr-2 h-5 w-5" />
                   Dashboard
                 </Link>
                 <Link
+                  href="/dashboard#bookings"
+                  className="flex items-center text-lg font-medium text-gray-700 hover:text-primary transition-colors"
+                >
+                  <CalendarCheck className="mr-2 h-5 w-5" />
+                  My Bookings
+                </Link>
+                <Link
                   href="/dashboard#wishlist"
-                  onClick={closeSheet}
                   className="flex items-center text-lg font-medium text-gray-700 hover:text-primary transition-colors"
                 >
                   <Heart className="mr-2 h-5 w-5" />
@@ -111,7 +116,7 @@ export const MobileMenu = ({
             )}
 
             {/* Auth Section */}
-            <div onClick={closeSheet} className="pt-2 border-t">
+            <div className="pt-2 border-t">
               {user ? (
                 <Button
                   onClick={handleLogoutClick}
@@ -129,7 +134,7 @@ export const MobileMenu = ({
             </div>
 
             {/* Booking Button - Ensure it closes sheet */}
-            <div onClick={closeSheet} className="mt-auto">
+            <div className="mt-auto">
               <Button asChild className="bg-green-500 hover:bg-green-600">
                 <Link href="/booking">Book Your Appointment</Link>
               </Button>

@@ -75,7 +75,7 @@ export function ProductGridSkeletonWrapper() {
       <div className="container mx-auto px-4 relative">
         <Skeleton className="h-6 w-1/4 mb-4" />
         <Skeleton className="h-12 w-full mb-8" />
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
           {[...Array(8)].map((_, i) => (
             <Skeleton key={i} className="h-80 w-full rounded-lg" />
           ))}
@@ -117,7 +117,7 @@ export function RecentlyViewedProductsSkeleton() {
         <Skeleton className="h-8 w-48" />
         <Skeleton className="h-8 w-24" />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {[...Array(4)].map((_, index) => (
           <ProductCardSkeleton key={index} />
         ))}

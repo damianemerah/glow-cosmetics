@@ -1,6 +1,6 @@
 "use server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import sharp from "sharp";
 import type { Booking, BookingStatus, Profile } from "@/types/index";
 import { Resend } from "resend";
@@ -109,6 +109,7 @@ export async function updateProfile(
     throw new Error(error.message);
   }
   revalidatePath("/dashboard");
+  revalidateTag(`profile-${userId}`);
 
   return { success: true };
 }
@@ -249,4 +250,86 @@ export async function setNotificationSettings(
 
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+// Add a new function to handle user account deletion
+
+export async function deleteUserAccount(userId: string) {
+  try {
+    // First check if there are any active bookings
+    const { data: activeBookings, error: bookingError } = await supabaseAdmin
+      .from("bookings")
+      .select("id")
+      .eq("user_id", userId)
+      .in("status", ["pending", "confirmed"])
+      .limit(1);
+
+    if (bookingError) {
+      return { success: false, error: bookingError.message };
+    }
+
+    // If there are active bookings, don't allow deletion
+    if (activeBookings && activeBookings.length > 0) {
+      return {
+        success: false,
+        error:
+          "Cannot delete account with active bookings. Please cancel them first.",
+      };
+    }
+
+    // Perform cascading deletion:
+    // 1. Soft delete by setting 'deleted_at' in profiles table
+    const { error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("user_id", userId);
+
+    if (profileError) {
+      return { success: false, error: profileError.message };
+    }
+
+    // 2. Anonymize personal data
+    const { error: anonymizeError } = await supabaseAdmin
+      .from("profiles")
+      .update({
+        first_name: "Deleted",
+        last_name: "User",
+        email: `deleted-${Date.now()}@example.com`,
+        phone: null,
+        address: null,
+        profile_image: null,
+      })
+      .eq("user_id", userId);
+
+    if (anonymizeError) {
+      console.error("Error anonymizing user data:", anonymizeError);
+      // Continue with deletion even if anonymization fails
+    }
+
+    // 3. Set all orders to anonymized
+    const { error: ordersError } = await supabaseAdmin
+      .from("orders")
+      .update({ is_anonymized: true })
+      .eq("user_id", userId);
+
+    if (ordersError) {
+      console.error("Error anonymizing orders:", ordersError);
+      // Continue with deletion even if order anonymization fails
+    }
+
+    // Optional: If you truly want to delete the auth user as well (not just profile data)
+    // This is more permanent and requires admin privileges
+    // const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    // if (authError) {
+    //   return { success: false, error: authError.message };
+    // }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting user account:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
 }

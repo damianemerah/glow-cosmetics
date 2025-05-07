@@ -3,6 +3,7 @@
 CREATE OR REPLACE FUNCTION public.trigger_update_inventory_on_paid()
 RETURNS trigger
 LANGUAGE plpgsql
+SET search_path = ''
 AS $$
 BEGIN
   -- only fire when status becomes 'paid' and wasn't 'paid' before

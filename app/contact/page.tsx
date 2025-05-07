@@ -13,14 +13,18 @@ import {
   CardContent,
 } from "@/constants/ui/index";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { sendClientEmail } from "@/actions/clientActions";
+import { toast } from "sonner";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
+    subject: "",
     message: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -29,26 +33,47 @@ export default function ContactPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
-    // Here you would typically send the data to your backend
-    alert("Message sent! We'll get back to you soon.");
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      message: "",
-    });
+    setIsSubmitting(true); // Disable button, show loading state
+
+    try {
+      // Call the server action
+      const result = await sendClientEmail(formData);
+
+      if (result.success) {
+        toast.success("Message sent! We'll get back to you soon.");
+        // Reset the form on successful submission
+        setFormData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        // Handle specific error returned from the action
+        console.error("Failed to send message:", result.error);
+        toast.warning(
+          result.error || "Failed to send message. Please try again."
+        );
+      }
+    } catch (error) {
+      // Catch unexpected errors during the action call itself
+      console.error("Error submitting contact form:", error);
+      toast.error("An unexpected error occurred. Please try again later."); // Use toast.error for unexpected issues
+    } finally {
+      setIsSubmitting(false); // Re-enable button
+    }
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen ">
       {/* Hero Section */}
       <section className="relative h-[300px] bg-secondary">
         <div className="absolute inset-0">
           <Image
-            src="/placeholder.svg?height=300&width=1200"
+            src="/images/contact-bg.jpg"
             alt="Contact us"
             fill
             className="object-cover"
@@ -113,6 +138,17 @@ export default function ContactPage() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="subject">Subject</Label>
+                    <Input
+                      id="subject"
+                      name="subject"
+                      type="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="message">Message</Label>
                     <Textarea
                       id="message"
@@ -126,8 +162,9 @@ export default function ContactPage() {
                   <Button
                     type="submit"
                     className="w-full bg-green-500 hover:bg-green-600"
+                    disabled={isSubmitting}
                   >
-                    Send Message
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               </div>
@@ -200,7 +237,7 @@ export default function ContactPage() {
           </h2>
           <div className="max-w-6xl mx-auto h-[400px] relative rounded-lg overflow-hidden shadow-lg">
             <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2986.0!2d-83.8!3d41.5!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDMwJzAuMCJOIDgzwrA0OCcwLjAiVw!5e0!3m2!1sen!2sus!4v1615000000000!5m2!1sen!2sus"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3584.0542924795564!2d28.019232400000003!3d-26.064482!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1e9573878dbb82d7%3A0x2b8692048198867c!2s4%20Westminster%20Ave%2C%20Bryanston%2C%20Sandton%2C%202191%2C%20South%20Africa!5e0!3m2!1sen!2sro!4v1746123412209!5m2!1sen!2sro"
               width="100%"
               height="100%"
               style={{ border: 0 }}
@@ -213,7 +250,7 @@ export default function ContactPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-[#5a6b47] text-white">
+      <section className="py-16 md:py-20 bg-gradient-to-t from-[#4a5a3a] to-[#5a6b47]/80 text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6 font-montserrat">
             Don&apos;t have any questions? Go straight to booking!

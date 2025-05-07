@@ -26,16 +26,34 @@ export default async function CategoryPage({
 
 async function CategoryDetail({ id }: { id: string }) {
   const initialData =
-    id?.toLowerCase() !== "new" && (await fetchCategoryById(id));
-  if (id?.toLowerCase() !== "new" && !initialData) {
+    id?.toLowerCase() !== "new" ? await fetchCategoryById(id) : null;
+  if (id?.toLowerCase() !== "new" && (!initialData || !initialData.success)) {
     notFound();
   }
-  const categoryData = await fetchCategoryById("parent-options");
+
+  const parentCategoriesResult = await fetchCategoryById("parent-options");
+  const parentCategories =
+    parentCategoriesResult.success &&
+    Array.isArray(parentCategoriesResult.categories)
+      ? parentCategoriesResult.categories
+      : [];
+
+  // Extract just what the form needs from Category
+  const formData =
+    initialData?.success && !Array.isArray(initialData.categories)
+      ? {
+          name: initialData.categories.name,
+          parent_id: initialData.categories.parent_id,
+          pinned: initialData.categories.pinned,
+          images: initialData.categories.images || [],
+        }
+      : null;
+
   return (
     <CategoryForm
       id={id}
-      initialData={null}
-      categoryData={categoryData.categories}
+      initialData={formData}
+      categoryData={parentCategories}
     />
   );
 }

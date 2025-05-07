@@ -10,14 +10,14 @@ import { Carousel, CarouselContent, CarouselItem } from "@/constants/ui";
 import Autoplay from "embla-carousel-autoplay";
 
 export default function HomeHero() {
-  const images = ["/images/pic3.jpg", "/images/pic4.jpg"];
+  const images = ["/images/beauty.jpg", "/images/face-cream.png"];
 
   const plugin = useRef(
     Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })
   );
 
   return (
-    <section className="relative h-[75vh] md:h-[85vh] text-white overflow-hidden">
+    <section className="relative h-[65vh] text-white overflow-hidden">
       <Carousel
         plugins={[plugin.current]}
         className="absolute inset-0 z-0"

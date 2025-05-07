@@ -21,7 +21,7 @@ export const uploadImageToSupabase = async (
       throw new Error("File or bucket name is missing.");
     }
 
-    const allowedExtensions = ["jpg", "jpeg", "webp"];
+    const allowedExtensions = ["jpg", "jpeg", "webp", "png"];
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
       throw new Error(
@@ -107,7 +107,11 @@ export async function fetchCategories() {
 }
 
 // Fetch category by ID
-export async function fetchCategoryById(id: string) {
+export async function fetchCategoryById(id: string): Promise<
+  | { success: true; categories: Category[] }
+  | { success: true; categories: Category }
+  | { success: false; error: string }
+> {
   try {
     // Special case for 'parent-options' - return all categories for dropdown
     if (id === "parent-options") {
@@ -118,7 +122,7 @@ export async function fetchCategoryById(id: string) {
 
       if (error) {
         console.log(`Failed to fetch categories: ${error.message}`);
-        return { success: false, categories: [] };
+        return { success: false, error: error.message };
       }
 
       return { success: true, categories: categories as Category[] };
@@ -146,7 +150,7 @@ export async function fetchCategoryById(id: string) {
         categories: {
           ...data,
           images,
-        },
+        } as Category,
       };
     }
 
@@ -501,5 +505,47 @@ export async function sendAdminEmail(
     const err = error as Error;
     console.error("Error sending email:", err);
     return { success: false, error: err.message };
+  }
+}
+
+// Add this function if it doesn't exist
+export async function deleteCategory(id: string) {
+  try {
+    // Check if any products are using this category first
+    const { data: productCategories, error: checkError } = await supabaseAdmin
+      .from("product_categories")
+      .select()
+      .eq("category_id", id);
+
+    if (checkError) {
+      return { success: false, error: checkError.message };
+    }
+
+    // If there are associated products, don't allow deletion
+    if (productCategories && productCategories.length > 0) {
+      return {
+        success: false,
+        error:
+          `Cannot delete category because it has ${productCategories.length} products associated with it. Please remove the products first.`,
+      };
+    }
+
+    // Delete the category
+    const { error } = await supabaseAdmin.from("categories").delete().eq(
+      "id",
+      id,
+    );
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting category:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
   }
 }

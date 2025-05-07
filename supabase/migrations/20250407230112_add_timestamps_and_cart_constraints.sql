@@ -2,6 +2,7 @@
 create or replace function public.handle_created_at()
 returns trigger
 language plpgsql
+SET search_path = pg_catalog, public
 as $$
 begin
   new.created_at := now();
@@ -13,6 +14,7 @@ $$;
 create or replace function public.handle_updated_at()
 returns trigger
 language plpgsql
+SET search_path = pg_catalog, public
 as $$
 begin
   new.updated_at := now();

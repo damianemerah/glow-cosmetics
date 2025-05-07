@@ -20,6 +20,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { capitalize } from "@/utils";
 
 interface BookingsListProps {
   bookings: Booking[];
@@ -192,7 +193,9 @@ export default function BookingsList({
             className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-md"
           >
             <div>
-              <h4 className="font-medium">{booking.service_name}</h4>
+              <h4 className="font-medium">
+                {capitalize(booking.service_name)}
+              </h4>
               <div className="flex items-center text-sm text-muted-foreground mt-1">
                 <Calendar className="h-4 w-4 mr-1" />
                 <span>

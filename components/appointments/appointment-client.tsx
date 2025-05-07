@@ -98,7 +98,7 @@ const appointmentColumns = [
             {format(bookingDate, "MMM dd, yyyy")}
           </div>
           <div className="text-sm text-muted-foreground">
-            {format(bookingDate, "h:mm a")}
+            {format(bookingDate, "hh:mm a")}
           </div>
         </div>
       );
@@ -446,7 +446,7 @@ export default function AppointmentsClient({
       // Prepare variables for template substitution
       const bookingDate = new Date(booking.booking_time);
       const formattedDate = format(bookingDate, "MMMM dd, yyyy");
-      const formattedTime = format(bookingDate, "h:mm a");
+      const formattedTime = format(bookingDate, "hh:mm a");
 
       const service = services.find((s) => s.id === booking.service_id);
       const serviceName =
@@ -468,7 +468,7 @@ export default function AppointmentsClient({
         subject: "Appointment Confirmation",
         message: "pug-template/emails/appointmentConfirmation.pug",
         variables,
-        channel: "whatsapp" as MessageChannel,
+        channel: "email" as MessageChannel,
       };
       await sendUserMessage(messageData);
 
@@ -537,7 +537,7 @@ export default function AppointmentsClient({
         subject: "Thank You for Your Visit",
         message: "pug-template/emails/appointmentThankYou.pug",
         variables,
-        channel: "whatsapp" as MessageChannel,
+        channel: "email" as MessageChannel,
       };
 
       // Send thank you message

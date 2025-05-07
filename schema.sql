@@ -43,7 +43,7 @@ CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION pg_cron; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_cron; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pg_cron IS 'Job scheduler for PostgreSQL';
@@ -84,7 +84,7 @@ CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions;
 
 
 --
--- Name: EXTENSION pg_net; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_net; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pg_net IS 'Async HTTP';
@@ -116,7 +116,7 @@ CREATE EXTENSION IF NOT EXISTS pgsodium WITH SCHEMA pgsodium;
 
 
 --
--- Name: EXTENSION pgsodium; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pgsodium; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pgsodium IS 'Pgsodium is a modern cryptography library for Postgres.';
@@ -175,7 +175,7 @@ CREATE EXTENSION IF NOT EXISTS pg_graphql WITH SCHEMA graphql;
 
 
 --
--- Name: EXTENSION pg_graphql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_graphql; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pg_graphql IS 'pg_graphql: GraphQL support';
@@ -189,7 +189,7 @@ CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA extensions;
 
 
 --
--- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
@@ -203,7 +203,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
@@ -217,7 +217,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 
 
 --
--- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pgcrypto; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pgcrypto IS 'cryptographic functions';
@@ -231,7 +231,7 @@ CREATE EXTENSION IF NOT EXISTS pgjwt WITH SCHEMA extensions;
 
 
 --
--- Name: EXTENSION pgjwt; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pgjwt; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION pgjwt IS 'JSON Web Token API for Postgresql';
@@ -245,7 +245,7 @@ CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault;
 
 
 --
--- Name: EXTENSION supabase_vault; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION supabase_vault; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION supabase_vault IS 'Supabase Vault Extension';
@@ -259,7 +259,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA extensions;
 
 
 --
--- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner:
 --
 
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
@@ -413,7 +413,7 @@ ALTER TYPE realtime.wal_rls OWNER TO supabase_admin;
 CREATE FUNCTION auth.email() RETURNS text
     LANGUAGE sql STABLE
     AS $$
-  select 
+  select
   coalesce(
     nullif(current_setting('request.jwt.claim.email', true), ''),
     (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'email')
@@ -437,7 +437,7 @@ COMMENT ON FUNCTION auth.email() IS 'Deprecated. Use auth.jwt() -> ''email'' ins
 CREATE FUNCTION auth.jwt() RETURNS jsonb
     LANGUAGE sql STABLE
     AS $$
-  select 
+  select
     coalesce(
         nullif(current_setting('request.jwt.claim', true), ''),
         nullif(current_setting('request.jwt.claims', true), '')
@@ -454,7 +454,7 @@ ALTER FUNCTION auth.jwt() OWNER TO supabase_auth_admin;
 CREATE FUNCTION auth.role() RETURNS text
     LANGUAGE sql STABLE
     AS $$
-  select 
+  select
   coalesce(
     nullif(current_setting('request.jwt.claim.role', true), ''),
     (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role')
@@ -478,7 +478,7 @@ COMMENT ON FUNCTION auth.role() IS 'Deprecated. Use auth.jwt() -> ''role'' inste
 CREATE FUNCTION auth.uid() RETURNS uuid
     LANGUAGE sql STABLE
     AS $$
-  select 
+  select
   coalesce(
     nullif(current_setting('request.jwt.claim.sub', true), ''),
     (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
@@ -836,6 +836,7 @@ ALTER TABLE public.products OWNER TO postgres;
 --
 -- Name: get_random_products(integer); Type: FUNCTION; Schema: public; Owner: postgres
 --
+DROP FUNCTION IF EXISTS public.get_random_products(integer);
 
 CREATE FUNCTION public.get_random_products(count integer) RETURNS SETOF public.products
     LANGUAGE sql STABLE
@@ -856,13 +857,20 @@ ALTER FUNCTION public.get_random_products(count integer) OWNER TO postgres;
 
 CREATE FUNCTION public.get_user_id_by_email(p_email text) RETURNS uuid
     LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-    user_id uuid;
-BEGIN
-    SELECT id INTO user_id FROM auth.users WHERE email = p_email LIMIT 1;
-    RETURN user_id;
-END;
+    AS $$
+
+DECLARE
+
+    user_id uuid;
+
+BEGIN
+
+    SELECT id INTO user_id FROM auth.users WHERE email = p_email LIMIT 1;
+
+    RETURN user_id;
+
+END;
+
 $$;
 
 
@@ -874,11 +882,16 @@ ALTER FUNCTION public.get_user_id_by_email(p_email text) OWNER TO postgres;
 
 CREATE FUNCTION public.handle_created_at() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
-begin
-  new.created_at := now();
-  return new;
-end;
+    AS $$
+
+begin
+
+  new.created_at := now();
+
+  return new;
+
+end;
+
 $$;
 
 
@@ -890,11 +903,16 @@ ALTER FUNCTION public.handle_created_at() OWNER TO postgres;
 
 CREATE FUNCTION public.handle_updated_at() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
-begin
-  new.updated_at := now();
-  return new;
-end;
+    AS $$
+
+begin
+
+  new.updated_at := now();
+
+  return new;
+
+end;
+
 $$;
 
 
@@ -924,19 +942,32 @@ ALTER FUNCTION public.lowercase_text_fields_bookings() OWNER TO postgres;
 
 CREATE FUNCTION public.lowercase_text_fields_orders() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
-BEGIN
-  NEW.first_name = LOWER(NEW.first_name);
-  NEW.status = LOWER(NEW.status);
-  NEW.payment_method = LOWER(NEW.payment_method);
-  IF NEW.last_name IS NOT NULL THEN
-    NEW.last_name = LOWER(NEW.last_name);
-  END IF;
-  NEW.email = LOWER(NEW.email);
-  NEW.phone = LOWER(NEW.phone);
-  NEW.payment_reference = LOWER(NEW.payment_reference);
-  RETURN NEW;
-END;
+    AS $$
+
+BEGIN
+
+  NEW.first_name = LOWER(NEW.first_name);
+
+  NEW.status = LOWER(NEW.status);
+
+  NEW.payment_method = LOWER(NEW.payment_method);
+
+  IF NEW.last_name IS NOT NULL THEN
+
+    NEW.last_name = LOWER(NEW.last_name);
+
+  END IF;
+
+  NEW.email = LOWER(NEW.email);
+
+  NEW.phone = LOWER(NEW.phone);
+
+  NEW.payment_reference = LOWER(NEW.payment_reference);
+
+  RETURN NEW;
+
+END;
+
 $$;
 
 
@@ -966,77 +997,34 @@ ALTER FUNCTION public.lowercase_text_fields_products() OWNER TO postgres;
 
 CREATE FUNCTION public.lowercase_text_fields_profiles() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
-BEGIN
-  NEW.first_name = LOWER(NEW.first_name);
-  NEW.last_name = LOWER(NEW.last_name);
-  NEW.email = LOWER(NEW.email);
-  NEW.phone = LOWER(NEW.phone);
-  NEW.role = LOWER(NEW.role);
-  IF NEW.avatar IS NOT NULL THEN
-    NEW.avatar = LOWER(NEW.avatar);
-  END IF;
-  RETURN NEW;
-END;
+    AS $$
+
+BEGIN
+
+  NEW.first_name = LOWER(NEW.first_name);
+
+  NEW.last_name = LOWER(NEW.last_name);
+
+  NEW.email = LOWER(NEW.email);
+
+  NEW.phone = LOWER(NEW.phone);
+
+  NEW.role = LOWER(NEW.role);
+
+  IF NEW.avatar IS NOT NULL THEN
+
+    NEW.avatar = LOWER(NEW.avatar);
+
+  END IF;
+
+  RETURN NEW;
+
+END;
+
 $$;
 
 
 ALTER FUNCTION public.lowercase_text_fields_profiles() OWNER TO postgres;
-
---
--- Name: merge_add_cart_item(uuid, uuid, integer, numeric); Type: FUNCTION; Schema: public; Owner: postgres
---
-
-CREATE FUNCTION public.merge_add_cart_item(p_cart_id uuid, p_product_id uuid, p_quantity_to_add integer, p_price_at_time numeric) RETURNS boolean
-    LANGUAGE plpgsql SECURITY DEFINER
-    AS $$
-DECLARE
-  updated_rows int;
-BEGIN
-  -- Step 1: Attempt to add quantity to existing item
-  UPDATE public.cart_items
-  SET quantity = cart_items.quantity + p_quantity_to_add
-  WHERE cart_id = p_cart_id AND product_id = p_product_id;
-
-  GET DIAGNOSTICS updated_rows = ROW_COUNT;
-
-  IF updated_rows > 0 THEN
-    -- Successfully added quantity to existing item
-    RETURN TRUE;
-  ELSE
-    -- Step 2: Item doesn't exist, attempt to insert
-    BEGIN
-      INSERT INTO public.cart_items (cart_id, product_id, quantity, price_at_time)
-      VALUES (p_cart_id, p_product_id, p_quantity_to_add, p_price_at_time);
-      -- Successfully inserted new item
-      RETURN TRUE;
-    EXCEPTION
-      WHEN unique_violation THEN
-        -- Handle race condition where item was inserted between our UPDATE and INSERT
-        -- Try the update again
-        UPDATE public.cart_items
-        SET quantity = cart_items.quantity + p_quantity_to_add
-        WHERE cart_id = p_cart_id AND product_id = p_product_id;
-
-        GET DIAGNOSTICS updated_rows = ROW_COUNT;
-        RETURN updated_rows > 0;
-      WHEN others THEN
-        -- Handle other potential errors during insert
-        RAISE WARNING 'Error during insert in merge_add_cart_item: %', SQLERRM;
-        RETURN FALSE;
-    END;
-  END IF;
-
-EXCEPTION
-  WHEN others THEN
-    -- Handle potential errors during update
-    RAISE WARNING 'Error during merge_add_cart_item: %', SQLERRM;
-    RETURN FALSE;
-END;
-$$;
-
-
-ALTER FUNCTION public.merge_add_cart_item(p_cart_id uuid, p_product_id uuid, p_quantity_to_add integer, p_price_at_time numeric) OWNER TO postgres;
 
 --
 -- Name: notify_order_paid(); Type: FUNCTION; Schema: public; Owner: postgres
@@ -1172,21 +1160,36 @@ ALTER FUNCTION public.search_items(term text, limit_count integer) OWNER TO post
 
 CREATE FUNCTION public.trigger_deposit_paid_webhook() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$BEGIN
-  -- Only trigger if the deposit amount has changed and is now greater than 0
-  IF (OLD.initial_deposit IS NULL OR OLD.initial_deposit <= 0) AND NEW.initial_deposit > 0 THEN
-    PERFORM net.http_post(
-      url := 'https://7bc1-102-213-77-2.ngrok-free.app/api/webhooks/deposit-paid',
-      body := jsonb_build_object(
-        'booking_id', NEW.booking_id,
-        'user_id', NEW.user_id,
-        'deposit_amount', NEW.initial_deposit,
-        'service_name', NEW.service_name
-      ),
-      headers := '{"Content-Type": "application/json"}'::jsonb
-    );
-  END IF;
-  RETURN NEW;
+    AS $$BEGIN
+
+  -- Only trigger if the deposit amount has changed and is now greater than 0
+
+  IF (OLD.initial_deposit IS NULL OR OLD.initial_deposit <= 0) AND NEW.initial_deposit > 0 THEN
+
+    PERFORM net.http_post(
+
+      url := 'https://7bc1-102-213-77-2.ngrok-free.app/api/webhooks/deposit-paid',
+
+      body := jsonb_build_object(
+
+        'booking_id', NEW.booking_id,
+
+        'user_id', NEW.user_id,
+
+        'deposit_amount', NEW.initial_deposit,
+
+        'service_name', NEW.service_name
+
+      ),
+
+      headers := '{"Content-Type": "application/json"}'::jsonb
+
+    );
+
+  END IF;
+
+  RETURN NEW;
+
 END;$$;
 
 
@@ -2577,7 +2580,7 @@ CREATE FUNCTION storage.update_updated_at_column() RETURNS trigger
     AS $$
 BEGIN
     NEW.updated_at = now();
-    RETURN NEW; 
+    RETURN NEW;
 END;
 $$;
 
@@ -6576,7 +6579,6 @@ REVOKE ALL ON FUNCTION public.get_user_id_by_email(p_email text) FROM PUBLIC;
 GRANT ALL ON FUNCTION public.get_user_id_by_email(p_email text) TO anon;
 GRANT ALL ON FUNCTION public.get_user_id_by_email(p_email text) TO authenticated;
 GRANT ALL ON FUNCTION public.get_user_id_by_email(p_email text) TO service_role;
-GRANT ALL ON FUNCTION public.get_user_id_by_email(p_email text) TO admin_user;
 
 
 --
@@ -6762,14 +6764,6 @@ GRANT ALL ON FUNCTION public.lowercase_text_fields_profiles() TO anon;
 GRANT ALL ON FUNCTION public.lowercase_text_fields_profiles() TO authenticated;
 GRANT ALL ON FUNCTION public.lowercase_text_fields_profiles() TO service_role;
 
-
---
--- Name: FUNCTION merge_add_cart_item(p_cart_id uuid, p_product_id uuid, p_quantity_to_add integer, p_price_at_time numeric); Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON FUNCTION public.merge_add_cart_item(p_cart_id uuid, p_product_id uuid, p_quantity_to_add integer, p_price_at_time numeric) TO anon;
-GRANT ALL ON FUNCTION public.merge_add_cart_item(p_cart_id uuid, p_product_id uuid, p_quantity_to_add integer, p_price_at_time numeric) TO authenticated;
-GRANT ALL ON FUNCTION public.merge_add_cart_item(p_cart_id uuid, p_product_id uuid, p_quantity_to_add integer, p_price_at_time numeric) TO service_role;
 
 
 --

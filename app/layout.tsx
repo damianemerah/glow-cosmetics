@@ -1,15 +1,13 @@
 import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import { Open_Sans, Libre_Bodoni } from "next/font/google";
-// import { Montserrat, Open_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
-
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
-import { FaWhatsapp } from "react-icons/fa";
 import "react-phone-input-2/lib/style.css";
 import { Skeleton } from "@/components/ui/skeleton";
+// import TawkChat from "@/components/tawkChat";
 
 const montserrat = Libre_Bodoni({
   subsets: ["latin"],
@@ -40,7 +38,7 @@ export default function RootLayout({
         <Suspense
           fallback={
             <div className="flex justify-center items-center h-screen">
-              <Skeleton className="w-full h-10 animate-pulse" />
+              <Skeleton className="w-full h-16 animate-pulse" />
             </div>
           }
         >
@@ -49,16 +47,7 @@ export default function RootLayout({
         <Toaster />
         <main>{children}</main>
         <Footer />
-        <a
-          href="https://wa.me/+2347066765698"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed z-[1000] bottom-4 right-4 flex items-center gap-2 bg-green-500 text-white p-3 rounded-full shadow-lg hover:bg-green-600 transition"
-          aria-label="Chat with us on WhatsApp"
-        >
-          <FaWhatsapp className="w-6 h-6" />
-          <span className="hidden sm:inline">Chat with us</span>
-        </a>
+        {/* <TawkChat /> */}
       </body>
     </html>
   );

@@ -9,6 +9,7 @@ import {
   CarouselNext,
   CarouselPrevious,
   Separator,
+  Skeleton,
 } from "@/constants/ui/index";
 import { services } from "@/constants/data";
 import type { ProductWithCategories, Category } from "@/types/index";
@@ -19,6 +20,7 @@ import { LoyaltyProgramSkeleton } from "@/components/product/product-skeleton";
 import LoyaltyProgram from "@/components/product/loyalty-program";
 import SignatureServices from "@/components/signature-services";
 import HomeHero from "@/components/home-hero";
+import CustomerReviews from "@/components/customer-reviews";
 
 export interface FetchCategoriesResult {
   categories: Category[];
@@ -79,23 +81,40 @@ export default async function Home() {
     .filter((cat) => cat.pinned === true && cat.images && cat.images.length > 0)
     .slice(0, 10);
 
+  const groupedCat = pinnedCategories.reduce(
+    (acc, cat) => {
+      const key = cat.name[0]; // group by first letter
+      acc[key] = acc[key] || [];
+      acc[key].push(cat);
+      return acc;
+    },
+    {} as Record<string, typeof pinnedCategories>
+  );
+
+  const flattenedGroupedCat = Object.values(groupedCat).flat();
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <HomeHero />
+      <Suspense fallback={<Skeleton className="min-h-[65vh]"></Skeleton>}>
+        <HomeHero />
+      </Suspense>
 
       {pinnedCategories.length > 0 && (
         <section className="py-8 bg-secondary">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-4xl uppercase font-bold mb-10 md:mb-12 text-center font-serif text-secondary-foreground">
+            <h2 className="text-3xl md:text-4xl uppercase font-bold mb-10 md:mb-12 text-center font-serif text-secondary-foreground">
               Explore By Category
             </h2>
 
             <Carousel
-              opts={{ align: "start" }}
+              opts={{
+                align: "start",
+                loop: pinnedCategories.length > 8,
+              }}
               className="w-full overflow-x-auto mx-auto px-11 md:px-16"
             >
               <CarouselContent>
-                {pinnedCategories.map((category) => (
+                {flattenedGroupedCat.map((category) => (
                   <CarouselItem
                     key={category.id}
                     className="flex-none px-2 group"
@@ -105,11 +124,15 @@ export default async function Home() {
                         <div
                           className="
                             relative
-                            w-24 h-24 md:w-28 md:h-28
+                            w-24 h-24
+                            md:w-28 md:h-28
+                            lg:w-34 lg:h-34
+                            xl:w-40 xl:h-40
                             rounded-full overflow-hidden
                             border-2 border-transparent
                             group-hover:border-primary
-                            transition-colors duration-300"
+                            transition-colors duration-300
+                          "
                         >
                           <Image
                             src={
@@ -121,10 +144,14 @@ export default async function Home() {
                             className="
                               object-cover object-center
                               transition-transform duration-300
-                              group-hover:scale-105"
-                            sizes="(max-width: 640px) 30vw,
-                           (max-width: 1024px) 20vw,
-                           10vw"
+                              group-hover:scale-105
+                            "
+                            sizes="
+                              (max-width: 640px) 30vw,
+                              (max-width: 1024px) 20vw,
+                              (max-width: 1280px) 15vw,
+                              10vw
+                            "
                           />
                         </div>
 
@@ -150,10 +177,13 @@ export default async function Home() {
       {recommendations.length > 0 && (
         <section className="py-16 md:py-20 bg-secondary px:4 md:px-16">
           <div className="container mx-auto px-4 ">
-            <h2 className="text-4xl uppercase font-bold mb-10 md:mb-12 text-center font-serif">
+            <h2 className="text-3xl md:text-4xl uppercase font-bold mb-10 md:mb-12 text-center font-serif">
               Curated For You
             </h2>
-            <Carousel opts={{ align: "start" }} className="w-full mx-auto">
+            <Carousel
+              opts={{ align: "start", loop: recommendations.length > 3 }}
+              className="w-full mx-auto"
+            >
               {/* the track of items */}
               <CarouselContent className="justify-start px-5">
                 {recommendations.map((product: ProductWithCategories) => (
@@ -181,13 +211,14 @@ export default async function Home() {
       )}
       <Separator className=" block mx-4rem" />
 
+      <CustomerReviews />
       <Suspense fallback={<LoyaltyProgramSkeleton />}>
         <LoyaltyProgram />
       </Suspense>
 
       <section className="py-16 md:py-20 bg-gradient-to-t from-[#4a5a3a] to-[#5a6b47]/80 text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl  font-bold mb-4 font-serif">
+          <h2 className="text-3xl md:text-4xl  font-bold mb-4 font-serif">
             Ready for Transformation?
           </h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto text-primary-foreground/90">

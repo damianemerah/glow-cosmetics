@@ -113,9 +113,9 @@ export async function POST(request: Request) {
 
             timeFormatted: isMultipleBookings
                 ? bookingData.map((data) =>
-                    safeFormatDate(data.booking_time, "h:mm a")
+                    safeFormatDate(data.booking_time, "hh:mm a")
                 ).join(", ")
-                : safeFormatDate(bookingData[0].booking_time, "h:mm a"),
+                : safeFormatDate(bookingData[0].booking_time, "hh:mm a"),
 
             depositAmount: deposit_amount ?? bookingData[0]?.initial_deposit ??
                 0,

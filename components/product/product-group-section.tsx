@@ -8,7 +8,7 @@ import { ArrowRight } from "lucide-react";
 interface ProductGroupSectionProps {
   title: string;
   products: ProductWithCategories[];
-  viewAllHref: string;
+  viewAllHref?: string;
   className?: string;
 }
 
@@ -30,14 +30,16 @@ export function ProductGroupSection({
           <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
             {title}
           </h2>
-          <Button variant="outline" size="sm" asChild>
-            <Link href={viewAllHref} className="flex items-center gap-1">
-              View All
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
+          {viewAllHref && (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={viewAllHref} className="flex items-center gap-1">
+                View All
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          )}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
@@ -57,7 +59,7 @@ export function ProductGroupSkeleton({ title }: { title: string }) {
           <div className="h-8 bg-muted rounded w-1/3"></div>
           <div className="h-8 bg-muted rounded w-24"></div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="border rounded-lg overflow-hidden bg-card">
               <div className="h-48 bg-muted"></div>

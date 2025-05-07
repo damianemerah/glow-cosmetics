@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
-import { Resend } from "resend";
-
-// Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Define the POST request handler
 export async function POST(req: Request) {
   try {
     const { record } = await req.json();
+
+    // console.log("RECORD-START");
+    // console.log("RECORD:", record);
+    // console.log("RECORD-END");
+
     const secretKey = req.headers.get("Authorization")?.replace("Bearer ", "");
 
     if (secretKey !== process.env.HEADER_SECRET) {
@@ -16,6 +17,52 @@ export async function POST(req: Request) {
         { error: "Unauthorized request" },
         { status: 401 },
       );
+    }
+
+    const appMeta = record.raw_app_meta_data;
+    //Handle Auth Providers separetly
+    if (
+      appMeta?.providers.includes("google") ||
+      appMeta.providers.includes("apple")
+    ) {
+      //Google auth
+      if (appMeta.provider === "google") {
+        const { id, email, raw_user_meta_data } = record;
+
+        const { data: profile, error: profileError } = await supabaseAdmin
+          .from("profiles")
+          .insert([
+            {
+              user_id: id,
+              role: "user",
+              email,
+              receive_emails: false,
+              ...(raw_user_meta_data?.avatar_url
+                ? { avatar: raw_user_meta_data.avatar_url }
+                : {}),
+            },
+          ])
+          .select()
+          .single();
+
+        if (profileError) {
+          return NextResponse.json(
+            { error: profileError.message },
+            { status: 500 },
+          );
+        }
+
+        return NextResponse.json(
+          {
+            message: "User profile created successfully",
+            profile,
+          },
+          { status: 200 },
+        );
+      }
+      // if (appMeta.provider === "apple") {
+      //   //handle apple auth
+      //
     }
 
     const { id, email, raw_user_meta_data } = record;
@@ -38,49 +85,23 @@ export async function POST(req: Request) {
           first_name: raw_user_meta_data?.first_name,
           last_name: raw_user_meta_data?.last_name,
           date_of_birth: raw_user_meta_data?.date_of_birth,
-          receive_emails: raw_user_meta_data?.receive_emails,
+          receive_emails: raw_user_meta_data?.receive_emails || false,
           phone: raw_user_meta_data?.phone,
+          ...(raw_user_meta_data?.avatar_url
+            ? { avatar: raw_user_meta_data.avatar_url }
+            : {}),
         },
       ])
       .select()
       .single();
 
     if (profileError) {
+      console.log(profileError, "🎈🎈");
       return NextResponse.json(
         { error: profileError.message },
         { status: 500 },
       );
     }
-
-    // If user opted in to email notifications, add them to Resend contacts
-    if (raw_user_meta_data?.receive_emails && email) {
-      try {
-        // Add contact to Resend
-        await resend.contacts.create({
-          email: email,
-          firstName: raw_user_meta_data?.first_name || "",
-          lastName: raw_user_meta_data?.last_name || "",
-          // You can add additional fields here if needed
-          unsubscribed: false,
-          audienceId: process.env.RESEND_AUDIENCE_ID as string, // Add required audienceId
-        });
-
-        console.log(`User ${email} added to Resend contacts`);
-      } catch (resendError) {
-        console.error("Error adding contact to Resend:", resendError);
-        // Continue execution - don't fail the whole request for Resend errors
-      }
-    }
-
-    // (Optional) Insert audit log
-    await supabaseAdmin.from("audit_logs").insert([
-      {
-        user_id: id,
-        table_name: "profiles",
-        action: "insert",
-        new_data: JSON.stringify({ user_id: id, role: "user" }),
-      },
-    ]);
 
     return NextResponse.json(
       {

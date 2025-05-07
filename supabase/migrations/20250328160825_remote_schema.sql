@@ -74,24 +74,12 @@ CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
-CREATE ROLE admin_user WITH LOGIN PASSWORD '0Jh68LPus6k3DApyO3C7z0gQEUmuFzbzgAyKC4gnc7c=';
 
 
 
 
-CREATE OR REPLACE FUNCTION "public"."get_user_id_by_email"("p_email" "text") RETURNS "uuid"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$
-DECLARE
-    user_id uuid;
-BEGIN
-    SELECT id INTO user_id FROM auth.users WHERE email = p_email LIMIT 1;
-    RETURN user_id;
-END;
-$$;
 
-
-ALTER FUNCTION "public"."get_user_id_by_email"("p_email" "text") OWNER TO "postgres";
+-- ALTER FUNCTION "public"."get_user_id_by_email"("p_email" "text") OWNER TO "postgres";
 
 SET default_tablespace = '';
 
@@ -798,11 +786,11 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 
-REVOKE ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") FROM PUBLIC;
-GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "anon";
-GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "authenticated";
-GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "service_role";
-GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "admin_user";
+-- REVOKE ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") FROM PUBLIC;
+-- GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "anon";
+-- GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "authenticated";
+-- GRANT ALL ON FUNCTION "public"."get_user_id_by_email"("p_email" "text") TO "service_role";
+
 
 
 
