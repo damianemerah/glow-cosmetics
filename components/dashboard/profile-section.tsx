@@ -170,16 +170,6 @@ export default function ProfileSection({
         updated_at: new Date().toISOString(),
       };
 
-      if (
-        updateData.first_name &&
-        updateData.last_name &&
-        updateData.email &&
-        updateData.phone &&
-        updateData.date_of_birth
-      ) {
-        updateData.is_complete = true;
-      }
-
       if (avatarFile) {
         try {
           const avatarUrl = await uploadAvatar(avatarFile, profile.user_id);

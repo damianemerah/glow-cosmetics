@@ -37,6 +37,7 @@ interface OrderItem {
   product_name: string;
   quantity: number;
   price: number;
+  status: "incomplete" | "complete";
 }
 
 export default function CreateOrderPage() {
@@ -117,6 +118,7 @@ export default function CreateOrderPage() {
         product_name: "",
         quantity: 1,
         price: 0,
+        status: "incomplete",
       },
     ]);
   };
@@ -138,6 +140,7 @@ export default function CreateOrderPage() {
         product_name: product.name,
         quantity: prev[index].quantity,
         price: product.price,
+        status: prev[index].status,
       };
       return newItems;
     });
@@ -152,6 +155,21 @@ export default function CreateOrderPage() {
       newItems[index] = {
         ...newItems[index],
         quantity,
+      };
+      return newItems;
+    });
+  };
+
+  // Update item status
+  const updateItemStatus = (
+    index: number,
+    status: "incomplete" | "complete"
+  ) => {
+    setOrderItems((prev) => {
+      const newItems = [...prev];
+      newItems[index] = {
+        ...newItems[index],
+        status,
       };
       return newItems;
     });
@@ -204,6 +222,10 @@ export default function CreateOrderPage() {
     }
     if (orderItems.some((item) => !item.product_id)) {
       toast.warning("Please select a product for all order items");
+      return false;
+    }
+    if (orderItems.some((item) => !item.status)) {
+      toast.warning("Please select a status for all order items");
       return false;
     }
 
@@ -260,6 +282,7 @@ export default function CreateOrderPage() {
         product_name: item.product_name,
         quantity: item.quantity,
         price_at_time: item.price,
+        status: item.status,
       }));
 
       const { error: itemsError } = await supabaseClient
@@ -504,6 +527,29 @@ export default function CreateOrderPage() {
                             value={`R${(item.price * item.quantity).toFixed(2)}`}
                             disabled
                           />
+                        </div>
+
+                        <div className="w-28 space-y-2">
+                          <Label>Status</Label>
+                          <Select
+                            value={item.status}
+                            onValueChange={(value) =>
+                              updateItemStatus(
+                                index,
+                                value as "incomplete" | "complete"
+                              )
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="incomplete">
+                                Incomplete
+                              </SelectItem>
+                              <SelectItem value="complete">Complete</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         <Button

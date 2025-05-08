@@ -1,0 +1,77 @@
+{
+  "name": "Glow by UgoSylvia | Beauty & Wellness",
+  "short_name": "Glow by Sylvia",
+  "description": "Your premier destination for expert permanent makeup (Microblading, Ombre, Eyeliner, Lip Blush), stunning lash extensions, and professional makeup services. Discover our curated collection of high-quality skincare, makeup, beauty supplements, and unique jewellery.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#E6BCCD",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/icons/app-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icons/maskable-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["beauty", "lifestyle", "shopping", "health", "wellness"],
+  "screenshots": [
+    {
+      "src": "/assets/screenshots/screenshot-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Explore our premium beauty services"
+    },
+    {
+      "src": "/assets/screenshots/screenshot-2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Shop our curated skincare collection"
+    },
+    {
+      "src": "/assets/screenshots/screenshot-3.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Book your permanent makeup appointment"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Book Appointment",
+      "short_name": "Book",
+      "description": "Book your beauty service appointment",
+      "url": "/booking",
+      "icons": [{ "src": "/assets/icons/shortcut-book.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Shop Products",
+      "short_name": "Shop",
+      "description": "Browse our beauty and skincare products",
+      "url": "/products",
+      "icons": [{ "src": "/assets/icons/shortcut-shop.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "View Services",
+      "short_name": "Services",
+      "description": "Explore our beauty services",
+      "url": "/services",
+      "icons": [
+        { "src": "/assets/icons/shortcut-services.png", "sizes": "96x96" }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

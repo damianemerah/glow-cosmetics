@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module "pug" {
     function compile(source: string, options?: any): (locals?: any) => string;
     function render(
@@ -16,3 +17,4 @@ declare module "pug" {
         renderFile,
     };
 }
+/* eslint-enable @typescript-eslint/no-explicit-any */

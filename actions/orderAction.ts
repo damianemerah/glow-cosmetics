@@ -114,8 +114,9 @@ export async function createOrder(
             product_id: item.product_id,
             product_name: item.product_name,
             quantity: item.quantity,
-            price_at_time: item.price_at_time, // Use price_at_time from fetched cart item
-            color: item.color?.name || null, // Store color name
+            price_at_time: item.price_at_time,
+            color: item.color?.name || null,
+            status: "incomplete",
         }));
 
         const { error: itemsError } = await supabaseAdmin

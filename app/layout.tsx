@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Open_Sans, Libre_Bodoni } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
@@ -7,7 +7,7 @@ import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import "react-phone-input-2/lib/style.css";
 import { Skeleton } from "@/components/ui/skeleton";
-// import TawkChat from "@/components/tawkChat";
+import TawkChat from "@/components/tawkChat";
 
 const montserrat = Libre_Bodoni({
   subsets: ["latin"],
@@ -21,10 +21,105 @@ const openSans = Open_Sans({
   variable: "--font-open-sans",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#E6BCCD",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
-  title: "Glow by UgoSylvia | Beauty & Wellness",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  ),
+  title: {
+    default: "Glow by UgoSylvia | Beauty & Wellness",
+    template: "%s | Glow by UgoSylvia",
+  },
   description:
-    "Professional beauty and wellness services including brow and lash treatments, skincare, and wellness products.",
+    "Your premier destination for expert permanent makeup (Microblading, Ombre, Eyeliner, Lip Blush), stunning lash extensions, and professional makeup services. Discover our curated collection of high-quality skincare, makeup, beauty supplements, and unique jewellery.",
+  manifest: "/manifest.json",
+  keywords: [
+    "permanent makeup",
+    "microblading",
+    "ombre brows",
+    "eyeliner",
+    "lip blush",
+    "lash extensions",
+    "makeup services",
+    "skincare",
+    "beauty supplements",
+    "jewellery",
+    "beauty salon",
+  ],
+  authors: [{ name: "Glow by UgoSylvia" }],
+  creator: "Glow by UgoSylvia",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "Glow by UgoSylvia",
+    title: "Glow by UgoSylvia | Beauty & Wellness",
+    description:
+      "Premium beauty services including permanent makeup, lash extensions, and professional makeup. Shop our quality skincare and beauty products.",
+    images: [
+      {
+        url: "/assets/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Glow by UgoSylvia",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@GlowByUgoSylvia",
+    creator: "@GlowByUgoSylvia",
+    title: "Glow by UgoSylvia | Beauty & Wellness",
+    description:
+      "Premium beauty services including permanent makeup, lash extensions, and professional makeup. Shop our quality skincare and beauty products.",
+    images: ["/assets/twitter-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  appleWebApp: {
+    title: "Glow by Sylvia",
+    capable: true,
+    statusBarStyle: "default",
+  },
+  applicationName: "Glow by Sylvia",
+  formatDetection: {
+    telephone: true,
+    email: true,
+    address: true,
+  },
+  icons: {
+    icon: ["/assets/icons/favicon.ico"],
+    shortcut: ["/assets/icons/shortcut-icon.png"],
+    apple: "/assets/icons/apple-touch-icon.png",
+    other: [
+      {
+        rel: "apple-touch-icon-precomposed",
+        url: "/assets/icons/apple-touch-icon-precomposed.png",
+      },
+    ],
+  },
+
+  // Uncomment and update with your verification codes from Google Search Console and Yandex Webmaster Tools
+  verification: {
+    google: "dEt5Z3Db-gUUXbyOqdCwP_NktWwfdKxNE7YM0MsuPKE",
+    // yandex: 'YOUR_YANDEX_VERIFICATION_CODE',
+  },
 };
 
 export default function RootLayout({
@@ -47,7 +142,7 @@ export default function RootLayout({
         <Toaster />
         <main>{children}</main>
         <Footer />
-        {/* <TawkChat /> */}
+        <TawkChat />
       </body>
     </html>
   );

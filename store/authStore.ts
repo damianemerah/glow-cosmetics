@@ -13,6 +13,7 @@ type UserStore = {
   shouldShowModal: boolean;
   setShowModal: (showModal: boolean) => void;
   isFetchingUser: boolean; // Add loading state
+  refreshUserData: () => Promise<boolean>; // Add method to refresh user data
 };
 
 const supabase = createClient();
@@ -67,6 +68,26 @@ export const useUserStore = create<UserStore>((set, get) => ({
     } catch (e) {
       // Catch any unexpected errors during fetch
       console.error("Unexpected error in fetchUser:", e);
+      set({ user: null, isFetchingUser: false });
+      return false;
+    }
+  },
+
+  refreshUserData: async (): Promise<boolean> => {
+    try {
+      // First check if we have a session
+      const { data: { session }, error: sessionError } = await supabase.auth
+        .getSession();
+
+      if (sessionError || !session) {
+        set({ user: null, isFetchingUser: false });
+        return false;
+      }
+
+      // If we have a session, fetch the user profile
+      return await get().fetchUser(session.user.id);
+    } catch (e) {
+      console.error("Error refreshing user data:", e);
       set({ user: null, isFetchingUser: false });
       return false;
     }

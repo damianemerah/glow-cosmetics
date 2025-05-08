@@ -179,6 +179,7 @@ async function getProductData(startDate: string, endDate: string) {
             )
         `
     )
+    .eq("status", "complete")
     .gte("created_at", startDate)
     .lte("created_at", endDate);
 

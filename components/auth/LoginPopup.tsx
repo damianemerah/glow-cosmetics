@@ -14,13 +14,11 @@ import PhoneInput from "react-phone-input-2";
 
 import { cn } from "@/lib/utils";
 
-import { checkUserExistsByEmail, login, signup } from "@/actions/authAction";
-
 import {
   Button,
   Input,
   Checkbox,
-  Calendar, // Use updated Calendar import
+  Calendar,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -29,19 +27,15 @@ import {
   DialogTitle,
   DialogTrigger,
   Popover,
-  // PopoverContent, // Use standard PopoverContent now
   PopoverTrigger,
-  // Import Form components
   Form,
   FormControl,
-  // FormDescription, // Optional
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/constants/ui/index"; // Ensure path is correct
+} from "@/constants/ui/index";
 
-// No longer need ContainedPopoverContent if we use standard PopoverContent
 import { ContainedPopoverContent } from "@/components/ui/ContainedPopoverContent";
 
 // Initialize Supabase client
@@ -80,7 +74,6 @@ export function LoginPopup() {
   const [currentView, setCurrentView] = useState<PopupView>("email");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // Date picker popover state
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [tempEmail, setTempEmail] = useState<string>("");
   const shouldShowModal = useUserStore((state) => state.shouldShowModal);
@@ -105,9 +98,79 @@ export function LoginPopup() {
       lastName: "",
       phone: "",
       receiveEmails: false,
-      dateOfBirth: undefined, // Initialize as undefined
+      dateOfBirth: undefined,
     },
   });
+
+  // Check if user exists by email
+  const checkUserExistsByEmail = async (email: string) => {
+    try {
+      const { data, error } = await supabase.rpc("get_user_id_by_email", {
+        p_email: email,
+      });
+
+      console.log(data, 1234, error);
+
+      if (error) throw error;
+
+      return data ? true : false;
+    } catch (err) {
+      console.error("Error checking user existence:", err);
+      return false;
+    }
+  };
+
+  // Handle login with email
+  const handleLogin = async (email: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+        },
+      });
+
+      if (error) throw error;
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // Handle signup with email
+  const handleSignup = async (signupData: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth: Date;
+    phone: string;
+    receiveEmails: boolean;
+  }) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOtp({
+        email: signupData.email,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+          data: {
+            first_name: signupData.firstName,
+            last_name: signupData.lastName,
+            date_of_birth: signupData.dateOfBirth,
+            receive_emails: signupData.receiveEmails,
+            phone: signupData.phone,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  };
 
   // Handle email form submission
   const handleEmailSubmit = async (data: EmailFormData) => {
@@ -117,7 +180,7 @@ export function LoginPopup() {
     try {
       const userExists = await checkUserExistsByEmail(data.email);
       if (userExists) {
-        const loginData = await login(data.email);
+        const loginData = await handleLogin(data.email);
         if (loginData) setCurrentView("magicLinkSent");
       } else {
         setCurrentView("newUserDetails");
@@ -140,16 +203,6 @@ export function LoginPopup() {
     setIsLoading(true);
     setError(null);
     try {
-      // Zod ensures dateOfBirth is a Date here
-      const signupData = {
-        email: tempEmail,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        dateOfBirth: data.dateOfBirth,
-        phone: data.phone,
-        receiveEmails: data.receiveEmails,
-      };
-
       const isAtLeast18YearsOld = (dateOfBirth: Date): boolean => {
         const today = new Date();
         const birthDate = new Date(dateOfBirth);
@@ -173,7 +226,16 @@ export function LoginPopup() {
         return;
       }
 
-      await signup(signupData);
+      const signupData = {
+        email: tempEmail,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        dateOfBirth: data.dateOfBirth,
+        phone: data.phone,
+        receiveEmails: data.receiveEmails,
+      };
+
+      await handleSignup(signupData);
       setCurrentView("magicLinkSent");
     } catch (err) {
       console.error("Error in signup process:", err);
@@ -190,12 +252,17 @@ export function LoginPopup() {
     setIsLoading(true);
     setError(null);
     try {
-      const { error: oauthError } = await supabase.auth.signInWithOAuth({
-        // Renamed error variable
+      const { error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/dashboard` },
+        options: {
+          redirectTo: `${window.location.origin}/complete-profile`,
+          queryParams: {
+            prompt: "select_account",
+          },
+        },
       });
-      if (oauthError) throw oauthError; // Throw if error
+
+      if (error) throw error;
     } catch (err) {
       console.error(`Error signing in with ${provider}:`, err);
       setError(
@@ -206,7 +273,6 @@ export function LoginPopup() {
       setCurrentView("error");
       setIsLoading(false);
     }
-    // No finally setIsLoading(false) here, as OAuth redirects
   };
 
   return (
