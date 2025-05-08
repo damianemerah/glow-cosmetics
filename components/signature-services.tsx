@@ -34,7 +34,7 @@ export default function SignatureServices({
   return (
     <section className="py-16 md:py-20 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="uppercase text-3xl md:text-4xl font-bold mb-10 md:mb-12 text-center font-serif text-secondary-foreground">
+        <h2 className="uppercase text-3xl md:text-4xl font-bold mb-10 md:mb-12 md:text-start text-center font-montserrat text-secondary-foreground">
           Signature Services
         </h2>
 
@@ -77,7 +77,7 @@ export default function SignatureServices({
                     {/* --- End Simplified Image Section --- */}
 
                     <CardContent className="p-5 md:p-6 flex flex-col flex-grow">
-                      <h3 className="text-xl font-semibold mb-2 font-serif">
+                      <h3 className="text-xl font-semibold mb-2 font-montserrat">
                         {service.name}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-4 flex-grow line-clamp-3">

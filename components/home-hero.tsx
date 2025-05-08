@@ -48,7 +48,7 @@ export default function HomeHero() {
 
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center z-10">
         <div className="max-w-xl md:max-w-2xl">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 tracking-tight font-serif leading-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 tracking-tight font-montserrat leading-tight">
             Elevate Your Radiance
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl mb-8 text-gray-200">

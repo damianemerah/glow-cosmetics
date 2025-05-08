@@ -41,7 +41,7 @@ export default function ServicesPage() {
       {/* Services List */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          {/* <h2 className="text-lg md:text-2xl font-bold mb-10 md:mb-12 text-center font-serif italic max-w-2xl mx-auto">
+          {/* <h2 className="text-lg md:text-2xl font-bold mb-10 md:mb-12 text-center font-montserrat italic max-w-2xl mx-auto">
             Enhance your natural beauty with our semi permanent makeup service.
           </h2> */}
           <div className="max-w-4xl mx-auto">

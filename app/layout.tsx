@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
-import { Open_Sans, Libre_Bodoni } from "next/font/google";
+import { Montserrat, Open_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
@@ -9,7 +9,7 @@ import "react-phone-input-2/lib/style.css";
 import { Skeleton } from "@/components/ui/skeleton";
 import TawkChat from "@/components/tawkChat";
 
-const montserrat = Libre_Bodoni({
+const montserrat = Montserrat({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-montserrat",

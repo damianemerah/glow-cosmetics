@@ -11,16 +11,11 @@ type CartActionResult =
 
 // Get or create cart for user
 export async function getOrCreateCart(userId: string) {
-  console.log(`Finding or creating cart for user ${userId}`);
-
-  // Check for existing active cart
-
   const { data: existingCart, error: cartError } = await supabaseAdmin
     .from("carts")
     .select("*")
     .eq("user_id", userId)
-    .single();
-  // .eq("status", "active")
+    .maybeSingle();
 
   if (cartError) {
     if (cartError.code === "PGRST116") {
@@ -35,12 +30,9 @@ export async function getOrCreateCart(userId: string) {
 
   // If cart exists, return it
   if (existingCart) {
-    console.log(`Found existing cart for user ${userId}:`, existingCart);
     return existingCart;
   }
 
-  // Create new cart if none exists
-  console.log(`Creating new cart for user ${userId}`);
   const { data: newCart, error: createError } = await supabaseAdmin
     .from("carts")
     .insert([{ user_id: userId }])
@@ -218,23 +210,7 @@ export async function removeCartItem(itemId: string) {
 // Get cart with items
 export async function getCartWithItems(userId: string) {
   try {
-    // Get active cart
-    const { data: cartData, error: cartError } = await supabaseAdmin
-      .from("carts")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-    // .eq("status", "active")
-
-    if (cartError) {
-      console.log(cartError, "cartError🚀🚀");
-      if (cartError.code === "PGRST116") {
-        // No cart found
-        return { cart: null, items: [] };
-      }
-      console.error("Error fetching cart:", cartError);
-      throw cartError;
-    }
+    const cartData = await getOrCreateCart(userId);
 
     // Get cart items with product details
     const { data: itemsData, error: itemsError } = await supabaseAdmin

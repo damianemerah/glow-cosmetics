@@ -102,7 +102,7 @@ export default async function Home() {
       {pinnedCategories.length > 0 && (
         <section className="py-8 bg-secondary">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl md:text-4xl uppercase font-bold mb-10 md:mb-12 text-center font-serif text-secondary-foreground">
+            <h2 className="text-3xl md:text-4xl uppercase font-bold mb-10 md:mb-12 md:text-start text-center font-montserrat text-secondary-foreground">
               Explore By Category
             </h2>
 
@@ -177,7 +177,7 @@ export default async function Home() {
       {recommendations.length > 0 && (
         <section className="py-16 md:py-20 bg-secondary px:4 md:px-16">
           <div className="container mx-auto px-4 ">
-            <h2 className="text-3xl md:text-4xl uppercase font-bold mb-10 md:mb-12 text-center font-serif">
+            <h2 className="text-3xl md:text-4xl uppercase font-bold mb-10 md:mb-12 md:text-start text-center font-montserrat">
               Curated For You
             </h2>
             <Carousel
@@ -218,7 +218,7 @@ export default async function Home() {
 
       <section className="py-16 md:py-20 bg-gradient-to-t from-[#4a5a3a] to-[#5a6b47]/80 text-primary-foreground">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl  font-bold mb-4 font-serif">
+          <h2 className="text-3xl md:text-4xl  font-bold mb-4 font-montserrat">
             Ready for Transformation?
           </h2>
           <p className="text-lg mb-8 max-w-2xl mx-auto text-primary-foreground/90">
