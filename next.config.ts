@@ -27,6 +27,11 @@ const baseNextConfig: NextConfig = {
         hostname: "lh3.googleusercontent.com",
         pathname: "**",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        pathname: "/storage/v1/object/public/category-images/**",
+      },
     ],
   },
   poweredByHeader: false,

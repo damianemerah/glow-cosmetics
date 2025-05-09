@@ -40,7 +40,6 @@ export function LoginPopup() {
   const [error, setError] = useState<string | null>(null);
   const [tempEmail, setTempEmail] = useState<string>("");
   const shouldShowModal = useUserStore((state) => state.shouldShowModal);
-  const refreshUserData = useUserStore((state) => state.refreshUserData);
 
   useEffect(() => {
     if (shouldShowModal) {
@@ -125,10 +124,9 @@ export function LoginPopup() {
         type: "email",
       });
 
-      if (error) throw error;
-
-      // Ensure user data is refreshed in the store
-      await refreshUserData();
+      if (error) {
+        throw new Error(error.message);
+      }
 
       // Close modal on successful login
       setOpen(false);
@@ -137,11 +135,7 @@ export function LoginPopup() {
       router.push("/dashboard");
     } catch (err) {
       console.error("Error verifying OTP:", err);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to verify OTP. Please try again."
-      );
+      throw err;
     } finally {
       setIsLoading(false);
     }

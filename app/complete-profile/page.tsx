@@ -123,6 +123,7 @@ export default function CompleteProfilePage() {
         return;
       }
 
+      console.log(user.id, "🔥🔥💎");
       // Update profile in database
       const { error: updateError } = await supabase
         .from("profiles")
