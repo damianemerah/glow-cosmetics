@@ -118,7 +118,6 @@ const Navbar = () => {
           if (searchParams.get("code")) {
             const newSearchParams = new URLSearchParams(window.location.search);
             newSearchParams.delete("code");
-            router.push("/dashboard");
           }
         } else {
           console.warn(
@@ -136,14 +135,7 @@ const Navbar = () => {
       }
       setInitialAuthCheckComplete(true);
     },
-    [
-      fetchUser,
-      setUser,
-      router,
-      searchParams,
-      mutateCartCount,
-      attemptCartMerge,
-    ]
+    [fetchUser, setUser, searchParams, mutateCartCount, attemptCartMerge]
   );
 
   useEffect(() => {

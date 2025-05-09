@@ -22,7 +22,7 @@ const openSans = Open_Sans({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#E6BCCD",
+  themeColor: "#4CAF50",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

@@ -11,7 +11,7 @@ export const BrandLogo = () => (
     aria-label="Glow by UgoSylvia Home"
   >
     <Image
-      src="/images/glowLogo.png"
+      src="/images/glowLogo.png" //old icon to be changed
       alt="Glow by UgoSylvia Logo"
       width={actualLogoWidth}
       height={actualLogoHeight}

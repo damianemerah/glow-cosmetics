@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { useUserStore } from "@/store/authStore";
 
@@ -33,7 +32,6 @@ type PopupView =
   | "error";
 
 export function LoginPopup() {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [currentView, setCurrentView] = useState<PopupView>("email");
   const [isLoading, setIsLoading] = useState(false);
@@ -130,9 +128,6 @@ export function LoginPopup() {
 
       // Close modal on successful login
       setOpen(false);
-
-      // Redirect to dashboard
-      router.push("/dashboard");
     } catch (err) {
       console.error("Error verifying OTP:", err);
       throw err;

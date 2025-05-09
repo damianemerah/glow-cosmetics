@@ -144,7 +144,6 @@ export default function CompleteProfilePage() {
       await refreshUserData();
 
       toast.success("Profile completed successfully!");
-      router.push("/dashboard");
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Something went wrong. Please try again.");

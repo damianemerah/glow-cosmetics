@@ -12,7 +12,6 @@ const Footer = () => {
   if (pathname.startsWith("/admin")) {
     return <AdminFooter />;
   }
-
   // --- Main Footer Section ---
   const MainFooter = () => (
     <footer className="bg-[#4a5a3a] text-gray-200">

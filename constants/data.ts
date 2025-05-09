@@ -22,17 +22,6 @@ export const beautyTips: BeautyTip[] = [
 ];
 
 export const services: Service[] = [
-  // {
-  //   id: "semi-permanent-makeup",
-  //   name: "Semi Permanent Makeup",
-  //   description:
-  //     "Enhance your natural beauty with our semi permanent makeup service.",
-  //   price: 900,
-  //   image: "/images/spm.jpg",
-  //   details:
-  //     "Our semi permanent makeup service is designed to subtly define your features. Using advanced techniques and high-quality pigments, we create natural, long-lasting results that enhance your overall look.",
-  //   category: "makeup",
-  // },
   {
     id: "microblading",
     name: "Microblading",
