@@ -42,3 +42,4 @@ export * from "@/components/ui/textarea";
 export * from "@/components/ui/toggle-group";
 export * from "@/components/ui/toggle";
 export * from "@/components/ui/tooltip";
+export * from "@/components/ui/input-otp";

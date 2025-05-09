@@ -10,12 +10,12 @@ interface DesktopNavLinksProps {
 }
 
 export const DesktopNavLinks = ({ navLinks }: DesktopNavLinksProps) => (
-  <nav className="hidden md:flex items-center space-x-6">
+  <nav className="hidden lg:flex items-center space-x-6">
     {navLinks.map((link) => (
       <Link
         key={link.name}
         href={link.href}
-        className="text-sm font-medium text-gray-700 hover:text-primary transition-colors"
+        className="text-sm font-medium font-montserrat text-gray-700 hover:text-primary transition-colors"
       >
         {link.name}
       </Link>

@@ -39,7 +39,8 @@ export const useUserStore = create<UserStore>((set, get) => ({
         .select("*") // Select all profile fields
         .eq("user_id", userId)
         .maybeSingle(); // Use maybeSingle to handle not found gracefully
-
+      console.log(userData, "😎😎");
+      console.log(error, "😎😎error");
       if (error) {
         console.error(`Error fetching profile for ${userId}:`, error.message);
         set({ user: null, isFetchingUser: false }); // Set user to null on fetch error

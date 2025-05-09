@@ -19,7 +19,7 @@ export const MobileNavLinks = ({
       <Link
         key={link.name}
         href={link.href}
-        className="text-lg font-medium text-gray-700 hover:text-primary transition-colors"
+        className="text-lg font-medium font-montserrat text-gray-700 hover:text-primary transition-colors"
         onClick={onLinkClick}
       >
         {link.name}

@@ -86,14 +86,14 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild className="md:mr-4">
         <Button
           variant="ghost"
-          size="icon"
-          className="h-9 w-9 p-0"
+          className="flex items-center font-montserrat"
           aria-label="Search"
         >
           <Search className="h-7 w-7 text-gray-700 hover:text-primary transition-colors" />
+          Search
         </Button>
       </PopoverTrigger>
       <PopoverContent

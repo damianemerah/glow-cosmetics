@@ -63,6 +63,7 @@
     "embla-carousel-react": "^8.5.2",
     "html-to-text": "^9.0.5",
     "i": "^0.3.7",
+    "input-otp": "^1.4.2",
     "lucide-react": "^0.477.0",
     "nanoid": "^5.1.5",
     "next": "15.2.1",

@@ -267,6 +267,7 @@ export default function CompleteProfilePage() {
                           initialFocus
                           fromYear={1920}
                           toYear={new Date().getFullYear()}
+                          showCustomCaption={true}
                         />
                       </PopoverContent>
                     </Popover>

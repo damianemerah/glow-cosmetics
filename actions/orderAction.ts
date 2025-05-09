@@ -116,7 +116,6 @@ export async function createOrder(
             quantity: item.quantity,
             price_at_time: item.price_at_time,
             color: item.color?.name || null,
-            status: "incomplete",
         }));
 
         const { error: itemsError } = await supabaseAdmin
