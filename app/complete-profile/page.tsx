@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -50,11 +50,22 @@ const profileSchema = z.object({
 // Define the form data type
 type ProfileFormData = z.infer<typeof profileSchema>;
 
-export default function CompleteProfilePage() {
+export default function CompleteProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | undefined }>;
+}) {
+  const { code } = use(searchParams);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const refreshUserData = useUserStore((state) => state.refreshUserData);
+
+  useEffect(() => {
+    if (code) {
+      router.replace("complete-profile", { scroll: false });
+    }
+  }, [code, router]);
 
   // Check authentication status
   useEffect(() => {
@@ -123,7 +134,6 @@ export default function CompleteProfilePage() {
         return;
       }
 
-      console.log(user.id, "🔥🔥💎");
       // Update profile in database
       const { error: updateError } = await supabase
         .from("profiles")
@@ -142,8 +152,8 @@ export default function CompleteProfilePage() {
 
       // Update local user state
       await refreshUserData();
-
       toast.success("Profile completed successfully!");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Something went wrong. Please try again.");

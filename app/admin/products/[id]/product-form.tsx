@@ -203,7 +203,6 @@ export default function ProductForm({
   const onSubmit = async (data: ProductFormData) => {
     setIsLoading(true);
     try {
-      console.log("Adding products");
       const saveData = {
         ...data,
         additional_details: data.additional_details.map(
@@ -215,7 +214,6 @@ export default function ProductForm({
         return;
       }
       const result = await saveProduct(saveData, id);
-      console.log("Product added", result);
       if (result.success) {
         toast.success(
           `Product ${id === "new" ? "created" : "updated"} successfully`

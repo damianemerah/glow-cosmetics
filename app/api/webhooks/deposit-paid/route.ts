@@ -32,8 +32,6 @@ export async function POST(request: Request) {
             deposit_amount,
         } = payload;
 
-        console.log("Payload:💰💰", payload);
-
         if (!booking_id || !user_id) {
             return NextResponse.json(
                 { success: false, error: "Missing required fields" },

@@ -53,7 +53,6 @@ export default async function CheckoutPage() {
     redirect("/cart?error=cart_fetch_failed");
   }
   if (!cartData?.id) {
-    console.log(`No active cart found for user ${userId}.`);
     redirect("/cart?message=empty_cart");
   }
   const cartId = cartData.id;
@@ -82,7 +81,6 @@ export default async function CheckoutPage() {
   }
 
   if (!cartItemsData || cartItemsData.length === 0) {
-    console.log(`Cart ${cartId} is empty, redirecting.`);
     redirect("/cart?message=empty_cart");
   }
 
@@ -134,9 +132,6 @@ export default async function CheckoutPage() {
   );
 
   if (cartItems.length === 0) {
-    console.log(
-      "All cart items missing product data after mapping, redirecting."
-    );
     redirect("/cart?message=cart_items_invalid");
   }
 

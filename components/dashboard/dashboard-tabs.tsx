@@ -17,10 +17,8 @@ export default function DashboardTabs({
   const handleHashChange = useCallback(() => {
     const hash = window.location.hash.replace("#", "");
     if (hash && hash !== value) {
-      console.log("Hash changed externally, updating tab to:", hash);
       setValue(hash);
     } else if (!hash && defaultValue !== value) {
-      console.log("Hash removed, reverting to default:", defaultValue);
       setValue(defaultValue);
     }
   }, [value, defaultValue]);
@@ -35,7 +33,6 @@ export default function DashboardTabs({
 
   const handleChange = (newValue: string) => {
     if (newValue !== value) {
-      console.log("Tab clicked internally, updating tab to:", newValue);
       setValue(newValue);
     }
     if (`#${newValue}` !== window.location.hash) {

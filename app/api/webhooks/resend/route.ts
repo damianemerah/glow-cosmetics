@@ -35,7 +35,6 @@ interface ResendWebhookPayload {
  */
 
 export async function POST(request: Request) {
-    console.log("Received Resend webhook event:📬📬");
     try {
         const svixId = request.headers.get("svix-id");
         const signature = request.headers.get("svix-signature");
@@ -61,8 +60,6 @@ export async function POST(request: Request) {
         // Verify the webhook signature
         const isValid = wh.verify(rawBody, headers);
 
-        console.log("Signature valid🥂🥂", isValid);
-
         if (!isValid) {
             return NextResponse.json(
                 { success: false, error: "Invalid signature" },
@@ -72,8 +69,6 @@ export async function POST(request: Request) {
 
         // Now we can trust the payload
         const event = payload as ResendWebhookPayload;
-
-        console.log("event:💌💌", event);
 
         // Connect to Supabase
         const supabase = await createClient();
@@ -148,9 +143,6 @@ export async function POST(request: Request) {
                             audienceId: process.env.RESEND_AUDIENCE_ID,
                             email: userData.email,
                         });
-                        console.log(
-                            `Removed ${userData.email} from Resend audience due to ${event.type}`,
-                        );
                     }
                 } catch (resendError) {
                     console.error(

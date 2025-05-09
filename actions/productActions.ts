@@ -32,7 +32,6 @@ async function fetchProductGroup(
       return []; // Return empty on error
     }
     if (!data || data.length === 0) {
-      console.log("No random products returned from RPC.");
       return [];
     }
 
@@ -75,8 +74,6 @@ async function fetchProductGroup(
           options.filter.value,
         );
       }
-    } else {
-      console.log("No specific filter applied.");
     }
 
     // Apply ordering

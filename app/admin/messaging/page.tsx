@@ -173,7 +173,6 @@ export default function MessagingPage() {
       const booking = await fetchBookingById(bookingIdSearch);
       if (booking) {
         setSelectedBooking(booking);
-        console.log(booking);
         if (booking.user_id) {
           const userData = await getUserById(booking.user_id);
           if (userData) {

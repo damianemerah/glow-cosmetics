@@ -262,7 +262,6 @@ export async function saveProduct(
   data: Partial<ProductWithCategories>,
   id: string,
 ) {
-  console.log(data);
   try {
     const { categoryIds = [], ...productData } = data;
 

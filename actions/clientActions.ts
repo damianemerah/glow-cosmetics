@@ -141,11 +141,6 @@ export async function sendClientEmail(
       );
     }
 
-    console.log(
-      "Client email sent successfully to admin:",
-      emailResponse.messageId,
-    );
-
     return { success: true };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

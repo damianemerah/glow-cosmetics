@@ -25,14 +25,10 @@ export async function POST(req: Request) {
 
     const event = JSON.parse(body);
 
-    console.log("Received Paystack Event:", event.event);
-
     if (event.event === "charge.success") {
       const data = event.data;
       const metadata = data.metadata || {};
       const paymentType = metadata.type || "product-purchase";
-
-      console.log(`Payment Type: ${paymentType}, Amount: ${data.amount / 100}`);
 
       if (paymentType === "deposit") {
         return await handleDepositPayment(data, metadata);
@@ -74,8 +70,6 @@ async function handleDepositPayment(data: any, metadata: any) {
     );
   }
 
-  console.log(`Processing deposit for booking group ID: ${bookingId}`);
-
   const { error: bookingError } = await supabase
     .from("bookings")
     .update({
@@ -93,9 +87,6 @@ async function handleDepositPayment(data: any, metadata: any) {
     );
   }
 
-  console.log(
-    `Successfully updated booking group (${bookingId}) status to confirmed.`,
-  );
   return NextResponse.json({
     success: true,
     message: "Booking deposit processed",
@@ -121,8 +112,6 @@ async function handleProductPurchase(data: any, metadata: any) {
     );
   }
 
-  console.log(`Processing product purchase for order: ${orderId}`);
-
   const { error: orderError } = await supabase
     .from("orders")
     .update({
@@ -140,8 +129,6 @@ async function handleProductPurchase(data: any, metadata: any) {
     );
   }
 
-  console.log(`Successfully updated order (${orderId}) status to paid.`);
-
   const { data: order, error: getOrderError } = await supabase
     .from("orders")
     .select("cart_id")
@@ -155,7 +142,6 @@ async function handleProductPurchase(data: any, metadata: any) {
       order,
     );
   } else {
-    console.log(`Attempting to clear cart items for cart_id: ${order.cart_id}`);
     const { error: clearCartError } = await supabase
       .from("cart_items")
       .delete()

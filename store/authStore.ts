@@ -1,73 +1,62 @@
-// store/authStore.ts
 import { create } from "zustand";
 import { createClient } from "@/utils/supabase/client";
-import { Profile } from "@/types/index"; // Assuming Profile includes is_active
+import { Profile } from "@/types/index";
 
-type UserStateData = { id: string } & Partial<Profile>; // Type for the user state
+type UserStateData = { id: string } & Partial<Profile>;
 
 type UserStore = {
   user: UserStateData | null;
   setUser: (user: UserStateData | null) => void;
-  fetchUser: (userId: string) => Promise<boolean>; // Return boolean success indicator
+  fetchUser: (userId: string) => Promise<boolean>;
   signOut: () => Promise<void>;
   shouldShowModal: boolean;
   setShowModal: (showModal: boolean) => void;
-  isFetchingUser: boolean; // Add loading state
-  refreshUserData: () => Promise<boolean>; // Add method to refresh user data
+  isFetchingUser: boolean;
+  refreshUserData: () => Promise<boolean>;
 };
 
 const supabase = createClient();
 
 export const useUserStore = create<UserStore>((set, get) => ({
   user: null,
-  isFetchingUser: false, // Initialize loading state
-  setUser: (user) => set({ user, isFetchingUser: false }), // Stop loading when setting user
+  isFetchingUser: false,
+  setUser: (user) => set({ user, isFetchingUser: false }),
 
   fetchUser: async (userId: string): Promise<boolean> => {
     if (!userId) return false;
-    // Prevent fetching if already fetching or if user is already set with this ID
     if (get().isFetchingUser || get().user?.id === userId) {
-      return !!get().user; // Return true if user already exists
+      return !!get().user;
     }
 
-    // console.log(`Fetching profile for user ID: ${userId}`); // Debug log
-    set({ isFetchingUser: true }); // Set loading true
+    set({ isFetchingUser: true });
 
     try {
       const { data: userData, error } = await supabase
         .from("profiles")
-        .select("*") // Select all profile fields
+        .select("*")
         .eq("user_id", userId)
-        .maybeSingle(); // Use maybeSingle to handle not found gracefully
-      console.log(userData, "😎😎");
-      console.log(error, "😎😎error");
+        .maybeSingle();
       if (error) {
         console.error(`Error fetching profile for ${userId}:`, error.message);
-        set({ user: null, isFetchingUser: false }); // Set user to null on fetch error
+        set({ user: null, isFetchingUser: false });
         return false;
       }
 
       if (userData && userData.is_active) {
-        // console.log(`Profile found and active for ${userId}:`, userData); // Debug log
         set({ user: { id: userId, ...userData }, isFetchingUser: false });
         return true;
       } else if (userData && !userData.is_active) {
         console.warn(`Profile found for ${userId} but is inactive.`);
-        // Decide how to handle inactive users - treat as logged out?
-        set({ user: null, isFetchingUser: false }); // Treat inactive as not logged in for UI
-        // Optionally sign them out from Supabase Auth too
-        // await supabase.auth.signOut();
+        set({ user: null, isFetchingUser: false });
         return false;
       } else {
         console.warn(
           `No active profile found for authenticated user ${userId}.`,
         );
-        // Profile doesn't exist or isn't active, keep user state null
         set({ user: null, isFetchingUser: false });
         return false;
       }
     } catch (e) {
-      // Catch any unexpected errors during fetch
       console.error("Unexpected error in fetchUser:", e);
       set({ user: null, isFetchingUser: false });
       return false;
@@ -76,7 +65,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   refreshUserData: async (): Promise<boolean> => {
     try {
-      // First check if we have a session
       const { data: { session }, error: sessionError } = await supabase.auth
         .getSession();
 
@@ -85,7 +73,6 @@ export const useUserStore = create<UserStore>((set, get) => ({
         return false;
       }
 
-      // If we have a session, fetch the user profile
       return await get().fetchUser(session.user.id);
     } catch (e) {
       console.error("Error refreshing user data:", e);
@@ -95,14 +82,13 @@ export const useUserStore = create<UserStore>((set, get) => ({
   },
 
   signOut: async () => {
-    set({ isFetchingUser: true }); // Indicate activity
+    set({ isFetchingUser: true });
     const { error } = await supabase.auth.signOut();
     if (error) {
       console.error("Error signing out:", error.message);
-      set({ isFetchingUser: false }); // Stop loading even on error
+      set({ isFetchingUser: false });
     } else {
-      // console.log("Sign out successful."); // Debug log
-      set({ user: null, isFetchingUser: false }); // Clear user state
+      set({ user: null, isFetchingUser: false });
     }
   },
 

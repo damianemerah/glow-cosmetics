@@ -33,7 +33,7 @@ const CustomCaption = React.memo(function CustomCaption({
     return Array.from(
       { length: endYear - startYear + 1 },
       (_, i) => startYear + i
-    );
+    ).reverse();
   }, [fromYear, toYear, currentYear]);
 
   // Memoize month names generation

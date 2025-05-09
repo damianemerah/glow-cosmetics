@@ -191,8 +191,6 @@ class Messaging {
       // Wait for all emails to be sent
       const results = await Promise.all(sendEmailPromises);
 
-      console.log(results[0], "🎈🎈");
-
       return { success: true, messageId: results[0]?.data?.id };
     } catch (error) {
       console.log(error);

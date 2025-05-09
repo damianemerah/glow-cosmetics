@@ -275,7 +275,6 @@ export default function CheckoutForm({
         paymentMethod: selectedPaymentMethod,
       } = orderResult;
       setGeneratedPaymentReference(paymentReference); // Store reference for bank transfer display
-      console.log(`Order created: ${orderId}, Ref: ${paymentReference}`);
 
       // --- Handle Payment ---
       if (selectedPaymentMethod === "bank_transfer") {
@@ -307,10 +306,6 @@ export default function CheckoutForm({
         });
 
         const paymentData = await response.json();
-
-        console.log(paymentData, "Payment API Response");
-        console.log(!("authorization_url" in paymentData.data), "URL Check");
-        console.log(!response.ok, "Response Check");
 
         if (!response.ok || !("authorization_url" in paymentData.data)) {
           const supabase = createClient();

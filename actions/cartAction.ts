@@ -44,7 +44,6 @@ export async function getOrCreateCart(userId: string) {
     throw createError;
   }
 
-  console.log(`Successfully created new cart:`, newCart);
   return newCart;
 }
 
@@ -132,9 +131,7 @@ export async function addToCart(
       if (updateError) {
         throw new Error(`Failed to update cart: ${updateError.message}`);
       }
-      console.log(
-        `Cart item ${existingCartItem.id} quantity updated to ${requestedTotalQuantity}`,
-      );
+
       return { success: true, message: "Item quantity updated in cart." };
     } else {
       const { error: insertError } = await supabaseAdmin
@@ -147,11 +144,6 @@ export async function addToCart(
       if (insertError) {
         throw new Error(`Failed to add item: ${insertError.message}`);
       }
-      console.log(
-        `New cart item added for product ${item.id} with color ${
-          item.color?.name || "N/A"
-        }`,
-      );
       return { success: true, message: "Item added to cart." };
     }
   } catch (error: unknown) {

@@ -11,7 +11,6 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    console.log("Received deposit request:💰💰", body);
     const { email, bookingId, amount, name, userId } = body;
     if (!email || !bookingId || !name || !userId) {
       return NextResponse.json(

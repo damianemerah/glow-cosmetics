@@ -17,8 +17,6 @@ type SignupData = {
 export async function login(email: string) {
   const supabase = await createClient();
 
-  console.log("Attempting login with email:", email);
-
   const { data, error } = await supabase.auth.signInWithOtp({
     email,
     options: {

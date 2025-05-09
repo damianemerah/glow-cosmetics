@@ -104,18 +104,30 @@ export const metadata: Metadata = {
     address: true,
   },
   icons: {
-    icon: ["/assets/icons/favicon.ico"],
-    shortcut: ["/assets/icons/shortcut-icon.png"],
-    apple: "/assets/icons/apple-touch-icon.png",
-    other: [
+    icon: [
       {
-        rel: "apple-touch-icon-precomposed",
-        url: "/assets/icons/apple-touch-icon-precomposed.png",
+        url: "/app-icons/android/android-launchericon-192-192.png",
+        sizes: "192x192",
+        type: "image/png",
+      },
+      {
+        url: "/app-icons/ios/32.png",
+        sizes: "32x32",
+        type: "image/png",
       },
     ],
-  },
+    apple: [
+      {
+        url: "/app-icons/ios/180.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+      { url: "/app-icons/ios/152.png", sizes: "152x152", type: "image/png" },
+      { url: "/app-icons/ios/167.png", sizes: "167x167", type: "image/png" },
+    ],
 
-  // Uncomment and update with your verification codes from Google Search Console and Yandex Webmaster Tools
+    shortcut: [{ url: "/favicon.ico" }],
+  },
   verification: {
     google: "dEt5Z3Db-gUUXbyOqdCwP_NktWwfdKxNE7YM0MsuPKE",
     // yandex: 'YOUR_YANDEX_VERIFICATION_CODE',

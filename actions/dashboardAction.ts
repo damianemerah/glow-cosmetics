@@ -3,7 +3,6 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { revalidatePath, revalidateTag } from "next/cache";
 import sharp from "sharp";
 import type { Booking, BookingStatus, Profile } from "@/types/index";
-import { Resend } from "resend";
 
 // export async function cancelBooking(bookingId: string) {
 //   const { error } = await supabaseAdmin
@@ -209,43 +208,6 @@ export async function setNotificationSettings(
   if (error) {
     console.log(error, "error🎈");
     throw new Error(error.message);
-  }
-
-  // If user is enabling email marketing, add them to Resend audience
-  if (type === "receive_emails" && enabled) {
-    try {
-      // Get user details to add to Resend
-      const { data: userData, error: userError } = await supabaseAdmin
-        .from("profiles")
-        .select("email, first_name, last_name")
-        .eq("user_id", userId)
-        .single();
-
-      if (userError || !userData) {
-        console.error(
-          "Error fetching user data for Resend audience:",
-          userError,
-        );
-      } else {
-        // Initialize Resend client
-        const resend = new Resend(process.env.RESEND_API_KEY);
-
-        // Add user to Resend audience
-        if (process.env.RESEND_AUDIENCE_ID && userData.email) {
-          await resend.contacts.create({
-            audienceId: process.env.RESEND_AUDIENCE_ID,
-            email: userData.email,
-            firstName: userData.first_name || "",
-            lastName: userData.last_name || "",
-            unsubscribed: false,
-          });
-          console.log(`Added ${userData.email} to Resend audience`);
-        }
-      }
-    } catch (resendError) {
-      console.error("Error adding user to Resend audience:", resendError);
-      // Continue execution - don't fail the whole request for Resend errors
-    }
   }
 
   revalidatePath("/dashboard");
