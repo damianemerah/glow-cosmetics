@@ -85,8 +85,13 @@ const fetchClients = async (url: string) => {
 // New function to fetch booking by ID
 const fetchBookingById = async (bookingId: string) => {
   try {
-    const booking = await getBookingWithId(bookingId);
-    return booking;
+    const bookingResult = await getBookingWithId(bookingId);
+    if (bookingResult.success && bookingResult.data) {
+      return bookingResult.data;
+    } else {
+      console.error("Error fetching booking:", bookingResult.error);
+      return null;
+    }
   } catch (error) {
     console.error("Error fetching booking:", error);
     return null;
@@ -174,21 +179,25 @@ export default function MessagingPage() {
       if (booking) {
         setSelectedBooking(booking);
         if (booking.user_id) {
-          const userData = await getUserById(booking.user_id);
-          if (userData) {
+          const userResult = await getUserById(booking.user_id);
+          if (userResult.success && userResult.data) {
+            const userData = userResult.data;
             const clientData = {
               id: userData.user_id,
               email: userData.email,
-              firstName: userData.first_name,
-              name: userData.first_name + " " + userData.last_name,
-              phone: userData.phone,
+              firstName: userData.first_name || "",
+              name: userData.first_name || "" + " " + userData.last_name,
+              phone: userData.phone || "",
             };
 
             setSelectedClient(clientData);
             setMessageForm((prev) => ({
               ...prev,
-              recipients: [userData.id],
+              recipients: [userData.user_id],
             }));
+          } else if (!userResult.success) {
+            console.error("Error fetching user data:", userResult.error);
+            toast.warning("Could not load client information");
           }
         }
       } else {

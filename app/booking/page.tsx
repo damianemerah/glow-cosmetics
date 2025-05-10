@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { format } from "date-fns";
 import { CalendarIcon, Trash2 } from "lucide-react";
 import {
@@ -87,6 +87,8 @@ export default function BookingPage() {
     string | null
   >(null);
 
+  const bookingCartRef = useRef<HTMLDivElement>(null);
+
   // Memoize fetched booked slots for the selected date
   const currentDateBookedTimes = useMemo(() => {
     if (!date) return [];
@@ -120,6 +122,15 @@ export default function BookingPage() {
       fetchSlotsForDate(date);
     }
   }, [date, fetchSlotsForDate]);
+
+  useEffect(() => {
+    if (pendingBookings.length === 1 && bookingCartRef.current) {
+      bookingCartRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [pendingBookings.length]);
 
   const handleUserDetailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -286,10 +297,10 @@ export default function BookingPage() {
 
       // Check results for errors
       results.forEach((result) => {
-        if (result.error) {
+        if (!result.success) {
           console.error("Booking creation error:", result.error);
           toast.warning(
-            `Failed to create booking for ${result.booking?.service_name || "one service"}: ${result.error.message}. Please try again or contact us.`
+            `Failed to create a booking: ${result.error}. Please try again or contact us.`
           );
           hasError = true;
         } else if (result.booking) {
@@ -358,7 +369,7 @@ export default function BookingPage() {
         <section className="py-16 bg-white">
           <div className="px-4 sm:px-8 md:px-16 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1fr] gap-8">
             {/* Booking Form Column */}
-            <div className="flex flex-col gap-8 order-2 md:order-1">
+            <div className="flex flex-col gap-8">
               {/* User Details Card (Now potentially editable) */}
               <Card>
                 <CardHeader>
@@ -614,7 +625,7 @@ export default function BookingPage() {
 
               {/* --- Booking Cart Section --- */}
               {pendingBookings.length > 0 && (
-                <Card>
+                <Card ref={bookingCartRef}>
                   <CardHeader>
                     <CardTitle className="font-montserrat">
                       Your Booking Request
@@ -670,7 +681,7 @@ export default function BookingPage() {
                       type="button"
                       onClick={handleFinalSubmit}
                       className="w-full bg-green-500 hover:bg-green-600"
-                      disabled={isSubmitting || slotsLoading} // Disable while submitting or initial slots load
+                      disabled={isSubmitting || slotsLoading}
                     >
                       {isSubmitting
                         ? "Submitting..."
@@ -683,7 +694,7 @@ export default function BookingPage() {
             </div>
 
             {/* Service Details Column (keep mostly as is) */}
-            <Card className="md:sticky top-24 self-start order-1 md:order-2">
+            <Card className="md:sticky top-24 self-start">
               {" "}
               {/* Make sticky */}
               <CardHeader>

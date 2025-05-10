@@ -110,13 +110,15 @@ export default function EditBookingPopover({
       }
 
       // Update the booking with all changes at once
-      const { booking: updatedBooking } = await updateBooking(
-        booking.id,
-        updates
-      );
+      const result = await updateBooking(booking.id, updates);
 
-      if (updatedBooking) {
-        onBookingUpdated(updatedBooking as Booking);
+      if (!result.success) {
+        toast.warning(`Failed to update booking: ${result.error}`);
+        return;
+      }
+
+      if (result.booking) {
+        onBookingUpdated(result.booking as Booking);
         toast.success("Booking updated successfully");
 
         // Refresh slots data for the new date if changed

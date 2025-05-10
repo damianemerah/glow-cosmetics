@@ -195,7 +195,8 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 
         setIsUploading(true);
         try {
-          const imageUrl = await uploadImageToSupabase(formData);
+          const result = await uploadImageToSupabase(formData);
+          const imageUrl = result.success ? result.data : null;
 
           if (imageUrl) {
             editor.chain().focus().setImage({ src: imageUrl }).run();

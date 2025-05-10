@@ -106,7 +106,6 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
   const updateOrderStatus = async () => {
     setIsUpdating(true);
     try {
-      console.log(status, "status");
       const { error } = await supabaseClient
         .from("orders")
         .update({

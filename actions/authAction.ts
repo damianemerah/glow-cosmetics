@@ -1,90 +1,41 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
-import { createClient } from "@/utils/supabase/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { Profile } from "@/types";
 
-type SignupData = {
-  email: string;
-  firstName: string;
-  lastName: string;
-  dateOfBirth: Date;
-  receiveEmails: boolean;
-  phone: string;
-};
+export async function getUserById(
+  userId: string,
+): Promise<
+  { success: boolean; data: Profile | null; error?: string; errorCode?: string }
+> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("profiles")
+      .select("*")
+      .eq("user_id", userId)
+      .single();
 
-export async function login(email: string) {
-  const supabase = await createClient();
+    if (error) {
+      console.error("Error fetching user by ID:", error);
+      return {
+        success: false,
+        error: "Failed to fetch user profile",
+        errorCode: "DB_ERROR",
+        data: null,
+      };
+    }
 
-  const { data, error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      shouldCreateUser: false,
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
-    },
-  });
-
-  if (error) {
-    console.error("Login error:", error);
-    throw error;
+    return {
+      success: true,
+      data: data as Profile,
+    };
+  } catch (err) {
+    console.error("Unexpected error fetching user by ID:", err);
+    return {
+      success: false,
+      error: "An unexpected error occurred while fetching user data",
+      errorCode: "UNKNOWN_ERROR",
+      data: null,
+    };
   }
-
-  console.log("Login successful:", data);
-  revalidatePath("/", "layout");
-  return data;
-}
-
-export async function signup(data: SignupData) {
-  const supabase = await createClient();
-
-  const { data: authData, error } = await supabase.auth.signInWithOtp({
-    email: data.email,
-    options: {
-      shouldCreateUser: true,
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
-      data: {
-        first_name: data.firstName,
-        last_name: data.lastName,
-        date_of_birth: data.dateOfBirth,
-        receive_emails: data.receiveEmails,
-        phone: data.phone,
-      },
-    },
-  });
-
-  if (error) {
-    throw error;
-  }
-
-  revalidatePath("/", "layout");
-  return authData;
-}
-
-export async function checkUserExistsByEmail(email: string) {
-  const { data, error } = await supabaseAdmin.rpc("get_user_id_by_email", {
-    p_email: email,
-  });
-
-  if (error) {
-    console.error("Error checking user existence:", error);
-    return false;
-  }
-
-  return data ? true : false;
-}
-
-export async function getUserById(userId: string) {
-  const { data, error } = await supabaseAdmin
-    .from("profiles")
-    .select("*")
-    .eq("user_id", userId)
-    .single();
-
-  if (error) {
-    console.error("Error fetching user by ID:", error);
-    return null;
-  }
-
-  return data;
 }

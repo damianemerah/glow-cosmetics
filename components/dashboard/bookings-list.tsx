@@ -2,13 +2,13 @@
 
 "use client";
 
-import { Badge, Button } from "@/constants/ui/index";
-import { AlertCircle, Calendar, Clock, RefreshCw, X } from "lucide-react";
+import { Badge, Button, Separator } from "@/constants/ui/index";
+import { AlertCircle, Calendar, Clock, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { Booking } from "@/types/index";
 import { useState } from "react";
-import { cancelBooking, getUserBookings } from "@/actions/dashboardAction";
+import { getUserBookings } from "@/actions/dashboardAction";
 import { useUserStore } from "@/store/authStore";
 import useSWR from "swr";
 import {
@@ -45,7 +45,11 @@ export default function BookingsList({
     user ? `bookings-${user.user_id}` : null,
     async () => {
       if (!user?.user_id) return []; // Handle case where user is null
-      return getUserBookings(user.user_id);
+      const result = await getUserBookings(user.user_id);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      return result.data;
     },
     {
       fallbackData: initialBookings,
@@ -108,28 +112,35 @@ export default function BookingsList({
     }
   };
 
-  const handleCancelBooking = async (bookingId: string) => {
-    try {
-      await cancelBooking(bookingId);
+  // const handleCancelBooking = async (bookingId: string) => {
+  //   try {
+  //     const result = await cancelBooking(bookingId);
 
-      // Optimistically update UI via SWR cache
-      const updatedBookings = bookings?.map((booking) =>
-        booking.id === bookingId ? { ...booking, status: "cancelled" } : booking
-      );
+  //     if (!result.success) {
+  //       toast.warning(`Failed to cancel booking: ${result.error}`);
+  //       // Revalidate on error
+  //       mutate();
+  //       return;
+  //     }
 
-      mutate(updatedBookings, false);
+  //     // Optimistically update UI via SWR cache
+  //     const updatedBookings = bookings?.map((booking) =>
+  //       booking.id === bookingId ? { ...booking, status: "cancelled" } : booking
+  //     );
 
-      toast.info("Booking cancelled", {
-        description: "Your booking has been successfully cancelled.",
-      });
-    } catch (error) {
-      console.error("Error cancelling booking:", error);
-      toast.warning("Failed to cancel booking. Please try again.");
+  //     mutate(updatedBookings, false);
 
-      // Revalidate on error
-      mutate();
-    }
-  };
+  //     toast.info("Booking cancelled", {
+  //       description: "Your booking has been successfully cancelled.",
+  //     });
+  //   } catch (error) {
+  //     console.error("Error cancelling booking:", error);
+  //     toast.warning("Failed to cancel booking. Please try again.");
+
+  //     // Revalidate on error
+  //     mutate();
+  //   }
+  // };
 
   if (error || initialError) {
     return (
@@ -188,45 +199,43 @@ export default function BookingsList({
 
       {currentBookings.map((booking) => {
         return (
-          <div
-            key={booking.id}
-            className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-md"
-          >
-            <div>
-              <h4 className="font-medium">
-                {capitalize(booking.service_name)}
-              </h4>
-              <div className="flex items-center text-sm text-muted-foreground mt-1">
-                <Calendar className="h-4 w-4 mr-1" />
-                <span>
-                  {new Date(booking.booking_time).toLocaleDateString()}
-                </span>
-                <Clock className="h-4 w-4 ml-3 mr-1" />
-                <span>
-                  {new Date(booking.booking_time).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
+          <div key={booking.id}>
+            <div className="flex flex-wrap items-center justify-between">
+              <div>
+                <h4 className="font-medium">
+                  {capitalize(booking.service_name)}
+                </h4>
+                <div className="flex items-center text-sm text-muted-foreground mt-1">
+                  <Calendar className="h-4 w-4 mr-1" />
+                  <span>
+                    {new Date(booking.booking_time).toLocaleDateString()}
+                  </span>
+                  <Clock className="h-4 w-4 ml-3 mr-1" />
+                  <span>
+                    {new Date(booking.booking_time).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div className="mt-3 md:mt-0 flex items-center">
-              <Badge
-                className={
-                  booking.status === "confirmed"
-                    ? "bg-green-100 text-green-800"
-                    : booking.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : booking.status === "completed"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-red-100 text-red-800"
-                }
-              >
-                {booking.status}
-              </Badge>
+              <div className="mt-3 md:mt-0 flex items-center">
+                <Badge
+                  className={
+                    booking.status === "confirmed"
+                      ? "bg-green-100 text-green-800"
+                      : booking.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : booking.status === "completed"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-red-100 text-red-800"
+                  }
+                >
+                  {booking.status}
+                </Badge>
 
-              {booking.status === "pending" && (
+                {/* {booking.status === "pending" && (
                 <div className="ml-2 flex">
                   <Button
                     variant="ghost"
@@ -237,8 +246,10 @@ export default function BookingsList({
                     <X className="h-4 w-4" /> Cancel
                   </Button>
                 </div>
-              )}
+              )} */}
+              </div>
             </div>
+            <Separator className="mt-2" />
           </div>
         );
       })}

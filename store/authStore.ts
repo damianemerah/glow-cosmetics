@@ -2,13 +2,22 @@ import { create } from "zustand";
 import { createClient } from "@/utils/supabase/client";
 import { Profile } from "@/types/index";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface ActionResult<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  errorCode?: string;
+}
+// eslint-enable-next-line @typescript-eslint/no-explicit-any
+
 type UserStateData = { id: string } & Partial<Profile>;
 
 type UserStore = {
   user: UserStateData | null;
   setUser: (user: UserStateData | null) => void;
   fetchUser: (userId: string) => Promise<boolean>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<ActionResult>;
   shouldShowModal: boolean;
   setShowModal: (showModal: boolean) => void;
   isFetchingUser: boolean;
@@ -81,14 +90,32 @@ export const useUserStore = create<UserStore>((set, get) => ({
     }
   },
 
-  signOut: async () => {
-    set({ isFetchingUser: true });
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error("Error signing out:", error.message);
-      set({ isFetchingUser: false });
-    } else {
+  signOut: async (): Promise<ActionResult> => {
+    try {
+      set({ isFetchingUser: true });
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Error signing out:", error.message);
+        set({ isFetchingUser: false });
+        return {
+          success: false,
+          error: error.message,
+          errorCode: "SIGNOUT_ERROR",
+        };
+      }
+
       set({ user: null, isFetchingUser: false });
+      return { success: true };
+    } catch (e) {
+      const error = e as Error;
+      console.error("Unexpected error in signOut:", error);
+      set({ isFetchingUser: false });
+      return {
+        success: false,
+        error: error.message || "An unexpected error occurred during sign out",
+        errorCode: "UNKNOWN_ERROR",
+      };
     }
   },
 

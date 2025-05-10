@@ -202,8 +202,6 @@ export default function AccountSettings({
         </div>
       </div> */}
 
-      <Separator />
-
       <div>
         <h3 className="text-lg font-medium mb-3">Account Management</h3>
         <div className="space-y-2">

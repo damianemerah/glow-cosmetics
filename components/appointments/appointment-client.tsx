@@ -404,14 +404,27 @@ export default function AppointmentsClient({
   };
 
   const handleBookingDelete = async (bookingId: string) => {
-    await updateBooking(bookingId, { status: "cancelled" });
-    mutate(
-      bookings.map((booking) =>
-        booking.id === bookingId ? { ...booking, status: "cancelled" } : booking
-      ),
-      false
-    );
-    toast.success("Booking cancelled successfully");
+    try {
+      const result = await updateBooking(bookingId, { status: "cancelled" });
+
+      if (!result.success) {
+        toast.warning(`Failed to cancel booking: ${result.error}`);
+        return;
+      }
+
+      mutate(
+        bookings.map((booking) =>
+          booking.id === bookingId
+            ? { ...booking, status: "cancelled" }
+            : booking
+        ),
+        false
+      );
+      toast.success("Booking cancelled successfully");
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      toast.warning("Failed to cancel booking");
+    }
   };
 
   // Add useMessaging hook

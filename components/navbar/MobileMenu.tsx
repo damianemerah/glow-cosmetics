@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, Layers, LogOut, CalendarCheck } from "lucide-react";
+import { Menu, Layers, LogOut } from "lucide-react";
 import {
   Button,
   Sheet,
@@ -15,7 +15,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/constants/ui/index";
-import { Heart } from "lucide-react";
 import { useUserStore } from "@/store/authStore";
 import { LoginPopup } from "@/components/auth/LoginPopup";
 import { MobileNavLinks } from "./MobileNavLinks";
@@ -78,7 +77,7 @@ export const MobileMenu = ({
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col overflow-hidden">
-                  <span className="font-medium truncate">
+                  <span className="font-medium truncate capitalize">
                     {user.full_name || "User"}
                   </span>
                   <span className="text-sm text-muted-foreground truncate">
@@ -97,20 +96,6 @@ export const MobileMenu = ({
                 >
                   <Layers className="mr-2 h-5 w-5" />
                   Dashboard
-                </Link>
-                <Link
-                  href="/dashboard#bookings"
-                  className="flex items-center text-lg font-medium text-gray-700 hover:text-primary transition-colors"
-                >
-                  <CalendarCheck className="mr-2 h-5 w-5" />
-                  My Bookings
-                </Link>
-                <Link
-                  href="/dashboard#wishlist"
-                  className="flex items-center text-lg font-medium text-gray-700 hover:text-primary transition-colors"
-                >
-                  <Heart className="mr-2 h-5 w-5" />
-                  Wishlist
                 </Link>
               </>
             )}

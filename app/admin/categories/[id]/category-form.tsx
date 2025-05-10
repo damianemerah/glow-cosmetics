@@ -190,10 +190,10 @@ export default function CategoryForm({
       formData.append("file", file);
       formData.append("bucket", "category-images");
       formData.append("title", watch("name") || "Category Image");
-      const imageUrl = await uploadImageToSupabase(formData);
+      const result = await uploadImageToSupabase(formData);
 
-      if (imageUrl) {
-        const newImages = [...currentImages, imageUrl];
+      if (result.success && result.data) {
+        const newImages = [...currentImages, result.data];
         setValue("images", newImages, {
           shouldDirty: true,
         });
@@ -204,7 +204,7 @@ export default function CategoryForm({
 
         toast.success("Image uploaded successfully");
       } else {
-        toast.warning("Failed to upload image");
+        toast.warning(result.error || "Failed to upload image");
       }
     } catch (error) {
       toast.warning("Error uploading image");

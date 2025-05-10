@@ -55,17 +55,13 @@ export default function CompleteProfilePage({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  const { code } = use(searchParams);
+  // Prefix with underscore to avoid unused var warning since we're intentionally
+  // not using it (handled in navbar instead)
+  const { code: _code } = use(searchParams);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const refreshUserData = useUserStore((state) => state.refreshUserData);
-
-  useEffect(() => {
-    if (code) {
-      router.replace("complete-profile", { scroll: false });
-    }
-  }, [code, router]);
 
   // Check authentication status
   useEffect(() => {
@@ -93,6 +89,7 @@ export default function CompleteProfilePage({
 
   // Handle form submission
   const onSubmit = async (data: ProfileFormData) => {
+    if (isSubmitting) return; // Prevent multiple submissions
     setIsSubmitting(true);
 
     try {
@@ -130,6 +127,7 @@ export default function CompleteProfilePage({
 
       if (userError || !user) {
         toast.error("Authentication error. Please login again.");
+        setIsSubmitting(false);
         router.push("/");
         return;
       }
@@ -142,22 +140,34 @@ export default function CompleteProfilePage({
           last_name: data.lastName,
           date_of_birth: data.dateOfBirth.toISOString().split("T")[0],
           phone: data.phone,
+          is_profile_complete: true, // Mark profile as complete
         })
         .eq("user_id", user.id);
 
       if (updateError) {
         toast.error("Failed to update profile: " + updateError.message);
+        setIsSubmitting(false);
         return;
       }
 
       // Update local user state
-      await refreshUserData();
+      const userDataRefreshed = await refreshUserData();
+
+      if (!userDataRefreshed) {
+        console.warn(
+          "Profile updated in database but failed to refresh user data in store"
+        );
+        // We still continue with navigation even if local store update failed
+      }
+
       toast.success("Profile completed successfully!");
+
+      // Ensure we set isSubmitting to false before navigation
+      setIsSubmitting(false);
       router.push("/dashboard");
     } catch (error) {
       console.error("Error updating profile:", error);
       toast.error("Something went wrong. Please try again.");
-    } finally {
       setIsSubmitting(false);
     }
   };

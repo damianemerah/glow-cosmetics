@@ -1,0 +1,106 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+Refactor the selected Next.js Server Action to implement robust error handling and return a structured response.
+
+The Server Action should:
+1.  Be wrapped in a `try...catch` block to handle any unexpected errors.
+2.  Define a clear, structured return type (e.g., `Promise<ActionResult>`) where `ActionResult` is an interface like:
+    ```typescript
+    interface ActionResult<T = any> { // T is the type of data on success
+      success: boolean;
+      data?: T;
+      error?: string; // User-friendly error message
+      errorCode?: string; // A specific code for client-side logic (e.g., 'FILE_TOO_LARGE', 'UNAUTHORIZED', 'DB_ERROR')
+      // Potentially add a 'details' field for more technical error info (for server logging, not client display)
+    }
+    ```
+3.  **Explicitly handle known error conditions** (e.g., validation failures, failed database operations, permission issues) by returning an `ActionResult` with `success: false`, an appropriate `error` message, and an `errorCode`. Do NOT just throw generic errors for these known cases.
+4.  **For expected successful outcomes:** Return an `ActionResult` with `success: true` and any relevant `data`.
+5.  **In the `catch` block (for unexpected errors):**
+    *   Log the actual error to the server console (e.g., `console.error("Unexpected error in [ActionName]:", e);`).
+    *   Return an `ActionResult` with `success: false`, a generic user-friendly `error` message (e.g., "An unexpected error occurred. Please try again."), and an `errorCode` like `'UNKNOWN_ERROR'`.
+6.  Ensure all paths through the function return a value conforming to `ActionResult`.
+
+**Example of how to use the prompt:**
+
+*Select your `uploadAvatar` function, then tell Cursor:*
+
+"Apply the Server Action refactoring rules to this `uploadAvatar` function. The success data type `T` for `ActionResult` will be `string` (for the avatar URL)."
+
+**2. Conceptual `.cursor-rules.yaml` (Illustrative - Syntax is Hypothetical):**
+
+If Cursor had a YAML rule engine for this, it might look something like this conceptually. *This is not a real Cursor feature as far as I know, but illustrates the logic.*
+
+```yaml
+id: ensure-server-action-error-handling
+language: typescript
+description: "Refactors Next.js Server Actions to use try-catch and return structured errors."
+scope:
+  # Target functions marked with "use server" or in files conventionally named for actions
+  patterns:
+    - "**/actions/**/*.ts"
+    - "**/actions.ts"
+  # And that are async functions
+  functionSignature: "async function" # Or more complex AST matching
+
+# This part is highly AI-dependent and conceptual
+refactor:
+  # 1. Define or import a standard ActionResult interface
+  ensureInterface:
+    name: ActionResult<T = any>
+    definition: |
+      interface ActionResult<T = any> {
+        success: boolean;
+        data?: T;
+        error?: string;
+        errorCode?: string;
+      }
+    placement: "top_of_file_if_not_exists" # or import from a shared types file
+
+  # 2. Modify function signature to return Promise<ActionResult<ReturnType>>
+  modifyFunctionSignature:
+    returnType: "Promise<ActionResult<{{originalReturnType}}>>" # {{originalReturnType}} is a placeholder
+
+  # 3. Wrap entire function body in try...catch
+  wrapBody:
+    type: tryCatch
+    catchBlock: |
+      console.error("Unexpected error in {{functionName}}:", error); // {{functionName}} is a placeholder
+      return {
+        success: false,
+        error: "An unexpected error occurred. Please try again.",
+        errorCode: 'UNKNOWN_ERROR'
+      };
+
+  # 4. Transform direct `throw new Error("message")` statements
+  #    This is the hardest part for an automated rule without sophisticated AI understanding context.
+  #    It would need to identify "known" error throws vs. truly unexpected ones.
+  transformThrows:
+    # If throw message matches a known pattern, convert to structured error return
+    - if: 'error.message.includes("File size should be less than")'
+      return: |
+        return {
+          success: false,
+          error: "File size should be less than 2MB.", // Or use original message
+          errorCode: 'FILE_TOO_LARGE'
+        };
+    # Convert other specific known throws...
+
+  # 5. Transform successful return statements
+  transformReturns:
+    # For existing `return value;`
+    return: |
+      return {
+        success: true,
+        data: {{originalReturnValue}} // {{originalReturnValue}} is a placeholder
+      };
+    # This needs to handle cases where there's no explicit return (void functions on success)
+    # or where data might not be applicable.
+
+  # 6. Ensure all control flow paths return an ActionResult
+
+
+  #    This is complex and would likely require control flow analysis.

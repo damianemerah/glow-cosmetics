@@ -23,7 +23,10 @@ export default async function ProductPage({
 }
 
 async function ProductDetail({ id }: { id: string }) {
-  const product = id?.toLowerCase() !== "new" && (await fetchProductById(id));
+  const productResult =
+    id?.toLowerCase() !== "new"
+      ? await fetchProductById(id)
+      : { success: true, data: null };
   const result = await fetchCategoryById("parent-options");
   const categories =
     result.success && result.categories
@@ -32,7 +35,16 @@ async function ProductDetail({ id }: { id: string }) {
         : []
       : [];
 
+  if (!productResult.success) {
+    console.error("Failed to fetch product:", productResult.error);
+    // Provide some fallback to avoid breaking the UI
+  }
+
   return (
-    <ProductForm id={id} initialData={product} categoryData={categories} />
+    <ProductForm
+      id={id}
+      initialData={productResult.data}
+      categoryData={categories}
+    />
   );
 }

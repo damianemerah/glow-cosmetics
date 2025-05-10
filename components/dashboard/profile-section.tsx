@@ -1,14 +1,15 @@
 "use client";
-import React, { useState, useEffect } from "react"; // Added useEffect
+import React, { useState, useEffect, useCallback } from "react"; // Added useCallback
 import useSWR from "swr";
 import { format } from "date-fns";
-import { Edit, Upload, AlertCircle, CalendarIcon } from "lucide-react"; // Added CalendarIcon
+import { Edit, Upload, AlertCircle, CalendarIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PhoneInput from "react-phone-input-2";
-import { useForm } from "react-hook-form"; // Added
-import { zodResolver } from "@hookform/resolvers/zod"; // Added
-import * as z from "zod"; // Added
-import { capitalize } from "@/utils";
+import "react-phone-input-2/lib/style.css"; // Import stylesheet for react-phone-input-2
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { capitalize } from "@/utils"; // Assuming you have this utility
 
 import {
   Avatar,
@@ -23,34 +24,41 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  // Label, // Replaced by FormLabel
   Calendar,
   Popover,
-  // PopoverContent,
   PopoverTrigger,
-  Form, // Added
-  FormControl, // Added
-  // FormDescription, // Optional
-  FormField, // Added
-  FormItem, // Added
-  FormLabel, // Added
-  FormMessage, // Added
-} from "@/constants/ui/index";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/constants/ui/index"; // Assuming this is your Shadcn UI export path
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import type { Profile } from "@/types/index";
-import { uploadAvatar, updateProfile } from "@/actions/dashboardAction";
-import { ContainedPopoverContent } from "../ui/ContainedPopoverContent";
+import { uploadAvatar, updateProfile } from "@/actions/dashboardAction"; // Your server actions
+import { ContainedPopoverContent } from "../ui/ContainedPopoverContent"; // Assuming this path is correct
 
 // Define Zod schema for form validation
 const profileFormSchema = z.object({
-  first_name: z.string().min(1, "First name is required."),
-  last_name: z.string().min(1, "Last name is required."),
+  first_name: z
+    .string()
+    .min(1, "First name is required.")
+    .max(50, "First name is too long."),
+  last_name: z
+    .string()
+    .min(1, "Last name is required.")
+    .max(50, "Last name is too long."),
   email: z.string().email("Invalid email address."),
-  phone: z.string().min(10, "Phone number is required and seems too short."), // Adjust as needed
+  phone: z
+    .string()
+    .min(10, "Phone number seems too short.")
+    .max(15, "Phone number seems too long.")
+    .optional()
+    .or(z.literal("")), // Optional, allow empty
   date_of_birth: z
     .date({
-      required_error: "Date of birth is required.",
       invalid_type_error: "That's not a valid date!",
     })
     .nullable()
@@ -78,32 +86,32 @@ export default function ProfileSection({
 
   const {
     data: profile,
-    error,
+    error: swrError,
     mutate,
   } = useSWR<Profile | null>("user-profile", null, {
+    // Key can be anything unique if fetcher is null
     fallbackData: initialProfile,
-    revalidateOnFocus: false,
+    revalidateOnFocus: false, // Keep manual control via mutate
   });
 
-  // Initialize react-hook-form
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues: {
-      first_name: capitalize(initialProfile?.first_name) || "",
-      last_name: capitalize(initialProfile?.last_name) || "",
-      email: initialProfile?.email || "",
-      phone: initialProfile?.phone || "",
-      date_of_birth: initialProfile?.date_of_birth
-        ? new Date(initialProfile.date_of_birth)
-        : undefined,
+      // Initial defaults, will be overridden by useEffect
+      first_name: "",
+      last_name: "",
+      email: "",
+      phone: "",
+      date_of_birth: undefined,
     },
   });
 
-  const watchedFirstName = form.watch("first_name"); // For avatar preview
+  const watchedFirstName = form.watch("first_name"); // For dynamic avatar fallback
 
-  // Effect to reset form when dialog opens or profile data changes
+  // Effect to reset form when dialog opens or profile data (from SWR) changes
   useEffect(() => {
     if (profile) {
+      // Check if profile data is available
       form.reset({
         first_name: capitalize(profile.first_name) || "",
         last_name: capitalize(profile.last_name) || "",
@@ -113,128 +121,175 @@ export default function ProfileSection({
           ? new Date(profile.date_of_birth)
           : undefined,
       });
-      if (!avatarFile) {
-        // Only reset preview if user hasn't selected a new file
+      if (isDialogOpen && !avatarFile) {
+        // Only reset preview from profile if dialog is open AND no new file is selected
         setAvatarPreview(profile.avatar || null);
+      } else if (!isDialogOpen) {
+        // When dialog closes
+        setAvatarFile(null); // Clear staged avatar file
+        setAvatarPreview(profile.avatar || null); // Revert preview to current profile avatar
       }
     }
-  }, [profile, form, isDialogOpen, avatarFile]); // Rerun if dialog opens to ensure latest profile data
+  }, [profile, form, isDialogOpen, avatarFile]); // Removed avatarFile from deps to avoid loop on its own change
 
-  const calculateProfileCompletion = () => {
+  const calculateProfileCompletion = useCallback(() => {
     if (!profile) return 0;
-    const fields = [
+    const fieldsToConsider: (string | Date | null | undefined)[] = [
       profile.first_name,
       profile.last_name,
       profile.email,
       profile.phone,
       profile.date_of_birth,
+      profile.avatar, // Optionally include avatar in completion
     ];
-    const completedFields = fields.filter(
-      (field) => field && String(field).trim() !== ""
+    const completedFields = fieldsToConsider.filter(
+      (field) =>
+        field &&
+        String(field).trim() !== "" &&
+        field !== null &&
+        field !== undefined
     ).length;
-    return Math.round((completedFields / fields.length) * 100);
-  };
+    return Math.round((completedFields / fieldsToConsider.length) * 100);
+  }, [profile]);
 
-  const handleOpenDialog = () => {
-    // Form reset is now handled by useEffect based on `isDialogOpen` and `profile`
-    setIsDialogOpen(true);
-  };
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+  const handleAvatarFileSelect = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const fileSizeMB = file.size / 1024 / 1024;
+      if (fileSizeMB > 2) {
+        // Client-side check for immediate feedback
+        toast.error("File is too large.", {
+          description: "Please select an image smaller than 2MB.",
+        });
+        event.target.value = ""; // Clear the file input
+        setAvatarFile(null); // Ensure staged file is cleared
+        setAvatarPreview(profile?.avatar || null); // Revert preview
+        return;
+      }
       setAvatarFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    } else {
+      // If user cancels file selection
+      setAvatarFile(null);
+      setAvatarPreview(profile?.avatar || null);
     }
   };
 
-  async function onSubmit(data: ProfileFormValues) {
+  async function onSubmit(formData: ProfileFormValues) {
     setIsSubmitting(true);
+    let newAvatarUrl: string | undefined = undefined;
 
     if (!profile?.user_id) {
-      toast.warning("User ID not found");
+      toast.error("Authentication error.", {
+        description: "User ID not found. Please log in again.",
+      });
       setIsSubmitting(false);
       return;
     }
 
+    // 1. Handle Avatar Upload if a new file is staged
+    if (avatarFile) {
+      const uploadResult = await uploadAvatar(avatarFile, profile.user_id);
+      if (!uploadResult.success) {
+        toast.error(uploadResult.error || "Failed to upload avatar.", {
+          description:
+            uploadResult.errorCode === "FILE_TOO_LARGE"
+              ? "Selected image is too large (max 2MB)." // Using 2MB as per your server error message
+              : "Please try again or select a different image.",
+          icon: <AlertCircle className="text-red-500 w-5 h-5" />,
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      newAvatarUrl = uploadResult.data;
+      setAvatarFile(null); // Clear staged file as it's now processed (or attempted)
+    }
+
+    // 2. Prepare Profile Data for Update
     try {
-      const updateData: Partial<Profile> = {
-        ...data,
-        date_of_birth: data.date_of_birth
-          ? data.date_of_birth.toISOString().split("T")[0]
-          : undefined,
+      const updatePayload: Partial<Profile> = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        // email: formData.email, // Typically email shouldn't be updated here directly
+        phone: formData.phone || null, // Send null if empty string to clear
+        date_of_birth: formData.date_of_birth
+          ? formData.date_of_birth.toISOString().split("T")[0]
+          : null, // Send null if undefined/cleared
         updated_at: new Date().toISOString(),
       };
 
-      if (avatarFile) {
-        try {
-          const avatarUrl = await uploadAvatar(avatarFile, profile.user_id);
-          updateData.avatar = avatarUrl;
-        } catch (uploadError) {
-          const err = uploadError as Error;
-          toast.warning("Failed to upload profile picture", {
-            description: err?.message || "An error occurred",
-            icon: <AlertCircle className="text-red-500 w-5 h-5" />,
-            duration: 8000,
-          });
-          setIsSubmitting(false); // Stop submission if avatar upload fails
-          return;
-        }
+      if (newAvatarUrl !== undefined) {
+        updatePayload.avatar = newAvatarUrl;
       }
 
-      await updateProfile(updateData, profile.user_id);
-
-      mutate(
-        (currentProfile) =>
-          currentProfile ? { ...currentProfile, ...updateData } : null,
-        false
+      // 3. Update Profile
+      const profileUpdateResult = await updateProfile(
+        updatePayload,
+        profile.user_id
       );
 
-      toast.success("Profile updated successfully");
-      setIsDialogOpen(false);
-      setAvatarFile(null);
-      router.refresh();
+      if (!profileUpdateResult.success) {
+        toast.error("Failed to update profile.", {
+          description: "Please check your details and try again.",
+        });
+      } else {
+        toast.success("Profile updated successfully!");
+        setIsDialogOpen(false); // Close dialog on full success
+      }
+
+      await mutate(); // Revalidate SWR to get the latest profile state
+      router.refresh(); // If there are any server-side computed fields or redirects based on profile
     } catch (error) {
-      console.error("Profile update error:", error);
-      toast.warning("Failed to update profile");
-      mutate(); // Revalidate SWR cache on error
+      console.error("Profile update submission error:", error);
+      toast.error("An unexpected error occurred while updating your profile.");
+      await mutate(); // Revalidate SWR on unexpected error
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  if (error || initialError) {
-    toast.warning("Failed", {
-      description: "Unable to load profile data. Please try again.",
-    });
-    // Consider returning a skeleton or error message UI here
+  if (swrError || (initialError && !profile)) {
+    // Check if SWR has an error or if initial load failed and SWR hasn't populated data
+    return (
+      <div className="flex items-center p-4 text-red-800 bg-red-50 rounded-md my-6">
+        <AlertCircle className="h-5 w-5 mr-2" />
+        <p>
+          Unable to load profile data. Please refresh the page or try again
+          later.
+        </p>
+      </div>
+    );
   }
+
+  // Display a loading state if SWR is fetching and there's no profile data yet
+  // This is mainly for the initial load if `initialProfile` was null.
+  // const { isLoading: isSwrProfileLoading } = useSWR("user-profile"); // Can get isLoading from SWR itself
+  // if (isSwrProfileLoading && !profile) {
+  //    return <p>Loading profile...</p>; // Or a skeleton loader
+  // }
 
   return (
     <>
       <div className="flex flex-col md:flex-row md:items-center justify-between">
-        {/* ... (Profile display part remains the same) ... */}
         <div className="flex items-center space-x-4">
-          <Avatar className="h-12 w-12">
+          <Avatar className="h-16 w-16 md:h-20 md:w-20">
             <AvatarImage
               src={
                 profile?.avatar ||
                 `https://api.dicebear.com/7.x/initials/svg?seed=${
-                  profile?.first_name || "User"
+                  capitalize(profile?.first_name) || "User"
                 }`
               }
               alt={capitalize(profile?.first_name) || "User"}
             />
-            <AvatarFallback>
+            <AvatarFallback className="text-xl md:text-2xl">
               {capitalize(profile?.first_name)?.charAt(0) || "U"}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-xl md:text-2xl font-semibold text-gray-800">
               {capitalize(profile?.first_name)} {capitalize(profile?.last_name)}
             </h3>
             <p className="text-sm text-muted-foreground">{profile?.email}</p>
@@ -250,15 +305,15 @@ export default function ProfileSection({
           </div>
           <Progress
             value={calculateProfileCompletion()}
-            className="h-2 w-[200px]"
+            className="h-2 w-full md:w-[200px]"
           />
         </div>
 
         <Button
           variant="outline"
           size="sm"
-          className="mt-4 md:mt-0"
-          onClick={handleOpenDialog}
+          className="mt-4 md:ml-6 md:mt-0"
+          onClick={() => setIsDialogOpen(true)}
         >
           <Edit className="h-4 w-4 mr-2" />
           Edit Profile
@@ -266,48 +321,58 @@ export default function ProfileSection({
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] profile-dialog-content">
+        <DialogContent className="sm:max-w-[500px] profile-dialog-content max-h-[90vh] overflow-y-auto p-6">
           <DialogHeader>
-            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogTitle className="text-2xl font-montserrat">
+              Edit Profile
+            </DialogTitle>
             <DialogDescription>
-              Update your profile information below.
+              Make changes to your profile here. Click save when you&apos;re
+              done.
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-6 pt-4"
+            >
               <div className="flex flex-col items-center">
                 <div className="relative mb-2">
                   <Avatar className="h-24 w-24">
                     <AvatarImage
                       src={
-                        avatarPreview ||
-                        profile?.avatar || // Fallback to current profile avatar if preview not set
+                        avatarPreview || // Shows selected file preview, then current profile avatar
+                        profile?.avatar ||
                         `https://api.dicebear.com/7.x/initials/svg?seed=${
                           watchedFirstName || profile?.first_name || "User"
                         }`
                       }
                       alt={watchedFirstName || profile?.first_name || "User"}
                     />
-                    <AvatarFallback>
-                      {(watchedFirstName || profile?.first_name)?.charAt(0) ||
-                        "U"}
+                    <AvatarFallback className="text-3xl">
+                      {(watchedFirstName || profile?.first_name || "U")?.charAt(
+                        0
+                      )}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1 cursor-pointer">
-                    <label htmlFor="avatar-upload" className="cursor-pointer">
+                  <div className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-1.5 shadow-md hover:bg-primary/90 cursor-pointer">
+                    <label
+                      htmlFor="avatar-upload"
+                      className="cursor-pointer flex items-center justify-center h-full w-full"
+                    >
                       <Upload className="h-4 w-4" />
                       <input
                         id="avatar-upload"
                         type="file"
                         className="hidden"
-                        accept="image/*"
-                        onChange={handleAvatarChange}
+                        accept="image/png, image/jpeg, image/webp"
+                        onChange={handleAvatarFileSelect}
                       />
                     </label>
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Click the icon to upload a new profile picture
+                  Upload a new profile picture (Max 2MB).
                 </p>
               </div>
 
@@ -351,6 +416,7 @@ export default function ProfileSection({
                         type="email"
                         placeholder="john.doe@example.com"
                         {...field}
+                        disabled // Email is typically not editable here
                       />
                     </FormControl>
                     <FormMessage />
@@ -366,23 +432,20 @@ export default function ProfileSection({
                     <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <PhoneInput
-                        country={"za"} // Or your default country
+                        country={"za"}
                         value={field.value || ""}
                         onChange={(phoneValue) =>
                           field.onChange(
-                            phoneValue.startsWith("+")
-                              ? phoneValue
-                              : `+${phoneValue}`
+                            // Ensure value passed to RHF is string
+                            phoneValue
+                              ? phoneValue.startsWith("+")
+                                ? phoneValue
+                                : `+${phoneValue}`
+                              : ""
                           )
                         }
-                        inputProps={{
-                          name: field.name,
-                          onBlur: field.onBlur,
-                          // required: true, // react-hook-form handles this via schema
-                        }}
+                        inputProps={{ name: field.name, onBlur: field.onBlur }}
                         containerClass="w-full"
-                        // Apply shadcn input styles for consistency.
-                        // You might need to fine-tune these or use a wrapper component.
                         inputClass="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </FormControl>
@@ -411,7 +474,7 @@ export default function ProfileSection({
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "PPP")
+                              format(new Date(field.value), "PPP") // Make sure field.value is a Date object
                             ) : (
                               <span>Pick a date</span>
                             )}
@@ -419,15 +482,23 @@ export default function ProfileSection({
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
-                      {/* 👇 MODIFICATION HERE FOR Z-INDEX 👇 */}
                       <ContainedPopoverContent
                         containerSelector=".profile-dialog-content"
-                        className="w-auto p-0 z-[1000]"
+                        className="w-auto p-0 z-[60]" // Ensure z-index is higher than dialog overlay (default 50 for Dialog)
                         align="start"
                         onInteractOutside={(e) => {
                           if (
                             (e.target as HTMLElement)?.closest(
-                              '[data-slot="popover-trigger"]'
+                              "[data-radix-popper-content-wrapper]"
+                            ) &&
+                            (e.target as HTMLElement)?.closest(
+                              '[role="dialog"]'
+                            )
+                          ) {
+                            // Allow interaction inside the dialog's popover
+                          } else if (
+                            (e.target as HTMLElement)?.closest(
+                              '[role="combobox"]'
                             )
                           ) {
                             e.preventDefault();
@@ -436,8 +507,10 @@ export default function ProfileSection({
                       >
                         <Calendar
                           mode="single"
-                          showCustomCaption={true} // Use year-only dropdown caption
-                          selected={field.value || undefined}
+                          showCustomCaption={true}
+                          selected={
+                            field.value ? new Date(field.value) : undefined
+                          }
                           onSelect={(
                             currentValue,
                             _selectedDay,
@@ -453,6 +526,7 @@ export default function ProfileSection({
                           }
                           fromYear={1920}
                           toYear={new Date().getFullYear()}
+                          initialFocus
                         />
                       </ContainedPopoverContent>
                     </Popover>
@@ -470,7 +544,14 @@ export default function ProfileSection({
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-green-500 hover:bg-green-600 text-white"
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
                   {isSubmitting ? "Saving..." : "Save Changes"}
                 </Button>
               </DialogFooter>

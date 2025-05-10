@@ -23,7 +23,15 @@ export const useBookingStore = create<BookingStoreState>((set, get) => ({
       set({ isLoading: true });
 
       // Fetch booked slots for the specified date
-      const bookedSlots = await fetchTodayBookings(date);
+      const result = await fetchTodayBookings(date);
+
+      if (!result.success) {
+        console.error("Error fetching booked slots:", result.error);
+        set({ isLoading: false });
+        return;
+      }
+
+      const bookedSlots = result.data || [];
 
       // Update the map with the new data
       const updatedSlots = new Map(get().bookedSlots);

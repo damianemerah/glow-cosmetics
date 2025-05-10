@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
 import useSWR from "swr";
@@ -35,7 +35,6 @@ const navLinks = [
 ];
 
 const Navbar = () => {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -115,9 +114,17 @@ const Navbar = () => {
         if (profileFetched) {
           mutateCartCount();
           await attemptCartMerge(authUser.id);
-          if (searchParams.get("code")) {
-            const newSearchParams = new URLSearchParams(window.location.search);
-            newSearchParams.delete("code");
+
+          // Clean up code query parameter from URL if it exists
+          // This ensures we only do this AFTER the profile has been successfully fetched
+          // which means Supabase has had a chance to properly process the auth code
+          const currentUrl = new URL(window.location.href);
+          if (currentUrl.searchParams.has("code")) {
+            // Remove code parameter but keep the pathname and other query params
+            currentUrl.searchParams.delete("code");
+            const newPathWithParams = `${currentUrl.pathname}${currentUrl.search}`;
+            // Use replace to avoid adding to browser history
+            router.replace(newPathWithParams, { scroll: false });
           }
         } else {
           console.warn(
@@ -135,7 +142,7 @@ const Navbar = () => {
       }
       setInitialAuthCheckComplete(true);
     },
-    [fetchUser, setUser, searchParams, mutateCartCount, attemptCartMerge]
+    [fetchUser, setUser, mutateCartCount, attemptCartMerge, router]
   );
 
   useEffect(() => {
@@ -189,9 +196,13 @@ const Navbar = () => {
   }, [processAuthUser]);
 
   const handleLogout = useCallback(async () => {
-    await signOut();
-    if (pathname.startsWith("/admin") || pathname === "/dashboard") {
-      router.push("/");
+    const result = await signOut();
+    if (result.success) {
+      if (pathname.startsWith("/admin") || pathname === "/dashboard") {
+        router.push("/");
+      }
+    } else {
+      toast.error(`Logout failed: ${result.error || "Unknown error"}`);
     }
   }, [signOut, router, pathname]);
 

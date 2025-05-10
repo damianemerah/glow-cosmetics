@@ -11,22 +11,30 @@ import { sanitizeTitle } from "@/utils";
 // Image upload function
 export const uploadImageToSupabase = async (
   formData: FormData,
-): Promise<string | null> => {
+): Promise<
+  { success: boolean; data?: string; error?: string; errorCode?: string }
+> => {
   try {
     const file = formData.get("file") as File;
     const bucket = formData.get("bucket") as string;
     const title = sanitizeTitle(formData.get("title") as string || "");
 
     if (!file || !bucket) {
-      throw new Error("File or bucket name is missing.");
+      return {
+        success: false,
+        error: "File or bucket name is missing.",
+        errorCode: "MISSING_PARAMETERS",
+      };
     }
 
     const allowedExtensions = ["jpg", "jpeg", "webp", "png"];
     const fileExtension = file.name.split(".").pop()?.toLowerCase();
     if (!fileExtension || !allowedExtensions.includes(fileExtension)) {
-      throw new Error(
-        "Invalid file type. Only JPG, JPEG, and WEBP are allowed.",
-      );
+      return {
+        success: false,
+        error: "Invalid file type. Only JPG, JPEG, PNG and WEBP are allowed.",
+        errorCode: "INVALID_FILE_TYPE",
+      };
     }
 
     const shortTs = Date.now().toString().slice(-5);
@@ -44,18 +52,29 @@ export const uploadImageToSupabase = async (
       });
 
     if (error) {
-      console.log(error);
-      throw new Error(error.message);
+      console.error("Supabase storage upload error:", error);
+      return {
+        success: false,
+        error: "Failed to upload image to storage.",
+        errorCode: "STORAGE_UPLOAD_ERROR",
+      };
     }
 
     const { data: urlData } = supabaseAdmin.storage
       .from(bucket)
       .getPublicUrl(data.path);
 
-    return urlData.publicUrl;
+    return {
+      success: true,
+      data: urlData.publicUrl,
+    };
   } catch (err) {
     console.error("Error uploading image:", err);
-    return null;
+    return {
+      success: false,
+      error: "An unexpected error occurred during image upload.",
+      errorCode: "UNKNOWN_ERROR",
+    };
   }
 };
 
@@ -207,7 +226,7 @@ export async function saveCategory(data: Partial<Category>, id: string) {
 // Fetch product by ID
 export async function fetchProductById(id: string) {
   try {
-    if (id === "new") return null;
+    if (id === "new") return { success: true, data: null };
 
     const { data, error } = await supabaseAdmin
       .from("products")
@@ -222,7 +241,12 @@ export async function fetchProductById(id: string) {
       .single();
 
     if (error) {
-      throw new Error(`Failed to fetch product: ${error.message}`);
+      console.error(`Failed to fetch product: ${error.message}`);
+      return {
+        success: false,
+        error: `Failed to fetch product: ${error.message}`,
+        errorCode: "DB_ERROR",
+      };
     }
 
     // Ensure image_url is an array and extract categories
@@ -242,18 +266,28 @@ export async function fetchProductById(id: string) {
         ) || [];
 
       return {
-        ...data,
-        image_url: imageUrl,
-        short_description: data.short_description || "",
-        description: data.description || "",
-        categoryIds, // Add category IDs for the form
+        success: true,
+        data: {
+          ...data,
+          image_url: imageUrl,
+          short_description: data.short_description || "",
+          description: data.description || "",
+          categoryIds, // Add category IDs for the form
+        },
       };
     }
 
-    return null;
+    return {
+      success: true,
+      data: null,
+    };
   } catch (error) {
     console.error("Error fetching product:", error);
-    throw error;
+    return {
+      success: false,
+      error: "An unexpected error occurred while fetching product data",
+      errorCode: "UNKNOWN_ERROR",
+    };
   }
 }
 
@@ -359,66 +393,97 @@ export async function fetchProducts(
   category: string = "all",
 ) {
   const itemsPerPage = 20;
-
   const cacheKey = `products-page-${page}-search-${search}-cat-${category}`;
 
-  const getFilteredPagedProducts = unstable_cache(
-    async (pageNum: number, searchTerm: string, categoryId: string) => {
-      let query = supabaseAdmin
-        .from("products")
-        .select(
-          `
-                  *,
-                  product_categories!inner (
-                      category_id,
-                      categories:category_id (id, name, slug)
-                  )
-                  `,
-          { count: "exact" },
-        );
+  try {
+    const getFilteredPagedProducts = unstable_cache(
+      async (pageNum: number, searchTerm: string, categoryId: string) => {
+        try {
+          let query = supabaseAdmin
+            .from("products")
+            .select(
+              `
+                      *,
+                      product_categories!inner (
+                          category_id,
+                          categories:category_id (id, name, slug)
+                      )
+                      `,
+              { count: "exact" },
+            );
 
-      if (searchTerm) {
-        query = query.ilike("name", `%${searchTerm.trim()}%`);
-      }
+          if (searchTerm) {
+            query = query.ilike("name", `%${searchTerm.trim()}%`);
+          }
 
-      if (categoryId && categoryId !== "all") {
-        query = query.eq("product_categories.category_id", categoryId);
-      }
+          if (categoryId && categoryId !== "all") {
+            query = query.eq("product_categories.category_id", categoryId);
+          }
 
-      query = query
-        .order("created_at", { ascending: false })
-        .range((pageNum - 1) * itemsPerPage, pageNum * itemsPerPage - 1);
+          query = query
+            .order("created_at", { ascending: false })
+            .range((pageNum - 1) * itemsPerPage, pageNum * itemsPerPage - 1);
 
-      const { data: products, error, count } = await query;
+          const { data: products, error, count } = await query;
 
-      if (error) {
-        console.error(
-          `Error fetching products (Page: ${pageNum}, Search: "${searchTerm}", Category: "${categoryId}")`,
-          error,
-        );
-        throw new Error(
-          `Database error fetching products: ${error.message}. Check if category relation exists and filtering syntax is correct.`,
-        );
-      }
+          if (error) {
+            console.error(
+              `Error fetching products (Page: ${pageNum}, Search: "${searchTerm}", Category: "${categoryId}")`,
+              error,
+            );
+            return {
+              success: false,
+              error:
+                `Database error fetching products: ${error.message}. Check if category relation exists and filtering syntax is correct.`,
+              errorCode: "DB_ERROR",
+              products: [],
+              totalCount: 0,
+              totalPages: 0,
+            };
+          }
 
-      return {
-        products: (products || []) as ProductWithCategories[],
-        totalCount: count || 0,
-        totalPages: Math.ceil((count || 0) / itemsPerPage),
-      };
-    },
-    [cacheKey],
-    {
-      revalidate: 60,
-      tags: [
-        "products",
-        `products_search_${search}`,
-        `products_category_${category}`,
-      ],
-    },
-  );
+          return {
+            success: true,
+            products: (products || []) as ProductWithCategories[],
+            totalCount: count || 0,
+            totalPages: Math.ceil((count || 0) / itemsPerPage),
+          };
+        } catch (error) {
+          console.error("Error in getFilteredPagedProducts:", error);
+          return {
+            success: false,
+            error: "An unexpected error occurred while fetching products",
+            errorCode: "UNKNOWN_ERROR",
+            products: [],
+            totalCount: 0,
+            totalPages: 0,
+          };
+        }
+      },
+      [cacheKey],
+      {
+        revalidate: 60,
+        tags: [
+          "products",
+          `products_search_${search}`,
+          `products_category_${category}`,
+        ],
+      },
+    );
 
-  return getFilteredPagedProducts(page, search, category);
+    const result = await getFilteredPagedProducts(page, search, category);
+    return result;
+  } catch (error) {
+    console.error("Error in fetchProducts:", error);
+    return {
+      success: false,
+      error: "An unexpected error occurred while fetching products",
+      errorCode: "UNKNOWN_ERROR",
+      products: [],
+      totalCount: 0,
+      totalPages: 0,
+    };
+  }
 }
 
 export async function deleteProduct(

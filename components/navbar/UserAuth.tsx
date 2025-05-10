@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, Layers, CalendarCheck, Heart } from "lucide-react";
+import { LogOut, Layers } from "lucide-react";
 import {
   Avatar,
   AvatarFallback,
@@ -50,7 +50,7 @@ export const UserAuth = ({ onLogout, isLoading }: UserAuthProps) => {
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">
+              <p className="text-sm font-medium leading-none capitalize">
                 {user.full_name || "User"}
               </p>
               <p className="text-xs leading-none text-muted-foreground">
@@ -66,24 +66,6 @@ export const UserAuth = ({ onLogout, isLoading }: UserAuthProps) => {
             >
               <Layers className="mr-2 h-4 w-4" />
               <span>Dashboard</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link
-              href="/dashboard#bookings"
-              className="flex items-center cursor-pointer"
-            >
-              <CalendarCheck className="mr-2 h-4 w-4" />
-              <span>My Bookings</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link
-              href="/dashboard#wishlists"
-              className="flex items-center cursor-pointer"
-            >
-              <Heart className="mr-2 h-4 w-4" />
-              <span>Wishlist</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem

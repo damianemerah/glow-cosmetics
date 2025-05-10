@@ -15,9 +15,15 @@ export default async function ClientsPage({
 
   const currentPage = Number(searchParams?.page || "1");
 
-  const initialData = await getClients(currentPage, ITEMS_PER_PAGE);
-  const initialClients = initialData?.clients || [];
-  const initialTotalPages = initialData?.totalPages || 1;
+  const result = await getClients(currentPage, ITEMS_PER_PAGE);
+
+  const initialClients = result.success ? result.clients || [] : [];
+  const initialTotalPages = result.success ? result.totalPages || 1 : 1;
+
+  if (!result.success) {
+    console.error("Error fetching clients:", result.error);
+    // You could display an error message here
+  }
 
   return (
     <div>

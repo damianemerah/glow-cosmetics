@@ -372,14 +372,14 @@ export default function DashboardPage() {
 
           {/* Settings Tab */}
           <TabsContent value="settings">
-            <Card>
-              <CardHeader>
+            <Card className="border-none">
+              <CardHeader className="px-0">
                 <CardTitle>Account Settings</CardTitle>
                 <CardDescription>
                   Manage your account preferences
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-0">
                 <Suspense
                   fallback={<Skeleton className="h-24 w-full rounded-md" />}
                 >

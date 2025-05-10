@@ -251,15 +251,15 @@ export default function ProductForm({
       formData.append("bucket", "product-images");
       formData.append("title", watch("name") || "Product Image");
 
-      const imageUrl = await uploadImageToSupabase(formData);
+      const result = await uploadImageToSupabase(formData);
 
-      if (imageUrl) {
-        const newImages = [...(currentImages || []), imageUrl];
+      if (result.success && result.data) {
+        const newImages = [...(currentImages || []), result.data];
         setValue("image_url", newImages, { shouldDirty: true });
         safeUpdateCache({ image_url: newImages });
         toast.success("Image uploaded successfully");
       } else {
-        toast.warning("Failed to upload image.");
+        toast.warning(result.error || "Failed to upload image.");
       }
     } catch (error) {
       toast.warning("Error uploading image");
