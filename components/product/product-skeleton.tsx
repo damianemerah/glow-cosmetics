@@ -135,3 +135,21 @@ export function ProductCardSkeleton() {
     </div>
   );
 }
+
+export function MobileNavigationSkeleton() {
+  return (
+    <div className="fixed bottom-0 left-0 right-0 bg-white border border-gray-200 z-60">
+      <div className="grid grid-cols-5 h-16">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex flex-col items-center justify-center space-y-1"
+          >
+            <Skeleton className="w-5 h-5 rounded-md" />
+            <Skeleton className="w-10 h-2 rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

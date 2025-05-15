@@ -1,4 +1,4 @@
-CREATE EXTENSION IF NOT EXISTS "pg_trgm" WITH SCHEMA "extensions" VERSION '1.6';
+CREATE EXTENSION IF NOT EXISTS "pg_trgm" WITH SCHEMA "extensions";
 
 alter table "public"."profiles" add column if not exists "last_purchase_date" timestamp without time zone;
 

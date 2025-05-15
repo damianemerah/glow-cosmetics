@@ -117,7 +117,8 @@ export interface Service {
   name: string;
   description: string;
   price: number;
-  category: "makeup" | "consultation" | "skincare";
+  category: string;
+  slug: string;
   image: string;
   videoUrl?: string;
   details: string;
@@ -187,4 +188,39 @@ export interface WishlistItem {
     | "is_bestseller"
     | "compare_price"
   >;
+}
+
+// src/types/index.ts (or a relevant types file)
+
+export interface ProdCategory {
+  id: string;
+  name: string;
+  slug: string;
+  parent_id: string | null;
+  images?: string[]; // Optional, if you use them
+  pinned?: boolean; // Optional, if you use them
+  description?: string; // Optional
+  // Add any other product category specific fields
+}
+
+export interface ServiceItem {
+  id: string;
+  name: string;
+  slug: string; // We'll need a slug for navigation
+  description: string;
+  price?: number; // Optional if not always displayed
+  image?: string; // Optional
+  details?: string; // Optional
+  category?: string; // To group services, e.g., "makeup", "skincare"
+}
+
+// A top-level category type that can represent either
+export interface UnifiedCategory {
+  id: string;
+  name: string;
+  slug: string;
+  type: "product" | "service";
+  children?: UnifiedCategory[];
+  parent_slug?: string; // For constructing URLs for product subcategories
+  pinned?: boolean;
 }

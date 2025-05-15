@@ -173,7 +173,7 @@ export function UserDetailsForm({
                 >
                   <Calendar
                     mode="single"
-                    showCustomCaption={true} // Use year-only dropdown caption
+                    captionLayout="dropdown-buttons"
                     selected={field.value}
                     onSelect={(
                       currentValue,

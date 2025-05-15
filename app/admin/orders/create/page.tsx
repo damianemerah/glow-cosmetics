@@ -268,19 +268,6 @@ export default function CreateOrderPage() {
 
       if (itemsError) throw itemsError;
 
-      // // If order is marked as paid, update inventory
-      // if (orderData.status === "paid") {
-      //   const { error: rpcError } = await supabaseClient.rpc(
-      //     "update_inventory_after_purchase",
-      //     { order_id: order.id }
-      //   );
-
-      //   if (rpcError) {
-      //     console.error("Error updating inventory:", rpcError);
-      //     toast.warning("Order created but inventory update failed");
-      //   }
-      // }
-
       toast.success(`Order ${reference} created successfully`);
       router.push("/admin/orders");
     } catch (error) {
@@ -574,7 +561,8 @@ export default function CreateOrderPage() {
                     <SelectContent>
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="paid">Paid</SelectItem>
-                      <SelectItem value="processing">Processing</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

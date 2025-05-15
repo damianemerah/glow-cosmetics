@@ -7,10 +7,6 @@ export default async function OrdersPage({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  // const page = searchParams?.page || "1";
-  // const status = searchParams?.status || "all";
-  // const userSearch = searchParams?.userSearch || "";
-
   const { page = "1", status = "all", userSearch = "" } = await searchParams;
 
   const currentPage = parseInt(page, 10);

@@ -194,7 +194,7 @@ function ProductDetailsText({
         />
         <button
           onClick={handleToggleWishlist}
-          disabled={isWishlistLoading}
+          disabled={isWishlistLoading || !user?.id}
           className={`flex items-center justify-center p-3 h-11 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors ${isWishlistLoading ? "opacity-50 cursor-wait" : ""}`}
           aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >

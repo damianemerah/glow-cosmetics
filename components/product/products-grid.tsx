@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ProductWithCategories } from "@/types/index";
 import { ProductCard } from "@/components/product/product-card";
@@ -10,6 +10,7 @@ import ProductSortView, {
   type ViewMode,
 } from "./product-sort-view";
 import Link from "next/link";
+import { useScrollStore } from "@/store/scrollStore";
 
 interface ProductsGridProps {
   products: ProductWithCategories[];
@@ -36,6 +37,24 @@ export default function ProductsGrid({
   const [products, setProducts] =
     useState<ProductWithCategories[]>(initialProducts);
 
+  const localFiltersRef = useRef<HTMLDivElement>(null);
+  const setFiltersElementRef = useScrollStore(
+    (state) => state.setFiltersElementRef
+  );
+  const clearFiltersElementRef = useScrollStore(
+    (state) => state.clearFiltersElementRef
+  );
+
+  useEffect(() => {
+    if (localFiltersRef.current) {
+      setFiltersElementRef(localFiltersRef);
+    }
+
+    return () => {
+      clearFiltersElementRef(localFiltersRef);
+    };
+  }, [setFiltersElementRef, clearFiltersElementRef]);
+
   useEffect(() => {
     const sortParam = searchParams.get("sort") as SortOption | null;
     setCurrentSort(sortParam || initialSort);
@@ -57,9 +76,9 @@ export default function ProductsGrid({
   };
 
   return (
-    <section className="pb-8 md:pb-12 bg-background">
+    <section ref={localFiltersRef} className="pb-8 md:pb-12 bg-background">
       <div className="container mx-auto px-4 relative">
-        <div className="sticky top-10 z-20 -mx-4 px-4 bg-background border-b border-border">
+        <div className="sticky top-14 z-20 -mx-4 px-4 bg-background border-b border-border">
           <ProductSortView
             currentSort={currentSort}
             currentView={currentView}

@@ -25,85 +25,93 @@ export const services: Service[] = [
   {
     id: "microblading",
     name: "Microblading",
+    slug: "microblading", // Add slug
     description:
       "Achieve beautifully defined brows with our microblading service.",
     price: 1000,
     image: "/images/microblading.jpg",
     details:
       "Microblading uses a precise hand-drawn technique to create realistic, natural-looking eyebrow hairs. This service is ideal for filling in sparse brows or creating a fuller brow shape.",
-    category: "makeup",
+    category: "Permanent Makeup",
   },
   {
     id: "ombrebrows",
     name: "Ombre Brows",
+    slug: "ombre-brows", // Add slug
     description: "Get soft-shaded, powdery brows with our ombre brows service.",
     price: 1200,
     image: "/images/ombre-brow.jpg",
     details:
       "Our ombre brows technique uses a shading method to create a soft, filled-in look that mimics the effect of brow makeup. Perfect for clients wanting a defined yet natural look.",
-    category: "makeup",
+    category: "Permanent Makeup",
   },
   {
     id: "lip-blush",
     name: "Lip Blush",
+    slug: "lip-blush", // Add slug
     description: "Get a soft, natural tint with our lip blush service.",
     price: 1000,
     image: "/images/lip-blush.jpg",
     details:
       "Our lip blush procedure enhances your natural lip color, providing a subtle, youthful tint that lasts. Enjoy fuller, more defined lips without the need for constant reapplication.",
-    category: "makeup",
+    category: "Permanent Makeup",
   },
   {
-    id: "eyeliner",
-    name: "Eyeliner",
+    id: "eyeliner-tattoo", // Changed to avoid conflict if you have product "eyeliner"
+    name: "Eyeliner Tattoo",
+    slug: "eyeliner-tattoo", // Add slug
     description: "Define your eyes with our precision eyeliner service.",
     price: 800,
     image: "/images/eyeliner.jpg",
     details:
       "Our eyeliner service offers a flawless, long-lasting application that enhances the natural shape of your eyes. Perfect for those looking for a defined yet natural look.",
-    category: "makeup",
+    category: "Permanent Makeup",
   },
   {
     id: "eyelash-extensions",
     name: "Individual Eyelash Extensions",
+    slug: "eyelash-extensions", // Add slug
     description:
       "Achieve fuller, longer lashes with our individual eyelash extensions.",
     price: 800,
     image: "/images/eyelash.jpg",
     details:
       "Our individual eyelash extensions are applied one by one to your natural lashes, creating a customizable look that ranges from subtle enhancement to full glamour.",
-    category: "makeup",
+    category: "Lash & Brow",
   },
   {
     id: "makeup-application",
     name: "Makeup Application",
+    slug: "makeup-application", // Add slug
     description: "Professional makeup application for any occasion.",
     price: 700,
     image: "/images/makeup.jpg",
     details:
       "Whether it's for a wedding, photoshoot, or night out, our professional makeup application service will create a flawless look tailored to your style and preferences.",
-    category: "makeup",
+    category: "Beauty Services",
   },
   {
     id: "skincare-treatment",
     name: "Skincare Treatment",
+    slug: "skincare-treatment", // Add slug
     description: "Personalized facial and skincare treatments.",
     price: 600,
     image: "/images/skin-care.jpg",
     details:
       "Our skincare treatments include deep cleansing, exfoliation, and hydration tailored to your skin type, helping you achieve a radiant, healthy complexion.",
-    category: "skincare",
+    category: "Skincare Services",
   },
   {
     id: "consultation",
     name: "Consultation",
+    slug: "consultation", // Add slug
     description:
       "Book a one-on-one consultation session with our beauty and wellness experts.",
     price: 200,
     image: "/images/consultation.jpg",
     details:
       "Our consultation service provides personalized advice on beauty and wellness. In this session, you can discuss your goals, ask questions about our services, and receive tailored recommendations to enhance your natural beauty. Free when you book a service.",
-    category: "consultation",
+    category: "Consultations",
   },
 ];
 
@@ -201,8 +209,19 @@ export const bookingTemplateVariables = [
   { name: "{{booking.specialRequests}}", description: "Special requests" },
 ];
 
-export const keys: Record<string, string> = {
+export const keyValueData: Record<string, string> = {
   instagram: "https://www.instagram.com/glowbyugosylviacosmetics",
   facebook: "https://www.facebook.com/profile.php?id=100069551504619",
   phone: "+27781470504",
+  whatsappNumber: "+27781470504",
+  accountNumber: "000471666",
+  bankName: "Standard Bank",
+  accountName: "Ugosylvia investment pty",
+  branchCode: "00051001",
 };
+
+export const deliveryOptions = [
+  { id: "store_pickup", name: "Store Pickup", fee: 0 },
+  { id: "postnet", name: "PostNet Delivery", fee: 110 },
+  { id: "paxi", name: "PAXI Delivery", fee: 70 },
+];

@@ -87,7 +87,7 @@ AS $function$
 BEGIN
   IF NEW.status = 'paid' AND OLD.status IS DISTINCT FROM NEW.status THEN
     PERFORM net.http_post(
-      url := 'https://7bc1-102-213-77-2.ngrok-free.app/api/webhooks/order-paid',
+      url := 'https://42eb-102-213-77-2.ngrok-free.app/api/webhooks/order-paid',
       body := jsonb_build_object(
         'order_id', NEW.id,
         'user_id', NEW.user_id,

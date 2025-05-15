@@ -507,7 +507,7 @@ export default function ProfileSection({
                       >
                         <Calendar
                           mode="single"
-                          showCustomCaption={true}
+                          captionLayout="dropdown-buttons"
                           selected={
                             field.value ? new Date(field.value) : undefined
                           }

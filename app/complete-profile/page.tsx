@@ -17,7 +17,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
   Button,
@@ -55,13 +54,27 @@ export default function CompleteProfilePage({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
-  // Prefix with underscore to avoid unused var warning since we're intentionally
-  // not using it (handled in navbar instead)
   const { code: _code } = use(searchParams);
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const refreshUserData = useUserStore((state) => state.refreshUserData);
+  const user = useUserStore((state) => state.user);
+  const isFetchingUser = useUserStore((state) => state.isFetchingUser);
+  const needsProfileCompletion = useUserStore(
+    (state) => state.needsProfileCompletion
+  );
+
+  // Form setup
+  const form = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      phone: "",
+      dateOfBirth: undefined,
+    },
+  });
 
   // Check authentication status
   useEffect(() => {
@@ -76,16 +89,29 @@ export default function CompleteProfilePage({
     checkAuth();
   }, [router]);
 
-  // Form setup
-  const form = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      phone: "",
-      dateOfBirth: undefined,
-    },
-  });
+  useEffect(() => {
+    if (isFetchingUser) return;
+    const needCompletion = needsProfileCompletion();
+    if (!needCompletion || !user) {
+      router.push("/");
+    }
+  }, [needsProfileCompletion, isFetchingUser, router, user]);
+
+  useEffect(() => {
+    if (isFetchingUser) return;
+    //reset form with default values
+
+    if (user) {
+      form.reset({
+        firstName: user.first_name || "",
+        lastName: user.last_name || "",
+        phone: user.phone || "",
+        dateOfBirth: user.date_of_birth
+          ? new Date(user.date_of_birth)
+          : undefined,
+      });
+    }
+  }, [user, isFetchingUser, form]);
 
   // Handle form submission
   const onSubmit = async (data: ProfileFormData) => {
@@ -140,7 +166,6 @@ export default function CompleteProfilePage({
           last_name: data.lastName,
           date_of_birth: data.dateOfBirth.toISOString().split("T")[0],
           phone: data.phone,
-          is_profile_complete: true, // Mark profile as complete
         })
         .eq("user_id", user.id);
 
@@ -248,7 +273,7 @@ export default function CompleteProfilePage({
                 name="dateOfBirth"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Date of birth</FormLabel>
+                    <FormLabel>Date of Birth</FormLabel>
                     <Popover
                       open={isDatePickerOpen}
                       onOpenChange={setIsDatePickerOpen}
@@ -256,20 +281,16 @@ export default function CompleteProfilePage({
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
-                            variant={"outline"}
-                            role="combobox"
-                            aria-expanded={isDatePickerOpen}
+                            variant="outline"
                             className={cn(
-                              "w-full justify-start text-left font-normal",
+                              "w-full pl-3 text-left font-normal",
                               !field.value && "text-muted-foreground"
                             )}
                           >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Select your date of birth</span>
-                            )}
+                            {field.value
+                              ? format(field.value, "PPP")
+                              : "Pick a date"}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
                         </FormControl>
                       </PopoverTrigger>
@@ -281,13 +302,11 @@ export default function CompleteProfilePage({
                             field.onChange(date);
                             setIsDatePickerOpen(false);
                           }}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
+                          disabled={(date) => date > new Date()}
                           initialFocus
                           fromYear={1920}
                           toYear={new Date().getFullYear()}
-                          showCustomCaption={true}
+                          captionLayout="dropdown"
                         />
                       </PopoverContent>
                     </Popover>
@@ -298,7 +317,7 @@ export default function CompleteProfilePage({
 
               <Button
                 type="submit"
-                className="w-full bg-green-500 hover:bg-green-600"
+                className="w-full bg-primary hover:bg-primary/90"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -313,9 +332,6 @@ export default function CompleteProfilePage({
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="flex justify-center text-sm text-muted-foreground">
-          <p>All fields are required to proceed.</p>
-        </CardFooter>
       </Card>
     </div>
   );

@@ -25,6 +25,7 @@ import { addToCart } from "@/actions/cartAction";
 import { toggleWishlistItem } from "@/actions/wishlistActions";
 import { ProductQuickView } from "@/components/product/productQuickView";
 import { useWishlistStatus } from "@/lib/swr/wishlist";
+import { useCartStore } from "@/store/cartStore";
 
 interface ProductCardListProps {
   product: ProductWithCategories;
@@ -37,6 +38,10 @@ export function ProductCardList({ product }: ProductCardListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const user = useUserStore((state) => state.user);
   const setShowModal = useUserStore((state) => state.setShowModal);
+
+  const addOrUpdateOfflineItem = useCartStore(
+    (state) => state.addOrUpdateOfflineItem
+  );
 
   const {
     data: isInWishlist,
@@ -62,13 +67,22 @@ export function ProductCardList({ product }: ProductCardListProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!user?.id) {
-      setShowModal(true);
-      toast.info("Please log in to add items to your cart.");
-      return;
-    }
     setIsAddingToCart(true);
     try {
+      if (!user?.id) {
+        const productDetails = {
+          name: product.name,
+          price: product.price,
+          image_url: product.image_url,
+          stock_quantity: product.stock_quantity,
+        };
+
+        addOrUpdateOfflineItem(product.id, 1, null, productDetails);
+        toast.success(`Added to offline cart. Will sync when you log in.`);
+        setIsAddingToCart(false);
+        return;
+      }
+
       const cartProduct: CartItemInputData = {
         id: product.id,
         name: product.name,
@@ -77,7 +91,7 @@ export function ProductCardList({ product }: ProductCardListProps) {
       };
       const result = await addToCart(user.id, cartProduct, 1);
       if (result.success) {
-        toast.success(`${product.name} added to cart!`);
+        toast.success(`Added to cart!`);
       } else {
         toast.warning(result.error || "Failed to add item to cart.");
       }
@@ -247,30 +261,36 @@ export function ProductCardList({ product }: ProductCardListProps) {
                 </Button>
               )}
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className={`p-0 h-9 px-2 ${isWishlistLoading ? "opacity-50 cursor-wait" : ""}`}
-                    aria-label={
-                      isInWishlist ? "Remove from wishlist" : "Add to wishlist"
-                    }
-                    onClick={handleToggleWishlist}
-                    disabled={isWishlistLoading}
-                  >
-                    <Heart
-                      className={`h-4 w-4 mr-1 ${isInWishlist ? "fill-red-500 text-red-500" : ""}`}
-                    />
-                    {isInWishlist ? "Remove" : "Wishlist"}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>
-                    {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
+              {user && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`p-0 h-9 px-2 ${isWishlistLoading ? "opacity-50 cursor-wait" : ""}`}
+                      aria-label={
+                        isInWishlist
+                          ? "Remove from wishlist"
+                          : "Add to wishlist"
+                      }
+                      onClick={handleToggleWishlist}
+                      disabled={isWishlistLoading}
+                    >
+                      <Heart
+                        className={`h-4 w-4 mr-1 ${isInWishlist ? "fill-red-500 text-red-500" : ""}`}
+                      />
+                      {isInWishlist ? "Remove" : "Wishlist"}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      {isInWishlist
+                        ? "Remove from Wishlist"
+                        : "Add to Wishlist"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               <Tooltip>
                 <TooltipTrigger asChild>

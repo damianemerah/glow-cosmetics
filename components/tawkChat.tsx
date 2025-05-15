@@ -3,12 +3,14 @@
 
 import Script from "next/script";
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 
 // 1. Define the actual component implementation with a distinct name
 const TawkChatComponent = () => {
   // Fetch IDs from environment variables
   const tawkPropertyId = process.env.NEXT_PUBLIC_TAWK_PROPERTY_ID;
   const tawkWidgetId = process.env.NEXT_PUBLIC_TAWK_WIDGET_ID;
+  const pathname = usePathname();
 
   if (!tawkPropertyId || !tawkWidgetId) {
     console.warn(
@@ -18,6 +20,8 @@ const TawkChatComponent = () => {
   }
 
   const tawkSrc = `https://embed.tawk.to/${tawkPropertyId}/${tawkWidgetId}`;
+
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <>

@@ -268,3 +268,32 @@ export async function getOrderByRef(refId: string): Promise<Order | null> {
         return null; // Return null on unexpected errors too
     }
 }
+
+export async function getLastShippedOrder(
+    userId: string,
+): Promise<Order | null> {
+    if (!userId) return null;
+
+    try {
+        const { data, error } = await supabaseAdmin
+            .from("orders")
+            .select("*")
+            .eq("user_id", userId)
+            .neq("status", "pending")
+            .neq("status", "failed")
+            .in("delivery_method", ["postnet", "paxi"])
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+        if (error) {
+            console.error("Error fetching last shipped order:", error);
+            return null;
+        }
+
+        return data as Order | null;
+    } catch (error) {
+        console.error("Error in getLastShippedOrder:", error);
+        return null;
+    }
+}

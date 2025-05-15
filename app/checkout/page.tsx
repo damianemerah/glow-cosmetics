@@ -7,6 +7,7 @@ import { AuthSessionMissingError } from "@supabase/supabase-js";
 import { transformToAdditionalDetails } from "@/utils";
 import CheckoutSkeleton from "@/components/checkout/checkout-skeleton";
 import { Suspense } from "react";
+import { getLastShippedOrder } from "@/actions/orderAction";
 
 export const metadata: Metadata = {
   title: "Checkout | Glow Cosmetics",
@@ -47,6 +48,8 @@ export default async function CheckoutPage() {
     .select("id")
     .eq("user_id", userId)
     .maybeSingle();
+
+  const lastShippedOrder = await getLastShippedOrder(userId);
 
   if (cartError) {
     console.error(`Error fetching active cart for user ${userId}:`, cartError);
@@ -146,6 +149,7 @@ export default async function CheckoutPage() {
           cartId={cartId}
           cartItems={cartItems}
           initialTotalAmount={initialTotalAmount}
+          lastShippedOrder={lastShippedOrder}
         />
       </Suspense>
     </div>

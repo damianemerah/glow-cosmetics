@@ -9,41 +9,103 @@ type CartActionResult =
   | { success: true; message?: string }
   | { success: false; error: string };
 
-// Get or create cart for user
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+interface ActionResult<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  errorCode?: string;
+  message?: string;
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+// Inside cart.actions.ts
+
 export async function getOrCreateCart(userId: string) {
-  const { data: existingCart, error: cartError } = await supabaseAdmin
+  // Validate user existence first (optional but helps prevent 23503 early)
+  const { data: userExists, error: userCheckError } = await supabaseAdmin
+    .from("profiles") // Check directly against auth.users if possible, or profiles if guaranteed sync
+    .select("user_id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (userCheckError || !userExists) {
+    console.error(
+      `User check failed or user ${userId} not found before cart operation:`,
+      userCheckError,
+    );
+    // Decide how to handle: throw, return null, etc.
+    // Throwing is often safer to prevent operations on non-existent users.
+    throw new Error(`User ${userId} not found or inaccessible.`);
+  }
+
+  // First, try to select the existing cart
+  const { data: existingCart, error: selectError } = await supabaseAdmin
     .from("carts")
     .select("*")
     .eq("user_id", userId)
     .maybeSingle();
 
-  if (cartError) {
-    if (cartError.code === "PGRST116") {
-      console.log(
-        `No existing cart found for user ${userId}, creating new cart`,
-      );
-    } else {
-      console.error("Error fetching cart:", cartError);
-      throw cartError;
-    }
+  if (selectError && selectError.code !== "PGRST116") {
+    // Handle unexpected select errors (permissions, etc.)
+    console.error("Error selecting cart:", selectError);
+    throw selectError; // Re-throw unexpected errors
   }
 
-  // If cart exists, return it
+  // If cart exists, return it immediately
   if (existingCart) {
     return existingCart;
   }
 
-  const { data: newCart, error: createError } = await supabaseAdmin
+  // If cart doesn't exist, attempt to insert, ignoring conflict if it was created concurrently
+  console.log(
+    `No existing cart found for user ${userId}, attempting insert...`,
+  );
+  const { data: newCart, error: insertError } = await supabaseAdmin
     .from("carts")
     .insert([{ user_id: userId }])
     .select()
-    .single();
+    .maybeSingle(); // Use maybeSingle here too
 
-  if (createError) {
-    console.error("Error creating cart:", createError);
-    throw createError;
+  // Handle potential insert errors (like the 23503 foreign key if user check above wasn't done/failed)
+  if (insertError) {
+    // Specifically check if the error is the duplicate key we expect in a race condition
+    if (insertError.code === "23505") {
+      console.warn(
+        `Race condition detected: Cart for ${userId} created concurrently. Fetching it again.`,
+      );
+      // If insert failed due to duplicate key, the cart MUST exist now, so re-fetch it
+      const { data: raceCart, error: raceSelectError } = await supabaseAdmin
+        .from("carts")
+        .select("*")
+        .eq("user_id", userId)
+        .single(); // Use single() now, it should exist
+
+      if (raceSelectError || !raceCart) {
+        console.error(
+          "CRITICAL: Failed to fetch cart after race condition:",
+          raceSelectError,
+        );
+        // This case is problematic - insert failed for duplicate, but then couldn't select it?
+        throw raceSelectError ||
+          new Error("Failed to retrieve cart after detected race condition.");
+      }
+      return raceCart; // Return the cart fetched after the race
+    } else {
+      // Handle other insert errors (e.g., foreign key violation 23503)
+      console.error("Error creating cart:", insertError);
+      throw insertError; // Re-throw other critical insert errors
+    }
   }
 
+  if (!newCart) {
+    // This shouldn't happen if insert succeeded without error, but check defensively
+    console.error("Cart insert reported success but returned no data.");
+    throw new Error("Failed to create or retrieve cart.");
+  }
+
+  console.log(`Successfully created new cart for user ${userId}`);
   return newCart;
 }
 
@@ -250,25 +312,48 @@ export async function getCartItemsCount(userId: string): Promise<number> {
 export async function mergeOfflineCart(
   userId: string,
   offlineItems: OfflineCartItem[],
-) {
-  if (!userId || !offlineItems.length) {
-    return { success: true, message: "No items to merge", itemsAdded: 0 };
+): Promise<ActionResult<{ itemsAdded: number }>> {
+  if (!userId) {
+    return {
+      success: false,
+      error: "User ID is required",
+      errorCode: "INVALID_USER_ID",
+    };
+  }
+
+  if (!offlineItems.length) {
+    return {
+      success: true,
+      data: { itemsAdded: 0 },
+      message: "No items to merge",
+    };
   }
 
   try {
     // Get or create user's cart
     const cart = await getOrCreateCart(userId);
+    if (!cart) {
+      return {
+        success: false,
+        error: "Failed to retrieve or create cart",
+        errorCode: "CART_ERROR",
+      };
+    }
 
     // Get fresh product data for all offline items to ensure current prices
     const offlineProductIds = offlineItems.map((item) => item.id);
     const { data: currentProducts, error: productsError } = await supabaseAdmin
       .from("products")
-      .select("id, name, price")
+      .select("id, name, price, stock_quantity, is_active")
       .in("id", offlineProductIds);
 
     if (productsError) {
       console.error("Error fetching current product data:", productsError);
-      return { success: false, error: productsError };
+      return {
+        success: false,
+        error: "Failed to fetch current product data",
+        errorCode: "PRODUCT_FETCH_ERROR",
+      };
     }
 
     // Map of product id to current price and name
@@ -277,6 +362,8 @@ export async function mergeOfflineCart(
       productDataMap.set(product.id, {
         price: product.price,
         name: product.name,
+        stock_quantity: product.stock_quantity,
+        is_active: product.is_active,
       });
     });
 
@@ -290,13 +377,20 @@ export async function mergeOfflineCart(
 
     if (cartItemsError) {
       console.error("Error fetching existing cart items:", cartItemsError);
-      return { success: false, error: cartItemsError };
+      return {
+        success: false,
+        error: "Failed to fetch existing cart items",
+        errorCode: "CART_ITEMS_ERROR",
+      };
     }
 
     // Map product_id to existing cart item for quick lookup
     const existingItemsMap = new Map();
     existingCartItems?.forEach((item) => {
-      existingItemsMap.set(item.product_id, item);
+      const key = item.color
+        ? `${item.product_id}:${item.color}`
+        : item.product_id;
+      existingItemsMap.set(key, item);
     });
 
     // Process each offline item individually
@@ -314,38 +408,42 @@ export async function mergeOfflineCart(
 
       const productData = productDataMap.get(offlineItem.id);
       if (!productData) {
-        console.error(`Product data not found for item ${offlineItem.id}`);
-        results.errors.push(`Failed to merge item: Product not found`);
+        results.errors.push(`Product not found: ${offlineItem.id}`);
+        continue;
+      }
+
+      // Skip inactive products
+      if (!productData.is_active) {
+        results.errors.push(
+          `Product is no longer available: ${productData.name}`,
+        );
         continue;
       }
 
       try {
-        const existingItem = existingItemsMap.get(offlineItem.id);
+        const itemKey = offlineItem.color?.name
+          ? `${offlineItem.id}:${offlineItem.color.name}`
+          : offlineItem.id;
+
+        const existingItem = existingItemsMap.get(itemKey);
 
         if (existingItem) {
           // Update existing cart item quantity
-          let newQuantity = offlineItem.quantity + existingItem.quantity;
-          const availableStock = productData.stock_quantity;
-          if (newQuantity > availableStock) {
-            console.warn(
-              `Offline cart exceeds stock for ${offlineItem.id}. Clamping.`,
-            );
-            newQuantity = availableStock;
-          }
+          const newQuantity = Math.min(
+            offlineItem.quantity + existingItem.quantity,
+            productData.stock_quantity,
+          );
 
           const { error: updateError } = await supabaseAdmin
             .from("cart_items")
             .update({
               quantity: newQuantity,
               price_at_time: productData.price,
+              updated_at: new Date().toISOString(),
             })
             .eq("id", existingItem.id);
 
           if (updateError) {
-            console.error(
-              `Error updating cart item ${existingItem.id}:`,
-              updateError,
-            );
             results.errors.push(
               `Failed to update ${productData.name}: ${updateError.message}`,
             );
@@ -355,21 +453,27 @@ export async function mergeOfflineCart(
           }
         } else {
           // Insert new cart item
+          const actualQuantity = Math.min(
+            offlineItem.quantity,
+            productData.stock_quantity,
+          );
+
+          if (actualQuantity <= 0) {
+            results.errors.push(`${productData.name} is out of stock`);
+            continue;
+          }
+
           const { error: insertError } = await supabaseAdmin
             .from("cart_items")
             .insert([{
               cart_id: cart.id,
               product_id: offlineItem.id,
-              quantity: offlineItem.quantity,
+              quantity: actualQuantity,
               price_at_time: productData.price,
               color: offlineItem.color?.name || null,
             }]);
 
           if (insertError) {
-            console.error(
-              `Error inserting cart item for product ${offlineItem.id}:`,
-              insertError,
-            );
             results.errors.push(
               `Failed to add ${productData.name}: ${insertError.message}`,
             );
@@ -379,12 +483,11 @@ export async function mergeOfflineCart(
           }
         }
       } catch (error) {
-        console.error(`Exception processing item ${offlineItem.id}:`, error);
         const errorMessage = error instanceof Error
           ? error.message
           : "Unknown error";
         results.errors.push(
-          `Error merging ${productData.name}: ${errorMessage}`,
+          `Error processing ${productData.name}: ${errorMessage}`,
         );
       }
     }
@@ -399,18 +502,19 @@ export async function mergeOfflineCart(
 
     return {
       success: results.success,
+      data: { itemsAdded: results.itemsAdded },
       message: results.success
         ? `Offline cart merged successfully: ${results.itemsAdded} items`
         : "Failed to merge offline cart",
-      itemsAdded: results.itemsAdded,
-      errors: results.errors.length > 0 ? results.errors : undefined,
+      error: results.errors.length > 0 ? results.errors.join(", ") : undefined,
+      errorCode: results.errors.length > 0 ? "PARTIAL_MERGE_ERROR" : undefined,
     };
   } catch (error) {
     console.error("Error merging offline cart:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
-      itemsAdded: 0,
+      errorCode: "MERGE_EXCEPTION",
     };
   }
 }

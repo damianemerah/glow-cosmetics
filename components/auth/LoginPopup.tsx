@@ -27,11 +27,14 @@ type PopupView =
   | "email"
   | "newUserDetails"
   | "otpVerification"
-  | "oauthDetails"
   | "loading"
   | "error";
 
-export function LoginPopup() {
+interface LoginPopupProps {
+  onLoginSuccess?: () => void;
+}
+
+export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
   const [open, setOpen] = useState(false);
   const [currentView, setCurrentView] = useState<PopupView>("email");
   const [isLoading, setIsLoading] = useState(false);
@@ -126,8 +129,9 @@ export function LoginPopup() {
         throw new Error(error.message);
       }
 
-      // Close modal on successful login
       setOpen(false);
+
+      onLoginSuccess?.();
     } catch (err) {
       console.error("Error verifying OTP:", err);
       throw err;
@@ -216,7 +220,7 @@ export function LoginPopup() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/complete-profile`,
+          redirectTo: `${window.location.origin}/api/auth/callback`,
           queryParams: {
             prompt: "select_account",
           },
@@ -224,6 +228,8 @@ export function LoginPopup() {
       });
 
       if (error) throw error;
+      setOpen(false);
+      onLoginSuccess?.();
     } catch (err) {
       console.error(`Error signing in with ${provider}:`, err);
       setError(

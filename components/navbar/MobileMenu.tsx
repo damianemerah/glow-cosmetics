@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, Layers, LogOut } from "lucide-react";
 import {
@@ -18,6 +18,7 @@ import {
 import { useUserStore } from "@/store/authStore";
 import { LoginPopup } from "@/components/auth/LoginPopup";
 import { MobileNavLinks } from "./MobileNavLinks";
+import { usePathname } from "next/navigation";
 
 interface NavLink {
   name: string;
@@ -37,6 +38,11 @@ export const MobileMenu = ({
 }: MobileMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const user = useUserStore((state) => state.user);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   const closeSheet = () => setIsOpen(false);
 
@@ -46,7 +52,7 @@ export const MobileMenu = ({
   };
 
   const handleLogoutClick = () => {
-    // closeSheet();
+    closeSheet();
     onLogout();
   };
 
@@ -93,6 +99,7 @@ export const MobileMenu = ({
                 <Link
                   href="/dashboard"
                   className="flex items-center text-lg font-medium text-gray-700 hover:text-primary transition-colors"
+                  onClick={closeSheet}
                 >
                   <Layers className="mr-2 h-5 w-5" />
                   Dashboard
@@ -113,7 +120,7 @@ export const MobileMenu = ({
                 </Button>
               ) : (
                 <div className="w-full">
-                  <LoginPopup />
+                  <LoginPopup onLoginSuccess={closeSheet} />
                 </div>
               )}
             </div>
@@ -121,7 +128,9 @@ export const MobileMenu = ({
             {/* Booking Button - Ensure it closes sheet */}
             <div className="mt-auto">
               <Button asChild className="bg-green-500 hover:bg-green-600">
-                <Link href="/booking">Book Your Appointment</Link>
+                <Link href="/booking" onClick={closeSheet}>
+                  Book Your Appointment
+                </Link>
               </Button>
             </div>
           </div>

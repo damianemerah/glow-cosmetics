@@ -20,6 +20,8 @@ import { useUserStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
 import useSWR from "swr";
 import { supabaseClient } from "@/lib/supabaseClient";
+import { formatZAR } from "@/utils";
+import { keyValueData } from "@/constants/data";
 
 interface CartClientProps {
   initialCartItems: CartItem[];
@@ -40,7 +42,7 @@ interface DisplayCartItem {
   price_at_time?: number;
 }
 
-const WHATSAPP_PHONE = process.env.WHATSAPP_PHONE_NUMBER;
+const WHATSAPP_PHONE = keyValueData.whatsappNumber;
 
 export default function CartClient({ initialCartItems }: CartClientProps) {
   const router = useRouter();
@@ -211,14 +213,14 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
         if (result.success) {
           // Mutate SWR cache to refresh data
           mutateOnlineCart();
-          toast.success("Item removed from cart");
+          toast.success("Removed from cart");
         } else {
           toast.warning("Failed to remove item");
         }
       } else {
         // Offline cart removal using Zustand store
         removeOfflineItem(productId, color);
-        toast.success("Item removed from cart");
+        toast.success("Removed from cart");
       }
     } catch (error) {
       console.error("Error removing item:", error);
@@ -384,7 +386,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
                   <span className="md:hidden inline-block w-24 font-medium">
                     Price:{" "}
                   </span>
-                  ${(item.price_at_time || item.product.price).toFixed(2)}
+                  {formatZAR(item.price_at_time || item.product.price)}
                 </div>
 
                 <div className="flex items-center md:justify-center mb-3 md:mb-0">
@@ -434,10 +436,9 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
                   <span className="md:hidden inline-block w-24 font-medium">
                     Total:{" "}
                   </span>
-                  $
-                  {(
+                  {formatZAR(
                     (item.price_at_time || item.product.price) * item.quantity
-                  ).toFixed(2)}
+                  )}
                 </div>
               </div>
             ))}
@@ -456,7 +457,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
                 {displayCartItems.reduce((acc, item) => acc + item.quantity, 0)}{" "}
                 items):
               </span>
-              <span className="font-medium">${totalAmount.toFixed(2)}</span>
+              <span className="font-medium">{formatZAR(totalAmount)}</span>
             </div>
             <div className="flex justify-between py-2">
               <span className="text-gray-600">Shipping:</span>

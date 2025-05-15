@@ -403,12 +403,16 @@ export async function fetchProducts(
             .from("products")
             .select(
               `
-                      *,
-                      product_categories!inner (
-                          category_id,
-                          categories:category_id (id, name, slug)
-                      )
-                      `,
+              *,
+              product_categories!inner(
+                category_id,
+                categories!inner(
+                  id,
+                  name,
+                  slug
+                )
+              )
+            `,
               { count: "exact" },
             );
 

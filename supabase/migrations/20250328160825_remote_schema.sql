@@ -235,7 +235,6 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "date_of_birth" "date",
     "phone" "text",
     "receive_emails" boolean DEFAULT false,
-    -- "is_complete" boolean DEFAULT false,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
     "is_active" boolean DEFAULT true,

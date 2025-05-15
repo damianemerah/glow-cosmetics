@@ -172,7 +172,7 @@ export function CartPane({
           // Update local state via SWR
           mutateOnlineCart();
           mutate(`cart-count-${user.user_id}`);
-          toast.success("Item removed from cart");
+          toast.success("Removed from cart");
         } else {
           toast.warning("Failed to remove item");
         }
@@ -184,7 +184,7 @@ export function CartPane({
       // Handle removal from offline cart using Zustand store
       try {
         removeOfflineItem(itemId, color);
-        toast.success("Item removed from cart");
+        toast.success("Removed from cart");
       } catch (err) {
         console.error("Error removing offline item:", err);
         toast.warning("Failed to remove item from cart");
@@ -213,7 +213,10 @@ export function CartPane({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-md p-4 sm:p-6" side="right">
+      <SheetContent
+        className="w-full sm:max-w-md p-4 sm:p-6 pb-20"
+        side="right"
+      >
         <SheetHeader className="mb-4">
           <SheetTitle className="text-xl font-bold font-montserrat flex items-center">
             <ShoppingBag className="mr-2 h-5 w-5" />

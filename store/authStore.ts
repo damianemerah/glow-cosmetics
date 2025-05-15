@@ -2,16 +2,19 @@ import { create } from "zustand";
 import { createClient } from "@/utils/supabase/client";
 import { Profile } from "@/types/index";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 interface ActionResult<T = any> {
   success: boolean;
   data?: T;
   error?: string;
   errorCode?: string;
+  message?: string;
 }
-// eslint-enable-next-line @typescript-eslint/no-explicit-any
 
-type UserStateData = { id: string } & Partial<Profile>;
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+export type UserStateData = { id: string } & Partial<Profile>;
 
 type UserStore = {
   user: UserStateData | null;
@@ -22,6 +25,8 @@ type UserStore = {
   setShowModal: (showModal: boolean) => void;
   isFetchingUser: boolean;
   refreshUserData: () => Promise<boolean>;
+  isProfileComplete: (userData?: UserStateData | null) => boolean;
+  needsProfileCompletion: () => boolean;
 };
 
 const supabase = createClient();
@@ -31,9 +36,40 @@ export const useUserStore = create<UserStore>((set, get) => ({
   isFetchingUser: false,
   setUser: (user) => set({ user, isFetchingUser: false }),
 
+  isProfileComplete: (userData = null) => {
+    const userToCheck = userData || get().user;
+    if (!userToCheck) {
+      return false;
+    }
+
+    // Check each required field explicitly
+    const hasFirstName = !!userToCheck.first_name;
+    const hasLastName = !!userToCheck.last_name;
+    const hasPhone = !!userToCheck.phone;
+    const hasDateOfBirth = !!userToCheck.date_of_birth;
+
+    const isComplete = hasFirstName && hasLastName && hasPhone &&
+      hasDateOfBirth;
+
+    return isComplete;
+  },
+
+  needsProfileCompletion: () => {
+    // If we're still fetching, don't redirect yet
+    if (get().isFetchingUser) {
+      return false;
+    }
+
+    const user = get().user;
+    const needsCompletion = !!user && !get().isProfileComplete(user);
+    return needsCompletion;
+  },
+
   fetchUser: async (userId: string): Promise<boolean> => {
-    if (!userId) return false;
-    if (get().isFetchingUser || get().user?.id === userId) {
+    if (!userId) {
+      return false;
+    }
+    if (get().isFetchingUser) {
       return !!get().user;
     }
 
@@ -45,6 +81,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
         .select("*")
         .eq("user_id", userId)
         .maybeSingle();
+
       if (error) {
         console.error(`Error fetching profile for ${userId}:`, error.message);
         set({ user: null, isFetchingUser: false });
@@ -74,6 +111,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
 
   refreshUserData: async (): Promise<boolean> => {
     try {
+      set({ isFetchingUser: true });
       const { data: { session }, error: sessionError } = await supabase.auth
         .getSession();
 

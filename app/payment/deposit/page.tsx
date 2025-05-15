@@ -20,6 +20,7 @@ import {
 import { useUserStore } from "@/store/authStore";
 import { CreditCard } from "lucide-react";
 import { toast } from "sonner";
+import { keyValueData } from "@/constants/data";
 
 function DepositPaymentPageContent() {
   const router = useRouter();
@@ -32,10 +33,10 @@ function DepositPaymentPageContent() {
   const [depositAmount] = useState(200);
   const user = useUserStore((state) => state.user);
   const [bankDetails] = useState({
-    bank_name: "Standard Bank",
-    account_name: "Glow Cosmetics",
-    account_number: "1234567890",
-    branch_code: "051001",
+    bank_name: keyValueData.bankName,
+    account_name: keyValueData.accountName,
+    account_number: keyValueData.accountNumber,
+    branch_code: keyValueData.branchCode,
   });
 
   // Track name and email
@@ -122,7 +123,7 @@ function DepositPaymentPageContent() {
   };
 
   const whatsappUrl = bookingId
-    ? `https://wa.me/+2347066765698?text=${encodeURIComponent(
+    ? `https://wa.me/${keyValueData.whatsappNumber}?text=${encodeURIComponent(
         `Hello, I have made a direct transfer for my booking *${bookingId}* with a deposit of *R${depositAmount.toFixed(
           2
         )}*. \n\n_*Please confirm and include a screenshot of your payment receipt.*_`

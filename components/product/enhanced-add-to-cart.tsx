@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, ShoppingCart, Loader2 } from "lucide-react";
 import { useUserStore } from "@/store/authStore";
@@ -31,7 +31,6 @@ export default function EnhancedAddToCart({
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isBuyingNow, setIsBuyingNow] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [isOnline, setIsOnline] = useState(true);
   const user = useUserStore((state) => state.user);
 
   // Access Zustand store
@@ -47,20 +46,6 @@ export default function EnhancedAddToCart({
 
   const requiresColorSelection =
     Array.isArray(product.color) && product.color.length > 0;
-
-  // Track online status (no changes needed here)
-  useEffect(() => {
-    // ... online status logic ...
-    setIsOnline(typeof navigator !== "undefined" && navigator.onLine);
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
-  }, []);
 
   // Get available stock, considering offline cart items for the selected color
   const getAvailableStock = () => {
@@ -98,7 +83,7 @@ export default function EnhancedAddToCart({
   // Validate color selection and stock
   const validateSelection = (): boolean => {
     if (requiresColorSelection && !selectedColor) {
-      toast.warning("Please select a color first.");
+      toast.warning("Select a color first.");
       return false;
     }
     // Re-check available stock at the moment of action
@@ -124,16 +109,7 @@ export default function EnhancedAddToCart({
     if (!validateSelection()) return;
 
     if (!user) {
-      if (isOnline) {
-        useUserStore.getState().setShowModal(true);
-        toast.info("Please log in to add items to your cart.");
-        return;
-      }
       return handleAddToOfflineCart(); // Offline, not logged in
-    }
-
-    if (!isOnline) {
-      return handleAddToOfflineCart();
     }
 
     // Online & Logged In - Use Server Action
@@ -150,9 +126,7 @@ export default function EnhancedAddToCart({
       const result = await addToCart(user.user_id!, itemData, quantity);
 
       if (result.success) {
-        toast.success(
-          `${quantity} × ${product.name}${selectedColor ? ` (${selectedColor.name})` : ""} added to cart`
-        );
+        toast.success(`Added to cart`);
         mutate();
       } else {
         toast.warning(result.error || "Failed to add to cart");
@@ -173,11 +147,6 @@ export default function EnhancedAddToCart({
     if (!user) {
       useUserStore.getState().setShowModal(true);
       toast.info("Please log in to proceed to checkout.");
-      return;
-    }
-
-    if (!isOnline) {
-      toast.warning("Cannot proceed to checkout while offline.");
       return;
     }
 
@@ -317,13 +286,13 @@ export default function EnhancedAddToCart({
             variant="default"
             className="flex-1 min-w-[150px] sm:flex-none"
             onClick={handleBuyNow}
-            disabled={isActionDisabled || !isOnline}
+            disabled={isActionDisabled}
             aria-label={
               !requiresColorSelection || selectedColor
                 ? "Buy now"
                 : "Select a color to buy now"
             }
-            title={!isOnline ? "Buy Now unavailable offline" : ""}
+            title="Buy now"
           >
             {isBuyingNow && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Buy Now
@@ -332,7 +301,7 @@ export default function EnhancedAddToCart({
       </div>
       {/* Validation Message */}
       {requiresColorSelection && !selectedColor && (
-        <p className="text-sm text-red-600 pt-1">Please select a color.</p>
+        <p className="text-sm text-red-600 pt-1">Select a color.</p>
       )}
       {availableStock <= 0 && (
         <p className="text-sm text-red-600 pt-1">

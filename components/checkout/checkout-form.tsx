@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/constants/ui/index";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useUserStore } from "@/store/authStore";
 import { formatZAR } from "@/utils";
-import { createOrder } from "@/actions/orderAction"; // Use the server action
-import type { CheckoutCartItem, OrderInputData } from "@/types"; // Import types
+import { createOrder } from "@/actions/orderAction";
+import type { CheckoutCartItem, OrderInputData, Order } from "@/types";
 
 // Import sub-components
 import OrderSummary from "@/components/checkout/order-summary";
@@ -18,51 +17,30 @@ import ShippingAddress from "@/components/checkout/shipping-address";
 import DeliveryMethod from "./delivery-method";
 import PaymentMethod from "@/components/checkout/payment-method";
 import { createClient } from "@/utils/supabase/client";
+import { keyValueData, deliveryOptions } from "@/constants/data";
 
-// Define delivery options here or import from config
-const deliveryOptions = [
-  { id: "store_pickup", name: "Store Pickup", fee: 0 },
-  { id: "postnet", name: "PostNet Delivery", fee: 110 },
-  { id: "paxi", name: "PAXI Delivery", fee: 70 },
-];
-
-// interface CartItem {
-//   id: string;
-//   product_id: string;
-//   product_name: string;
-//   quantity: number;
-//   price: number;
-//   image_url?: string;
-// }
-
-// interface DeliveryOption {
-//   id: string;
-//   name: string;
-//   fee: number;
-// }
-
-// interface CheckoutComponentProps {
-//   userId: string;
-//   cartId: string;
-//   cartItems: CartItem[];
-//   initialTotalAmount: number;
-// }
-
-// const deliveryOptions: DeliveryOption[] = [
-
-// Define bank details (could be fetched or from env vars)
-const bankDetails = {
-  bank_name: "Standard Bank",
-  account_name: "Glow Cosmetics",
-  account_number: "1234567890",
-  branch_code: "051001",
+type ShippingAddress = {
+  address: string;
+  apartment?: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  country: string;
 };
-const whatsappNumber = "+2347066765698"; // Consider moving to env vars
+
+const bankDetails = {
+  bank_name: keyValueData.bankName,
+  account_name: keyValueData.accountName,
+  account_number: keyValueData.accountNumber,
+  branch_code: keyValueData.branchCode,
+};
+const whatsappNumber = keyValueData.whatsappNumber;
 
 interface CheckoutFormProps {
   userId: string;
   cartId: string;
-  cartItems: CheckoutCartItem[]; // Use the detailed type
+  cartItems: CheckoutCartItem[];
+  lastShippedOrder?: Order | null;
   initialTotalAmount: number; // Subtotal before delivery
 }
 
@@ -71,8 +49,9 @@ export default function CheckoutForm({
   cartId,
   cartItems,
   initialTotalAmount,
+  lastShippedOrder,
 }: CheckoutFormProps) {
-  const router = useRouter();
+  // const router = useRouter();
   const user = useUserStore((state) => state.user);
 
   // --- State Management ---
@@ -120,19 +99,23 @@ export default function CheckoutForm({
         email: user.email || "",
         emailOffers: user.receive_emails || false, // Use receive_emails from profile
       }));
+      const shippingAddress = lastShippedOrder?.shipping_address as
+        | ShippingAddress
+        | undefined;
       setShippingData((prev) => ({
         ...prev,
         firstName: user.first_name || "",
         lastName: user.last_name || "",
         phone: user.phone || "",
-        // Pre-fill address parts if available in profile (add to profile type if needed)
-        // address: user.address?.street || "",
-        // city: user.address?.city || "",
-        // state: user.address?.state || "",
-        // zipCode: user.address?.postal_code || "",
+        address: shippingAddress?.address || "",
+        apartment: shippingAddress?.apartment || "",
+        city: shippingAddress?.city || "",
+        state: shippingAddress?.state || "",
+        zipCode: shippingAddress?.zip_code || "",
+        country: shippingAddress?.country || "South Africa",
       }));
     }
-  }, [user]);
+  }, [user, lastShippedOrder]);
 
   // Recalculate total when delivery method changes
   useEffect(() => {
@@ -188,23 +171,33 @@ export default function CheckoutForm({
   // --- Form Validation ---
   const validateForm = useCallback(() => {
     const newErrors: Record<string, string> = {};
+
     // Contact
     if (!contactData.email.trim()) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(contactData.email))
       newErrors.email = "Email is invalid";
-    // Shipping
-    if (!shippingData.firstName.trim())
-      newErrors.firstName = "First name is required";
-    if (!shippingData.lastName.trim())
-      newErrors.lastName = "Last name is required";
-    if (!shippingData.address.trim()) newErrors.address = "Address is required";
-    if (!shippingData.city.trim()) newErrors.city = "City is required";
-    if (!shippingData.state.trim())
-      newErrors.state = "State / Province is required";
-    if (!shippingData.zipCode.trim())
-      newErrors.zipCode = "Postal code is required";
+
+    // Shipping - skip validation if store pickup
+    const isStorePickup = deliveryMethod === "store_pickup";
+
+    if (!isStorePickup) {
+      if (!shippingData.firstName.trim())
+        newErrors.firstName = "First name is required";
+      if (!shippingData.lastName.trim())
+        newErrors.lastName = "Last name is required";
+      if (!shippingData.address.trim())
+        newErrors.address = "Address is required";
+      if (!shippingData.city.trim()) newErrors.city = "City is required";
+      if (!shippingData.state.trim())
+        newErrors.state = "State / Province is required";
+      if (!shippingData.zipCode.trim())
+        newErrors.zipCode = "Postal code is required";
+    }
+
+    // Phone is always required
     if (!shippingData.phone || shippingData.phone.length < 10)
-      newErrors.phone = "Valid phone number is required"; // Basic length check
+      newErrors.phone = "Valid phone number is required";
+
     // Delivery
     if (!deliveryMethod)
       newErrors.deliveryMethod = "Delivery method is required";
@@ -221,14 +214,14 @@ export default function CheckoutForm({
       // Find first error and focus (optional enhancement)
       const firstErrorKey = Object.keys(errors).find((key) => errors[key]);
       if (firstErrorKey) {
-        const element = document.getElementById(`checkout-${firstErrorKey}`); // Match IDs used in components
+        const element = document.getElementById(`checkout-${firstErrorKey}`);
         element?.focus();
       }
       return;
     }
 
     setIsSubmitting(true);
-    setGeneratedPaymentReference(""); // Clear previous reference
+    setGeneratedPaymentReference("");
 
     // Prepare data for Server Action
     const orderInput: OrderInputData = {
@@ -240,7 +233,7 @@ export default function CheckoutForm({
       phone: shippingData.phone,
       shippingAddress: {
         address: shippingData.address,
-        apartment: shippingData.apartment || undefined, // Make optional truly optional
+        apartment: shippingData.apartment || undefined,
         city: shippingData.city,
         state: shippingData.state,
         zipCode: shippingData.zipCode,
@@ -274,18 +267,14 @@ export default function CheckoutForm({
         paymentReference,
         paymentMethod: selectedPaymentMethod,
       } = orderResult;
-      setGeneratedPaymentReference(paymentReference); // Store reference for bank transfer display
+      setGeneratedPaymentReference(paymentReference);
 
       // --- Handle Payment ---
       if (selectedPaymentMethod === "bank_transfer") {
         toast.success(
           "Order placed successfully! Please complete bank transfer."
         );
-        // Redirect to confirmation page (or stay here to show bank details and WhatsApp link)
-        router.push(
-          `/order-confirmation?id=${orderId}&ref=${paymentReference}`
-        );
-        // Optionally, instead of redirecting, just update UI state to show confirmation details
+        return;
       } else if (selectedPaymentMethod === "paystack") {
         toast.info("Redirecting to secure payment gateway...");
         // --- Call API Route for Paystack Initialization ---
@@ -317,9 +306,7 @@ export default function CheckoutForm({
           throw new Error(paymentData.message || "Payment initiation failed.");
         }
 
-        // Redirect to Paystack
         window.location.href = paymentData.data.authorization_url;
-        // No further execution needed here after redirect
         return;
       }
     } catch (error: unknown) {
@@ -329,18 +316,18 @@ export default function CheckoutForm({
           : "An unexpected checkout error occurred.";
       console.error("Checkout Submit Error:", message);
       toast.warning(message);
-      setIsSubmitting(false); // Ensure loading state stops on error
+      setIsSubmitting(false);
+    } finally {
+      setIsSubmitting(false);
     }
-    // Don't set submitting false here if redirecting, otherwise do it in finally if no redirect
-    // setIsSubmitting(false); // Moved to error block
   };
 
   // --- Render Logic ---
   const selectedDeliveryOption = deliveryOptions.find(
     (opt) => opt.id === deliveryMethod
   );
-  const isUserLoggedIn = !!user; // Simple check if user profile exists
-  const hasOptedInBefore = user?.receive_emails; // Check if user opted in previously
+  const isUserLoggedIn = !!user;
+  const hasOptedInBefore = user?.receive_emails;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">

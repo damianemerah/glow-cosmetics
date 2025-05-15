@@ -208,7 +208,10 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
               isWishlistLoading ? "opacity-50 cursor-wait" : ""
             }`}
             onClick={handleToggleWishlist}
-            disabled={isWishlistLoading}
+            disabled={isWishlistLoading || !user?.id}
+            aria-label={`${
+              isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"
+            }`}
           >
             <Heart
               className={`w-4 h-4 ${isInWishlist ? "fill-red-500 text-red-500" : ""}`}

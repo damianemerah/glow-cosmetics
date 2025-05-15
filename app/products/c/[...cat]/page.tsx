@@ -203,8 +203,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       <ProductHero />
 
       <div className="sticky top-0 z-25 bg-background border-b border-border">
-        <div className="container mx-auto px-4">
-          <ProductNavigation categoryData={categories} />
+        <div className="container mx-auto px-1 sm:px-4 overflow-hidden">
+          <div className="w-full overflow-x-auto">
+            <ProductNavigation categoryData={categories} />
+          </div>
         </div>
       </div>
 

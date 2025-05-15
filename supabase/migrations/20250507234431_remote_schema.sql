@@ -72,7 +72,7 @@ CREATE OR REPLACE FUNCTION public.notify_order_paid()
 AS $function$BEGIN
   IF NEW.status = 'paid' AND OLD.status IS DISTINCT FROM NEW.status THEN
     PERFORM net.http_post(
-      url := 'https://c499-102-213-77-2.ngrok-free.app/api/webhooks/order-paid',
+      url := 'https://42eb-102-213-77-2.ngrok-free.app/api/webhooks/order-paid',
       body := jsonb_build_object(
         'order_id', NEW.id,
         'user_id', NEW.user_id,
@@ -94,7 +94,7 @@ AS $function$BEGIN
   -- Only trigger if the deposit amount has changed and is now greater than 0
   IF (OLD.initial_deposit IS NULL OR OLD.initial_deposit <= 0) AND NEW.initial_deposit > 0 THEN
     PERFORM net.http_post(
-      url := 'https://c499-102-213-77-2.ngrok-free.app/api/webhooks/deposit-paid',
+      url := 'https://42eb-102-213-77-2.ngrok-free.app/api/webhooks/deposit-paid',
       body := jsonb_build_object(
         'booking_id', NEW.booking_id,
         'user_id', NEW.user_id,

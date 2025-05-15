@@ -14,6 +14,7 @@ interface CartIndicatorProps {
 
 export const CartIndicator = ({ onClick, isOnline }: CartIndicatorProps) => {
   const [isMounted, setIsMounted] = useState(false);
+  const [shouldAnimate, setShouldAnimate] = useState(false);
   const user = useUserStore((state) => state.user);
 
   const offlineCartCount = useCartStore((state) => state.getOfflineCartCount());
@@ -38,6 +39,18 @@ export const CartIndicator = ({ onClick, isOnline }: CartIndicatorProps) => {
     }
   );
 
+  // This effect runs when the cart count changes
+  useEffect(() => {
+    if (cartCount && cartCount > 0) {
+      setShouldAnimate(true);
+      const timer = setTimeout(() => {
+        setShouldAnimate(false);
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [cartCount]);
+
   useEffect(() => {
     mutateCartCount();
   }, [isOnline, user, mutateCartCount]);
@@ -60,7 +73,11 @@ export const CartIndicator = ({ onClick, isOnline }: CartIndicatorProps) => {
         className="p-1 relative"
         aria-label={`Shopping cart with ${totalCartCount} items`}
       >
-        <ShoppingBag className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
+        <ShoppingBag
+          className={`h-5 w-5 text-gray-700 hover:text-primary transition-colors ${
+            shouldAnimate ? "animate-bounce" : ""
+          }`}
+        />
         {isMounted && totalCartCount > 0 && (
           <span className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center rounded-full bg-green-500 text-xs text-white font-semibold">
             {totalCartCount > 9 ? "9+" : totalCartCount}

@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Montserrat, Open_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
+import MobileNavigation from "@/components/MobileNavigation";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import "react-phone-input-2/lib/style.css";
@@ -144,7 +145,7 @@ export default function RootLayout({
       <body className={`${montserrat.variable} ${openSans.variable} font-sans`}>
         <Suspense
           fallback={
-            <div className="flex justify-center items-center h-screen">
+            <div className="flex justify-center items-center h-16 md:h-20">
               <Skeleton className="w-full h-16 animate-pulse" />
             </div>
           }
@@ -155,6 +156,7 @@ export default function RootLayout({
         <main>{children}</main>
         <Footer />
         <TawkChat />
+        <MobileNavigation />
       </body>
     </html>
   );

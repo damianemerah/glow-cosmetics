@@ -16,7 +16,6 @@ import { CartPane } from "@/components/CartPane";
 
 import { BrandLogo } from "./navbar/BrandLogo";
 import { DesktopNavLinks } from "./navbar/DesktopNavLinks";
-import { SocialIcons } from "./navbar/SocialIcons";
 import { SearchCommand } from "./navbar/SearchCommand";
 import { CartIndicator } from "./navbar/CartIndicator";
 import { UserAuth } from "./navbar/UserAuth";
@@ -48,6 +47,9 @@ const Navbar = () => {
   const isFetchingUser = useUserStore((state) => state.isFetchingUser);
   const setUser = useUserStore((state) => state.setUser);
   const fetchUser = useUserStore((state) => state.fetchUser);
+  const needsProfileCompletion = useUserStore(
+    (state) => state.needsProfileCompletion
+  );
   const signOut = useUserStore((state) => state.signOut);
 
   const { mutate: mutateCartCount } = useSWR(
@@ -57,6 +59,14 @@ const Navbar = () => {
     null,
     { revalidateOnMount: false, revalidateOnFocus: true }
   );
+
+  useEffect(() => {
+    if (isFetchingUser) return;
+    const needCompletion = needsProfileCompletion();
+    if (needCompletion) {
+      router.push("/complete-profile");
+    }
+  }, [needsProfileCompletion, isFetchingUser, router]);
 
   useEffect(() => {
     const updateOnlineStatus = () => setIsOnline(navigator.onLine);
@@ -82,7 +92,7 @@ const Navbar = () => {
           const result = await mergeOfflineCart(userId, offlineCart);
           if (result.success) {
             toast.success(
-              `Synced cart: Added/updated ${result.itemsAdded || offlineCart.length} offline item(s).`
+              `Synced cart: Added/updated ${result.data?.itemsAdded || offlineCart.length} offline item(s).`
             );
             useCartStore.getState().clearOfflineCart();
             await mutateCartCount();
@@ -114,23 +124,7 @@ const Navbar = () => {
         if (profileFetched) {
           mutateCartCount();
           await attemptCartMerge(authUser.id);
-
-          // Clean up code query parameter from URL if it exists
-          // This ensures we only do this AFTER the profile has been successfully fetched
-          // which means Supabase has had a chance to properly process the auth code
-          const currentUrl = new URL(window.location.href);
-          if (currentUrl.searchParams.has("code")) {
-            // Remove code parameter but keep the pathname and other query params
-            currentUrl.searchParams.delete("code");
-            const newPathWithParams = `${currentUrl.pathname}${currentUrl.search}`;
-            // Use replace to avoid adding to browser history
-            router.replace(newPathWithParams, { scroll: false });
-          }
         } else {
-          console.warn(
-            "Profile fetch failed or user inactive for authUser:",
-            authUser.id
-          );
           setUser(null);
           mergeAttemptedThisSessionRef.current = false;
           mutateCartCount();
@@ -142,11 +136,11 @@ const Navbar = () => {
       }
       setInitialAuthCheckComplete(true);
     },
-    [fetchUser, setUser, mutateCartCount, attemptCartMerge, router]
+    [fetchUser, setUser, mutateCartCount, attemptCartMerge]
   );
 
   useEffect(() => {
-    // let isMounted = true;
+    let isMounted = true;
     const checkInitialSession = async () => {
       try {
         const {
@@ -154,12 +148,9 @@ const Navbar = () => {
           error,
         } = await supabase.auth.getSession();
 
-        // if (!isMounted) return;
+        if (!isMounted) return;
 
         if (error) {
-          if (!(error instanceof AuthSessionMissingError)) {
-            console.error("Error getting initial session:", error);
-          }
           await processAuthUser(null);
         } else if (session) {
           await processAuthUser(session.user);
@@ -167,7 +158,7 @@ const Navbar = () => {
           await processAuthUser(null);
         }
       } catch (error) {
-        // if (!isMounted) return;
+        if (!isMounted) return;
         if (!(error instanceof AuthSessionMissingError)) {
           console.error(
             "Unexpected error during initial session check:",
@@ -190,7 +181,7 @@ const Navbar = () => {
     checkInitialSession();
 
     return () => {
-      // isMounted = false;
+      isMounted = false;
       authListener?.subscription?.unsubscribe();
     };
   }, [processAuthUser]);
@@ -200,6 +191,7 @@ const Navbar = () => {
     if (result.success) {
       if (pathname.startsWith("/admin") || pathname === "/dashboard") {
         router.push("/");
+        router.refresh();
       }
     } else {
       toast.error(`Logout failed: ${result.error || "Unknown error"}`);
@@ -235,7 +227,6 @@ const Navbar = () => {
                 isLoading={isFetchingUser || !initialAuthCheckComplete}
               />
             </div>
-            {/* <SocialIcons className="ml-6" /> */}
             <Button
               asChild
               size="sm"
@@ -245,8 +236,8 @@ const Navbar = () => {
               <Link href="/booking">Book Appointment</Link>
             </Button>
           </div>
-          <div className="lg:hidden flex items-center space-x-2 sm:space-x-4">
-            <SearchCommand variant="mobile" />
+          <div className="lg:hidden flex items-center space-x-2">
+            <SearchCommand variant="desktop" />
             {!pathname.startsWith("/cart") &&
               !pathname.startsWith("/checkout") && (
                 <CartIndicator
@@ -259,7 +250,6 @@ const Navbar = () => {
               onLogout={handleLogout}
               isLoading={isFetchingUser || !initialAuthCheckComplete}
             />
-            <SocialIcons className="hidden sm:flex" />
           </div>
         </div>
       </header>

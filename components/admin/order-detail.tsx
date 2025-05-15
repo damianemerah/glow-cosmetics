@@ -20,6 +20,7 @@ import { Loader2, Eye } from "lucide-react";
 import { supabaseClient } from "@/lib/supabaseClient";
 import { toast } from "sonner";
 import { formatZAR } from "@/utils";
+import { mutate } from "swr";
 
 interface OrderDetailProps {
   orderId: string;
@@ -118,9 +119,17 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
 
       toast.success("Order status updated successfully");
 
-      if (status === "paid" && initialStatus === "pending") {
-        await handleMarkAsPaid();
+      // Mutate SWR cache to update UI everywhere
+      mutate("admin-orders");
+
+      // If we're in a filtered view, also mutate that specific filter
+      if (status) {
+        mutate(`admin-orders-${status}`);
       }
+
+      // if (status === "paid" && initialStatus === "pending") {
+      //   await handleMarkAsPaid();
+      // }
     } catch (error) {
       console.error("Error updating order status:", error);
       toast.warning("Failed to update order status");
@@ -130,34 +139,22 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
   };
 
   // Handle marking as paid (triggers inventory update)
-  const handleMarkAsPaid = async () => {
-    try {
-      // // Call the RPC function to update inventory
-      // const { error: rpcError } = await supabaseClient.rpc(
-      //   "update_inventory_after_purchase",
-      //   { order_id: orderId }
-      // );
+  // const handleMarkAsPaid = async () => {
+  //   try {
+  //     // Get cart ID from order
+  //     if (orderData?.cart_id) {
+  //       // Delete cart items
+  //       await supabaseClient
+  //         .from("cart_items")
+  //         .delete()
+  //         .eq("cart_id", orderData.cart_id);
+  //     }
 
-      // if (rpcError) {
-      //   console.error("Error updating inventory:", rpcError);
-      //   toast.warning("Order marked as paid but inventory update failed");
-      //   return;
-      // }
-
-      // Get cart ID from order
-      if (orderData?.cart_id) {
-        // Delete cart items
-        await supabaseClient
-          .from("cart_items")
-          .delete()
-          .eq("cart_id", orderData.cart_id);
-      }
-
-      toast.success("Payment recorded and inventory updated");
-    } catch (error) {
-      console.error("Error in payment processing:", error);
-    }
-  };
+  //     toast.success("Payment recorded and inventory updated");
+  //   } catch (error) {
+  //     console.error("Error in payment processing:", error);
+  //   }
+  // };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -273,9 +270,7 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
                   <SelectContent>
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="paid">Paid</SelectItem>
-                    <SelectItem value="processing">Processing</SelectItem>
-                    <SelectItem value="shipped">Shipped</SelectItem>
-                    <SelectItem value="delivered">Delivered</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
                     <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>

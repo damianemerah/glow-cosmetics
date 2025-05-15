@@ -107,8 +107,8 @@ export default function ProductForm({
   const normalizedInitialData = useMemo(
     (): ProductFormData => ({
       ...initialData,
-      color: Array.isArray(initialData.color) ? initialData.color : [],
-      additional_details: Array.isArray(initialData.additional_details)
+      color: Array.isArray(initialData?.color) ? initialData.color : [],
+      additional_details: Array.isArray(initialData?.additional_details)
         ? initialData.additional_details
         : [],
     }),

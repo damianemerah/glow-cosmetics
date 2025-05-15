@@ -77,7 +77,7 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
     if (result.item_type === "product") {
       router.push(`/products/${result.id}`);
     } else if (result.item_type === "category") {
-      router.push(`/products/${result.id}`); // Assuming category IDs map to a similar route structure
+      router.push(`/products/${result.id}`);
     }
   };
 
@@ -86,29 +86,26 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild className="md:mr-4">
+      <PopoverTrigger asChild>
         <Button
           variant="ghost"
-          className="flex items-center font-montserrat"
+          size="sm"
+          // flex flex-col items-center justify-center rounded-none h-full text-xs text-gray-500
+          className={`flex ${variant === "desktop" ? "flex-row" : "flex-col text-xs text-gray-500 rounded-none h-full"} items-center justify-center font-montserrat`}
           aria-label="Search"
         >
-          <Search className="h-7 w-7 text-gray-700 hover:text-primary transition-colors" />
-          Search
+          <Search className="h-5 w-5" />
+          <span>Search</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={
-          variant === "desktop" ? "w-[300px] p-0" : "w-[90vw] max-w-[400px] p-0"
-        }
+        className={`${variant === "desktop" ? "w-[300px] p-0" : "w-[90vw] max-w-[400px] p-0"}`}
         side="bottom"
         align={variant === "desktop" ? "end" : "center"}
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         {/* Command is always rendered when PopoverContent is open */}
-        <Command
-          shouldFilter={false}
-          className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5"
-        >
+        <Command shouldFilter={false}>
           <CommandInput
             placeholder="Search products & categories..."
             value={searchQuery}

@@ -140,7 +140,7 @@ BEGIN
   -- Only trigger if the deposit amount has changed and is now greater than 0
   IF (OLD.initial_deposit IS NULL OR OLD.initial_deposit <= 0) AND NEW.initial_deposit > 0 THEN
     PERFORM net.http_post( -- net.http_post will be found in 'extensions' schema
-      url := 'https://7bc1-102-213-77-2.ngrok-free.app/api/webhooks/deposit-paid', -- Consider making this URL configurable
+      url := 'https://42eb-102-213-77-2.ngrok-free.app/api/webhooks/deposit-paid', -- Consider making this URL configurable
       body := jsonb_build_object(
         'booking_id', NEW.booking_id,
         'user_id', NEW.user_id,

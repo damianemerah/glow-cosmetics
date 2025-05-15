@@ -34,6 +34,8 @@ import { addToCart } from "@/actions/cartAction";
 import { ProductQuickView } from "@/components/product/productQuickView";
 import { toggleWishlistItem } from "@/actions/wishlistActions";
 import { useWishlistStatus } from "@/lib/swr/wishlist";
+import { mutate } from "swr";
+import { useCartStore } from "@/store/cartStore";
 
 interface ProductCardProps {
   product: ProductWithCategories;
@@ -66,9 +68,13 @@ export function ProductCard({ product }: ProductCardProps) {
 
   const {
     data: isInWishlist,
-    mutate,
+    mutate: mutateWishlist,
     isValidating: isWishlistLoading,
   } = useWishlistStatus(user?.id, product.id);
+
+  const addOrUpdateOfflineItem = useCartStore(
+    (state) => state.addOrUpdateOfflineItem
+  );
 
   useEffect(() => {
     if (isHovered && product.image_url.length > 1) {
@@ -81,11 +87,6 @@ export function ProductCard({ product }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!user?.id) {
-      setShowModal(true);
-      toast.info("Please log in to add items to your cart.");
-      return;
-    }
     setIsAddingToCart(true);
     try {
       const firstValidColor =
@@ -94,6 +95,20 @@ export function ProductCard({ product }: ProductCardProps) {
         isValidColorInfo(product.color[0])
           ? product.color[0] // If it's an array and the first item is valid ColorInfo
           : null;
+
+      if (!user) {
+        // Handle offline cart
+        const productDetails = {
+          name: product.name,
+          price: product.price,
+          image_url: product.image_url,
+          stock_quantity: product.stock_quantity,
+        };
+
+        addOrUpdateOfflineItem(product.id, 1, firstValidColor, productDetails);
+        toast.success(`Added to offline cart. Will sync when you log in.`);
+        return;
+      }
 
       const cartProduct: CartItemInputData = {
         id: product.id,
@@ -104,7 +119,8 @@ export function ProductCard({ product }: ProductCardProps) {
       };
       const result = await addToCart(user.id, cartProduct, 1);
       if (result.success) {
-        toast.success(`${product.name} added to cart!`);
+        toast.success(`Added to cart!`);
+        mutate(`cart-count-${user.user_id}`);
       } else {
         toast.warning(result.error || "Failed to add item to cart.");
       }
@@ -130,7 +146,7 @@ export function ProductCard({ product }: ProductCardProps) {
       const result = await toggleWishlistItem(user.id, product.id);
       if (result.success) {
         toast.success(result.message);
-        mutate();
+        mutateWishlist();
       } else {
         toast.warning(result.error || "Failed to update wishlist");
       }
@@ -230,31 +246,37 @@ export function ProductCard({ product }: ProductCardProps) {
               </div>
 
               {/* Wishlist & Actions Overlay */}
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    className={`absolute top-2 right-2 z-10 p-1.5 bg-white rounded-full shadow-md hover:bg-red-100 text-gray-500 hover:text-red-500 transition-colors ${
-                      isWishlistLoading ? "opacity-50 cursor-wait" : ""
-                    }`}
-                    title={
-                      isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"
-                    }
-                    disabled={isWishlistLoading}
-                    onClick={handleToggleWishlist}
-                  >
-                    <Heart
-                      className={`w-4 h-4 ${
-                        isInWishlist ? "fill-red-500 text-red-500" : ""
+              {user && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      className={`absolute top-2 right-2 z-10 p-1.5 bg-white rounded-full shadow-md hover:bg-red-100 text-gray-500 hover:text-red-500 transition-colors ${
+                        isWishlistLoading ? "opacity-50 cursor-wait" : ""
                       }`}
-                    />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>
-                    {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
-                  </p>
-                </TooltipContent>
-              </Tooltip>
+                      title={
+                        isInWishlist
+                          ? "Remove from Wishlist"
+                          : "Add to Wishlist"
+                      }
+                      disabled={isWishlistLoading}
+                      onClick={handleToggleWishlist}
+                    >
+                      <Heart
+                        className={`w-4 h-4 ${
+                          isInWishlist ? "fill-red-500 text-red-500" : ""
+                        }`}
+                      />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      {isInWishlist
+                        ? "Remove from Wishlist"
+                        : "Add to Wishlist"}
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
 
               <div className="absolute bottom-0 left-0 right-0 z-10 p-2 flex justify-center items-center space-x-2 bg-gradient-to-t from-black/30 via-black/10 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 {/* Add to Cart */}

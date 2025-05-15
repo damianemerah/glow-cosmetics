@@ -17,10 +17,18 @@ import DataTable from "@/components/admin/data-table";
 import { OrderDetail } from "@/components/admin/order-detail";
 import { Plus, Search, X, Loader2 } from "lucide-react";
 import { formatZAR } from "@/utils";
-import { getOrderByRef } from "@/actions/orderAction";
+import { getOrderByRef, fetchOrders } from "@/actions/orderAction";
 import { toast } from "sonner";
 import { Order } from "@/types/index";
 import Pagination from "@/components/common/pagination";
+import useSWR from "swr";
+
+// Define the expected return type from fetchOrders
+interface FetchOrdersResult {
+  orders: Order[];
+  totalPages: number;
+  totalCount?: number; // Make this optional if it might not always be present
+}
 
 interface OrderClientProps {
   initialOrders: Order[];
@@ -43,20 +51,45 @@ export default function OrderClient({
   const [statusFilter, setStatusFilter] = useState(currentStatus);
   const [userSearchQuery, setUserSearchQuery] = useState(currentUserSearch);
   const [searchRef, setSearchRef] = useState("");
-
-  const [displayedOrders, setDisplayedOrders] =
-    useState<Order[]>(initialOrders);
-
   const [isPending, startTransition] = useTransition();
   const [isRefSearching, setIsRefSearching] = useState(false);
+
+  // Create a cache key based on the current filters and page
+  const cacheKey = searchRef
+    ? null
+    : `admin-orders${statusFilter !== "all" ? `-${statusFilter}` : ""}-page-${currentPage}${userSearchQuery ? `-search-${userSearchQuery}` : ""}`;
+
+  const { data, isValidating } = useSWR<FetchOrdersResult>(
+    cacheKey,
+    async () => {
+      const result = await fetchOrders(
+        currentPage,
+        statusFilter,
+        userSearchQuery
+      );
+      return result as FetchOrdersResult;
+    },
+    {
+      fallbackData: { orders: initialOrders, totalPages } as FetchOrdersResult,
+      revalidateOnFocus: true,
+    }
+  );
+
+  // Use SWR data or result from search
+  const [searchResults, setSearchResults] = useState<Order[] | null>(null);
+  const displayedOrders = searchResults || data?.orders || initialOrders;
+
+  // Combined loading state - either transitioning or validating SWR data
+  const isLoading = isPending || isValidating;
 
   useEffect(() => {
     setStatusFilter(currentStatus);
     setUserSearchQuery(currentUserSearch);
+    // Reset search results when filters change
     if (!searchRef) {
-      setDisplayedOrders(initialOrders);
+      setSearchResults(null);
     }
-  }, [currentStatus, currentUserSearch, initialOrders, searchRef]);
+  }, [currentStatus, currentUserSearch, searchRef]);
 
   const handleFilterChange = (type: "status" | "userSearch", value: string) => {
     const newParams = new URLSearchParams(searchParams.toString());
@@ -78,8 +111,8 @@ export default function OrderClient({
     }
 
     newParams.set("page", "1");
-
     setSearchRef("");
+    setSearchResults(null);
 
     startTransition(() => {
       router.push(`/admin/orders?${newParams.toString()}`, { scroll: false });
@@ -92,15 +125,13 @@ export default function OrderClient({
       return;
     }
     setIsRefSearching(true);
-    setStatusFilter("all");
-    setUserSearchQuery("");
     try {
       const order = await getOrderByRef(searchRef.trim());
       if (order) {
-        setDisplayedOrders([order]);
+        setSearchResults([order]);
         toast.success("Order found.");
       } else {
-        setDisplayedOrders([]);
+        setSearchResults([]);
         toast.warning("No order found with that reference");
       }
     } catch (error) {
@@ -113,6 +144,7 @@ export default function OrderClient({
 
   const resetRefSearch = () => {
     setSearchRef("");
+    setSearchResults(null);
     const currentParams = new URLSearchParams(searchParams.toString());
     if (!currentParams.has("page")) {
       currentParams.set("page", "1");
@@ -270,7 +302,7 @@ export default function OrderClient({
         columns={orderColumns}
         data={displayedOrders}
         loadingState={
-          isPending ? (
+          isLoading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
