@@ -73,6 +73,17 @@ export const UserAuth = ({ onLogout, isLoading }: UserAuthProps) => {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            {user.role === "admin" && (
+              <DropdownMenuItem asChild>
+                <Link
+                  href="/admin"
+                  className="flex items-center cursor-pointer"
+                >
+                  <Layers className="mr-2 h-4 w-4" />
+                  <span>Admin Panel</span>
+                </Link>
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem asChild>
               <Link
                 href="/dashboard"

@@ -103,6 +103,16 @@ export const MobileMenu = ({
 
           {user && (
             <>
+              {user.role === "admin" && (
+                <Link
+                  href="/admin"
+                  className="flex items-center text-lg font-medium text-gray-700 hover:text-primary transition-colors"
+                  onClick={closeSheet}
+                >
+                  <Layers className="mr-2 h-5 w-5" />
+                  Admin Panel
+                </Link>
+              )}
               <Link
                 href="/dashboard"
                 className="flex items-center text-lg font-medium text-gray-700 hover:text-primary transition-colors"

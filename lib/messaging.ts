@@ -193,7 +193,7 @@ class Messaging {
 
       return { success: true, messageId: results[0]?.data?.id };
     } catch (error) {
-      console.log(error);
+      console.error(error);
       return { success: false, error: "Failed to send email" };
     }
   }
