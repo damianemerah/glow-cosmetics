@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { sendMessageWithFallback } from "@/lib/messaging";
 import { format } from "date-fns";
+import { formatZAR } from "@/utils";
 
 export async function POST(request: Request) {
     try {
@@ -91,8 +92,8 @@ export async function POST(request: Request) {
                 dateFormatted: orderDetails.dateFormatted,
                 timeFormatted: orderDetails.timeFormatted,
                 specialRequests:
-                    `Payment Reference: ${orderDetails.orderReference} | Total: R${
-                        orderDetails.total.toFixed(2)
+                    `Payment Reference: ${orderDetails.orderReference} | Total: ${
+                        formatZAR(orderDetails.total)
                     }`,
             },
             siteUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",

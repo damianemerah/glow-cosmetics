@@ -7,6 +7,7 @@ import DataTable from "@/components/admin/data-table";
 import { createClient } from "@/utils/supabase/server";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
+import { formatZAR } from "@/utils";
 
 // Function to get dashboard statistics
 async function getDashboardStats() {
@@ -95,7 +96,7 @@ async function getRecentActivity() {
 
       const orderActivities = (recentOrders || []).map((order) => ({
         client: `${order.first_name} ${order.last_name}`,
-        action: `Placed Order (R${order.total_price.toFixed(2)})`,
+        action: `Placed Order (${formatZAR(order.total_price)})`,
         time: new Date(order.created_at).toLocaleString("en-US", {
           month: "short",
           day: "numeric",
@@ -146,7 +147,7 @@ export default async function DashboardPage() {
         />
         <StatCard
           title="Weekly Sales"
-          value={`R${weeklySales.toFixed(2)}`}
+          value={`${formatZAR(weeklySales)}`}
           icon={<DollarSign className="h-4 w-4" />}
         />
         <StatCard

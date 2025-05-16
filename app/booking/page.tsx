@@ -38,7 +38,7 @@ import { Clock, Phone, Info, CheckCircle } from "lucide-react";
 import { DepositPopup } from "@/components/DepositPopup";
 import { customAlphabet } from "nanoid";
 import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
+import { formatZAR } from "@/utils";
 
 const nanoid = customAlphabet("0123456789", 6);
 
@@ -463,7 +463,7 @@ export default function BookingPage() {
                       <SelectContent>
                         {services.map((service) => (
                           <SelectItem key={service.id} value={service.id}>
-                            {service.name} - R{service.price}
+                            {service.name} - {formatZAR(service.price)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -657,7 +657,7 @@ export default function BookingPage() {
                           Time: {booking.time}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          Price: R{booking.service.price}
+                          Price: {formatZAR(booking.service.price)}
                         </p>
                         {booking.special_requests && (
                           <p className="text-sm text-muted-foreground italic">
@@ -673,7 +673,7 @@ export default function BookingPage() {
                     <Separator className="my-4" />
                     <div className="flex justify-between items-center font-semibold">
                       <span>Total Estimated Price:</span>
-                      <span>R{totalCartPrice.toFixed(2)}</span>
+                      <span>{formatZAR(totalCartPrice)}</span>
                     </div>
                   </CardContent>
                   <CardFooter>
@@ -737,7 +737,7 @@ export default function BookingPage() {
                         {service.details}
                       </p>
                       <p className="text-sm font-medium mt-2">
-                        R{service.price}
+                        {formatZAR(service.price)}
                       </p>
                     </button> // Close button tag
                   ))}

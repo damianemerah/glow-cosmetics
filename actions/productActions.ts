@@ -140,7 +140,7 @@ export const fetchRecommendedProducts = unstable_cache(
     // Use the 'random' filter handled in the helper
     fetchProductGroup({ limit, filter: { key: "random", value: true } }),
   ["products", "recommended"],
-  { revalidate: 86400, tags: ["products"] }, // Revalidate less often for random
+  { revalidate: 43400, tags: ["products"] }, // Revalidate less often for random
 );
 
 // --- Fetch All/Filtered Products (for the "View All" pages) ---

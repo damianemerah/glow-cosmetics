@@ -5,7 +5,6 @@ import { format } from "date-fns";
 import { Edit, Upload, AlertCircle, CalendarIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css"; // Import stylesheet for react-phone-input-2
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";

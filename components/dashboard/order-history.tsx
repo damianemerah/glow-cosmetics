@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/constants/ui/index";
+import { formatZAR } from "@/utils";
 
 interface OrderHistoryProps {
   orders: Order[];
@@ -85,7 +86,7 @@ export default function OrderHistory({
             </div>
             <div className="mt-2 md:mt-0 flex items-center">
               <p className="font-semibold text-green-600">
-                ${order.total_price.toFixed(2)}
+                {formatZAR(order.total_price)}
               </p>
               <Badge
                 className={
@@ -162,7 +163,7 @@ export default function OrderHistory({
                           </p>
                         </div>
                         <p className="font-semibold">
-                          ${Number(item.price_at_time).toFixed(2)}
+                          {formatZAR(item.price_at_time)}
                         </p>
                       </div>
                     </div>
@@ -173,7 +174,7 @@ export default function OrderHistory({
               <div className="border-t pt-4">
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span>${selectedOrder.total_price.toFixed(2)}</span>
+                  <span>{formatZAR(selectedOrder.total_price)}</span>
                 </div>
               </div>
 

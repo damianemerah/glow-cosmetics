@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from "@/constants/ui/index";
 import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css";
 import type { ChangeEvent } from "react";
 
 interface ShippingAddressData {

@@ -10,6 +10,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/constants/ui/index";
+import { formatZAR } from "@/utils";
 
 interface DepositPopupProps {
   bookingId: string | null;
@@ -55,7 +56,7 @@ export function DepositPopup({
         <div className="flex justify-center py-4">
           <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
             <span className="text-xl font-bold text-green-600">
-              R{depositAmount}
+              {formatZAR(depositAmount)}
             </span>
           </div>
         </div>

@@ -652,7 +652,7 @@ export default function AppointmentsClient({
       />
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto no-scrollbar">
           <DialogHeader>
             <DialogTitle>Add New Appointment</DialogTitle>
             <DialogDescription>
@@ -735,10 +735,11 @@ export default function AppointmentsClient({
                 selected={date}
                 onSelect={setDate}
                 className="border rounded-md p-3"
+                initialFocus
                 disabled={(date) => {
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
-                  return date < today || date.getDay() === 0; // Disable past dates and Sundays
+                  return date < today || date.getDay() === 0;
                 }}
               />
             </div>

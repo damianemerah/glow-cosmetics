@@ -22,7 +22,6 @@ import { transformToAdditionalDetails } from "@/utils";
 // Use Next.js ISR: revalidate this page every 60 seconds
 export const revalidate = 60;
 
-// Cache the fetch by slug for quicker repeated requests
 const getCachedProduct = unstable_cache(getProductBySlug, ["product-detail"]);
 
 async function getProductBySlug(

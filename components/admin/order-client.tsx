@@ -27,7 +27,7 @@ import useSWR from "swr";
 interface FetchOrdersResult {
   orders: Order[];
   totalPages: number;
-  totalCount?: number; // Make this optional if it might not always be present
+  totalCount?: number;
 }
 
 interface OrderClientProps {
@@ -49,15 +49,16 @@ export default function OrderClient({
   const searchParams = useSearchParams();
 
   const [statusFilter, setStatusFilter] = useState(currentStatus);
-  const [userSearchQuery, setUserSearchQuery] = useState(currentUserSearch);
+  const [userSearchInput, setUserSearchInput] = useState(currentUserSearch);
   const [searchRef, setSearchRef] = useState("");
+  const [searchResults, setSearchResults] = useState<Order[] | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isRefSearching, setIsRefSearching] = useState(false);
 
-  // Create a cache key based on the current filters and page
+  // SWR key ignores reference search
   const cacheKey = searchRef
     ? null
-    : `admin-orders${statusFilter !== "all" ? `-${statusFilter}` : ""}-page-${currentPage}${userSearchQuery ? `-search-${userSearchQuery}` : ""}`;
+    : `admin-orders${statusFilter !== "all" ? `-${statusFilter}` : ""}-page-${currentPage}${userSearchInput ? `-search-${userSearchInput}` : ""}`;
 
   const { data, isValidating } = useSWR<FetchOrdersResult>(
     cacheKey,
@@ -65,7 +66,7 @@ export default function OrderClient({
       const result = await fetchOrders(
         currentPage,
         statusFilter,
-        userSearchQuery
+        userSearchInput
       );
       return result as FetchOrdersResult;
     },
@@ -75,67 +76,71 @@ export default function OrderClient({
     }
   );
 
-  // Use SWR data or result from search
-  const [searchResults, setSearchResults] = useState<Order[] | null>(null);
-  const displayedOrders = searchResults || data?.orders || initialOrders;
-
-  // Combined loading state - either transitioning or validating SWR data
+  const displayedOrders = searchResults ?? data?.orders ?? initialOrders;
   const isLoading = isPending || isValidating;
 
+  // Reset search results when filters change
   useEffect(() => {
     setStatusFilter(currentStatus);
-    setUserSearchQuery(currentUserSearch);
-    // Reset search results when filters change
+    setUserSearchInput(currentUserSearch);
     if (!searchRef) {
       setSearchResults(null);
     }
   }, [currentStatus, currentUserSearch, searchRef]);
 
-  const handleFilterChange = (type: "status" | "userSearch", value: string) => {
-    const newParams = new URLSearchParams(searchParams.toString());
-
-    if (type === "status") {
-      if (value === "all") {
-        newParams.delete("status");
-      } else {
-        newParams.set("status", value);
-      }
-      setStatusFilter(value);
-    } else if (type === "userSearch") {
-      if (value) {
-        newParams.set("userSearch", value);
-      } else {
-        newParams.delete("userSearch");
-      }
-      setUserSearchQuery(value);
-    }
-
-    newParams.set("page", "1");
-    setSearchRef("");
-    setSearchResults(null);
-
+  // --- Handlers ---
+  const updateUrl = (params: URLSearchParams) => {
+    params.set("page", "1");
     startTransition(() => {
-      router.push(`/admin/orders?${newParams.toString()}`, { scroll: false });
+      router.push(`/admin/orders?${params.toString()}`, { scroll: false });
     });
   };
 
+  const handleFilterChange = (value: string) => {
+    const newParams = new URLSearchParams(searchParams.toString());
+    if (value === "all") newParams.delete("status");
+    else newParams.set("status", value);
+
+    setStatusFilter(value);
+    setSearchResults(null);
+    setSearchRef("");
+
+    updateUrl(newParams);
+  };
+
+  const handleUserSearch = () => {
+    const term = userSearchInput.trim();
+    const newParams = new URLSearchParams(searchParams.toString());
+    if (term) newParams.set("userSearch", term);
+    else newParams.delete("userSearch");
+
+    setSearchResults(null);
+    setSearchRef("");
+    updateUrl(newParams);
+  };
+
+  const resetUserSearch = () => {
+    setUserSearchInput("");
+    setSearchResults(null);
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.delete("userSearch");
+    updateUrl(newParams);
+  };
+
   const handleRefSearch = async () => {
-    if (!searchRef.trim()) {
+    const term = searchRef.trim();
+    if (!term) {
       toast.warning("Please enter a payment reference");
       return;
     }
     setIsRefSearching(true);
     try {
-      const order = await getOrderByRef(searchRef.trim());
-      if (order) {
-        setSearchResults([order]);
-        toast.success("Order found.");
-      } else {
-        setSearchResults([]);
-        toast.warning("No order found with that reference");
-      }
-    } catch (error) {
-      console.error("Error searching for order by reference:", error);
+      const order = await getOrderByRef(term);
+      setSearchResults(order ? [order] : []);
+      toast[order ? "success" : "warning"](
+        order ? "Order found." : "No order found with that reference"
+      );
+    } catch {
       toast.warning("Failed to find order");
     } finally {
       setIsRefSearching(false);
@@ -156,7 +161,7 @@ export default function OrderClient({
     });
   };
 
-  // --- Define Table Columns ---
+  // --- Columns ---
   const orderColumns = [
     {
       key: "id",
@@ -226,16 +231,44 @@ export default function OrderClient({
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex flex-wrap gap-2">
-          <Input
-            placeholder="Search by Name/Email..."
-            className="w-full sm:w-auto md:max-w-xs"
-            value={userSearchQuery}
-            onChange={(e) => handleFilterChange("userSearch", e.target.value)}
-            disabled={isPending || !!searchRef}
-          />
+          {/* User Search (Name/Email) */}
+          <div className="relative w-full sm:w-auto">
+            <Input
+              placeholder="Search by Name/Email..."
+              className="w-full md:max-w-xs pr-16"
+              value={userSearchInput}
+              onChange={(e) => setUserSearchInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleUserSearch()}
+              disabled={isPending || isRefSearching}
+            />
+            {userSearchInput && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-9 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                onClick={resetUserSearch}
+                disabled={isPending || isRefSearching}
+                aria-label="Clear user search"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              size="icon"
+              variant="ghost"
+              className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              onClick={handleUserSearch}
+              disabled={isPending || isRefSearching}
+              aria-label="Search users"
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Status Filter */}
           <Select
             value={statusFilter}
-            onValueChange={(value) => handleFilterChange("status", value)}
+            onValueChange={handleFilterChange}
             disabled={isPending || !!searchRef}
           >
             <SelectTrigger className="w-full sm:w-[180px]">
@@ -250,21 +283,21 @@ export default function OrderClient({
             </SelectContent>
           </Select>
 
-          {/* Payment Reference Search */}
+          {/* Order Ref Search (unchanged) */}
           <div className="relative w-full sm:w-auto">
             <Input
               placeholder="Search by Order Ref..."
-              className="w-full md:max-w-xs pr-16" // Added padding for buttons
+              className="w-full md:max-w-xs pr-16"
               value={searchRef}
-              onChange={(e) => setSearchRef(e.target.value)}
+              onChange={(e) => setSearchRef(e.target.value.toLowerCase())}
               onKeyDown={(e) => e.key === "Enter" && handleRefSearch()}
               disabled={isRefSearching || isPending}
             />
             {searchRef && (
               <Button
                 variant="ghost"
-                size="icon" // Use icon size
-                className="absolute right-9 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground hover:text-foreground" // Adjusted position/size
+                size="icon"
+                className="absolute right-9 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 onClick={resetRefSearch}
                 disabled={isRefSearching || isPending}
                 aria-label="Clear reference search"
@@ -273,9 +306,9 @@ export default function OrderClient({
               </Button>
             )}
             <Button
-              size="icon" // Use icon size
+              size="icon"
               variant="ghost"
-              className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground hover:text-foreground" // Adjusted position/size
+              className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               onClick={handleRefSearch}
               disabled={isRefSearching || !searchRef.trim() || isPending}
               aria-label="Search by reference"
@@ -298,6 +331,7 @@ export default function OrderClient({
           </Link>
         </div>
       </div>
+
       <DataTable
         columns={orderColumns}
         data={displayedOrders}
@@ -320,8 +354,7 @@ export default function OrderClient({
                 variant="link"
                 onClick={() => {
                   setStatusFilter("all");
-                  setUserSearchQuery("");
-                  handleFilterChange("status", "all");
+                  resetUserSearch();
                 }}
               >
                 Clear Filters
@@ -330,6 +363,7 @@ export default function OrderClient({
           </div>
         }
       />
+
       {!searchRef && (
         <Pagination
           currentPage={currentPage}

@@ -21,6 +21,8 @@ import { supabaseClient } from "@/lib/supabaseClient";
 import { toast } from "sonner";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
+import { deliveryOptions } from "@/constants/data";
+import { formatZAR } from "@/utils";
 
 // Create nanoid generator for order references
 const nanoid = customAlphabet("0123456789", 6);
@@ -59,6 +61,7 @@ export default function CreateOrderPage() {
     zipCode: "",
     country: "South Africa",
     payment_method: "bank_transfer",
+    delivery_method: "store_pickup",
     status: "pending",
   });
 
@@ -159,9 +162,16 @@ export default function CreateOrderPage() {
 
   // Calculate order total
   const calculateTotal = () => {
-    return orderItems.reduce((total, item) => {
-      return total + item.price * item.quantity;
-    }, 0);
+    const deliveryMethodFee = orderData.delivery_method
+      ? deliveryOptions.find(
+          (method) => method.id === orderData.delivery_method
+        )?.fee || 0
+      : 0;
+    return (
+      orderItems.reduce((total, item) => {
+        return total + item.price * item.quantity;
+      }, 0) + deliveryMethodFee
+    );
   };
 
   // Validate the form
@@ -247,6 +257,7 @@ export default function CreateOrderPage() {
           shipping_address: shippingAddress,
           payment_reference: reference,
           total_price: totalPrice,
+          delivery_method: orderData.delivery_method,
         })
         .select()
         .single();
@@ -458,7 +469,7 @@ export default function CreateOrderPage() {
                             <SelectContent>
                               {products.map((product) => (
                                 <SelectItem key={product.id} value={product.id}>
-                                  {product.name} - R{product.price.toFixed(2)}
+                                  {product.name} - {formatZAR(product.price)}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -482,13 +493,13 @@ export default function CreateOrderPage() {
 
                         <div className="w-24 space-y-2">
                           <Label>Price</Label>
-                          <Input value={`R${item.price.toFixed(2)}`} disabled />
+                          <Input value={`${formatZAR(item.price)}`} disabled />
                         </div>
 
                         <div className="w-24 space-y-2">
                           <Label>Subtotal</Label>
                           <Input
-                            value={`R${(item.price * item.quantity).toFixed(2)}`}
+                            value={`${formatZAR(item.price * item.quantity)}`}
                             disabled
                           />
                         </div>
@@ -566,11 +577,31 @@ export default function CreateOrderPage() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div className="space-y-2">
+                  <Label>Delivery Method</Label>
+                  <Select
+                    value={orderData.delivery_method}
+                    onValueChange={(value) =>
+                      handleSelectChange("delivery_method", value)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {deliveryOptions.map((option) => (
+                        <SelectItem key={option.id} value={option.id}>
+                          {option.name} ({option.fee})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 <div className="pt-4 border-t">
                   <div className="flex justify-between font-semibold">
                     <span>Total</span>
-                    <span>R{calculateTotal().toFixed(2)}</span>
+                    <span>{formatZAR(calculateTotal())}</span>
                   </div>
                 </div>
 

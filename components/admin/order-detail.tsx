@@ -119,17 +119,11 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
 
       toast.success("Order status updated successfully");
 
-      // Mutate SWR cache to update UI everywhere
       mutate("admin-orders");
 
-      // If we're in a filtered view, also mutate that specific filter
       if (status) {
         mutate(`admin-orders-${status}`);
       }
-
-      // if (status === "paid" && initialStatus === "pending") {
-      //   await handleMarkAsPaid();
-      // }
     } catch (error) {
       console.error("Error updating order status:", error);
       toast.warning("Failed to update order status");
@@ -137,24 +131,6 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
       setIsUpdating(false);
     }
   };
-
-  // Handle marking as paid (triggers inventory update)
-  // const handleMarkAsPaid = async () => {
-  //   try {
-  //     // Get cart ID from order
-  //     if (orderData?.cart_id) {
-  //       // Delete cart items
-  //       await supabaseClient
-  //         .from("cart_items")
-  //         .delete()
-  //         .eq("cart_id", orderData.cart_id);
-  //     }
-
-  //     toast.success("Payment recorded and inventory updated");
-  //   } catch (error) {
-  //     console.error("Error in payment processing:", error);
-  //   }
-  // };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

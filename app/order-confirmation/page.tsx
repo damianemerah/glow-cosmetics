@@ -16,6 +16,7 @@ import { CheckCircle, Package, CreditCard, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { formatZAR } from "@/utils";
 
 export const metadata: Metadata = {
   title: "Order Confirmation | Glow Cosmetics",
@@ -103,7 +104,7 @@ export default async function OrderConfirmationPage({
             <div className="flex justify-between">
               <span className="font-medium">Total:</span>
               <span className="font-medium">
-                ${order.total_price?.toFixed(2)}
+                {formatZAR(order.total_price)}
               </span>
             </div>
           </div>

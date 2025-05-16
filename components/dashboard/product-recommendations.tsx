@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/types/index";
 import { useState } from "react";
+import { formatZAR } from "@/utils";
 
 interface ProductRecommendationsProps {
   products: Product[];
@@ -62,7 +63,7 @@ export default function ProductRecommendations({
                 {product.name}
               </h4>
               <p className="text-green-600 font-semibold mt-1">
-                ${product.price.toFixed(2)}
+                {formatZAR(product.price)}
               </p>
             </div>
           </div>

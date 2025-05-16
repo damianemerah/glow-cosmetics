@@ -21,6 +21,7 @@ import { useUserStore } from "@/store/authStore";
 import { CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { keyValueData } from "@/constants/data";
+import { formatZAR } from "@/utils";
 
 function DepositPaymentPageContent() {
   const router = useRouter();
@@ -147,7 +148,7 @@ function DepositPaymentPageContent() {
               <div className="flex justify-between items-center">
                 <Label>Deposit Amount</Label>
                 <span className="font-semibold">
-                  R{depositAmount.toFixed(2)}
+                  {formatZAR(depositAmount)}
                 </span>
               </div>
             </div>
@@ -218,7 +219,7 @@ function DepositPaymentPageContent() {
                       Processing...
                     </span>
                   ) : (
-                    `Pay R${depositAmount.toFixed(2)}`
+                    `Pay ${formatZAR(depositAmount)}`
                   )}
                 </Button>
               </div>
@@ -248,7 +249,7 @@ function DepositPaymentPageContent() {
                     <strong>Reference:</strong> {bookingId}
                   </p>
                   <p>
-                    <strong>Amount:</strong> R{depositAmount.toFixed(2)}
+                    <strong>Amount:</strong> {formatZAR(depositAmount)}
                   </p>
                 </div>
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">

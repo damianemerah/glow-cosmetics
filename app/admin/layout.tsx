@@ -10,6 +10,7 @@ import {
   SidebarInset,
   SidebarMenuSkeleton,
 } from "@/constants/ui";
+import "react-phone-input-2/lib/style.css";
 
 const montserrat = Montserrat({
   subsets: ["latin"],

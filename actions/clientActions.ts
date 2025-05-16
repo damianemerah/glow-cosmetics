@@ -3,6 +3,7 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { unstable_cache } from "next/cache";
 import { MessageData, sendEmail } from "@/lib/messaging";
+import { formatZAR } from "@/utils";
 
 interface ContactFormData {
   firstName: string;
@@ -97,7 +98,7 @@ export async function getClients(page = 1, itemsPerPage = 10) {
                     },
                   )
                   : "Never",
-                totalSpent: `R${totalSpent.toFixed(2)}`,
+                totalSpent: formatZAR(totalSpent),
               };
             } catch (err) {
               console.error(

@@ -11,6 +11,7 @@ import { addToCart } from "@/actions/cartAction";
 import { useUserStore } from "@/store/authStore";
 import { toast } from "sonner";
 import { CartItemInputData } from "@/types";
+import { formatZAR } from "@/utils";
 
 // Define Types
 type WishlistItemProduct = {
@@ -308,12 +309,12 @@ export default function Wishlist() {
 
                 <div className="flex items-center gap-2 mt-1 mb-2">
                   <p className="text-lg sm:text-xl font-semibold text-primary">
-                    ${product.price.toFixed(2)}
+                    {formatZAR(product.price)}
                   </p>
                   {product.compare_price &&
                     product.compare_price > product.price && (
                       <p className="text-sm text-muted-foreground line-through">
-                        ${product.compare_price.toFixed(2)}
+                        {formatZAR(product.compare_price)}
                       </p>
                     )}
                 </div>

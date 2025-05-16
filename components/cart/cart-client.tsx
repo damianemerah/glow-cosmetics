@@ -259,7 +259,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
     );
 
     messageLines.push(
-      `\nEstimated total: $${totalAmount.toFixed(2)} (subject to confirmation)`
+      `\nEstimated total: ${formatZAR(totalAmount)} (subject to confirmation)`
     );
 
     // Construct and encode final message
