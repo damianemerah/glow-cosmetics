@@ -206,6 +206,7 @@ export async function addToCart(
       if (insertError) {
         throw new Error(`Failed to add item: ${insertError.message}`);
       }
+      revalidatePath("/", "layout");
       return { success: true, message: "Item added to cart." };
     }
   } catch (error: unknown) {
@@ -233,7 +234,7 @@ export async function updateCartItemQuantity(itemId: string, quantity: number) {
       console.error("Error updating cart item:", error);
       throw error;
     }
-
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error) {
     console.error("Error in updateCartItemQuantity:", error);
@@ -253,7 +254,7 @@ export async function removeCartItem(itemId: string) {
       console.error("Error removing cart item:", error);
       throw error;
     }
-
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error) {
     console.error("Error in removeCartItem:", error);

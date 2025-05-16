@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 interface WishlistError {
     message: string;
@@ -47,6 +47,7 @@ export async function toggleWishlistItem(userId: string, productId: string) {
             if (insertError) throw insertError;
 
             revalidatePath("/products");
+            revalidateTag("products");
             return { success: true, added: true, message: "Added to wishlist" };
         }
     } catch (error: unknown) {
@@ -146,7 +147,8 @@ export async function removeFromWishlist(wishlistItemId: string) {
 
         if (error) throw error;
 
-        revalidatePath("/wishlist");
+        revalidatePath("/dashboard");
+        revalidateTag("products");
         return { success: true };
     } catch (error: unknown) {
         const wishlistError = error as WishlistError;

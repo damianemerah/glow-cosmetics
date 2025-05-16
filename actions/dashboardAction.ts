@@ -272,6 +272,7 @@ export async function createBooking(bookingData: {
     }
 
     revalidatePath("/admin/appointments");
+    revalidatePath("/dashboard");
     return {
       success: true,
       booking: data?.[0],
@@ -344,6 +345,9 @@ export async function deleteUserAccount(
       console.error("Error deleting avatar from storage:", removeError);
       throw removeError;
     }
+
+    revalidatePath("/dashboard");
+    revalidatePath("/", "layout");
 
     return {
       success: true,

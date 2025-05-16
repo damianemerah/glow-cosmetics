@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { Order } from "@/types/index";
 import { customAlphabet } from "nanoid";
 import type { OrderInputData } from "@/types"; // Import types
+import { revalidatePath } from "next/cache";
 
 interface FetchOrdersResult {
     orders: Order[];
@@ -150,6 +151,9 @@ export async function createOrder(
                 );
             }
         }
+
+        revalidatePath("/dashboard");
+        revalidatePath("/admin/orders");
 
         // --- Success ---
         return {

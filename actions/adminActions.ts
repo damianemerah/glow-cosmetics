@@ -5,7 +5,6 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { unstable_cache } from "next/cache";
 import type { Category, ProductWithCategories } from "@/types/index";
 import slugify from "slugify";
-import { sendMessageWithFallback } from "@/lib/messaging";
 import { sanitizeTitle } from "@/utils";
 
 // Image upload function
@@ -553,75 +552,59 @@ export async function deleteProduct(
   }
 }
 
-export async function sendAdminEmail(
-  email: string,
-  subject: string,
-  message: string,
-) {
-  try {
-    const { error: err } = await supabaseAdmin
-      .from("profiles")
-      .select("user_id")
-      .eq("role", "admin")
-      .single();
-
-    if (err) {
-      console.error("Error fetching admin email:", err);
-      throw new Error("Failed to fetch admin email");
-    }
-
-    const { error } = await sendMessageWithFallback({
-      userId: email,
-      subject,
-      message,
-      channel: "email",
-      variables: {},
-    });
-
-    if (error) {
-      console.error("Error sending admin email:", error);
-      throw new Error("Failed to send email");
-    }
-
-    return { success: true };
-  } catch (error) {
-    const err = error as Error;
-    console.error("Error sending email:", err);
-    return { success: false, error: err.message };
-  }
-}
-
-// Add this function if it doesn't exist
 export async function deleteCategory(id: string) {
   try {
-    // Check if any products are using this category first
-    const { data: productCategories, error: checkError } = await supabaseAdmin
+    // First check for child categories
+    const { data: childCategories, error: childError } = await supabaseAdmin
+      .from("categories")
+      .select()
+      .eq("parent_id", id);
+
+    if (childError) {
+      return { success: false, error: childError.message };
+    }
+
+    if (childCategories && childCategories.length > 0) {
+      return {
+        success: false,
+        error:
+          `Cannot delete category because it has ${childCategories.length} subcategories. Please move or delete the subcategories first.`,
+      };
+    }
+
+    // Then check for associated products
+    const { data: productCategories, error: productError } = await supabaseAdmin
       .from("product_categories")
       .select()
       .eq("category_id", id);
 
-    if (checkError) {
-      return { success: false, error: checkError.message };
+    if (productError) {
+      return { success: false, error: productError.message };
     }
 
-    // If there are associated products, don't allow deletion
     if (productCategories && productCategories.length > 0) {
       return {
         success: false,
         error:
-          `Cannot delete category because it has ${productCategories.length} products associated with it. Please remove the products first.`,
+          `Cannot delete category because it has ${productCategories.length} products associated. Please remove the products first.`,
       };
     }
 
-    // Delete the category
-    const { error } = await supabaseAdmin.from("categories").delete().eq(
-      "id",
-      id,
-    );
+    // If no child categories or products, proceed with deletion
+    const { error } = await supabaseAdmin
+      .from("categories")
+      .delete()
+      .eq("id", id);
 
     if (error) {
       return { success: false, error: error.message };
     }
+
+    revalidatePath("/admin/categories");
+    revalidateTag("categories");
+    revalidateTag("products");
+    revalidatePath(`/admin/categories/${id}`);
+    revalidatePath("/products");
 
     return { success: true };
   } catch (error) {
