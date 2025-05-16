@@ -25,7 +25,6 @@ type UserStore = {
   setShowModal: (showModal: boolean) => void;
   isFetchingUser: boolean;
   refreshUserData: () => Promise<boolean>;
-  isProfileComplete: (userData?: UserStateData | null) => boolean;
   needsProfileCompletion: () => boolean;
 };
 
@@ -36,79 +35,46 @@ export const useUserStore = create<UserStore>((set, get) => ({
   isFetchingUser: false,
   setUser: (user) => set({ user, isFetchingUser: false }),
 
-  isProfileComplete: (userData = null) => {
-    const userToCheck = userData || get().user;
-    if (!userToCheck) {
-      return false;
-    }
-
-    // Check each required field explicitly
-    const hasFirstName = !!userToCheck.first_name;
-    const hasLastName = !!userToCheck.last_name;
-    const hasPhone = !!userToCheck.phone;
-    const hasDateOfBirth = !!userToCheck.date_of_birth;
-
-    const isComplete = hasFirstName && hasLastName && hasPhone &&
-      hasDateOfBirth;
-
-    return isComplete;
-  },
-
   needsProfileCompletion: () => {
-    // If we're still fetching, don't redirect yet
-    if (get().isFetchingUser) {
-      return false;
-    }
-
     const user = get().user;
-    const needsCompletion = !!user && !get().isProfileComplete(user);
-    return needsCompletion;
+    if (!user) return false;
+
+    return !(
+      user.first_name &&
+      user.last_name &&
+      user.phone &&
+      user.date_of_birth
+    );
   },
 
   fetchUser: async (userId: string): Promise<boolean> => {
-    if (!userId) {
-      return false;
-    }
-    if (get().isFetchingUser) {
-      return !!get().user;
-    }
-
-    set({ isFetchingUser: true });
+    if (!userId) return false;
+    if (get().user?.id === userId) return true; // Skip if already loaded
 
     try {
+      set({ isFetchingUser: true });
+
       const { data: userData, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("user_id", userId)
         .maybeSingle();
 
-      if (error) {
-        console.error(`Error fetching profile for ${userId}:`, error.message);
-        set({ user: null, isFetchingUser: false });
-        return false;
-      }
+      if (error) throw error;
 
-      if (userData && userData.is_active) {
+      if (userData?.is_active) {
         set({ user: { id: userId, ...userData }, isFetchingUser: false });
         return true;
-      } else if (userData && !userData.is_active) {
-        console.warn(`Profile found for ${userId} but is inactive.`);
-        set({ user: null, isFetchingUser: false });
-        return false;
-      } else {
-        console.warn(
-          `No active profile found for authenticated user ${userId}.`,
-        );
-        set({ user: null, isFetchingUser: false });
-        return false;
       }
-    } catch (e) {
-      console.error("Unexpected error in fetchUser:", e);
+
+      set({ user: null, isFetchingUser: false });
+      return false;
+    } catch (error) {
+      console.error("Fetch user error:", error);
       set({ user: null, isFetchingUser: false });
       return false;
     }
   },
-
   refreshUserData: async (): Promise<boolean> => {
     try {
       set({ isFetchingUser: true });

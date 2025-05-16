@@ -18,8 +18,6 @@ export async function GET(request: Request) {
         .exchangeCodeForSession(code);
 
     if (exchangeError || !exchangeData.session) {
-        console.log(exchangeData);
-        console.error("OAuth exchange error:", exchangeError);
         return NextResponse.redirect(`${origin}${next}`);
     }
 

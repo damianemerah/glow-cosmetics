@@ -77,14 +77,6 @@ export default function CompleteProfilePage({
   });
 
   useEffect(() => {
-    // Refresh user data on mount
-    const init = async () => {
-      await refreshUserData();
-    };
-    init();
-  }, [refreshUserData]);
-
-  useEffect(() => {
     if (isFetchingUser) return;
     //reset form with default values
 
@@ -106,7 +98,6 @@ export default function CompleteProfilePage({
       const { data, error } = await supabase.auth.getSession();
       if (error || !data.session) {
         toast.error("Please login to complete your profile");
-        console.log("NO ACTION NEEDED🎈🎈");
         router.push("/");
       }
     };
@@ -116,12 +107,16 @@ export default function CompleteProfilePage({
 
   useEffect(() => {
     if (isFetchingUser) return;
-    const needCompletion = needsProfileCompletion();
-    if (!needCompletion || !user) {
-      console.log("NO ACTION NEEDED💎💎");
+
+    if (!user) {
       router.push("/");
+      return;
     }
-  }, [needsProfileCompletion, isFetchingUser, router, user]);
+
+    if (!needsProfileCompletion()) {
+      router.push("/dashboard");
+    }
+  }, [user, isFetchingUser, router, needsProfileCompletion]);
 
   // Handle form submission
   const onSubmit = async (data: ProfileFormData) => {

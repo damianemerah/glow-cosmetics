@@ -24,23 +24,26 @@ export default function ServicesPage() {
   );
   const [activeAccordion, setActiveAccordion] = useState<string>("");
 
-  // Create refs for each service item
   const serviceRefs = useRef<{ [key: string]: HTMLElement | null }>({});
 
-  // Handle scrolling to a service when URL has service param or store has servicesScrollId
+  // Handle initial load and servicesScrollId from external navigation
   useEffect(() => {
-    const targetServiceId = serviceParam || servicesScrollId;
-
-    if (targetServiceId) {
-      const service = services.find(
-        (s) => s.slug === targetServiceId || s.id === targetServiceId
-      );
-
+    // If servicesScrollId is present (from external page), update URL to the corresponding slug
+    if (servicesScrollId && !serviceParam) {
+      const service = services.find((s) => s.id === servicesScrollId);
       if (service) {
-        // Set the active accordion first
-        setActiveAccordion(service.id);
+        window.history.replaceState(null, "", `?service=${service.slug}`);
+        clearServicesScrollId();
+      }
+    }
+  }, [servicesScrollId, serviceParam, clearServicesScrollId]);
 
-        // Then handle scrolling
+  // Handle scrolling and accordion state based on serviceParam
+  useEffect(() => {
+    if (serviceParam) {
+      const service = services.find((s) => s.slug === serviceParam);
+      if (service) {
+        setActiveAccordion(service.id);
         setTimeout(() => {
           const serviceElement = serviceRefs.current[service.id];
           if (serviceElement) {
@@ -49,24 +52,19 @@ export default function ServicesPage() {
               block: "center",
             });
           }
-        }, 300); // Match animation duration
+        }, 300);
       }
     }
+  }, [serviceParam]);
 
-    if (servicesScrollId) {
-      clearServicesScrollId();
+  // Update URL when accordion is manually toggled
+  const handleAccordionChange = (value: string) => {
+    const service = services.find((s) => s.id === value);
+    if (service) {
+      window.history.replaceState(null, "", `?service=${service.slug}`);
     }
-  }, [serviceParam, servicesScrollId, clearServicesScrollId]);
-
-  // Add this useEffect to sync URL param
-  useEffect(() => {
-    if (activeAccordion && serviceParam !== activeAccordion) {
-      const service = services.find((s) => s.id === activeAccordion);
-      if (service) {
-        window.history.replaceState(null, "", `?service=${service.slug}`);
-      }
-    }
-  }, [activeAccordion, serviceParam]);
+    setActiveAccordion(value);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -107,7 +105,7 @@ export default function ServicesPage() {
               collapsible
               className="w-full"
               value={activeAccordion}
-              onValueChange={setActiveAccordion}
+              onValueChange={handleAccordionChange}
             >
               {services.map((service) => (
                 <AccordionItem

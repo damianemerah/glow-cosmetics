@@ -120,24 +120,29 @@ const Navbar = () => {
 
   const processAuthUser = useCallback(
     async (authUser: User | null) => {
-      if (authUser) {
-        const profileFetched = await fetchUser(authUser.id);
-        if (profileFetched) {
-          mutateCartCount();
-          await attemptCartMerge(authUser.id);
+      try {
+        if (authUser?.id === user?.id) return;
+        if (authUser) {
+          const profileFetched = await fetchUser(authUser.id);
+
+          if (!profileFetched) {
+            setUser(null);
+            return;
+          }
+
+          // Wait for both cart operations to complete
+          await Promise.all([attemptCartMerge(authUser.id), mutateCartCount()]);
         } else {
           setUser(null);
-          mergeAttemptedThisSessionRef.current = false;
-          mutateCartCount();
         }
-      } else {
-        setUser(null);
-        mergeAttemptedThisSessionRef.current = false;
-        mutateCartCount();
+      } catch (error) {
+        console.error("Error processing auth user:", error);
+      } finally {
+        // Ensure this is always called last
+        setInitialAuthCheckComplete(true);
       }
-      setInitialAuthCheckComplete(true);
     },
-    [fetchUser, setUser, mutateCartCount, attemptCartMerge]
+    [fetchUser, setUser, mutateCartCount, attemptCartMerge, user?.id]
   );
 
   useEffect(() => {

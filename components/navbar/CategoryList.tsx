@@ -15,7 +15,7 @@ import { Menu, Grid3X3, ShoppingBag, Sparkles } from "lucide-react";
 import type { Category, ServiceItem, UnifiedCategory } from "@/types";
 import { services as staticServices } from "@/constants/data";
 import { SocialIcons } from "@/components/navbar/SocialIcons";
-import { useScrollStore } from "@/store/scrollStore";
+// import { useScrollStore } from "@/store/scrollStore";
 
 interface CategoryListProps {
   onLinkClick?: () => void;
@@ -84,9 +84,6 @@ export const CategoryList = ({
   initialCategories = [],
 }: CategoryListProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const setServicesScrollId = useScrollStore(
-    (state) => state.setServicesScrollId
-  );
 
   const { allProductCategories, featuredProductCategories, serviceCategories } =
     useMemo(() => {
@@ -162,9 +159,10 @@ export const CategoryList = ({
         href={href}
         className={`block px-4 py-3 hover:bg-muted transition-colors rounded-md ${isSubCategory ? "text-sm pl-8" : "font-medium"}`}
         onClick={() => {
-          if (category.type === "service") {
-            setServicesScrollId(category.id);
-          }
+          // if (category.type === "service") {
+          //   clearServicesScrollId();
+          //   setServicesScrollId(category.id);
+          // }
           closeSheet();
         }}
       >
@@ -250,6 +248,15 @@ export const CategoryList = ({
                   <h3 className="font-semibold text-md mb-2 text-muted-foreground tracking-wide">
                     All Product Categories
                   </h3>
+                  <Link
+                    href="/products?filter=all"
+                    className={`block px-4 py-3 hover:bg-muted transition-colors rounded-md`}
+                    onClick={() => {
+                      closeSheet();
+                    }}
+                  >
+                    All Products
+                  </Link>
                   {allProductCategories.map((category) => (
                     <div key={category.id} className="mb-1">
                       {renderCategoryLink(category)}
