@@ -95,7 +95,7 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
           aria-label="Search"
         >
           <Search className="h-5 w-5" />
-          <span>Search</span>
+          <span className="font-montserrat">Search</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent

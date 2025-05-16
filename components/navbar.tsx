@@ -97,10 +97,11 @@ const Navbar = () => {
             useCartStore.getState().clearOfflineCart();
             await mutateCartCount();
           } else {
+            useCartStore.getState().clearOfflineCart();
             toast.warning(
-              `Failed to sync offline cart: ${result.error || "Unknown reason"}. Items remain saved locally.`
+              `Failed to sync some offline cart: ${result.error || "Unknown reason"}. Items removed locally.`
             );
-            mergeAttemptedThisSessionRef.current = false;
+            mergeAttemptedThisSessionRef.current = true;
           }
         } catch (err) {
           const error = err as Error;

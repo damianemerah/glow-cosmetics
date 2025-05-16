@@ -142,11 +142,14 @@ export default async function ProductsPage({
     <div className="flex flex-col min-h-screen bg-background">
       <ProductHero />
       <div>
-        <div className="container sticky top-0 z-25 bg-background border-b border-border px-1 sm:px-4 overflow-hidden">
-          <div className="w-full overflow-x-auto">
-            <ProductNavigation categoryData={categories} />
+        {/* <div className="sticky top-0 z-25 bg-background border-b border-border overflow-visible">
+          <div className="container mx-auto px-1 sm:px-4"> */}
+        {/* Only scroll horizontally; allow vertical overflow */}
+        {/* <div className="w-full overflow-x-auto overflow-y-visible"> */}
+        <ProductNavigation categoryData={categories} />
+        {/* </div>
           </div>
-        </div>
+        </div> */}
 
         {showFilteredGrid ? (
           <Suspense fallback={<ProductGridSkeletonWrapper />}>

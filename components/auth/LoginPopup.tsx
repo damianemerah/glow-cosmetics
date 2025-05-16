@@ -221,6 +221,7 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
         provider,
         options: {
           redirectTo: `${window.location.origin}/api/auth/callback`,
+          scopes: "openid profile email",
           queryParams: {
             prompt: "select_account",
           },

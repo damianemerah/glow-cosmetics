@@ -10,7 +10,7 @@ import {
   ShoppingCart,
   Eye,
   Loader2,
-  GitCompareArrows,
+  // GitCompareArrows,
 } from "lucide-react";
 import {
   Badge,
@@ -322,7 +322,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 </Tooltip>
 
                 {/* Compare (disabled) */}
-                <Tooltip>
+                {/* <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="secondary"
@@ -338,7 +338,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   <TooltipContent>
                     <p>Compare (Coming Soon)</p>
                   </TooltipContent>
-                </Tooltip>
+                </Tooltip> */}
               </div>
             </div>
           </div>

@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import useSWR from "swr";
 import {
   Sheet,
   SheetContent,
@@ -13,18 +12,19 @@ import {
   SheetDescription,
 } from "@/constants/ui/index";
 import { Menu, Grid3X3, ShoppingBag, Sparkles } from "lucide-react";
-import { fetchProductCategories } from "@/lib/swr/categories";
-import type { ProdCategory, ServiceItem, UnifiedCategory } from "@/types";
+import type { Category, ServiceItem, UnifiedCategory } from "@/types";
 import { services as staticServices } from "@/constants/data";
 import { SocialIcons } from "@/components/navbar/SocialIcons";
+import { useScrollStore } from "@/store/scrollStore";
 
 interface CategoryListProps {
   onLinkClick?: () => void;
   buttonStyle?: "default" | "mobile-nav";
+  initialCategories?: Category[];
 }
 
 const buildProductCategoryTree = (
-  categories: ProdCategory[]
+  categories: Category[]
 ): UnifiedCategory[] => {
   const categoryMap = new Map<string, UnifiedCategory>();
   const rootCategories: UnifiedCategory[] = [];
@@ -81,26 +81,19 @@ const groupServices = (services: ServiceItem[]): UnifiedCategory[] => {
 export const CategoryList = ({
   onLinkClick,
   buttonStyle = "default",
+  initialCategories = [],
 }: CategoryListProps) => {
   const [isOpen, setIsOpen] = useState(false);
-
-  const {
-    data: productCategoriesData,
-    error: productCategoriesError,
-    isLoading: isLoadingProductCategories,
-  } = useSWR<ProdCategory[]>(
-    isOpen ? "productCategories" : null,
-    fetchProductCategories,
-    {
-      revalidateOnFocus: false,
-    }
+  const setServicesScrollId = useScrollStore(
+    (state) => state.setServicesScrollId
   );
 
   const { allProductCategories, featuredProductCategories, serviceCategories } =
     useMemo(() => {
-      const processedProductCategories = productCategoriesData
-        ? buildProductCategoryTree(productCategoriesData)
-        : [];
+      const processedProductCategories =
+        initialCategories.length > 0
+          ? buildProductCategoryTree(initialCategories)
+          : [];
       const featured = processedProductCategories.filter((c) => c.pinned);
 
       const groupedServiceItems = groupServices(staticServices);
@@ -113,9 +106,9 @@ export const CategoryList = ({
             : processedProductCategories.slice(0, 4),
         serviceCategories: groupedServiceItems,
       };
-    }, [productCategoriesData]);
+    }, [initialCategories]);
 
-  const isLoading = isLoadingProductCategories;
+  const isLoading = false;
 
   const closeSheet = () => {
     setIsOpen(false);
@@ -128,11 +121,11 @@ export const CategoryList = ({
         <Button
           variant="ghost"
           size="sm"
-          className="flex flex-col items-center justify-center rounded-none h-full text-xs text-gray-500 w-full"
+          className="font-montserrat flex flex-col items-center justify-center rounded-none h-full text-xs text-gray-500 w-full"
           aria-label="Open categories menu"
         >
           <Grid3X3 className="h-5 w-5 mb-1" />
-          <span>Categories</span>
+          <span className="font-montserrat">Categories</span>
         </Button>
       );
     }
@@ -150,7 +143,6 @@ export const CategoryList = ({
     parentProductSlug?: string
   ) => {
     const baseProductPath = "/products/c";
-    const baseServicePath = "/services";
 
     let href = "";
     if (category.type === "product") {
@@ -160,7 +152,8 @@ export const CategoryList = ({
         href = `${baseProductPath}/${category.slug}`;
       }
     } else {
-      href = `${baseServicePath}/${category.slug}`;
+      // Services now link to the main services page with an ID
+      href = `/services?service=${category.slug}`;
     }
 
     return (
@@ -168,7 +161,12 @@ export const CategoryList = ({
         key={category.id}
         href={href}
         className={`block px-4 py-3 hover:bg-muted transition-colors rounded-md ${isSubCategory ? "text-sm pl-8" : "font-medium"}`}
-        onClick={closeSheet}
+        onClick={() => {
+          if (category.type === "service") {
+            setServicesScrollId(category.id);
+          }
+          closeSheet();
+        }}
       >
         {category.name}
       </Link>
@@ -200,14 +198,8 @@ export const CategoryList = ({
               </p>
             </div>
           )}
-          {productCategoriesError && (
-            <div className="p-6 text-center text-destructive">
-              <p>Could not load product categories.</p>
-              <p className="text-sm">{productCategoriesError.message}</p>
-            </div>
-          )}
 
-          {!isLoading && !productCategoriesError && (
+          {!isLoading && (
             <>
               {/* Featured Product Categories Section */}
               {featuredProductCategories.length > 0 && (
@@ -274,7 +266,7 @@ export const CategoryList = ({
               )}
               <SocialIcons className="p-4 border-t mb-16 flex items-center justify-center" />
 
-              {!productCategoriesData?.length &&
+              {!initialCategories.length &&
                 !staticServices.length &&
                 !isLoading && (
                   <p className="p-6 text-center text-muted-foreground">

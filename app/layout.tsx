@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import "react-phone-input-2/lib/style.css";
 import { Skeleton } from "@/components/ui/skeleton";
 import TawkChat from "@/components/tawkChat";
+import { CategoryListServer } from "@/components/navbar/CategoryListServer";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -135,11 +136,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch categories for mobile navigation
+  const { categories } = await CategoryListServer();
+
   return (
     <html lang="en">
       <body className={`${montserrat.variable} ${openSans.variable} font-sans`}>
@@ -156,7 +160,7 @@ export default function RootLayout({
         <main>{children}</main>
         <Footer />
         <TawkChat />
-        <MobileNavigation />
+        <MobileNavigation productCategories={categories} />
       </body>
     </html>
   );

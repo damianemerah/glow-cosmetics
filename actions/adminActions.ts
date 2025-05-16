@@ -132,11 +132,26 @@ export async function fetchCategoryById(id: string): Promise<
   | { success: false; error: string }
 > {
   try {
-    // Special case for 'parent-options' - return all categories for dropdown
-    if (id === "parent-options") {
+    // Special case for 'all' - return all categories for dropdown
+    if (id === "all") {
       const { data: categories, error } = await supabaseAdmin
         .from("categories")
         .select("*")
+        .order("name");
+
+      if (error) {
+        console.log(`Failed to fetch categories: ${error.message}`);
+        return { success: false, error: error.message };
+      }
+
+      return { success: true, categories: categories as Category[] };
+    }
+
+    if (id === "parent-only") {
+      const { data: categories, error } = await supabaseAdmin
+        .from("categories")
+        .select("*")
+        .is("parent_id", null)
         .order("name");
 
       if (error) {

@@ -1,5 +1,9 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Accordion,
   AccordionContent,
@@ -9,8 +13,61 @@ import {
 } from "@/constants/ui/index";
 import { services } from "@/constants/data";
 import CustomerReviews from "@/components/customer-reviews";
+import { useScrollStore } from "@/store/scrollStore";
 
 export default function ServicesPage() {
+  const searchParams = useSearchParams();
+  const serviceParam = searchParams.get("service");
+  const servicesScrollId = useScrollStore((state) => state.servicesScrollId);
+  const clearServicesScrollId = useScrollStore(
+    (state) => state.clearServicesScrollId
+  );
+  const [activeAccordion, setActiveAccordion] = useState<string>("");
+
+  // Create refs for each service item
+  const serviceRefs = useRef<{ [key: string]: HTMLElement | null }>({});
+
+  // Handle scrolling to a service when URL has service param or store has servicesScrollId
+  useEffect(() => {
+    const targetServiceId = serviceParam || servicesScrollId;
+
+    if (targetServiceId) {
+      const service = services.find(
+        (s) => s.slug === targetServiceId || s.id === targetServiceId
+      );
+
+      if (service) {
+        // Set the active accordion first
+        setActiveAccordion(service.id);
+
+        // Then handle scrolling
+        setTimeout(() => {
+          const serviceElement = serviceRefs.current[service.id];
+          if (serviceElement) {
+            serviceElement.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+        }, 300); // Match animation duration
+      }
+    }
+
+    if (servicesScrollId) {
+      clearServicesScrollId();
+    }
+  }, [serviceParam, servicesScrollId, clearServicesScrollId]);
+
+  // Add this useEffect to sync URL param
+  useEffect(() => {
+    if (activeAccordion && serviceParam !== activeAccordion) {
+      const service = services.find((s) => s.id === activeAccordion);
+      if (service) {
+        window.history.replaceState(null, "", `?service=${service.slug}`);
+      }
+    }
+  }, [activeAccordion, serviceParam]);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -45,9 +102,21 @@ export default function ServicesPage() {
             Enhance your natural beauty with our semi permanent makeup service.
           </h2> */}
           <div className="max-w-4xl mx-auto">
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion
+              type="single"
+              collapsible
+              className="w-full"
+              value={activeAccordion}
+              onValueChange={setActiveAccordion}
+            >
               {services.map((service) => (
-                <AccordionItem key={service.id} value={service.id}>
+                <AccordionItem
+                  key={service.id}
+                  value={service.id}
+                  ref={(el) => {
+                    serviceRefs.current[service.id] = el;
+                  }}
+                >
                   <AccordionTrigger className="text-xl font-montserrat py-4">
                     {service.name}
                   </AccordionTrigger>

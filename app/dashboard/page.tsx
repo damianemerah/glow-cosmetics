@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import DashboardTabs from "@/components/dashboard/dashboard-tabs";
+import { SWRConfig } from "swr";
+import { WishlistSkeleton } from "@/components/dashboard/wishlist";
 
 // UI Components
 import {
@@ -41,6 +43,7 @@ const OrderHistory = dynamic(
 const AccountSettings = dynamic(
   () => import("@/components/dashboard/account-settings")
 );
+const Wishlist = dynamic(() => import("@/components/dashboard/wishlist"));
 
 const ProfileSectionFallback = () => (
   <div className="space-y-3">
@@ -104,6 +107,14 @@ const BookingsListFallback = () => (
         </div>
         <Skeleton className="h-8 w-[100px]" />
       </div>
+    ))}
+  </div>
+);
+
+const WishlistFallback = () => (
+  <div className="space-y-6">
+    {[1, 2, 3].map((i) => (
+      <WishlistSkeleton key={i} />
     ))}
   </div>
 );
@@ -173,6 +184,7 @@ async function BookingsData() {
     return <UpcomingBookings bookings={[]} initialError={true} />;
   }
 }
+
 async function BookingsListData() {
   const supabase = await createClient();
   const { session } = await requireAuth(supabase);
@@ -282,20 +294,69 @@ async function getRecommendationsData() {
   return getRecommendations(supabase);
 }
 
+async function getWishlistData(userId: string) {
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("wishlists")
+    .select(
+      "id, user_id, product_id, created_at, products:products(id, name, price, image_url, slug, stock_quantity, is_bestseller, compare_price)"
+    )
+    .eq("user_id", userId);
+
+  // Transform data to match the expected format for the Wishlist component
+  const formattedData =
+    data?.map((item) => ({
+      ...item,
+      products: Array.isArray(item.products) ? item.products[0] : item.products,
+    })) || [];
+
+  return formattedData;
+}
+
+async function WishlistData() {
+  const supabase = await createClient();
+  const { session } = await requireAuth(supabase);
+
+  const wishlistData = await getWishlistData(session.user.id);
+
+  // Create fallback data for SWR to use initially
+  const fallbackData = {
+    "/api/wishlists": wishlistData,
+  };
+
+  return (
+    <SWRConfig value={{ fallback: fallbackData }}>
+      <Wishlist />
+    </SWRConfig>
+  );
+}
+
 export default function DashboardPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className=" mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-6 font-montserrat">
           My Dashboard
         </h1>
 
         <DashboardTabs defaultValue="overview">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="bookings">Bookings</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 mb-8">
+            <TabsTrigger className="text-xs md:text-sm" value="overview">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger className="text-xs md:text-sm" value="orders">
+              Orders
+            </TabsTrigger>
+            <TabsTrigger className="text-xs md:text-sm" value="bookings">
+              Bookings
+            </TabsTrigger>
+            <TabsTrigger className="text-xs md:text-sm" value="wishlists">
+              Wishlists
+            </TabsTrigger>
+            <TabsTrigger className="text-xs md:text-sm" value="settings">
+              Settings
+            </TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -341,7 +402,7 @@ export default function DashboardPage() {
           </TabsContent>
 
           {/* Orders Tab */}
-          <TabsContent value="orders">
+          <TabsContent value="orders" className="container">
             <Card>
               <CardHeader>
                 <CardTitle>Order History</CardTitle>
@@ -365,6 +426,23 @@ export default function DashboardPage() {
               <CardContent>
                 <Suspense fallback={<BookingsListFallback />}>
                   <BookingsListData />
+                </Suspense>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Wishlists Tab */}
+          <TabsContent value="wishlists">
+            <Card>
+              <CardHeader>
+                <CardTitle>My Wishlist</CardTitle>
+                <CardDescription>
+                  Products you&apos;ve saved for later
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Suspense fallback={<WishlistFallback />}>
+                  <WishlistData />
                 </Suspense>
               </CardContent>
             </Card>

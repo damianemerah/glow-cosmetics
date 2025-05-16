@@ -311,7 +311,7 @@ export default function CategoryForm({
                         <SelectValue placeholder="Select parent category (optional)" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">None (Top Level)</SelectItem>
+                        <SelectItem value="none">(Top Level)</SelectItem>
                         {parentCategories
                           .filter((cat) => cat.id !== id)
                           .map((cat) => (

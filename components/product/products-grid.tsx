@@ -78,7 +78,7 @@ export default function ProductsGrid({
   return (
     <section ref={localFiltersRef} className="pb-8 md:pb-12 bg-background">
       <div className="container mx-auto px-4 relative">
-        <div className="sticky top-14 z-20 -mx-4 px-4 bg-background border-b border-border">
+        <div className="sticky top-0 md:top-14 z-20 -mx-4 px-4 bg-background border-b border-border">
           <ProductSortView
             currentSort={currentSort}
             currentView={currentView}

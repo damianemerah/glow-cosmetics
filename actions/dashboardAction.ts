@@ -320,82 +320,159 @@ export async function setNotificationSettings(
 
 // Add a new function to handle user account deletion
 
-export async function deleteUserAccount(userId: string) {
+export async function deleteUserAccount(
+  userId: string,
+  shouldSignOut: boolean = true,
+): Promise<ActionResult<{ shouldSignOut: true } | undefined>> {
   try {
-    // First check if there are any active bookings
-    const { data: activeBookings, error: bookingError } = await supabaseAdmin
-      .from("bookings")
-      .select("id")
-      .eq("user_id", userId)
-      .in("status", ["pending", "confirmed"])
-      .limit(1);
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
 
-    if (bookingError) {
-      return { success: false, error: bookingError.message };
+    if (error) {
+      console.error("Failed to delete auth user:", error.message);
+      throw error;
     }
 
-    // If there are active bookings, don't allow deletion
-    if (activeBookings && activeBookings.length > 0) {
-      return {
-        success: false,
-        error:
-          "Cannot delete account with active bookings. Please cancel them first.",
-      };
+    const filePath = `${userId}/avatar.png`;
+
+    // 1. Remove the file from storage
+    const { error: removeError } = await supabaseAdmin
+      .storage
+      .from("avatars")
+      .remove([filePath]);
+
+    if (removeError) {
+      console.error("Error deleting avatar from storage:", removeError);
+      throw removeError;
     }
 
-    // Perform cascading deletion:
-    // 1. Soft delete by setting 'deleted_at' in profiles table
-    const { error: profileError } = await supabaseAdmin
-      .from("profiles")
-      .update({ deleted_at: new Date().toISOString() })
-      .eq("user_id", userId);
-
-    if (profileError) {
-      return { success: false, error: profileError.message };
-    }
-
-    // 2. Anonymize personal data
-    const { error: anonymizeError } = await supabaseAdmin
-      .from("profiles")
-      .update({
-        first_name: "Deleted",
-        last_name: "User",
-        email: `deleted-${Date.now()}@example.com`,
-        phone: null,
-        address: null,
-        profile_image: null,
-      })
-      .eq("user_id", userId);
-
-    if (anonymizeError) {
-      console.error("Error anonymizing user data:", anonymizeError);
-      // Continue with deletion even if anonymization fails
-    }
-
-    // 3. Set all orders to anonymized
-    const { error: ordersError } = await supabaseAdmin
-      .from("orders")
-      .update({ is_anonymized: true })
-      .eq("user_id", userId);
-
-    if (ordersError) {
-      console.error("Error anonymizing orders:", ordersError);
-      // Continue with deletion even if order anonymization fails
-    }
-
-    // Optional: If you truly want to delete the auth user as well (not just profile data)
-    // This is more permanent and requires admin privileges
-    // const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
-    // if (authError) {
-    //   return { success: false, error: authError.message };
-    // }
-
-    return { success: true };
+    return {
+      success: true,
+      data: shouldSignOut ? { shouldSignOut } : undefined,
+    };
   } catch (error) {
-    console.error("Error deleting user account:", error);
+    console.error("Unexpected error in deleteUserAccount:", error);
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
+      errorCode: "UNKNOWN_ERROR",
     };
   }
+}
+
+export async function exportUserData(
+  userId: string,
+): Promise<ActionResult<string>> {
+  try {
+    // Validate input
+    if (!userId) {
+      return {
+        success: false,
+        error: "User ID is required",
+        errorCode: "INVALID_INPUT",
+      };
+    }
+
+    // Fetch profile
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("*")
+      .eq("user_id", userId)
+      .single();
+
+    if (profileError) {
+      console.error("Error fetching profile:", profileError);
+      return {
+        success: false,
+        error: "Could not retrieve user profile data",
+        errorCode: "DB_FETCH_ERROR",
+      };
+    }
+
+    // Fetch bookings
+    const { data: bookings, error: bookingsError } = await supabaseAdmin
+      .from("bookings")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (bookingsError) {
+      console.error("Error fetching bookings:", bookingsError);
+      // Continue even if there's an error with bookings
+    }
+
+    // Fetch orders
+    const { data: orders, error: ordersError } = await supabaseAdmin
+      .from("orders")
+      .select("*, items:order_items(*)")
+      .eq("user_id", userId);
+
+    if (ordersError) {
+      console.error("Error fetching orders:", ordersError);
+      // Continue even if there's an error with orders
+    }
+
+    // Fetch wishlist
+    const { data: wishlist, error: wishlistError } = await supabaseAdmin
+      .from("wishlists")
+      .select("*, products:products(name)")
+      .eq("user_id", userId);
+
+    if (wishlistError) {
+      console.error("Error fetching wishlist:", wishlistError);
+      // Continue even if there's an error with wishlist
+    }
+
+    // Create a combined data object
+    const userData = {
+      profile: {
+        first_name: profile?.first_name || "Not provided",
+        last_name: profile?.last_name || "Not provided",
+        email: profile?.email || "Not provided",
+        phone: profile?.phone || "Not provided",
+        created_at: profile?.created_at || "Unknown",
+        last_purchase_date: profile?.last_purchase_date || "None",
+      },
+      bookings: (bookings || []).map((booking) => ({
+        service_name: booking.service_name,
+        booking_time: booking.booking_time,
+        status: booking.status,
+        price: booking.service_price,
+        created_at: booking.created_at,
+      })),
+      orders: (orders || []).map((order) => ({
+        order_id: order.id,
+        created_at: order.created_at,
+        status: order.status,
+        total_price: order.total_price,
+        items_count: order.items ? order.items.length : 0,
+      })),
+      wishlist: (wishlist || []).map((item) => ({
+        product_name: item.products?.name || "Unknown product",
+        added_on: item.created_at,
+      })),
+    };
+
+    // Convert to JSON string - this will be encoded for download
+    const jsonData = JSON.stringify(userData, null, 2);
+    const base64Data = Buffer.from(jsonData).toString("base64");
+
+    return {
+      success: true,
+      data: base64Data,
+    };
+  } catch (err) {
+    console.error("Unexpected error in exportUserData:", err);
+    return {
+      success: false,
+      error: "An unexpected error occurred while exporting your data",
+      errorCode: "UNKNOWN_ERROR",
+    };
+  }
+}
+
+// Add the ActionResult interface at the top of the file
+interface ActionResult<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  errorCode?: string;
 }

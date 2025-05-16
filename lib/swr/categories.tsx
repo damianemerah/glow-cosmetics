@@ -1,9 +1,9 @@
 import { createClient } from "@/utils/supabase/client";
-import type { ProdCategory } from "@/types";
+import type { Category } from "@/types";
 
 const supabase = createClient();
 
-export const fetchProductCategories = async (): Promise<ProdCategory[]> => {
+export const fetchProductCategories = async (): Promise<Category[]> => {
   const { data, error } = await supabase
     .from("categories")
     .select("*")

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { X, Check, Heart, GitCompareArrows } from "lucide-react";
+import { X, Check, Heart } from "lucide-react";
 import { Badge, DialogTitle } from "@/constants/ui/index";
 import type { ProductWithCategories, ColorInfo } from "@/types/index";
 import { Json } from "@/types/types";
@@ -218,13 +218,13 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
             />
             {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
           </button>
-          <span className="text-gray-300">|</span>
+          {/* <span className="text-gray-300">|</span>
           <button
             className="flex items-center gap-1 hover:text-primary transition-colors cursor-not-allowed opacity-50"
             disabled
           >
             <GitCompareArrows className="w-4 h-4" /> Compare
-          </button>
+          </button> */}
         </div>
 
         {/* <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800 flex items-start gap-2">

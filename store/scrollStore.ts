@@ -10,6 +10,11 @@ interface ScrollStoreState {
         refToClear: React.RefObject<HTMLDivElement | null>,
     ) => void;
     scrollToFilters: () => void;
+
+    // Services scrolling
+    servicesScrollId: string | null;
+    setServicesScrollId: (id: string) => void;
+    clearServicesScrollId: () => void;
 }
 
 export const useScrollStore = create<ScrollStoreState>((set, get) => ({
@@ -32,5 +37,14 @@ export const useScrollStore = create<ScrollStoreState>((set, get) => ({
         } else {
             console.warn("filtersElementRef or current is null");
         }
+    },
+
+    // Services scrolling implementation
+    servicesScrollId: null,
+    setServicesScrollId: (id) => {
+        set({ servicesScrollId: id });
+    },
+    clearServicesScrollId: () => {
+        set({ servicesScrollId: null });
     },
 }));

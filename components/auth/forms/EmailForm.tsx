@@ -92,7 +92,7 @@ export function EmailForm({
             type="button"
             variant="outline"
             onClick={() => onOAuthSignIn("apple")}
-            disabled={isLoading}
+            disabled={true}
           >
             <FaApple className="mr-2 h-4 w-4" /> Apple
           </Button>

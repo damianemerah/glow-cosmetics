@@ -76,26 +76,13 @@ export default function CompleteProfilePage({
     },
   });
 
-  // Check authentication status
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data, error } = await supabase.auth.getSession();
-      if (error || !data.session) {
-        toast.error("Please login to complete your profile");
-        router.push("/");
-      }
+    // Refresh user data on mount
+    const init = async () => {
+      await refreshUserData();
     };
-
-    checkAuth();
-  }, [router]);
-
-  useEffect(() => {
-    if (isFetchingUser) return;
-    const needCompletion = needsProfileCompletion();
-    if (!needCompletion || !user) {
-      router.push("/");
-    }
-  }, [needsProfileCompletion, isFetchingUser, router, user]);
+    init();
+  }, [refreshUserData]);
 
   useEffect(() => {
     if (isFetchingUser) return;
@@ -112,6 +99,29 @@ export default function CompleteProfilePage({
       });
     }
   }, [user, isFetchingUser, form]);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !data.session) {
+        toast.error("Please login to complete your profile");
+        console.log("NO ACTION NEEDED🎈🎈");
+        router.push("/");
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  useEffect(() => {
+    if (isFetchingUser) return;
+    const needCompletion = needsProfileCompletion();
+    if (!needCompletion || !user) {
+      console.log("NO ACTION NEEDED💎💎");
+      router.push("/");
+    }
+  }, [needsProfileCompletion, isFetchingUser, router, user]);
 
   // Handle form submission
   const onSubmit = async (data: ProfileFormData) => {
@@ -182,12 +192,10 @@ export default function CompleteProfilePage({
         console.warn(
           "Profile updated in database but failed to refresh user data in store"
         );
-        // We still continue with navigation even if local store update failed
       }
 
       toast.success("Profile completed successfully!");
 
-      // Ensure we set isSubmitting to false before navigation
       setIsSubmitting(false);
       router.push("/dashboard");
     } catch (error) {

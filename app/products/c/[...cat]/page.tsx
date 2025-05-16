@@ -202,13 +202,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     <div className="flex flex-col min-h-screen bg-background">
       <ProductHero />
 
-      <div className="sticky top-0 z-25 bg-background border-b border-border">
-        <div className="container mx-auto px-1 sm:px-4 overflow-hidden">
-          <div className="w-full overflow-x-auto">
-            <ProductNavigation categoryData={categories} />
-          </div>
-        </div>
-      </div>
+      <ProductNavigation categoryData={categories} />
 
       <div className="container mx-auto px-4">
         <div className="mt-4">

@@ -27,7 +27,7 @@ async function ProductDetail({ id }: { id: string }) {
     id?.toLowerCase() !== "new"
       ? await fetchProductById(id)
       : { success: true, data: null };
-  const result = await fetchCategoryById("parent-options");
+  const result = await fetchCategoryById("all");
   const categories =
     result.success && result.categories
       ? Array.isArray(result.categories)

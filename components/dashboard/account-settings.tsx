@@ -11,6 +11,7 @@ import {
 import { Loader2 } from "lucide-react";
 import ConfirmDialog from "@/components/common/confirm-dialog";
 import { useRouter } from "next/navigation";
+import { useUserStore } from "@/store/authStore";
 
 interface AccountSettingsProps {
   marketingEnabled: boolean;
@@ -35,6 +36,7 @@ export default function AccountSettings({
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const signOut = useUserStore((state) => state.signOut);
 
   const handleNotificationChange = async (type: string, checked: boolean) => {
     if (!userId) return;
@@ -93,12 +95,11 @@ export default function AccountSettings({
         toast.success(
           "Account deleted successfully. You will be logged out shortly."
         );
-        // Redirect to home page or logout page after a brief delay
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
+        await signOut();
+        router.push("/");
       } else {
-        toast.warning(`Failed to delete account: ${result.error}`);
+        console.error("Error deleting account:", result.error);
+        toast.warning(`Failed to delete account`);
         setIsDeleteDialogOpen(false);
       }
     } catch (error) {
@@ -214,11 +215,38 @@ export default function AccountSettings({
             </div>
             <Button
               variant="outline"
-              onClick={() => {
-                toast("Data Export Requested", {
-                  description:
-                    "We'll email you when your data is ready to download.",
+              onClick={async () => {
+                toast("Exporting...", {
+                  description: "Preparing your data...",
                 });
+
+                const res = await fetch("/api/export-user-data", {
+                  method: "POST",
+                  body: JSON.stringify({ userId }),
+                  headers: { "Content-Type": "application/json" },
+                });
+
+                const result = await res.json();
+
+                if (result.success) {
+                  // Download the file
+                  const blob = new Blob(
+                    [atob(result.data)], // decode base64
+                    { type: "application/json" }
+                  );
+                  const url = window.URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.download = "your-data.json";
+                  link.click();
+                  window.URL.revokeObjectURL(url);
+
+                  toast.success("Your data has been downloaded.");
+                } else {
+                  toast.warning("Failed to export data", {
+                    description: result.error || "Please try again.",
+                  });
+                }
               }}
             >
               Export

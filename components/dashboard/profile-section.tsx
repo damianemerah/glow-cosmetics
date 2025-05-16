@@ -236,7 +236,7 @@ export default function ProfileSection({
         });
       } else {
         toast.success("Profile updated successfully!");
-        setIsDialogOpen(false); // Close dialog on full success
+        setIsDialogOpen(false);
       }
 
       await mutate(); // Revalidate SWR to get the latest profile state
@@ -296,7 +296,7 @@ export default function ProfileSection({
           </div>
         </div>
 
-        <div className="mt-4 md:mt-0">
+        <div className="mt-4 md:mt-0 ">
           <div className="flex items-center space-x-2 mb-2">
             <span className="text-sm font-medium">Profile Completion</span>
             <span className="text-sm font-medium">

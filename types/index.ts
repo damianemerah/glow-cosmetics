@@ -190,19 +190,6 @@ export interface WishlistItem {
   >;
 }
 
-// src/types/index.ts (or a relevant types file)
-
-export interface ProdCategory {
-  id: string;
-  name: string;
-  slug: string;
-  parent_id: string | null;
-  images?: string[]; // Optional, if you use them
-  pinned?: boolean; // Optional, if you use them
-  description?: string; // Optional
-  // Add any other product category specific fields
-}
-
 export interface ServiceItem {
   id: string;
   name: string;

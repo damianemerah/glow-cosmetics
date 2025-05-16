@@ -9,8 +9,15 @@ import { Button } from "@/constants/ui/index";
 import { SearchCommand } from "@/components/navbar/SearchCommand";
 import { useScrollStore } from "@/store/scrollStore";
 import { useUserStore } from "@/store/authStore";
+import { Category } from "@/types";
 
-export default function MobileNavigation() {
+interface MobileNavigationProps {
+  productCategories: Category[];
+}
+
+export default function MobileNavigation({
+  productCategories = [],
+}: MobileNavigationProps) {
   const pathname = usePathname();
   const isMobile = useIsMobile();
   const isProductsRoute = pathname.startsWith("/products");
@@ -22,12 +29,11 @@ export default function MobileNavigation() {
   const setShowModal = useUserStore((state) => state.setShowModal);
   const user = useUserStore((state) => state.user);
 
-  // Don't render on desktop or admin pages
   if (!isMobile || pathname.startsWith("/admin")) return null;
 
   const handleFilterButtonClick = () => {
     if (isProductsRoute) {
-      scrollToFiltersAction(); // Call the action from the store
+      scrollToFiltersAction();
     }
   };
 
@@ -36,14 +42,16 @@ export default function MobileNavigation() {
       <div className="grid grid-cols-5 h-16">
         <Link
           href={`${isProductsRoute ? "/" : "/products"}`}
-          className={`flex flex-col items-center justify-center text-xs`}
+          className={`flex flex-col items-center justify-center text-xs  font-montserrat`}
         >
           {isProductsRoute ? (
             <Home className="h-5 w-5 mb-1" />
           ) : (
             <Store className="h-5 w-5 mb-1" />
           )}
-          <span>{isProductsRoute ? "Home" : "Store"}</span>
+          <span className="font-montserrat">
+            {isProductsRoute ? "Home" : "Store"}
+          </span>
         </Link>
 
         {isProductsRoute ? (
@@ -51,23 +59,26 @@ export default function MobileNavigation() {
             variant="ghost"
             size="sm"
             onClick={handleFilterButtonClick}
-            className="flex flex-col items-center justify-center rounded-none h-full text-xs text-gray-500"
+            className="flex flex-col items-center justify-center rounded-none h-full text-xs text-gray-500  font-montserrat"
           >
             <Filter className="h-5 w-5 mb-1" />
-            <span>Filter</span>
+            <span className="font-montserrat">Filter</span>
           </Button>
         ) : (
           <div className="flex items-center justify-center">
-            <CategoryList buttonStyle="mobile-nav" />
+            <CategoryList
+              buttonStyle="mobile-nav"
+              initialCategories={productCategories}
+            />
           </div>
         )}
 
         <SearchCommand variant="mobile" />
 
         <Link
-          href="/dashboard#wishlist"
-          className={`flex flex-col items-center justify-center text-xs ${
-            pathname === "/dashboard#wishlist"
+          href="/dashboard#wishlists"
+          className={`flex flex-col items-center justify-center text-xs font-montserrat ${
+            pathname === "/dashboard#wishlists"
               ? "text-primary"
               : "text-gray-500"
           }`}
@@ -79,12 +90,12 @@ export default function MobileNavigation() {
           }}
         >
           <Heart className="h-5 w-5 mb-1" />
-          <span>Wishlist</span>
+          <span className="font-montserrat">Wishlist</span>
         </Link>
 
         <Link
           href="/dashboard"
-          className={`flex flex-col items-center justify-center text-xs ${
+          className={`flex flex-col items-center justify-center text-xs font-montserrat ${
             pathname === "/dashboard" ? "text-primary" : "text-gray-500"
           }`}
           onClick={(e) => {
@@ -95,7 +106,7 @@ export default function MobileNavigation() {
           }}
         >
           <User className="h-5 w-5 mb-1" />
-          <span>Account</span>
+          <span className="font-montserrat">Account</span>
         </Link>
       </div>
     </div>
