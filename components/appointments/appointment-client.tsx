@@ -465,6 +465,16 @@ export default function AppointmentsClient({
       const serviceName =
         service?.name || booking.service_name || "your service";
 
+      const adminNumber = "27781470504";
+      const text = `Hello 👋
+          I’d like to reschedule my appointment.
+          Booking Reference: ${booking.booking_id}
+          Service: ${serviceName}
+          Date: ${formattedDate}
+          Time: ${formattedTime}`;
+
+      const rescheduleUrl = `https://wa.me/${adminNumber}?text=${encodeURIComponent(text)}`;
+
       const variables = {
         bookingId: booking.booking_id,
         serviceName,
@@ -474,12 +484,13 @@ export default function AppointmentsClient({
           `${booking.first_name || ""} ${booking.last_name || ""}`.trim() ||
           "Valued Customer",
         specialInstructions: booking.special_requests || "",
+        rescheduleUrl,
       };
 
       const messageData = {
         userId: booking.user_id,
         subject: "Appointment Confirmation",
-        message: "pug-template/emails/appointmentConfirmation.pug",
+        message: "appointmentConfirmation.pug",
         variables,
         channel: "email" as MessageChannel,
       };
@@ -542,13 +553,14 @@ export default function AppointmentsClient({
         appointmentDate: formattedDate,
         bookingId: booking.booking_id,
         bookingUrl: `${window.location.origin}/booking`,
-        feedbackUrl: `${window.location.origin}/feedback/${booking.id}`,
+        feedbackUrl:
+          "https://www.facebook.com/profile.php?id=100069551504619&sk=reviews",
       };
 
       const messageData = {
         userId: booking.user_id,
         subject: "Thank You for Your Visit",
-        message: "pug-template/emails/appointmentThankYou.pug",
+        message: "appointmentThankYou.pug",
         variables,
         channel: "email" as MessageChannel,
       };

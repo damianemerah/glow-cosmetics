@@ -13,7 +13,12 @@ block content
   p Just mention the discount code when booking your next appointment.
 
   p
-    a.button(href=bookingUrl, target='_blank', rel='noopener noreferrer') Book Now
+    a(
+      href=bookingUrl || '#',
+      target='_blank',
+      rel='noopener noreferrer',
+      style='display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: #ffffff !important; text-decoration: none; border-radius: 4px; font-weight: 500;'
+    ) Book Now
 
   .divider
 

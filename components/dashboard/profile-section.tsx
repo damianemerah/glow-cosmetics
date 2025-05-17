@@ -203,19 +203,17 @@ export default function ProfileSection({
         return;
       }
       newAvatarUrl = uploadResult.data;
-      setAvatarFile(null); // Clear staged file as it's now processed (or attempted)
+      setAvatarFile(null);
     }
 
-    // 2. Prepare Profile Data for Update
     try {
       const updatePayload: Partial<Profile> = {
         first_name: formData.first_name,
         last_name: formData.last_name,
-        // email: formData.email, // Typically email shouldn't be updated here directly
-        phone: formData.phone || null, // Send null if empty string to clear
+        phone: formData?.phone,
         date_of_birth: formData.date_of_birth
           ? formData.date_of_birth.toISOString().split("T")[0]
-          : null, // Send null if undefined/cleared
+          : null,
         updated_at: new Date().toISOString(),
       };
 
@@ -238,19 +236,18 @@ export default function ProfileSection({
         setIsDialogOpen(false);
       }
 
-      await mutate(); // Revalidate SWR to get the latest profile state
-      router.refresh(); // If there are any server-side computed fields or redirects based on profile
+      await mutate();
+      router.refresh();
     } catch (error) {
       console.error("Profile update submission error:", error);
       toast.error("An unexpected error occurred while updating your profile.");
-      await mutate(); // Revalidate SWR on unexpected error
+      await mutate();
     } finally {
       setIsSubmitting(false);
     }
   }
 
   if (swrError || (initialError && !profile)) {
-    // Check if SWR has an error or if initial load failed and SWR hasn't populated data
     return (
       <div className="flex items-center p-4 text-red-800 bg-red-50 rounded-md my-6">
         <AlertCircle className="h-5 w-5 mr-2" />

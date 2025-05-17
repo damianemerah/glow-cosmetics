@@ -20,10 +20,18 @@ export interface FetchCategoriesResult {
 async function getRecommendationsData() {
   const getRecommendations = unstable_cache(
     async () => {
+      const {
+        data: { user },
+      } = await supabaseAdmin.auth.getUser();
+
       const { data: recommendations, error } = await supabaseAdmin.rpc(
-        "get_random_products",
-        { count: 6 }
+        "get_recommended_products",
+        {
+          p_user_id: user?.id || null,
+          p_count: 8,
+        }
       );
+
       if (error) {
         return [];
       }

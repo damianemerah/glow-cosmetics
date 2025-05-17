@@ -23,9 +23,17 @@ async function fetchProductGroup(
 ): Promise<ProductWithCategories[]> {
   const limit = options.limit ?? DEFAULT_GROUP_LIMIT;
   if (options.filter?.key === "random") {
-    const { data, error } = await supabaseAdmin.rpc("get_random_products", {
-      count: limit,
-    });
+    const {
+      data: { user },
+    } = await supabaseAdmin.auth.getUser();
+
+    const { data, error } = await supabaseAdmin.rpc(
+      "get_recommended_products",
+      {
+        p_user_id: user?.id || null,
+        p_count: 8,
+      },
+    );
 
     if (error) {
       console.error("Error fetching random products via RPC:", error);

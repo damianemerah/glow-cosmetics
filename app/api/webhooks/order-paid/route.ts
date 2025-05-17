@@ -96,15 +96,16 @@ export async function POST(request: Request) {
                         formatZAR(orderDetails.total)
                     }`,
             },
-            siteUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+            siteUrl: process.env.NEXT_PUBLIC_APP_URL!,
         };
 
         // Send email to each admin
         const emailPromises = adminUsers.map((admin) => {
+            console.log("SENDING EMAIL TO ADMIN:", admin.user_id);
             return sendMessageWithFallback({
                 userId: admin.user_id,
                 subject: `New Order Payment Received - ${payment_reference}`,
-                message: "pug-template/emails/booking-notification.pug",
+                message: "order-notification.pug",
                 variables: emailVariables,
             });
         });

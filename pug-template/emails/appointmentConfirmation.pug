@@ -29,8 +29,13 @@ block content
       h4(style='margin-top: 0;') Special Instructions
       p #{specialInstructions}
 
-  p
-    a.button(href=rescheduleUrl, target='_blank', rel='noopener noreferrer') Manage Appointment
+  p(style='margin: 24px 0;')
+    a(
+      href=rescheduleUrl,
+      target='_blank',
+      rel='noopener noreferrer',
+      style='display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: #ffffff !important; text-decoration: none; border-radius: 4px; font-weight: 500;'
+    ) Manage Appointment
 
   .divider
 
@@ -39,9 +44,11 @@ block content
   ul(style='list-style: none; padding-left: 0;')
     li(style='padding: 8px 0; border-bottom: 1px solid #f0f0f0;')
       strong Cancellation Policy:
+      br
       | Please provide at least 24 hours notice for cancellations to avoid a cancellation fee.
     li(style='padding: 8px 0; border-bottom: 1px solid #f0f0f0;')
       strong Late Arrival:
+      br
       | If you arrive late, your service may be shortened to accommodate other scheduled appointments.
 
   p If you need to reschedule or have any questions, please contact us at (123) 456-7890.

@@ -776,7 +776,7 @@ export default function BookingPage() {
                   <li className="grid grid-cols-[auto_1fr] gap-1">
                     <Info className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
                     <div>
-                      <p className="font-semibold">Cancellation Policy</p>
+                      <p className="font-semibold">Cancellation Policy </p>
                       <p>
                         Please provide at least 24 hours notice for
                         cancellations or rescheduling to avoid a cancellation

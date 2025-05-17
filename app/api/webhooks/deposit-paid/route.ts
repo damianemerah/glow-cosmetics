@@ -144,7 +144,7 @@ export async function POST(request: Request) {
                     "Not provided",
             },
             booking: bookingDetails,
-            siteUrl: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+            siteUrl: process.env.NEXT_PUBLIC_APP_URL!,
         };
 
         // Send email/message to each admin
@@ -152,7 +152,7 @@ export async function POST(request: Request) {
             return sendMessageWithFallback({
                 userId: admin.user_id,
                 subject: `Deposit Received - ${bookingDetails.serviceName}`,
-                message: "pug-template/emails/deposit-notification.pug",
+                message: "deposit-notification.pug",
                 variables: emailVariables,
                 channel: "email",
             });

@@ -25,7 +25,12 @@ block content
     h4(style='margin-top: 0;') Share Your Feedback
     p Your feedback helps us improve our services. Please take a moment to rate your experience.
     p
-      a.button(href=feedbackUrl || '#', target='_blank', rel='noopener noreferrer', style='background-color: var(--primary); color: white;') Leave a Review
+      a(
+        href=feedbackUrl || '#',
+        target='_blank',
+        rel='noopener noreferrer',
+        style='display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: #ffffff !important; text-decoration: none; border-radius: 4px; font-weight: 500;'
+      ) Leave a Review
 
   p We look forward to seeing you again soon for your next appointment!
 
@@ -36,7 +41,12 @@ block content
   p Ready for your next beauty treatment? Book your next appointment to secure your preferred date and time.
 
   p
-    a.button(href=bookingUrl || '#', target='_blank', rel='noopener noreferrer') Book Now
+    a(
+      href=bookingUrl || '#',
+      target='_blank',
+      rel='noopener noreferrer',
+      style='display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: #ffffff !important; text-decoration: none; border-radius: 4px; font-weight: 500;'
+    ) Book Now
 
   p If you have any questions or need assistance, please don't hesitate to contact us.
 

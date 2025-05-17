@@ -1,3 +1,5 @@
+// CRON_SECRET_TOKEN
+
 import { NextResponse } from "next/server";
 import { sendMessageWithFallback } from "@/lib/messaging";
 import { createClient } from "@/utils/supabase/server";
@@ -68,7 +70,9 @@ export async function GET(request: Request) {
 
         const templatePath = path.join(
             process.cwd(),
-            "pug-template/emails/birthday.pug",
+            "pug-template",
+            "emails",
+            "birthday.pug",
         );
 
         // Render the HTML email template with a placeholder that will be replaced with actual user data
@@ -86,8 +90,8 @@ export async function GET(request: Request) {
     `;
 
         // The website's booking URL
-        const bookingUrl = process.env.WEBSITE_URL
-            ? `${process.env.WEBSITE_URL}/booking`
+        const bookingUrl = process.env.NEXT_PUBLIC_APP_URL
+            ? `${process.env.NEXT_PUBLIC_APP_URL}/booking`
             : "https://ugosylviacosmetics.co.za/booking";
 
         // Send messages to all users with birthdays today

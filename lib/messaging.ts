@@ -159,10 +159,12 @@ class Messaging {
         // Default htmlContent is the processed plain message
         let htmlContent = processedMessage;
 
-        if (processedMessage.startsWith("pug-template/")) {
+        if (processedMessage.endsWith(".pug")) {
           // If the message starts with 'pug-template/', render it using Pug
           const templatePath = path.join(
             process.cwd(),
+            "pug-template",
+            "emails",
             processedMessage,
           );
           htmlContent = pug.renderFile(templatePath, {
@@ -171,7 +173,9 @@ class Messaging {
         } else if (/<[a-z][\s\S]*>/i.test(processedMessage)) {
           const templatePath = path.join(
             process.cwd(),
-            "pug-template/emails/layout.pug",
+            "pug-template",
+            "emails",
+            "layout.pug",
           );
           htmlContent = pug.renderFile(templatePath, {
             bodyContent: processedMessage,

@@ -306,7 +306,6 @@ export type Database = {
           product_id: string
           product_name: string
           quantity: number
-          status: string
           updated_at: string
         }
         Insert: {
@@ -318,7 +317,6 @@ export type Database = {
           product_id: string
           product_name: string
           quantity?: number
-          status: string
           updated_at?: string
         }
         Update: {
@@ -330,7 +328,6 @@ export type Database = {
           product_id?: string
           product_name?: string
           quantity?: number
-          status?: string
           updated_at?: string
         }
         Relationships: [
@@ -543,7 +540,7 @@ export type Database = {
           is_active: boolean | null
           last_name: string | null
           last_purchase_date: string | null
-          phone: string | null
+          phone: string
           receive_emails: boolean
           role: string
           updated_at: string | null
@@ -563,7 +560,7 @@ export type Database = {
           is_active?: boolean | null
           last_name?: string | null
           last_purchase_date?: string | null
-          phone?: string | null
+          phone: string
           receive_emails?: boolean
           role?: string
           updated_at?: string | null
@@ -583,7 +580,7 @@ export type Database = {
           is_active?: boolean | null
           last_name?: string | null
           last_purchase_date?: string | null
-          phone?: string | null
+          phone?: string
           receive_emails?: boolean
           role?: string
           updated_at?: string | null
@@ -772,3 +769,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
