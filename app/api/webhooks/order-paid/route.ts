@@ -17,28 +17,27 @@ export type ShippingAddress = {
 export async function POST(request: Request) {
     try {
         // 1. Parse payload
-        const payload = await request.json();
-        const { order_id, user_id, total_price, payment_reference } = payload;
+        const { order_id, user_id, total_price, payment_reference } =
+            await request.json();
         if (!order_id || !user_id) {
-            return NextResponse.json(
-                { success: false, error: "Missing required fields" },
-                { status: 400 },
-            );
+            return NextResponse.json({
+                success: false,
+                error: "Missing required fields",
+            }, { status: 400 });
         }
 
-        // 2. Fetch the order + its items + shipping_address JSONB
+        // 2. Fetch order + items + shipping_address
         const { data: orderData, error: orderError } = await supabaseAdmin
             .from("orders")
             .select("*, order_items(*), shipping_address")
             .eq("id", order_id)
             .single();
-
         if (orderError || !orderData) {
             console.error("Error fetching order details:", orderError);
-            return NextResponse.json(
-                { success: false, error: "Failed to fetch order details" },
-                { status: 500 },
-            );
+            return NextResponse.json({
+                success: false,
+                error: "Failed to fetch order details",
+            }, { status: 500 });
         }
 
         // 3. Fetch user profile
@@ -47,13 +46,12 @@ export async function POST(request: Request) {
             .select("first_name, last_name, email, phone")
             .eq("user_id", user_id)
             .single();
-
         if (userError || !userData) {
             console.error("Error fetching user data:", userError);
-            return NextResponse.json(
-                { success: false, error: "Failed to fetch user data" },
-                { status: 500 },
-            );
+            return NextResponse.json({
+                success: false,
+                error: "Failed to fetch user data",
+            }, { status: 500 });
         }
 
         // 4. Fetch admin users
@@ -61,13 +59,12 @@ export async function POST(request: Request) {
             .from("profiles")
             .select("user_id, email, first_name, last_name")
             .eq("role", "admin");
-
         if (adminError) {
             console.error("Error fetching admin users:", adminError);
-            return NextResponse.json(
-                { success: false, error: "Failed to fetch admin users" },
-                { status: 500 },
-            );
+            return NextResponse.json({
+                success: false,
+                error: "Failed to fetch admin users",
+            }, { status: 500 });
         }
 
         // 5. Format timestamps
@@ -75,19 +72,19 @@ export async function POST(request: Request) {
         const dateFormatted = format(orderCreatedAt, "MMMM d, yyyy");
         const timeFormatted = format(orderCreatedAt, "hh:mm a");
 
-        // 6. Build the product summary
+        // 6. Build product summary
         const productSummary = (orderData.order_items || [])
             .map((item: { product_name: string; quantity: number }) =>
                 `${item.product_name} x${item.quantity}`
             )
             .join(", ");
 
-        // 7. Bundle order details — including the JSONB address
+        // 7. Bundle order details
         const orderDetails = {
             orderReference: payment_reference,
             dateFormatted,
             timeFormatted,
-            total: total_price,
+            total: formatZAR(total_price),
             items: productSummary,
             paymentMethod: orderData.payment_method?.replace("_", " ") ||
                 "Not specified",
@@ -95,47 +92,48 @@ export async function POST(request: Request) {
             shippingAddress: orderData.shipping_address as ShippingAddress,
         };
 
-        // 8. Prepare template variables
-        const emailVariables = {
+        // 8. Common template variables
+        const baseVariables = {
             user: {
                 firstName: userData.first_name,
                 lastName: userData.last_name,
                 email: userData.email,
                 phone: userData.phone || "Not provided",
             },
-            order: {
-                orderReference: orderDetails.orderReference,
-                dateFormatted: orderDetails.dateFormatted,
-                timeFormatted: orderDetails.timeFormatted,
-                total: formatZAR(orderDetails.total),
-                items: orderDetails.items,
-                paymentMethod: orderDetails.paymentMethod,
-                deliveryMethod: orderDetails.deliveryMethod,
-                shippingAddress: orderDetails.shippingAddress,
-            },
+            order: orderDetails,
             siteUrl: process.env.NEXT_PUBLIC_APP_URL!,
         };
 
-        // 9. Send to every admin
-        const emailPromises = adminUsers.map((admin) =>
+        // 9a. Send admin notification
+        const adminPromises = adminUsers.map((admin) =>
             sendMessageWithFallback({
                 userId: admin.user_id,
                 subject: `New Order Payment Received – ${payment_reference}`,
                 message: "order-notification.pug",
-                variables: emailVariables,
+                variables: baseVariables,
             })
         );
-        await Promise.all(emailPromises);
+
+        // 9b. Send customer confirmation
+        const customerPromise = sendMessageWithFallback({
+            userId: user_id,
+            subject: `Your Payment is Confirmed – Order ${payment_reference}`,
+            message: "payment-confirmation.pug",
+            variables: baseVariables,
+        });
+
+        // 10. Await all delivers
+        await Promise.all([...adminPromises, customerPromise]);
 
         return NextResponse.json({
             success: true,
-            message: "Admin notification sent successfully",
+            message: "Notifications sent",
         });
     } catch (error) {
         console.error("Error in order-paid webhook:", error);
-        return NextResponse.json(
-            { success: false, error: "Internal server error" },
-            { status: 500 },
-        );
+        return NextResponse.json({
+            success: false,
+            error: "Internal server error",
+        }, { status: 500 });
     }
 }

@@ -1,0 +1,45 @@
+extends layout.pug
+
+block content
+  h2 Thank you for your payment!
+
+  p Hi #{user.firstName} #{user.lastName},
+
+  p We’re happy to confirm that your payment for order
+  strong #{order.orderReference}
+  on #{order.dateFormatted} at #{order.timeFormatted} has been successfully received.
+
+  table(style="width: 100%; border-collapse: collapse; margin: 20px 0;")
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Order Reference
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{order.orderReference}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Date & Time
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{order.dateFormatted} at #{order.timeFormatted}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Product(s)
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{order.items}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Total Paid
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{order.total}
+
+    tr
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Shipping Address
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;")
+        | #{order.shippingAddress.street}, #{order.shippingAddress.city}, #{order.shippingAddress.state}, #{order.shippingAddress.country} #{order.shippingAddress.postal_code}
+
+  if order.deliveryMethod
+    p Delivery Method: #{order.deliveryMethod}
+
+  p If you have any questions, feel free to reply to this email or visit
+    a(href=siteUrl) our site.
+
+  p Thanks for shopping with us!
+
+  a(
+    href=`${siteUrl}/dashboard#orders`,
+    style='display: inline-block; padding: 12px 24px; background-color: #0070f3; color: #ffffff !important; text-decoration: none; border-radius: 4px; font-weight: 500;'
+  ) View Your Order
