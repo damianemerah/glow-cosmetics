@@ -47,8 +47,9 @@ export async function POST(req: Request) {
       amount: parseInt(amount) * 100,
       reference: bookingId,
       name,
-      callback_url:
-        `${process.env.NEXT_PUBLIC_APP_URL}/booking/confirmation?bookingId=${bookingId}`,
+      callback_url: `${
+        process.env.NEXT_PUBLIC_APP_URL || "https://ugosylviacosmetics.co.za"
+      }/booking/confirmation?bookingId=${bookingId}`,
       metadata: {
         type: "deposit",
         booking_id: bookingId,

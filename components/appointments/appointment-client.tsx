@@ -42,9 +42,9 @@ import EditBookingPopover from "@/components/booking/edit-booking-popover";
 import { useMessaging } from "@/hooks/useMessaging";
 
 import type { MessageChannel } from "@/lib/messaging";
-import type { Booking } from "@/types/index";
+import type { Booking, BookingStatus } from "@/types/index";
 
-import { services, getTimeSlotsForDay } from "@/constants/data";
+import { services, getTimeSlotsForDay, keyValueData } from "@/constants/data";
 
 import { createBooking, updateBooking } from "@/actions/dashboardAction";
 
@@ -211,6 +211,9 @@ const AppointmentSkeletons = () => (
   </div>
 );
 
+const isValidStatus = (s: string): s is BookingStatus =>
+  ["pending", "confirmed", "completed", "cancelled"].includes(s);
+
 export default function AppointmentsClient({
   initialBookings,
   initialClients,
@@ -226,6 +229,10 @@ export default function AppointmentsClient({
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
+
+  const [bookingStatus, setBookingStatus] = useState<BookingStatus | undefined>(
+    isValidStatus(status) ? status : undefined
+  );
   const [phone, setPhone] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -331,14 +338,7 @@ export default function AppointmentsClient({
   }, [open]);
 
   const handleCreateAppointment = async () => {
-    if (
-      !date ||
-      !selectedTime ||
-      !selectedService ||
-      !selectedClient ||
-      !firstName ||
-      !phone
-    ) {
+    if (!date || !selectedTime || !selectedService || !firstName || !phone) {
       toast.warning("Please fill in all required fields");
       return;
     }
@@ -366,10 +366,10 @@ export default function AppointmentsClient({
         first_name: firstName,
         last_name: lastName || undefined,
         phone: phone,
-        user_id: selectedClient,
+        user_id: selectedClient || null,
         service_id: selectedService,
         booking_time: bookingDateTime.toISOString(),
-        status: "pending",
+        status: bookingStatus as BookingStatus,
         service_price: services.find(
           (service) => service.id === selectedService
         )!.price,
@@ -465,13 +465,8 @@ export default function AppointmentsClient({
       const serviceName =
         service?.name || booking.service_name || "your service";
 
-      const adminNumber = "27781470504";
-      const text = `Hello 👋
-          I’d like to reschedule my appointment.
-          Booking Reference: ${booking.booking_id}
-          Service: ${serviceName}
-          Date: ${formattedDate}
-          Time: ${formattedTime}`;
+      const adminNumber = keyValueData.whatsappNumber;
+      const text = `Hello 👋 I'd like to reschedule my appointment.\nBooking Reference: ${booking.booking_id}\nService: ${serviceName}\nDate: ${formattedDate}\nTime: ${formattedTime}`;
 
       const rescheduleUrl = `https://wa.me/${adminNumber}?text=${encodeURIComponent(text)}`;
 
@@ -591,6 +586,14 @@ export default function AppointmentsClient({
     }
   };
 
+  const handleStatusChange = (value: string) => {
+    if (isValidStatus(value)) {
+      setBookingStatus(value);
+    } else {
+      console.warn("Invalid booking status selected:", value);
+    }
+  };
+
   const columnsWithHandlers = appointmentColumns.map((column) => {
     if (column.key === "actions") {
       return {
@@ -653,6 +656,23 @@ export default function AppointmentsClient({
     }
     return column;
   });
+
+  const currentDateBookedTimes = useMemo(() => {
+    if (!date) return [];
+    // Only consider bookings that are not cancelled
+    return bookings
+      .filter(
+        (b) =>
+          new Date(b.booking_time).toDateString() === date.toDateString() &&
+          b.status !== "cancelled"
+      )
+      .map((b) => {
+        const d = new Date(b.booking_time);
+        return d ? format(d, "hh:mm a") : "";
+      });
+  }, [date, bookings]);
+
+  const slotsLoading = false;
 
   return (
     <div>
@@ -721,23 +741,45 @@ export default function AppointmentsClient({
               />
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="service">Service</Label>
-              <Select
-                onValueChange={setSelectedService}
-                value={selectedService}
-              >
-                <SelectTrigger id="service">
-                  <SelectValue placeholder="Select service" />
-                </SelectTrigger>
-                <SelectContent>
-                  {services.map((service) => (
-                    <SelectItem key={service.id} value={service.id}>
-                      {service.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid gap-2 grid-cols-2">
+              <div>
+                <Label htmlFor="service">Service</Label>
+                <Select
+                  onValueChange={setSelectedService}
+                  value={selectedService}
+                >
+                  <SelectTrigger id="service">
+                    <SelectValue placeholder="Select service" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {services.map((service) => (
+                      <SelectItem key={service.id} value={service.id}>
+                        {service.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  onValueChange={handleStatusChange}
+                  value={bookingStatus}
+                >
+                  <SelectTrigger id="status">
+                    <SelectValue placeholder="Select Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["pending", "confirmed", "completed", "cancelled"].map(
+                      (bookingstatus, i) => (
+                        <SelectItem key={i} value={bookingstatus}>
+                          {bookingstatus}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="grid gap-2">
@@ -757,17 +799,62 @@ export default function AppointmentsClient({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="time">Time</Label>
-              <Select onValueChange={setSelectedTime}>
+              <Select
+                value={selectedTime}
+                onValueChange={setSelectedTime}
+                required
+                disabled={!date || !selectedService}
+              >
                 <SelectTrigger id="time">
                   <SelectValue placeholder="Select time" />
                 </SelectTrigger>
                 <SelectContent>
-                  {date &&
-                    getTimeSlotsForDay(date).map((time) => (
-                      <SelectItem key={time} value={time}>
-                        {time}
-                      </SelectItem>
-                    ))}
+                  {date ? (
+                    getTimeSlotsForDay(date).map((time: string) => {
+                      const isBooked = currentDateBookedTimes.includes(time);
+                      const isPastTime =
+                        new Date().toDateString() === date.toDateString() &&
+                        (() => {
+                          const [hoursStr, minutesStr] = time.split(":");
+                          const period = time.includes("PM") ? "PM" : "AM";
+                          let hours = parseInt(hoursStr);
+                          if (period === "PM" && hours !== 12) hours += 12;
+                          if (period === "AM" && hours === 12) hours = 0;
+
+                          const now = new Date();
+                          const slotTime = new Date(date);
+                          slotTime.setHours(
+                            hours,
+                            parseInt(minutesStr) || 0,
+                            0,
+                            0
+                          );
+
+                          return now > slotTime;
+                        })();
+
+                      return (
+                        <SelectItem
+                          key={time}
+                          value={time}
+                          disabled={isBooked || isPastTime || slotsLoading}
+                        >
+                          {time}
+                          {isBooked && " (Booked)"}
+                          {isPastTime && " (Past)"}
+                        </SelectItem>
+                      );
+                    })
+                  ) : (
+                    <SelectItem value="" disabled>
+                      Select date first
+                    </SelectItem>
+                  )}
+                  {slotsLoading && date && (
+                    <SelectItem value="loading" disabled>
+                      Loading slots...
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>

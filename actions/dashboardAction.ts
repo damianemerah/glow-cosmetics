@@ -239,7 +239,7 @@ export async function uploadAvatar(
 export async function createBooking(bookingData: {
   first_name: string;
   last_name?: string;
-  user_id: string;
+  user_id: string | null;
   service_id: string;
   booking_time: string;
   status: BookingStatus;
