@@ -84,9 +84,7 @@ export default function EditBookingPopover({
       const updates: Partial<Booking> = {};
 
       // If status has changed, add it to updates
-      if (isStatusChanged) {
-        updates.status = status;
-      }
+      updates.status = status;
 
       // If date or time has changed, calculate the new booking time
       if (isDateChanged || isTimeChanged) {

@@ -297,7 +297,6 @@ export async function setNotificationSettings(
     "email_notifications_enabled",
     "whatsapp_notifications_enabled",
     "appointment_reminder",
-    "birthday_notification_enabled",
     "receive_emails",
   ];
 

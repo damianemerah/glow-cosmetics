@@ -1,15 +1,24 @@
+// File: app/api/order-paid/route.ts
+
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { sendMessageWithFallback } from "@/lib/messaging";
 import { format } from "date-fns";
 import { formatZAR } from "@/utils";
 
+export type ShippingAddress = {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    postal_code: string;
+};
+
 export async function POST(request: Request) {
     try {
-        // Validate the request
+        // 1. Parse payload
         const payload = await request.json();
         const { order_id, user_id, total_price, payment_reference } = payload;
-
         if (!order_id || !user_id) {
             return NextResponse.json(
                 { success: false, error: "Missing required fields" },
@@ -17,10 +26,10 @@ export async function POST(request: Request) {
             );
         }
 
-        // Get full order details
+        // 2. Fetch the order + its items + shipping_address JSONB
         const { data: orderData, error: orderError } = await supabaseAdmin
             .from("orders")
-            .select("*, order_items(*)")
+            .select("*, order_items(*), shipping_address")
             .eq("id", order_id)
             .single();
 
@@ -32,14 +41,14 @@ export async function POST(request: Request) {
             );
         }
 
-        // Get user details
+        // 3. Fetch user profile
         const { data: userData, error: userError } = await supabaseAdmin
             .from("profiles")
             .select("first_name, last_name, email, phone")
             .eq("user_id", user_id)
             .single();
 
-        if (userError) {
+        if (userError || !userData) {
             console.error("Error fetching user data:", userError);
             return NextResponse.json(
                 { success: false, error: "Failed to fetch user data" },
@@ -47,7 +56,7 @@ export async function POST(request: Request) {
             );
         }
 
-        // Get admin users
+        // 4. Fetch admin users
         const { data: adminUsers, error: adminError } = await supabaseAdmin
             .from("profiles")
             .select("user_id, email, first_name, last_name")
@@ -61,55 +70,61 @@ export async function POST(request: Request) {
             );
         }
 
-        if (!adminUsers || adminUsers.length === 0) {
-            return NextResponse.json(
-                { success: false, error: "No admin users found" },
-                { status: 404 },
-            );
-        }
-
-        // Format order data for the notification
+        // 5. Format timestamps
         const orderCreatedAt = new Date(orderData.created_at);
+        const dateFormatted = format(orderCreatedAt, "MMMM d, yyyy");
+        const timeFormatted = format(orderCreatedAt, "hh:mm a");
+
+        // 6. Build the product summary
+        const productSummary = (orderData.order_items || [])
+            .map((item: { product_name: string; quantity: number }) =>
+                `${item.product_name} x${item.quantity}`
+            )
+            .join(", ");
+
+        // 7. Bundle order details — including the JSONB address
         const orderDetails = {
             orderReference: payment_reference,
-            dateFormatted: format(orderCreatedAt, "MMMM d, yyyy"),
-            timeFormatted: format(orderCreatedAt, "hh:mm a"),
+            dateFormatted,
+            timeFormatted,
             total: total_price,
-            items: orderData.order_items,
+            items: productSummary,
             paymentMethod: orderData.payment_method?.replace("_", " ") ||
                 "Not specified",
+            deliveryMethod: orderData.delivery_method,
+            shippingAddress: orderData.shipping_address as ShippingAddress,
         };
 
+        // 8. Prepare template variables
         const emailVariables = {
             user: {
-                firstName: userData.first_name || orderData.first_name,
-                lastName: userData.last_name || orderData.last_name || "",
-                email: userData.email || orderData.email,
-                phone: userData.phone || orderData.phone || "Not provided",
+                firstName: userData.first_name,
+                lastName: userData.last_name,
+                email: userData.email,
+                phone: userData.phone || "Not provided",
             },
-            booking: {
-                serviceName: "Order Payment Received",
+            order: {
+                orderReference: orderDetails.orderReference,
                 dateFormatted: orderDetails.dateFormatted,
                 timeFormatted: orderDetails.timeFormatted,
-                specialRequests:
-                    `Payment Reference: ${orderDetails.orderReference} | Total: ${
-                        formatZAR(orderDetails.total)
-                    }`,
+                total: formatZAR(orderDetails.total),
+                items: orderDetails.items,
+                paymentMethod: orderDetails.paymentMethod,
+                deliveryMethod: orderDetails.deliveryMethod,
+                shippingAddress: orderDetails.shippingAddress,
             },
             siteUrl: process.env.NEXT_PUBLIC_APP_URL!,
         };
 
-        // Send email to each admin
-        const emailPromises = adminUsers.map((admin) => {
-            console.log("SENDING EMAIL TO ADMIN:", admin.user_id);
-            return sendMessageWithFallback({
+        // 9. Send to every admin
+        const emailPromises = adminUsers.map((admin) =>
+            sendMessageWithFallback({
                 userId: admin.user_id,
-                subject: `New Order Payment Received - ${payment_reference}`,
+                subject: `New Order Payment Received – ${payment_reference}`,
                 message: "order-notification.pug",
                 variables: emailVariables,
-            });
-        });
-
+            })
+        );
         await Promise.all(emailPromises);
 
         return NextResponse.json({

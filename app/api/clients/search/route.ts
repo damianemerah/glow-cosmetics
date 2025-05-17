@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { capitalize } from "@/utils";
 
 export async function GET(request: Request) {
     try {
@@ -34,8 +35,10 @@ export async function GET(request: Request) {
         // Format clients for the response
         const clients = data.map((client) => ({
             id: client.user_id,
-            name: `${client.first_name || ""} ${client.last_name || ""}`.trim(),
-            firstName: client.first_name,
+            name: `${capitalize(client.first_name) || ""} ${
+                capitalize(client.last_name) || ""
+            }`.trim(),
+            firstName: capitalize(client.first_name),
             email: client.email || "",
             phone: client.phone || "",
         }));

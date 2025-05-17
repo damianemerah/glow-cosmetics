@@ -3,7 +3,7 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { unstable_cache } from "next/cache";
 import { MessageData, sendEmail } from "@/lib/messaging";
-import { formatZAR } from "@/utils";
+import { capitalize, formatZAR } from "@/utils";
 
 interface ContactFormData {
   firstName: string;
@@ -84,7 +84,9 @@ export async function getClients(page = 1, itemsPerPage = 10) {
 
               return {
                 id: profile.user_id,
-                name: `${profile.first_name || ""} ${profile.last_name || ""}`
+                name: `${capitalize(profile.first_name) || ""} ${
+                  capitalize(profile.last_name) || ""
+                }`
                   .trim(),
                 phone: profile.phone || "",
                 email: profile.email || "",
@@ -214,5 +216,103 @@ export async function sendClientEmail(
       success: false,
       error: error.message || "An unexpected error occurred.",
     };
+  }
+}
+
+export async function getUpcomingBirthdays(
+  daysAhead: number = 4,
+  celebrateFeb29OnFeb28: boolean = true,
+) {
+  try {
+    // 1. Compute UTC "today" at midnight
+    const todayUTC = new Date();
+    todayUTC.setUTCHours(0, 0, 0, 0);
+
+    // 2. Leap-year helper & current-year flag
+    const isLeapYear = (y: number): boolean =>
+      (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+    const currentYear = todayUTC.getUTCFullYear();
+    const leapYear = isLeapYear(currentYear);
+
+    // 3. Build a Map<"M-D", offsetDays>
+    const dateOffsetMap = new Map<string, number>();
+    for (let i = 0; i <= daysAhead; i++) {
+      const dt = new Date(todayUTC);
+      dt.setUTCDate(dt.getUTCDate() + i);
+
+      const m = dt.getUTCMonth() + 1; // 1–12
+      const d = dt.getUTCDate(); // 1–31
+      const key = `${m}-${d}`;
+
+      dateOffsetMap.set(key, i);
+
+      // Feb 29 celebrated on Feb 28 in non-leap years
+      if (
+        celebrateFeb29OnFeb28 &&
+        !leapYear &&
+        m === 2 &&
+        d === 28
+      ) {
+        dateOffsetMap.set("2-29", i);
+      }
+    }
+
+    // 4. Fetch all profiles with non-null date_of_birth
+    const { data: profiles, error } = await supabaseAdmin
+      .from("profiles")
+      .select("user_id, first_name, last_name, email, date_of_birth")
+      .not("date_of_birth", "is", null);
+
+    if (error) {
+      console.error("Error fetching profiles for birthdays:", error);
+      return { success: false, users: [], error: error.message };
+    }
+
+    // 5. Helper to parse YYYY-MM-DD into UTC Date
+    const parseUtcDate = (isoDateStr: string): Date => {
+      const [y, m, d] = isoDateStr.split("-").map(Number);
+      return new Date(Date.UTC(y, m - 1, d));
+    };
+
+    // 6. Filter & map, attaching daysAway & label
+    const users = (profiles || [])
+      .map((p) => {
+        if (!p.date_of_birth) return null;
+        const dob = parseUtcDate(p.date_of_birth);
+        const key = `${dob.getUTCMonth() + 1}-${dob.getUTCDate()}`;
+        const daysAway = dateOffsetMap.get(key);
+        if (daysAway === undefined) return null;
+
+        // build a human-friendly label
+        let daysAwayLabel: string;
+        if (daysAway === 0) daysAwayLabel = "today";
+        else if (daysAway === 1) daysAwayLabel = "tomorrow";
+        else daysAwayLabel = `${daysAway} days away`;
+
+        return {
+          id: p.user_id,
+          name: `${p.first_name || ""} ${p.last_name || ""}`.trim(),
+          email: p.email,
+          date_of_birth: p.date_of_birth,
+          daysAway,
+          daysAwayLabel,
+        };
+      })
+      .filter((
+        u,
+      ): u is {
+        id: string;
+        name: string;
+        email: string;
+        date_of_birth: string;
+        daysAway: number;
+        daysAwayLabel: string;
+      } => u !== null);
+
+    return { success: true, users };
+  } catch (err) {
+    console.error("Error in getUpcomingBirthdays:", err);
+    const error = err as Error;
+    return { success: false, users: [], error: error.message };
   }
 }

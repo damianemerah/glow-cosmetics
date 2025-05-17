@@ -1,9 +1,9 @@
 extends layout.pug
 
 block content
-  h2 New Booking Alert
+  h2 New Order Alert
 
-  p A new booking has been created:
+  p A new order has been created:
 
   table(style="width: 100%; border-collapse: collapse; margin: 20px 0;")
     tr
@@ -11,12 +11,13 @@ block content
       td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{user.firstName} #{user.lastName}
 
     tr
-      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Service
-      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{booking.serviceName}
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Product(s)
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{order.items}
 
     tr
-      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Date & Time
-      td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{booking.dateFormatted} at #{booking.timeFormatted}
+      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Order Date & Time
+      td(style="padding: 8px; border-bottom: 1px solid #ddd;")
+        | #{order.dateFormatted} at #{order.timeFormatted}
 
     tr
       th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Contact
@@ -25,15 +26,17 @@ block content
         br
         | Email: #{user.email}
 
-    if booking.specialRequests
+    if order.shippingAddress
       tr
-        th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Special Requests
-        td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{booking.specialRequests}
+        th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Shipping Address
+        td(style="padding: 8px; border-bottom: 1px solid #ddd;")
+          | #{order.shippingAddress.street}, #{order.shippingAddress.city}, #{order.shippingAddress.state}, #{order.shippingAddress.country} #{order.shippingAddress.postal_code}
+
 
   p.
-    Please review this booking in the admin panel to confirm or reschedule if needed.
+    Please review this order in the admin panel to process payment or arrange shipping.
 
   a(
-    href=`${siteUrl}/admin/appointments`,
+    href=`${siteUrl}/admin/orders`,
     style='display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: #ffffff !important; text-decoration: none; border-radius: 4px; font-weight: 500;'
   ) View in Admin Panel

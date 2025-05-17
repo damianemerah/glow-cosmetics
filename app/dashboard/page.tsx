@@ -149,14 +149,12 @@ async function AccountSettingsData() {
 
   const marketingEnabled = profile.receive_emails;
   const appointmentEnabled = profile.appointment_reminder;
-  const birthdayEnabled = profile.birthday_notification_enabled;
   const userId = profile.user_id;
 
   return (
     <AccountSettings
       marketingEnabled={marketingEnabled}
       appointmentEnabled={appointmentEnabled}
-      birthdayEnabled={birthdayEnabled}
       user_id={userId}
     />
   );

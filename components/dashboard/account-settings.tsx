@@ -16,14 +16,12 @@ import { useUserStore } from "@/store/authStore";
 interface AccountSettingsProps {
   marketingEnabled: boolean;
   appointmentEnabled: boolean;
-  birthdayEnabled: boolean;
   user_id: string;
 }
 
 export default function AccountSettings({
   marketingEnabled,
   appointmentEnabled,
-  birthdayEnabled,
   user_id,
 }: AccountSettingsProps) {
   const router = useRouter();
@@ -31,7 +29,6 @@ export default function AccountSettings({
     useState(marketingEnabled);
   const [isAppointmentEnabled, setIsAppointmentEnabled] =
     useState(appointmentEnabled);
-  const [isBirthdayEnabled, setIsBirthdayEnabled] = useState(birthdayEnabled);
   const [userId] = useState(user_id);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -60,18 +57,6 @@ export default function AccountSettings({
           toast("Preferences Updated", {
             description:
               "Your appointment reminder settings have been updated.",
-          });
-          break;
-        case "birthday":
-          setIsBirthdayEnabled(checked);
-          await setNotificationSettings(
-            userId,
-            "birthday_notification_enabled",
-            checked
-          );
-          toast("Preferences Updated", {
-            description:
-              "Your birthday notification settings have been updated.",
           });
           break;
         default:
@@ -150,22 +135,6 @@ export default function AccountSettings({
               checked={isAppointmentEnabled}
               onCheckedChange={(checked) => {
                 handleNotificationChange("appointment", checked);
-              }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between p-3 border rounded-md">
-            <div>
-              <p className="font-medium">Birthday Notifications</p>
-              <p className="text-sm text-muted-foreground">
-                We&apos;ll celebrate your birthday with special notifications
-                and exclusive offers.
-              </p>
-            </div>
-            <Switch
-              checked={isBirthdayEnabled}
-              onCheckedChange={(checked) => {
-                handleNotificationChange("birthday", checked);
               }}
             />
           </div>

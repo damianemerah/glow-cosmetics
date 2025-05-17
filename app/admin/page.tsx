@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, DollarSign, Users } from "lucide-react";
+import { Calendar, DollarSign, Users, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/admin/page-header";
 import StatCard from "@/components/admin/stat-card";
@@ -8,6 +8,8 @@ import { createClient } from "@/utils/supabase/server";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 import { formatZAR } from "@/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getUpcomingBirthdays } from "@/actions/clientActions";
 
 // Function to get dashboard statistics
 async function getDashboardStats() {
@@ -53,7 +55,7 @@ async function getDashboardStats() {
     },
     ["dashboard-stats"],
     {
-      revalidate: 300, // Cache for 5 minutes
+      revalidate: 10, // Cache for 5 minutes
       tags: ["dashboard"],
     }
   );
@@ -126,6 +128,12 @@ export default async function DashboardPage() {
     await getDashboardStats();
   const recentActivity = await getRecentActivity();
 
+  // Fetch users with birthdays in 4 days
+  const daysAhead = 4;
+  const birthdayResult = await getUpcomingBirthdays();
+  console.log(birthdayResult, "Birthday Result");
+  const upcomingBirthdays = birthdayResult.success ? birthdayResult.users : [];
+
   const activityColumns = [
     { key: "client", title: "Client" },
     { key: "action", title: "Action" },
@@ -157,6 +165,11 @@ export default async function DashboardPage() {
         />
       </div>
 
+      <BirthdayReminder
+        upcomingBirthdays={upcomingBirthdays}
+        daysAhead={daysAhead}
+      />
+
       <div className="mb-8">
         <h2 className="text-lg font-semibold mb-4 font-montserrat">
           Recent Activity
@@ -185,5 +198,58 @@ export default async function DashboardPage() {
         </Button>
       </div>
     </div>
+  );
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  date_of_birth: string;
+  daysAway: number;
+  daysAwayLabel: string;
+}
+
+interface BirthdayReminderProps {
+  upcomingBirthdays: User[];
+  daysAhead?: number;
+}
+
+export function BirthdayReminder({
+  upcomingBirthdays,
+  daysAhead = 4,
+}: BirthdayReminderProps) {
+  if (upcomingBirthdays.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card className="mb-8 shadow">
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2 font-montserrat text-primary">
+          <CalendarDays />
+          <span>Upcoming Birthdays (Next {daysAhead} Days)</span>
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent>
+        <div className="space-y-4">
+          {upcomingBirthdays.map((user) => (
+            <div key={user.id} className="flex items-start space-x-3">
+              <CalendarDays className="text-[#4a5a3a] shrink-0" />
+              <div>
+                <p className="font-medium capitalize">
+                  {user.name}{" "}
+                  <span className="text-sm text-accent">
+                    ({user.daysAwayLabel})
+                  </span>
+                </p>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
