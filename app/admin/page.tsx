@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, DollarSign, Users, CalendarDays } from "lucide-react";
+import { Calendar, DollarSign, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageHeader from "@/components/admin/page-header";
 import StatCard from "@/components/admin/stat-card";
@@ -8,8 +8,8 @@ import { createClient } from "@/utils/supabase/server";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 import { formatZAR } from "@/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getUpcomingBirthdays } from "@/actions/clientActions";
+import { BirthdayReminder } from "@/components/birthday-reminder";
 
 // Function to get dashboard statistics
 async function getDashboardStats() {
@@ -198,58 +198,5 @@ export default async function DashboardPage() {
         </Button>
       </div>
     </div>
-  );
-}
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  date_of_birth: string;
-  daysAway: number;
-  daysAwayLabel: string;
-}
-
-interface BirthdayReminderProps {
-  upcomingBirthdays: User[];
-  daysAhead?: number;
-}
-
-export function BirthdayReminder({
-  upcomingBirthdays,
-  daysAhead = 4,
-}: BirthdayReminderProps) {
-  if (upcomingBirthdays.length === 0) {
-    return null;
-  }
-
-  return (
-    <Card className="mb-8 shadow">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2 font-montserrat text-primary">
-          <CalendarDays />
-          <span>Upcoming Birthdays (Next {daysAhead} Days)</span>
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent>
-        <div className="space-y-4">
-          {upcomingBirthdays.map((user) => (
-            <div key={user.id} className="flex items-start space-x-3">
-              <CalendarDays className="text-[#4a5a3a] shrink-0" />
-              <div>
-                <p className="font-medium capitalize">
-                  {user.name}{" "}
-                  <span className="text-sm text-accent">
-                    ({user.daysAwayLabel})
-                  </span>
-                </p>
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
   );
 }
