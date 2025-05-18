@@ -16,12 +16,21 @@ export default async function ProductsPage({
     search = "",
     category = "all",
     page = "1",
+    sortBy = "created_at",
+    sortDir = "desc",
   } = (await searchParams) || {};
   const currentPage = parseInt(page, 10);
   const validatedPage =
     !isNaN(currentPage) && currentPage > 0 ? currentPage : 1;
+  const validatedSortDir = sortDir === "asc" ? "asc" : "desc";
 
-  const result = await fetchProducts(validatedPage, search, category);
+  const result = await fetchProducts(
+    validatedPage,
+    search,
+    category,
+    sortBy,
+    validatedSortDir
+  );
 
   const products = result.success ? result.products || [] : [];
   const totalPages = result.success ? result.totalPages || 1 : 1;
@@ -60,6 +69,8 @@ export default async function ProductsPage({
           currentPage={validatedPage}
           search={search}
           category={category}
+          sortBy={sortBy}
+          sortDir={validatedSortDir}
         />
       </Suspense>
     </div>

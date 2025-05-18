@@ -405,6 +405,8 @@ export async function fetchProducts(
   page: number = 1,
   search: string = "",
   category: string = "all",
+  sortBy: string = "created_at",
+  sortDir: "asc" | "desc" = "desc",
 ) {
   const itemsPerPage = 20;
   const cacheKey = `products-page-${page}-search-${search}-cat-${category}`;
@@ -433,6 +435,7 @@ export async function fetchProducts(
           if (searchTerm) {
             query = query.ilike("name", `%${searchTerm.trim()}%`);
           }
+          query = query.order(sortBy, { ascending: sortDir === "asc" });
 
           if (categoryId && categoryId !== "all") {
             query = query.eq("product_categories.category_id", categoryId);
@@ -478,13 +481,14 @@ export async function fetchProducts(
           };
         }
       },
-      [cacheKey],
+      [cacheKey, sortBy, sortDir],
       {
         revalidate: 60,
         tags: [
           "products",
           `products_search_${search}`,
           `products_category_${category}`,
+          `products_sort_${sortBy}_${sortDir}`,
         ],
       },
     );

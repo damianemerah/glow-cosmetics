@@ -351,7 +351,10 @@ export default function ProductForm({
                   render={({ field }) => (
                     <Input
                       {...field}
-                      value={field.value ?? ""}
+                      value={
+                        field.value === undefined ? "" : field.value.toString()
+                      }
+                      onChange={(e) => field.onChange(Number(e.target.value))}
                       id="price"
                       type="number"
                       step="0.01"
@@ -408,7 +411,13 @@ export default function ProductForm({
                   render={({ field }) => (
                     <Input
                       {...field}
-                      value={field.value ?? ""}
+                      value={
+                        field.value === undefined ? "" : field.value.toString()
+                      }
+                      onChange={(e) => {
+                        console.log(e.target.value);
+                        field.onChange(Number(e.target.value));
+                      }}
                       id="stock_quantity"
                       type="number"
                       placeholder="0"
@@ -599,20 +608,6 @@ export default function ProductForm({
                         <p className="text-xs mt-1">Add Image</p>
                       </div>
                     )}
-                    {/* <input
-                      id="image-upload"
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/jpg"
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          handleImageUpload(file);
-                        }
-                        e.target.value = ""; // Reset input to allow re-uploading the same file
-                      }}
-                      disabled={isUploading}
-                    /> */}
                     <input
                       id="image-upload"
                       type="file"

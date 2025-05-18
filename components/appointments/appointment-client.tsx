@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { format } from "date-fns";
 import useSWR from "swr";
 import { customAlphabet } from "nanoid";
-import { Copy } from "lucide-react";
+import { ArrowUpDown, Copy } from "lucide-react";
 
 import {
   Button,
@@ -26,14 +26,9 @@ import {
   Label,
   Badge,
   Skeleton,
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
   Input,
 } from "@/constants/ui/index";
+import Pagination from "@/components/common/pagination";
 
 import DataTable from "@/components/admin/data-table";
 import AppointmentFilter from "@/components/appointments/appointment-filter";
@@ -49,6 +44,8 @@ import { services, getTimeSlotsForDay, keyValueData } from "@/constants/data";
 import { createBooking, updateBooking } from "@/actions/dashboardAction";
 
 import { toast } from "sonner";
+import { capitalize } from "@/utils";
+import Link from "next/link";
 
 const nanoid = customAlphabet("0123456789", 6);
 
@@ -62,6 +59,9 @@ interface AppointmentsClientProps {
   status: string;
   search: string;
   date: string;
+  service: string;
+  sortBy?: "booking_time" | "created_at";
+  sortDir?: "asc" | "desc";
 }
 
 // Define the column structure for the DataTable
@@ -110,7 +110,8 @@ const appointmentColumns = [
     render: (booking: Booking) => {
       return (
         <div>
-          {`${booking.first_name} ${booking.last_name}` || "No name provided"}
+          {`${capitalize(booking.first_name)} ${capitalize(booking.last_name)}` ||
+            "No name provided"}
         </div>
       );
     },
@@ -222,6 +223,9 @@ export default function AppointmentsClient({
   date: dateFilter,
   search,
   status,
+  service: serviceFilter,
+  sortBy = "booking_time",
+  sortDir = "desc",
 }: AppointmentsClientProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedClient, setSelectedClient] = useState<string>("");
@@ -237,6 +241,21 @@ export default function AppointmentsClient({
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [clients] = useState<{ id: string; name: string }[]>(initialClients);
+
+  const generateSortUrl = (field: string) => {
+    const newSortDir =
+      sortBy === field ? (sortDir === "asc" ? "desc" : "asc") : "desc";
+    const params = new URLSearchParams({
+      page: currentPage.toString(),
+      search,
+      status,
+      date: dateFilter,
+      service: serviceFilter,
+      sortBy: field,
+      sortDir: newSortDir,
+    });
+    return `/admin/appointments?${params.toString()}`;
+  };
 
   // Use SWR for bookings data. No fetcher function because we're using initialData
   const { data, mutate } = useSWR<Booking[]>("appointments", null, {
@@ -300,9 +319,21 @@ export default function AppointmentsClient({
           booking.phone?.toLowerCase().includes(query)
       );
     }
+    if (serviceFilter !== "all") {
+      filtered = filtered.filter(
+        (booking) => booking.service_id === serviceFilter
+      );
+    }
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+      const dateA = new Date(a.booking_time).getTime();
+      const dateB = new Date(b.booking_time).getTime();
+      return sortDir === "asc" ? dateA - dateB : dateB - dateA;
+    });
 
     return filtered;
-  }, [bookings, dateFilter, status, search]);
+  }, [bookings, dateFilter, status, search, serviceFilter, sortDir]);
 
   // Update client selection handler to populate the fields
   const handleClientSelect = (clientId: string) => {
@@ -594,7 +625,7 @@ export default function AppointmentsClient({
     }
   };
 
-  const columnsWithHandlers = appointmentColumns.map((column) => {
+  const columnsWithHandlersAndSorting = appointmentColumns.map((column) => {
     if (column.key === "actions") {
       return {
         ...column,
@@ -654,6 +685,21 @@ export default function AppointmentsClient({
         ),
       };
     }
+
+    if (column.key === "date") {
+      return {
+        ...column,
+        header: () => (
+          <Link
+            href={generateSortUrl("booking_time")}
+            className="flex items-center hover:underline"
+          >
+            Date & Time
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Link>
+        ),
+      };
+    }
     return column;
   });
 
@@ -681,6 +727,7 @@ export default function AppointmentsClient({
         search={search}
         date={dateFilter as DateType}
         status={status}
+        service={serviceFilter}
       />
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -878,7 +925,7 @@ export default function AppointmentsClient({
       ) : (
         <>
           <DataTable
-            columns={columnsWithHandlers}
+            columns={columnsWithHandlersAndSorting}
             data={filteredBookings}
             emptyState={
               <div className="text-center py-8">
@@ -890,46 +937,20 @@ export default function AppointmentsClient({
             }
           />
           {totalPages > 1 && (
-            <Pagination className="mt-4">
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href={`/admin/appointments?page=${Math.max(
-                      1,
-                      currentPage - 1
-                    )}`}
-                    className={
-                      currentPage <= 1 ? "pointer-events-none opacity-50" : ""
-                    }
-                  />
-                </PaginationItem>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (pageNum) => (
-                    <PaginationItem key={pageNum}>
-                      <PaginationLink
-                        href={`/admin/appointments?page=${pageNum}`}
-                        isActive={pageNum === currentPage}
-                      >
-                        {pageNum}
-                      </PaginationLink>
-                    </PaginationItem>
-                  )
-                )}
-                <PaginationItem>
-                  <PaginationNext
-                    href={`/admin/appointments?page=${Math.min(
-                      totalPages,
-                      currentPage + 1
-                    )}&search=${search}&status=${status}&date=${dateFilter}`}
-                    className={
-                      currentPage >= totalPages
-                        ? "pointer-events-none opacity-50"
-                        : ""
-                    }
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              baseUrl="/admin/appointments"
+              searchParams={{
+                search,
+                status,
+                date: dateFilter,
+                service: serviceFilter,
+                sortBy,
+                sortDir,
+              }}
+              className="mt-4"
+            />
           )}
         </>
       )}

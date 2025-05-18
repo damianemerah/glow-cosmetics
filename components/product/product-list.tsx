@@ -7,19 +7,11 @@ import { toast } from "sonner";
 import { deleteProduct } from "@/actions/adminActions"; // Import Server Action
 import type { Product, ProductWithCategories } from "@/types/index";
 import DataTable from "@/components/admin/data-table"; // Adjust path if needed
-import {
-  Badge,
-  Button,
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/constants/ui/index";
-import { Loader2 } from "lucide-react";
+import { Badge, Button } from "@/constants/ui/index";
+import { ArrowUpDown, Loader2 } from "lucide-react";
 import { formatZAR } from "@/utils";
 import ConfirmDialog from "@/components/common/confirm-dialog";
+import Pagination from "@/components/common/pagination";
 
 // Format price helper function (can be moved to a utils file)
 function formatPrice(price: number | null | undefined): string {
@@ -34,6 +26,16 @@ interface ProductListProps {
   currentPage: number;
   search: string;
   category: string;
+  sortBy?: string;
+  sortDir?: "asc" | "desc";
+}
+
+interface ProductColumn {
+  key: string;
+  title: string;
+  sortable?: boolean;
+  render?: (row: ProductWithCategories) => React.ReactNode;
+  header?: () => React.ReactNode;
 }
 
 export default function ProductList({
@@ -42,11 +44,26 @@ export default function ProductList({
   currentPage,
   search,
   category,
+  sortBy = "created_at",
+  sortDir = "desc",
 }: ProductListProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+
+  const generateSortUrl = (field: string) => {
+    const newSortDir =
+      sortBy === field ? (sortDir === "asc" ? "desc" : "asc") : "asc";
+    const params = new URLSearchParams({
+      page: currentPage.toString(),
+      search,
+      category,
+      sortBy: field,
+      sortDir: newSortDir,
+    });
+    return `/admin/products?${params.toString()}`;
+  };
 
   // --- Delete Handler ---
   const handleDelete = (product: Product) => {
@@ -76,16 +93,32 @@ export default function ProductList({
   };
 
   // --- Columns Definition (specific to this client component) ---
-  const productColumns = [
+  const productColumns: ProductColumn[] = [
     { key: "name", title: "Name" },
     {
       key: "price",
       title: "Price",
+      sortable: true,
       render: (row: Product) => formatPrice(row.price),
+      header: () => (
+        <Link
+          href={generateSortUrl("price")}
+          className="flex items-center hover:underline"
+        >
+          Price
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+          {sortBy === "price" && (
+            <span className="ml-1 text-xs">
+              ({sortDir === "asc" ? "↑" : "↓"})
+            </span>
+          )}
+        </Link>
+      ),
     },
     {
       key: "stock",
       title: "Stock",
+      sortable: true,
       render: (row: Product) => (
         <div className="flex items-center gap-2">
           <span>{row.stock_quantity ?? 0}</span> {/* Handle nullish stock */}
@@ -102,6 +135,20 @@ export default function ProductList({
             </Badge>
           ) : null}
         </div>
+      ),
+      header: () => (
+        <Link
+          href={generateSortUrl("stock_quantity")}
+          className="flex items-center hover:underline"
+        >
+          Stock
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+          {sortBy === "stock_quantity" && (
+            <span className="ml-1 text-xs">
+              ({sortDir === "asc" ? "↑" : "↓"})
+            </span>
+          )}
+        </Link>
       ),
     },
     {
@@ -120,9 +167,10 @@ export default function ProductList({
     {
       key: "status",
       title: "Status",
-      render: (row: Product) => (
+      sortable: true,
+      render: (row: ProductWithCategories) => (
         <Badge
-          variant={row.is_active ? "default" : "outline"} // Use variants for better styling
+          variant={row.is_active ? "default" : "outline"}
           className={
             row.is_active
               ? "bg-green-100 text-green-800"
@@ -131,6 +179,20 @@ export default function ProductList({
         >
           {row.is_active ? "Active" : "Inactive"}
         </Badge>
+      ),
+      header: () => (
+        <Link
+          href={generateSortUrl("is_active")}
+          className="flex items-center hover:underline"
+        >
+          Status
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+          {sortBy === "is_active" && (
+            <span className="ml-1 text-xs">
+              ({sortDir === "asc" ? "↑ Inactive First" : "↓ Active First"})
+            </span>
+          )}
+        </Link>
       ),
     },
     {
@@ -180,51 +242,18 @@ export default function ProductList({
 
       {/* --- Pagination --- */}
       {totalPages > 1 && (
-        <Pagination className="mt-6">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href={`/admin/products?page=${Math.max(
-                  1,
-                  currentPage - 1
-                )}&search=${search}&category=${category}`}
-                aria-disabled={currentPage <= 1}
-                tabIndex={currentPage <= 1 ? -1 : undefined}
-                className={
-                  currentPage <= 1 ? "pointer-events-none opacity-50" : ""
-                }
-              />
-            </PaginationItem>
-            {/* Consider adding ellipsis logic for many pages */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-              (pageNum) => (
-                <PaginationItem key={pageNum}>
-                  <PaginationLink
-                    href={`/admin/products?page=${pageNum}&search=${search}&category=${category}`}
-                    isActive={pageNum === currentPage}
-                  >
-                    {pageNum}
-                  </PaginationLink>
-                </PaginationItem>
-              )
-            )}
-            <PaginationItem>
-              <PaginationNext
-                href={`/admin/products?page=${Math.min(
-                  totalPages,
-                  currentPage + 1
-                )}&search=${search}&category=${category}`}
-                aria-disabled={currentPage >= totalPages}
-                tabIndex={currentPage >= totalPages ? -1 : undefined}
-                className={
-                  currentPage >= totalPages
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          baseUrl="/admin/products"
+          searchParams={{
+            search,
+            category,
+            sortBy,
+            sortDir,
+          }}
+          className="mt-6"
+        />
       )}
 
       {/* --- Use ConfirmDialog component instead of the inline AlertDialog --- */}

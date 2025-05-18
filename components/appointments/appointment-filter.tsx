@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/constants/ui/index";
+import { services } from "@/constants/data";
 
 type DateType = "all" | "today" | "week" | "month";
 
@@ -18,6 +19,7 @@ interface AppointmentFilterProps {
   search: string;
   date: DateType;
   status: string;
+  service: string;
 }
 
 // Define booking status options
@@ -34,15 +36,28 @@ export default function AppointmentFilter({
   search,
   status,
   date,
+  service: initialService,
 }: AppointmentFilterProps) {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState(search || "");
   const [dateFilter, setDateFilter] = useState<DateType>(date || "all");
   const [statusFilter, setStatusFilter] = useState<string>(status || "all");
+  const [serviceFilter, setServiceFilter] = useState(initialService || "all");
 
-  const handleFilter = (type: "search" | "status" | "date", val: string) => {
+  const handleFilter = (
+    type: "search" | "status" | "date" | "service",
+    val: string
+  ) => {
     const url = new URL(window.location.href);
     const params = new URLSearchParams(url.search);
+    if (type === "service") {
+      setServiceFilter(val);
+      if (val !== "all") {
+        params.set("service", val);
+      } else {
+        params.delete("service");
+      }
+    }
     if (type === "search") {
       setSearchQuery(val);
       if (val) {
@@ -122,6 +137,24 @@ export default function AppointmentFilter({
         </div>
         <div className="w-full md:w-40">
           <Select
+            value={serviceFilter}
+            onValueChange={(val) => handleFilter("service", val)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="All Services" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Services</SelectItem>
+              {services.map((service) => (
+                <SelectItem key={service.id} value={service.id}>
+                  {service.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="w-full md:w-40">
+          <Select
             value={statusFilter}
             onValueChange={(val) => handleFilter("status", val)}
           >
@@ -136,6 +169,17 @@ export default function AppointmentFilter({
               ))}
             </SelectContent>
           </Select>
+        </div>
+        {/* //clear filter btn */}
+        <div className="w-full md:w-40">
+          <Button
+            variant="outline"
+            onClick={() => {
+              router.push("/admin/appointments", { scroll: false });
+            }}
+          >
+            Clear Filters
+          </Button>
         </div>
       </div>
     </div>

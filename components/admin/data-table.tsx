@@ -15,6 +15,7 @@ interface DataTableProps<T> {
     key: string;
     title: string;
     render?: (row: T) => React.ReactNode;
+    header?: () => React.ReactNode;
   }[];
   data: T[];
   emptyState?: React.ReactNode;
@@ -46,7 +47,7 @@ export default function DataTable<T>({
                   key={column.key}
                   className="text-primary font-medium"
                 >
-                  {column.title}
+                  {column.header ? column.header() : column.title}
                 </TableHead>
               ))}
             </TableRow>

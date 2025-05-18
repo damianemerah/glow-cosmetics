@@ -7,7 +7,7 @@ import DataTable from "@/components/admin/data-table";
 import { createClient } from "@/utils/supabase/server";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
-import { formatZAR } from "@/utils";
+import { capitalize, formatZAR } from "@/utils";
 import { getUpcomingBirthdays } from "@/actions/clientActions";
 import { BirthdayReminder } from "@/components/birthday-reminder";
 
@@ -85,7 +85,7 @@ async function getRecentActivity() {
 
       // Combine and format activities
       const bookingActivities = (recentBookings || []).map((booking) => ({
-        client: `${booking.first_name} ${booking.last_name}`,
+        client: `${capitalize(booking.first_name)} ${capitalize(booking.last_name)}`,
         action: `Booked ${booking.service_id}`,
         time: new Date(booking.booking_time).toLocaleString("en-US", {
           month: "short",
@@ -97,7 +97,7 @@ async function getRecentActivity() {
       }));
 
       const orderActivities = (recentOrders || []).map((order) => ({
-        client: `${order.first_name} ${order.last_name}`,
+        client: `${capitalize(order.first_name)} ${capitalize(order.last_name)}`,
         action: `Placed Order (${formatZAR(order.total_price)})`,
         time: new Date(order.created_at).toLocaleString("en-US", {
           month: "short",
