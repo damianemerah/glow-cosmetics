@@ -31,9 +31,9 @@ interface ClientListProps {
 const fetcher = async (url: string) => {
   const response = await fetch(url);
   if (!response.ok) {
-    const errorInfo = await response.text();
+    const errorInfo = await response.json();
     console.error("Search fetch failed:", errorInfo);
-    throw new Error(`Search failed: ${response.statusText}`);
+    throw new Error(`Search failed: ${errorInfo.error || "Unknown error"}`);
   }
   return response.json();
 };

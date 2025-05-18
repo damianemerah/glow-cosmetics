@@ -393,6 +393,11 @@ export default function MessagingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isRichText && richTextEditorRef.current) {
+      const htmlContent = richTextEditorRef.current?.getHTML() || "";
+      setMessageForm((prev) => ({ ...prev, message: htmlContent }));
+    }
     if (selectedClient) {
       await handleSendToClient();
       return;

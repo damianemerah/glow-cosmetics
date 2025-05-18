@@ -40,8 +40,9 @@ export function useMessaging(): UseMessagingReturn {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `Error: ${response.status}`);
+        const errorText = await response.json();
+        const errMsg = errorText.error || errorText.message;
+        throw new Error(errMsg || `Error: ${response.status}`);
       }
 
       const result = await response.json();
@@ -77,8 +78,8 @@ export function useMessaging(): UseMessagingReturn {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `Error: ${response.status}`);
+        const errorText = await response.json();
+        throw new Error(errorText.error || `Error: ${response.status}`);
       }
 
       const result = await response.json();
@@ -121,8 +122,8 @@ export function useMessaging(): UseMessagingReturn {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || `Error: ${response.status}`);
+        const errorText = await response.json();
+        throw new Error(errorText.error || `Error: ${response.status}`);
       }
 
       const result = await response.json();

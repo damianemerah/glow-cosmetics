@@ -151,6 +151,8 @@ export default function CategoryForm({
           safeUpdateCache(data);
         }
 
+        await mutate();
+
         toast.success(
           `Category ${id === "new" ? "created" : "updated"} successfully`
         );

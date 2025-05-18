@@ -64,6 +64,7 @@ export interface RichTextEditorRef {
   clearContent: () => void;
   focusEditor: () => void;
   setContent: (htmlContent: string) => void;
+  getHTML: () => string;
 }
 
 const CustomImage = Image.extend({
@@ -176,13 +177,13 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
         editor?.commands.focus();
       },
       setContent: (htmlContent: string) => {
-        // <-- IMPLEMENT THIS METHOD
         if (editor) {
-          // editor.commands.setContent() will trigger onUpdate,
-          // which calls props.onChange, syncing parent state.
           editor.commands.setContent(htmlContent);
+          // Explicitly trigger onChange
+          onChange(editor.getHTML());
         }
       },
+      getHTML: () => editor?.getHTML() || "",
     }));
 
     // Handle file upload

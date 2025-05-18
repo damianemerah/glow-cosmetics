@@ -98,6 +98,18 @@ export async function POST(request: Request) {
                 status = event.type.replace("email.", "");
         }
 
+        console.log(`Webhook event received: ${event.type}`, {
+            status,
+            recipient: event.data.recipient,
+            email_id: event.data.email_id,
+            tags: event.data.tags,
+            to: event.data.to,
+            from: event.data.from,
+            subject: event.data.subject,
+            message: event.data.message,
+            clicked_link: event.data.clicked_link,
+        });
+
         // Update the message log
         const { error } = await supabase
             .from("message_logs")
