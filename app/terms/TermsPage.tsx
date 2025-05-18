@@ -8,7 +8,7 @@ export default function TermsPage() {
           TERMS OF SERVICE
         </h1>
         <div className="text-sm font-bold text-gray-600 font-sans leading-relaxed">
-          Last updated <strong>April 22, 2025</strong>
+          Last updated <strong>May 18, 2025</strong>
         </div>
         <h2 className="text-xl font-bold font-sans text-black leading-relaxed my-4">
           AGREEMENT TO OUR LEGAL TERMS
@@ -1100,7 +1100,7 @@ export default function TermsPage() {
       </section>
       <section id="misc" className="text-left mb-6">
         <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
-          24. MISCELLANEOUS
+          25. MISCELLANEOUS
         </h2>
         <p className="text-sm text-gray-600 leading-relaxed">
           These Legal Terms and any policies or operating rules posted by us on
@@ -1125,9 +1125,60 @@ export default function TermsPage() {
           hereto to execute these Legal Terms.
         </p>
       </section>
+      <section>
+        <h3 className="text-base font-bold font-sans text-black leading-relaxed mb-1">
+          THIRD-PARTY AUTHENTICATION
+        </h3>
+        <p className="text-base text-gray-600 leading-relaxed mb-3">
+          a) Google Authentication
+        </p>
+        <p className="text-base text-gray-600 leading-relaxed">
+          Use of &quot;Sign in with Google&quot; is subject to:
+        </p>
+        <ul className="list-disc pl-5 text-base text-gray-600 leading-relaxed">
+          <li>
+            <a
+              href="https://policies.google.com/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 text-sm font-sans break-words"
+            >
+              Google Terms of Service
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://developers.google.com/terms/api-services-user-data-policy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 text-sm font-sans break-words"
+            >
+              Google API Services User Data Policy
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://developers.google.com/terms/api-services-user-data-policy#additional-requirements-for-specific-api-scopes"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 text-sm font-sans break-words"
+            >
+              Limited Use Requirements
+            </a>
+          </li>
+        </ul>
+        <p className="text-base font-sans">
+          We strictly adhere to Google&apos;s Limited Use requirements:
+        </p>
+        <ul className="list-disc pl-5 text-base font-sans">
+          <li>User data is only used to provide/improve app functionality</li>
+          <li>No data sharing with third parties without explicit consent</li>
+          <li>No advertising based on Google-derived data</li>
+        </ul>
+      </section>
       <section id="contact" className="text-left mb-6">
         <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
-          25. CONTACT US
+          26. CONTACT US
         </h2>
         <p className="text-sm text-gray-600 leading-relaxed mb-3">
           In order to resolve a complaint regarding the Services or to receive

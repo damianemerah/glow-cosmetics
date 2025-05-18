@@ -112,6 +112,9 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
         CustomImage.configure({
           inline: true,
           allowBase64: true,
+          HTMLAttributes: {
+            style: "max-width: 100%; height: auto;",
+          },
         }),
         Link.configure({
           openOnClick: false,

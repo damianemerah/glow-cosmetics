@@ -8,13 +8,13 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section className="relative h-[400px] bg-secondary">
         <div className="absolute inset-0">
-          <Image
+          {/* <Image
             src="/placeholder.svg?height=400&width=1200"
             alt="About us"
             fill
             className="object-cover"
             priority
-          />
+          /> */}
           <div className="absolute inset-0 bg-black/40" />
         </div>
         <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
@@ -62,7 +62,7 @@ export default function AboutPage() {
                     launching Glow by UgoSylvia and embracing the world of
                     medical aesthetics full-time.
                   </p>
-                  <p>
+                  {/* <p>
                     At the core of Angie&apos;s mission is the desire to empower
                     individuals, particularly women, to look and feel their
                     best. As a mother of four, she understands the importance of
@@ -73,7 +73,7 @@ export default function AboutPage() {
                     this transformative journey towards self-discovery and
                     self-love, where her expertise and genuine care converge to
                     enhance the beauty within.
-                  </p>
+                  </p> */}
                 </div>
                 <div className="mt-8">
                   <Button asChild className="bg-green-500 hover:bg-green-600">

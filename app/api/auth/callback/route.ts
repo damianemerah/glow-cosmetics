@@ -45,7 +45,6 @@ export async function GET(request: Request) {
                 firstName = p.given_name || null;
                 lastName = p.family_name || null;
                 avatarUrl = p.picture || null;
-                // Google doesn't normally return dob without extra scopes
             }
         } catch (e) {
             console.warn("Failed fetching Google profile", e);
