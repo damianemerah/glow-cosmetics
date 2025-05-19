@@ -29,7 +29,7 @@ import {
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { uploadImageToSupabase, saveProduct } from "@/actions/adminActions";
-import type { Category, ColorInfo } from "@/types/index";
+import type { Category } from "@/types/index";
 import useSWR from "swr";
 
 const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), {
@@ -40,12 +40,12 @@ const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), {
 });
 
 // --- Define Color Options (remains the same) ---
-const skinToneColors: ColorInfo[] = [
-  { name: "Fair", hex: "#EFD1B3" },
-  { name: "Medium", hex: "#DDBAA0" },
-  { name: "Tan", hex: "#C49181" },
-  { name: "Deep", hex: "#755237" },
-];
+// const skinToneColors: ColorInfo[] = [
+//   { name: "Fair", hex: "#EFD1B3" },
+//   { name: "Medium", hex: "#DDBAA0" },
+//   { name: "Tan", hex: "#C49181" },
+//   { name: "Deep", hex: "#755237" },
+// ];
 
 // --- Define Zod schema for ColorInfo (remains the same) ---
 const colorInfoSchema = z.object({
@@ -121,6 +121,12 @@ export default function ProductForm({
     {
       fallbackData: normalizedInitialData,
       revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      onSuccess: (_data) => {
+        if (id === "new") {
+          mutate(undefined, { revalidate: false });
+        }
+      },
     }
   );
 
@@ -182,10 +188,13 @@ export default function ProductForm({
   });
 
   useEffect(() => {
-    if (id === "new") {
-      reset();
-    }
-  }, [reset, id]);
+    return () => {
+      if (id === "new") {
+        reset();
+        mutate(undefined, { revalidate: false });
+      }
+    };
+  }, [id, reset, mutate]);
 
   const {
     fields: detailFields,
@@ -198,7 +207,7 @@ export default function ProductForm({
   // --- End setup ---
 
   const currentImages = watch("image_url");
-  const currentColors = watch("color");
+  // const currentColors = watch("color");
 
   const onSubmit = async (data: ProductFormData) => {
     setIsLoading(true);
@@ -223,7 +232,13 @@ export default function ProductForm({
           safeUpdateCache(saveData);
         }
         if (id === "new") {
-          reset();
+          setValue("image_url", []);
+          reset({
+            ...productData,
+            image_url: [],
+            additional_details: [],
+            color: [],
+          });
         }
 
         // empty the form cache
@@ -276,24 +291,24 @@ export default function ProductForm({
   };
 
   // --- Helper to handle color selection change ---
-  const handleColorChange = (checked: boolean, colorInfo: ColorInfo) => {
-    const currentSelection = currentColors || [];
-    let newSelection: ColorInfo[];
+  // const handleColorChange = (checked: boolean, colorInfo: ColorInfo) => {
+  //   const currentSelection = currentColors || [];
+  //   let newSelection: ColorInfo[];
 
-    if (checked) {
-      // Add color if not already present
-      if (!currentSelection.some((c) => c.name === colorInfo.name)) {
-        newSelection = [...currentSelection, colorInfo];
-      } else {
-        newSelection = currentSelection; // Already exists, no change needed
-      }
-    } else {
-      // Remove color
-      newSelection = currentSelection.filter((c) => c.name !== colorInfo.name);
-    }
-    setValue("color", newSelection, { shouldDirty: true });
-    safeUpdateCache({ color: newSelection }); // Update cache
-  };
+  //   if (checked) {
+  //     // Add color if not already present
+  //     if (!currentSelection.some((c) => c.name === colorInfo.name)) {
+  //       newSelection = [...currentSelection, colorInfo];
+  //     } else {
+  //       newSelection = currentSelection; // Already exists, no change needed
+  //     }
+  //   } else {
+  //     // Remove color
+  //     newSelection = currentSelection.filter((c) => c.name !== colorInfo.name);
+  //   }
+  //   setValue("color", newSelection, { shouldDirty: true });
+  //   safeUpdateCache({ color: newSelection }); // Update cache
+  // };
 
   return (
     <div className="min-h-screen bg-gray-50 sm:py-6">
@@ -494,7 +509,7 @@ export default function ProductForm({
               </div>
 
               {/* --- MULTI-SELECT COLOR DROPDOWN --- */}
-              <div>
+              {/* <div>
                 <Label htmlFor="color-trigger" className="mb-1">
                   Skin Tone Colors
                 </Label>
@@ -555,7 +570,7 @@ export default function ProductForm({
                     );
                   }}
                 />
-              </div>
+              </div> */}
               {/* --- END MULTI-SELECT COLOR DROPDOWN --- */}
             </div>
             {/* --- Row 2: Images --- */}

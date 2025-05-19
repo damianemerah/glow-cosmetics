@@ -18,6 +18,7 @@ import {
 } from "@/components/product/product-skeleton";
 
 import { transformToAdditionalDetails } from "@/utils";
+import { Breadcrumbs, BreadcrumSkeleton } from "@/components/Breadcrumbs";
 
 // Use Next.js ISR: revalidate this page every 60 seconds
 export const revalidate = 60;
@@ -107,6 +108,12 @@ export default async function ProductInfo({
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <Suspense fallback={<BreadcrumSkeleton />}>
+        <Breadcrumbs
+          categoryId={product.product_categories[0]?.category_id}
+          productName={product.name}
+        />
+      </Suspense>
       <ProductDetails product={product} />
 
       <Suspense fallback={<ProductDescriptionSkeleton />}>
@@ -117,7 +124,9 @@ export default async function ProductInfo({
       </Suspense>
 
       <Suspense fallback={<RelatedProductsSkeleton />}>
-        <RelatedProducts productId={product.id} />
+        <RelatedProducts
+          productId={product.product_categories[0].category_id}
+        />
       </Suspense>
 
       <Suspense fallback={<RecentlyViewedProductsSkeleton />}>

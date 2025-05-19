@@ -31,7 +31,7 @@ async function CategoryDetail({ id }: { id: string }) {
     notFound();
   }
 
-  const parentCategoriesResult = await fetchCategoryById("parent-only");
+  const parentCategoriesResult = await fetchCategoryById("all");
   const parentCategories =
     parentCategoriesResult.success &&
     Array.isArray(parentCategoriesResult.categories)

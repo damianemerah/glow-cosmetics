@@ -15,16 +15,7 @@ import {
   LoyaltyProgramSkeleton,
   ProductCTASkeleton,
 } from "@/components/product/product-skeleton";
-
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/constants/ui/index";
-import { Slash } from "lucide-react";
+import { Breadcrumbs, BreadcrumSkeleton } from "@/components/Breadcrumbs";
 
 import { getCachedCategories } from "@/actions/productActions";
 import ProductNavigation from "@/components/product/product-navigation";
@@ -32,9 +23,11 @@ import ProductNavigation from "@/components/product/product-navigation";
 async function getProductsByCategory(categorySlug: string) {
   const { data: category, error: categoryError } = await supabaseAdmin
     .from("categories")
-    .select("id, name")
+    .select("id, name, slug")
     .eq("slug", categorySlug)
     .single();
+
+  console.log(category, "category🎈🎈");
 
   if (categoryError || !category) {
     console.warn(
@@ -43,6 +36,21 @@ async function getProductsByCategory(categorySlug: string) {
     );
     notFound();
   }
+
+  const { data: categoryHierarchy, error: hierarchyError } = await supabaseAdmin
+    .rpc("get_child_categories", { parent_slug: categorySlug })
+    .select("id, name, slug");
+
+  if (hierarchyError || !categoryHierarchy?.length) {
+    console.warn(
+      `Category hierarchy not found for slug "${categorySlug}":`,
+      hierarchyError
+    );
+    notFound();
+  }
+
+  const categoryIds = categoryHierarchy.map((c) => c.id);
+
   const {
     data: products,
     error: productsError,
@@ -53,18 +61,14 @@ async function getProductsByCategory(categorySlug: string) {
       `*,
        product_categories!inner (
         category_id
-      )`,
+       )`,
       { count: "exact" }
     )
-    .eq("product_categories.category_id", category.id)
+    .in("product_categories.category_id", categoryIds)
     .eq("is_active", true)
     .order("created_at", { ascending: false });
 
   if (productsError) {
-    console.error(
-      `Error fetching products for category ${category.id} (${categorySlug}):`,
-      productsError
-    );
     return { products: [], count: 0, categoryName: category.name };
   }
 
@@ -102,13 +106,13 @@ async function getProductsByCategory(categorySlug: string) {
   return {
     products: productsWithFullCategories as ProductWithCategories[],
     count: count ?? 0,
-    categoryName: category.name,
+    categoryId: category.id,
   };
 }
 const getCachedProductsByCategory = unstable_cache(
   async (categorySlug: string) => getProductsByCategory(categorySlug),
-  ["products_by_category"],
-  { revalidate: 300, tags: ["products"] }
+  ["products_by_category", "category_tree"],
+  { revalidate: 3600, tags: ["products", "categories"] }
 );
 
 interface CategoryPageProps {
@@ -121,78 +125,38 @@ export async function generateMetadata({
   const { cat } = await params;
   const categorySlug = cat[cat.length - 1];
 
-  const { categoryName } = await getCachedProductsByCategory(categorySlug);
+  const { data: categoryHierarchy } = await supabaseAdmin
+    .rpc("get_child_categories", { parent_slug: categorySlug })
+    .select("name, slug");
 
-  if (!categoryName) {
+  if (!categoryHierarchy?.length) {
     return {
       title: "Category Not Found | Glow by UgoSylvia",
       description: "Sorry, we couldn't find the category you're looking for.",
     };
   }
 
-  const title = `${categoryName} | Shop Glow by UgoSylvia`;
-  const description = `Shop our collection of ${categoryName.toLowerCase()} beauty and wellness products. Find the best deals and latest arrivals.`;
+  // Use the root category name for metadata
+  const rootCategory = categoryHierarchy.find((c) => c.slug === categorySlug);
+  const title = `${rootCategory?.name} | Shop Glow by UgoSylvia`;
+  const description = `Explore our complete range of ${rootCategory?.name.toLowerCase()} products including all sub-categories. Find the best deals and latest arrivals.`;
 
   return {
-    title: title,
-    description: description,
+    title,
+    description,
     openGraph: {
-      title: title,
-      description: description,
+      title,
+      description,
       type: "website",
     },
   };
-}
-function Breadcrumbs({
-  cat,
-  categoryName,
-}: {
-  cat: string[];
-  categoryName: string;
-}) {
-  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-  const formatSlug = (slug: string) =>
-    capitalize(decodeURIComponent(slug).replace(/-/g, " "));
-
-  return (
-    <Breadcrumb className="mb-4 text-sm text-muted-foreground">
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/products">All Products</BreadcrumbLink>
-        </BreadcrumbItem>
-
-        {cat.map((segment, index) => {
-          const isLast = index === cat.length - 1;
-          const href = `/products/c/${cat.slice(0, index + 1).join("/")}`;
-          const name = isLast ? categoryName : formatSlug(segment);
-
-          return (
-            <React.Fragment key={segment + index}>
-              <BreadcrumbSeparator>
-                <Slash className="h-3 w-3" />
-              </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                {isLast ? (
-                  <BreadcrumbPage className="font-medium text-foreground">
-                    {name}
-                  </BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink href={href}>{name}</BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-            </React.Fragment>
-          );
-        })}
-      </BreadcrumbList>
-    </Breadcrumb>
-  );
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { cat } = await params;
   const categorySlug = cat[cat.length - 1];
 
-  const [{ categories }, { products, count: productsCount, categoryName }] =
+  const [{ categories }, { products, count: productsCount, categoryId }] =
     await Promise.all([
       getCachedCategories(),
       getCachedProductsByCategory(categorySlug),
@@ -206,7 +170,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
       <div className="container mx-auto px-4">
         <div className="mt-4">
-          <Breadcrumbs cat={cat} categoryName={categoryName} />
+          <Suspense fallback={<BreadcrumSkeleton />}>
+            <Breadcrumbs categoryId={categoryId} />
+          </Suspense>
         </div>
 
         <Suspense fallback={<ProductGridSkeletonWrapper />}>

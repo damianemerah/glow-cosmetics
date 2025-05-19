@@ -6,78 +6,70 @@ import { createClient } from "@/utils/supabase/client";
 import { RelatedProductsSkeleton } from "./product-skeleton";
 import { ProductCard } from "@/components/product/product-card";
 
-const fetchRelatedProducts = async (
-  productId: string
+type CategoryHierarchy = {
+  id: string;
+  name: string;
+  slug: string;
+  is_last: boolean;
+};
+
+export const fetchRelatedProductsByCategory = async (
+  categoryId: string,
+  limit = 4
 ): Promise<ProductWithCategories[]> => {
-  if (!productId) return [];
+  if (!categoryId) return [];
 
   const supabase = createClient();
 
-  try {
-    const { data: productCategoryData, error: categoryError } = await supabase
-      .from("product_categories")
-      .select("category_id")
-      .eq("product_id", productId);
+  // 1) Get all ancestors of this category
+  const { data: hierarchy, error: hierErr } = await supabase.rpc(
+    "get_category_hierarchy",
+    { cat_id: categoryId }
+  );
 
-    if (
-      categoryError ||
-      !productCategoryData ||
-      productCategoryData.length === 0
-    ) {
-      console.error(
-        "Error fetching product categories:",
-        categoryError?.message || "No categories found"
-      );
-      return [];
-    }
-
-    const categoryIds = productCategoryData.map((item) => item.category_id);
-
-    const { data: relatedProductLinks, error: relatedLinksError } =
-      await supabase
-        .from("product_categories")
-        .select("product_id")
-        .in("category_id", categoryIds)
-        .neq("product_id", productId)
-        .limit(6);
-
-    if (
-      relatedLinksError ||
-      !relatedProductLinks ||
-      relatedProductLinks.length === 0
-    ) {
-      console.error(
-        "Error fetching related product links:",
-        relatedLinksError?.message || "No related links found"
-      );
-      return [];
-    }
-
-    const relatedProductIds = [
-      ...new Set(relatedProductLinks.map((item) => item.product_id)),
-    ];
-
-    if (relatedProductIds.length === 0) {
-      return [];
-    }
-
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .in("id", relatedProductIds)
-      .eq("is_active", true)
-      .limit(4);
-
-    if (error) {
-      console.error("Error fetching related products:", error.message);
-      throw new Error("Failed to fetch related products.");
-    }
-
-    return (data as ProductWithCategories[]) || [];
-  } catch (err) {
-    console.error("An error occurred in fetchRelatedProducts:", err);
-    throw err;
+  if (hierErr) {
+    console.error("Error loading category hierarchy:", hierErr.message);
+    return [];
   }
+  const ancestorIds = hierarchy?.map((r: CategoryHierarchy) => r.id) ?? [];
+
+  // 2) Get all descendants (children, grandchildren, …) of these ancestors
+  //    We'll do this via a single SQL query rather than client‐side recursion:
+  const { data: descRows, error: descErr } = await supabase
+    .from("categories")
+    .select("id")
+    .in("parent_id", ancestorIds);
+
+  if (descErr) {
+    console.error("Error loading descendant categories:", descErr.message);
+    return [];
+  }
+  const descendantIds = descRows?.map((c) => c.id) ?? [];
+
+  // 3) Combine original + ancestors + descendants
+  const allCatIds = Array.from(
+    new Set([categoryId, ...ancestorIds, ...descendantIds])
+  );
+
+  if (allCatIds.length === 0) {
+    return [];
+  }
+
+  // 4) Fetch up to `limit` products in any of these categories
+  //    including their product_categories join so we get ProductWithCategories[]
+  const { data: products, error: prodErr } = await supabase
+    .from("products")
+    .select(`*, product_categories(category_id)`)
+    .in("product_categories.category_id", allCatIds)
+    .eq("is_active", true)
+    .limit(limit);
+
+  if (prodErr) {
+    console.error("Error fetching related products:", prodErr.message);
+    return [];
+  }
+
+  return (products as ProductWithCategories[]) ?? [];
 };
 
 interface RelatedProductsProps {
@@ -91,7 +83,7 @@ export default function RelatedProducts({ productId }: RelatedProductsProps) {
     isLoading,
   } = useSWR(
     productId ? ["related-products", productId] : null,
-    () => fetchRelatedProducts(productId),
+    () => fetchRelatedProductsByCategory(productId),
     {
       revalidateOnFocus: false,
     }

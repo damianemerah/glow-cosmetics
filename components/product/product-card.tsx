@@ -77,9 +77,10 @@ export function ProductCard({ product }: ProductCardProps) {
   );
 
   useEffect(() => {
-    if (isHovered && product.image_url.length > 1) {
-      const hoverImageUrl = product.image_url[1];
-      setImageUrl(hoverImageUrl);
+    if (isHovered && product.image_url?.length > 1) {
+      setImageUrl(product.image_url[1]);
+    } else {
+      setImageUrl(product.image_url?.[0] || "/placeholder.svg");
     }
   }, [isHovered, product.image_url]);
 

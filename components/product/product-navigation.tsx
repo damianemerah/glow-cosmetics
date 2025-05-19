@@ -48,16 +48,49 @@ export default function ProductNavigation({
   const searchParams = useSearchParams();
 
   const [openCategory, setOpenCategory] = React.useState<string | null>(null);
-  const A: Category[] = Array.isArray(categoryData) ? categoryData : [];
+  const A = React.useMemo(
+    () => (Array.isArray(categoryData) ? categoryData : []),
+    [categoryData]
+  );
 
+  // ← NEW: build a fast lookup from id → Category
+  const categoryById = React.useMemo(() => {
+    const m = new Map<string, Category>();
+    A.forEach((c) => m.set(c.id, c));
+    return m;
+  }, [A]);
+
+  // ← NEW: for each category, walk up its parent chain to record full slug paths
+  type Desc = { cat: Category; pathSlugs: string[] };
+  const descendantsMap = React.useMemo<Record<string, Desc[]>>(() => {
+    const map: Record<string, Desc[]> = {};
+    A.forEach((cat) => {
+      const pathSlugs: string[] = [];
+      let cur: Category | undefined = cat;
+      while (cur) {
+        pathSlugs.unshift(cur.slug);
+        cur = cur.parent_id ? categoryById.get(cur.parent_id) : undefined;
+      }
+      // rootSlug is at index 0
+      const rootSlug = pathSlugs[0];
+      const rootCat = A.find(
+        (c) => c.slug === rootSlug && c.parent_id === null
+      );
+      if (!rootCat) return;
+      map[rootCat.id] = map[rootCat.id] || [];
+      map[rootCat.id].push({ cat, pathSlugs });
+    });
+    return map;
+  }, [A, categoryById]);
+
+  // ← UPDATED: bucket every root under topLevelCategories,
+  // and collect *all* its descendants (not just immediate children)
   const topLevelCategories = A.filter((cat) => cat.parent_id === null);
   const childCategoriesMap: Record<string, Category[]> = {};
-  A.forEach((cat) => {
-    if (cat.parent_id) {
-      childCategoriesMap[cat.parent_id] =
-        childCategoriesMap[cat.parent_id] || [];
-      childCategoriesMap[cat.parent_id].push(cat);
-    }
+  topLevelCategories.forEach((root) => {
+    const descs = descendantsMap[root.id] || [];
+    // only keep the Category object itself; UI will still use slug/pathSlugs for URLs
+    childCategoriesMap[root.id] = descs.map((d) => d.cat);
   });
 
   const isCategoryActive = (

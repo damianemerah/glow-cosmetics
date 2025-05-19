@@ -300,11 +300,8 @@ export async function fetchFilteredProducts(params: FetchProductsParams) {
   return { products: products ?? [], count: count ?? 0 };
 }
 
-// You might still need fetchCategories if ProductNavigation is used elsewhere
-// or if you need the full category tree for filtering UI.
 export async function fetchCategories() {
   try {
-    // Fetch all categories
     const { data: categories, error } = await supabaseAdmin
       .from("categories")
       .select("*")
@@ -314,11 +311,9 @@ export async function fetchCategories() {
       console.error("Error fetching categories:", error);
       throw new Error(error.message);
     }
-    // Note: Product counts per category are not strictly needed for the main product page grouping
-    // but might be useful for the navigation/filter UI if you display counts there.
-    // If not needed, you can remove the count logic for performance.
+
     const productsCount: Record<string, number> = {};
-    if (categories) { // only count if categories were fetched
+    if (categories) {
       await Promise.all(
         (categories as Category[]).map(async (category) => {
           const { count, error: countError } = await supabaseAdmin
@@ -352,7 +347,7 @@ export async function fetchCategories() {
 export const getCachedCategories = unstable_cache(
   async () => fetchCategories(),
   ["categories"],
-  { revalidate: 3600, tags: ["categories", "products"] }, // Revalidate less often, tag appropriately
+  { revalidate: 3600, tags: ["categories", "products"] },
 );
 
 export async function getProductsByIds(

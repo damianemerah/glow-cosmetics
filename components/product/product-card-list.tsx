@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -38,6 +38,12 @@ export function ProductCardList({ product }: ProductCardListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const user = useUserStore((state) => state.user);
   const setShowModal = useUserStore((state) => state.setShowModal);
+  const [isHovered, setIsHovered] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>(
+    product.image_url && product.image_url.length > 0
+      ? product.image_url[0]
+      : "/placeholder.svg"
+  );
 
   const addOrUpdateOfflineItem = useCartStore(
     (state) => state.addOrUpdateOfflineItem
@@ -49,10 +55,14 @@ export function ProductCardList({ product }: ProductCardListProps) {
     isValidating: isWishlistLoading,
   } = useWishlistStatus(user?.id, product.id);
 
-  const primaryImageUrl =
-    product.image_url && product.image_url.length > 0
-      ? product.image_url[0]
-      : "/placeholder.svg";
+  useEffect(() => {
+    if (isHovered && product.image_url?.length > 1) {
+      setImageUrl(product.image_url[1]);
+    } else {
+      setImageUrl(product.image_url?.[0] || "/placeholder.svg");
+    }
+  }, [isHovered, product.image_url]);
+
   const plainShortDescription = product.short_description
     ? htmlToText(product.short_description, {
         wordwrap: 130,
@@ -176,7 +186,11 @@ export function ProductCardList({ product }: ProductCardListProps) {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <TooltipProvider delayDuration={100}>
-        <div className="group relative border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 p-4 flex flex-row gap-4">
+        <div
+          className="group relative border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 p-4 flex flex-row gap-4"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
           <div className="relative w-36 h-auto aspect-square flex-shrink-0 overflow-hidden rounded-md bg-gray-50">
             <Link
               href={`/products/${product.slug}`}
@@ -184,7 +198,7 @@ export function ProductCardList({ product }: ProductCardListProps) {
               aria-label={`View details for ${product.name}`}
             />
             <Image
-              src={primaryImageUrl}
+              src={imageUrl}
               alt={product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300 ease-in-out"

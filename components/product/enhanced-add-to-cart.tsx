@@ -305,7 +305,7 @@ export default function EnhancedAddToCart({
       )}
       {availableStock <= 0 && (
         <p className="text-sm text-red-600 pt-1">
-          This product/color is out of stock.
+          This product is out of stock.
         </p>
       )}
     </div>
