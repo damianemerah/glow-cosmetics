@@ -22,6 +22,7 @@ const supabase = createClient();
 
 type SearchResult = {
   id: string;
+  slug: string;
   name: string;
   item_type: "product" | "category";
 };
@@ -75,9 +76,9 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
     setSearchQuery(""); // Clear search input
 
     if (result.item_type === "product") {
-      router.push(`/products/${result.id}`);
+      router.push(`/products/${result.slug}`);
     } else if (result.item_type === "category") {
-      router.push(`/products/${result.id}`);
+      router.push(`/products/${result.slug}`);
     }
   };
 

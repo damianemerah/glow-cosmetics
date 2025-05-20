@@ -36,40 +36,40 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
                 <h2 className="text-3xl font-bold mb-6 font-montserrat">
-                  Meet Angie the Owner and Nurse Practitioner
+                  Meet Sylvia the Owner and Nurse Practitioner
                 </h2>
                 <div className="space-y-4">
                   <p>
-                    Meet Angie, a dedicated Nurse Practitioner with a rich
+                    Meet Sylvia, a dedicated Nurse Practitioner with a rich
                     history in nursing since her graduation from the University
                     of Toledo in 2005. Her journey continued with a
                     master&apos;s degree in science in nursing, culminating in
                     her graduation from Walden University in 2016.
                   </p>
                   <p>
-                    Angie holds board certification from the American
+                    Sylvia holds board certification from the American
                     Association of Nurse Practitioners, a testament to her
                     commitment to excellence.
                   </p>
                   <p>
-                    Angie&apos;s diverse professional background encompasses
+                    Sylvia&apos;s diverse professional background encompasses
                     roles in urgent care, emergency medicine, hospital medicine,
                     and infectious diseases, showcasing her versatility and
                     expertise in various healthcare domains. While initially
                     seeking into medical aesthetics as a respite from
-                    traditional medicine, Angie&apos;s passion for the field
+                    traditional medicine, Sylvia&apos;s passion for the field
                     grew. This passion led her to make a career shift, by
                     launching Glow by UgoSylvia and embracing the world of
                     medical aesthetics full-time.
                   </p>
                   {/* <p>
-                    At the core of Angie&apos;s mission is the desire to empower
+                    At the core of Sylvia&apos;s mission is the desire to empower
                     individuals, particularly women, to look and feel their
                     best. As a mother of four, she understands the importance of
                     self-care and recognizing that one cannot pour from an empty
-                    cup. With Glow by UgoSylvia, Angie strives to provide a
+                    cup. With Glow by UgoSylvia, Sylvia strives to provide a
                     rejuvenating experience that goes beyond aesthetics,
-                    promoting overall well-being and confidence. Join Angie on
+                    promoting overall well-being and confidence. Join Sylvia on
                     this transformative journey towards self-discovery and
                     self-love, where her expertise and genuine care converge to
                     enhance the beauty within.
@@ -84,7 +84,7 @@ export default function AboutPage() {
               <div className="relative h-[500px] rounded-lg overflow-hidden shadow-xl">
                 <Image
                   src="/placeholder.svg?height=500&width=400"
-                  alt="Angie - Owner and Nurse Practitioner"
+                  alt="Sylvia - Owner and Nurse Practitioner"
                   fill
                   className="object-cover"
                 />

@@ -55,6 +55,14 @@ export const metadata: Metadata = {
     "beauty supplements",
     "jewellery",
     "beauty salon",
+    "acne treatment",
+    "anti-aging",
+    "skin rejuvenation",
+    "beauty products",
+    "beauty services",
+    "beauty and wellness",
+    "Glow by UgoSylvia",
+    "UgoSylvia",
   ],
   authors: [{ name: "Glow by UgoSylvia" }],
   creator: "Glow by UgoSylvia",
@@ -112,11 +120,6 @@ export const metadata: Metadata = {
         sizes: "192x192",
         type: "image/png",
       },
-      {
-        url: "/app-icons/ios/32.png",
-        sizes: "32x32",
-        type: "image/png",
-      },
     ],
     apple: [
       {
@@ -124,11 +127,7 @@ export const metadata: Metadata = {
         sizes: "180x180",
         type: "image/png",
       },
-      { url: "/app-icons/ios/152.png", sizes: "152x152", type: "image/png" },
-      { url: "/app-icons/ios/167.png", sizes: "167x167", type: "image/png" },
     ],
-
-    shortcut: [{ url: "/favicon.ico" }],
   },
   verification: {
     google: "dEt5Z3Db-gUUXbyOqdCwP_NktWwfdKxNE7YM0MsuPKE",

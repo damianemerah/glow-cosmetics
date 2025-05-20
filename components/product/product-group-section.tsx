@@ -25,7 +25,7 @@ export function ProductGroupSection({
 
   return (
     <section className={`py-8 md:py-12 ${className}`}>
-      <div className="container mx-auto px-4">
+      <div className=" mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
             {title}
@@ -39,7 +39,7 @@ export function ProductGroupSection({
             </Button>
           )}
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
