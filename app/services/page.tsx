@@ -151,22 +151,6 @@ export default function ServicesPage() {
 
       {/* Customer Reviews */}
       <CustomerReviews />
-
-      {/* CTA Section */}
-      <section className="py-16 md:py-20 bg-gradient-to-t from-[#4a5a3a] to-[#5a6b47]/80 text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6 font-montserrat">
-            Ready to book your consult or appointment?
-          </h2>
-          <Button
-            asChild
-            size="lg"
-            className="bg-white text-[#5a6b47] hover:bg-gray-100"
-          >
-            <Link href="/booking">Get Started Here!</Link>
-          </Button>
-        </div>
-      </section>
     </div>
   );
 }

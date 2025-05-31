@@ -16,7 +16,7 @@ export default function Loading() {
 
       {/* Products Section Skeleton */}
       <section className="py-24 bg-white">
-        <div className="container mx-auto px-4 relative">
+        <div className=" mx-auto relative">
           {/* Tabs Skeleton */}
           <div className="mb-8">
             <div className="flex gap-2 overflow-x-auto pb-2">

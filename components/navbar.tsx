@@ -211,7 +211,7 @@ const Navbar = () => {
   return (
     <>
       <header
-        className={`${pathname === "/" && "sticky top-0 z-40"} w-full bg-white/80 backdrop-blur-sm shadow-sm`}
+        className={`${pathname === "/" && "absolute top-0 z-40 bg-transparent"} w-full backdrop-blur-lg`}
       >
         <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4">
           <BrandLogo />

@@ -18,11 +18,9 @@ import {
   ProductGroupSkeleton,
 } from "@/components/product/product-group-section";
 import ProductsGrid from "@/components/product/products-grid";
-import LoyaltyProgram from "@/components/product/loyalty-program";
 import ProductCTA from "@/components/product/product-cta";
 import {
   ProductGridSkeletonWrapper,
-  LoyaltyProgramSkeleton,
   ProductCTASkeleton,
 } from "@/components/product/product-skeleton";
 import Pagination from "@/components/common/pagination";
@@ -139,9 +137,9 @@ export default async function ProductsPage({
   const { categories } = await getCachedCategories();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background ">
       <ProductHero />
-      <div>
+      <div className="px-2">
         <ProductNavigation categoryData={categories} />
 
         {showFilteredGrid ? (
@@ -170,9 +168,6 @@ export default async function ProductsPage({
         )}
       </div>
 
-      <Suspense fallback={<LoyaltyProgramSkeleton />}>
-        <LoyaltyProgram />
-      </Suspense>
       <Suspense fallback={<ProductCTASkeleton />}>
         <ProductCTA />
       </Suspense>

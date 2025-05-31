@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 
 export default function LoyaltyProgram() {
   return (
-    <section className="py-16 bg-secondary">
+    <section className="py-16 bg-green-light">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="md:flex">

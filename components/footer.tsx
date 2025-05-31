@@ -12,16 +12,16 @@ const Footer = () => {
     return <AdminFooter />;
   }
   const MainFooter = () => (
-    <footer className="bg-[#4a5a3a] text-gray-200 pb-16 md:pb-0">
+    <footer className="bg-green-light text-gray-600 pb-16 md:pb-0">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 xl:gap-12">
           <div className="md:col-span-4 lg:col-span-5 text-center md:text-left">
             <Link href="/" className="inline-block mb-4">
-              <span className="text-2xl font-bold text-white font-montserrat tracking-tight">
+              <span className="text-2xl font-bold text-primary font-montserrat tracking-tight">
                 Glow by UgoSylvia
               </span>
             </Link>
-            <p className="text-[13px] text-gray-300 leading-relaxed">
+            <p className="text-[13px] text-gray-600 leading-relaxed">
               Your premier destination for expert permanent makeup
               (Microblading, Ombre, Eyeliner, Lip Blush), stunning lash
               extensions, and professional makeup services. Discover our curated
@@ -31,7 +31,7 @@ const Footer = () => {
           </div>
 
           <div className="md:col-span-4 lg:col-span-3 text-center md:text-left">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-primary mb-4">
               Quick Links
             </h3>
             <ul className="space-y-2">
@@ -54,7 +54,7 @@ const Footer = () => {
           </div>
 
           <div className="md:col-span-4 lg:col-span-4 text-center md:text-left">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white mb-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-primary mb-4">
               Connect & Legal
             </h3>
             <ul className="space-y-2 mb-6">
@@ -98,7 +98,7 @@ const Footer = () => {
   }) => (
     <Link
       href={href}
-      className="text-sm text-gray-300 hover:text-white hover:underline transition-colors duration-200"
+      className="text-sm text-gray-600 hover:text-white hover:underline transition-colors duration-200"
     >
       {children}
     </Link>

@@ -6,7 +6,7 @@ export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[400px] bg-secondary">
+      <section className="relative h-[400px] bg-green-light">
         <div className="absolute inset-0">
           {/* <Image
             src="/placeholder.svg?height=400&width=1200"
@@ -95,7 +95,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission & Values */}
-      <section className="py-16 bg-secondary">
+      <section className="py-16 bg-green-light">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-8 font-montserrat">
@@ -190,7 +190,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold mb-8 text-center font-montserrat">
               Credentials & Training
             </h2>
-            <div className="bg-secondary p-8 rounded-lg">
+            <div className="bg-green-light p-8 rounded-lg">
               <ul className="space-y-4">
                 <li className="flex items-start">
                   <svg

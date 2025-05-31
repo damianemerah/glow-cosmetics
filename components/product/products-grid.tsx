@@ -77,7 +77,7 @@ export default function ProductsGrid({
 
   return (
     <section ref={localFiltersRef} className="pb-8 md:pb-12 bg-background">
-      <div className="container mx-auto px-4 relative">
+      <div className=" mx-auto relative">
         <div className="sticky top-0 md:top-14 z-20 -mx-4 px-4 bg-background border-b border-border">
           <ProductSortView
             currentSort={currentSort}
@@ -92,7 +92,7 @@ export default function ProductsGrid({
         {/* Product Grid/List */}
         {products.length > 0 ? (
           currentView === "grid" ? (
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

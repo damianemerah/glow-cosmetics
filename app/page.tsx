@@ -114,23 +114,26 @@ export default async function Home() {
         <LoyaltyProgram />
       </Suspense>
 
-      <section className="py-16 md:py-20 bg-gradient-to-t from-[#4a5a3a] to-[#5a6b47]/80 text-primary-foreground">
+      <section className="py-16 md:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl  font-bold mb-4 font-montserrat">
-            Ready for Transformation?
-          </h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto text-primary-foreground/90">
-            Book your personalized consultation or appointment today and step
-            into your most radiant self.
-          </p>
-          <Button
-            asChild
-            size="lg"
-            variant="secondary"
-            className="text-secondary-foreground hover:bg-secondary/90"
-          >
-            <Link href="/booking">Schedule Your Visit</Link>
-          </Button>
+          {/* Inner wrapper: border + shadow around only the heading/text/button */}
+          <div className="inline-block border rounded-md shadow-lg p-8 bg-white">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 font-montserrat">
+              Ready for Transformation?
+            </h2>
+            <p className="text-lg mb-8 max-w-2xl mx-auto text-secondary-foreground/90">
+              Book your personalized consultation or appointment today and step
+              into your most radiant self.
+            </p>
+            <Button
+              asChild
+              size="lg"
+              variant="secondary"
+              className="text-secondary bg-primary"
+            >
+              <Link href="/booking">Schedule Your Visit</Link>
+            </Button>
+          </div>
         </div>
       </section>
     </div>

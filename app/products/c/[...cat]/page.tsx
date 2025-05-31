@@ -7,12 +7,10 @@ import type { ProductWithCategories } from "@/types/index";
 
 import ProductHero from "@/components/product/product-hero";
 import ProductsGrid from "@/components/product/products-grid";
-import LoyaltyProgram from "@/components/product/loyalty-program";
 import ProductCTA from "@/components/product/product-cta";
 
 import {
   ProductGridSkeletonWrapper,
-  LoyaltyProgramSkeleton,
   ProductCTASkeleton,
 } from "@/components/product/product-skeleton";
 import { Breadcrumbs, BreadcrumSkeleton } from "@/components/Breadcrumbs";
@@ -180,9 +178,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         </Suspense>
       </div>
 
-      <Suspense fallback={<LoyaltyProgramSkeleton />}>
-        <LoyaltyProgram />
-      </Suspense>
       <Suspense fallback={<ProductCTASkeleton />}>
         <ProductCTA />
       </Suspense>

@@ -1,77 +1,92 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/constants/ui";
-
-import { Carousel, CarouselContent, CarouselItem } from "@/constants/ui";
-
-import Autoplay from "embla-carousel-autoplay";
+import { Button } from "@/constants/ui"; // Assuming this path is correct
 
 export default function HomeHero() {
-  const images = ["/images/beauty.jpg", "/images/face-cream.png"];
-
-  const plugin = useRef(
-    Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })
-  );
-
   return (
-    <section className="relative h-[65vh] text-white overflow-hidden">
-      <Carousel
-        plugins={[plugin.current]}
-        className="absolute inset-0 z-0"
-        opts={{
-          loop: true,
-        }}
-        onMouseEnter={plugin.current.stop}
-        onMouseLeave={plugin.current.reset}
+    <section
+      className="
+        relative
+        flex flex-col md:flex-row
+        items-center
+        justify-center
+        w-full
+        min-h-[80vh] md:min-h-screen
+        overflow-hidden
+        bg-cover
+        bg-center
+        px-4 sm:px-6 lg:px-12 xl:px-24
+        py-12 md:py-0
+      "
+      style={{
+        backgroundImage: `url('/images/hero-bg.png')`, // Corrected path based on your note
+      }}
+    >
+      <div
+        className="
+          relative
+          w-full md:w-1/2
+         h-[50vh] md:h-[80vh] lg:h-[90vh]
+          flex-shrink-0
+          mb-8 md:mb-0 md:mr-6 lg:mr-12
+          order-1 md:order-1
+        "
       >
-        <CarouselContent>
-          {images.map((src, index) => (
-            <CarouselItem key={index}>
-              <div className="relative h-[75vh] md:h-[85vh]">
-                <Image
-                  src={src}
-                  alt={`Hero background slide ${index + 1}`}
-                  fill
-                  className="object-cover object-center"
-                  priority={index === 0}
-                  sizes="100vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+        <Image
+          src="/images/hero-person.png"
+          alt="Glow Cosmetics model" // More descriptive alt text
+          fill
+          className="object-contain object-center" // Contain ensures full image is visible. Center it.
+          priority // Load this image eagerly as it's LCP
+          sizes="(max-width: 767px) 100vw, 50vw" // 100vw on mobile, 50vw on desktop
+        />
+      </div>
 
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center z-10">
-        <div className="max-w-xl md:max-w-2xl">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 tracking-tight font-montserrat leading-tight">
-            Elevate Your Radiance
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl mb-8 text-gray-200">
-            Discover bespoke beauty treatments and curated wellness products
-            designed for your unique glow.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button
-              asChild
-              size="lg"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              <Link href="/booking">Book Your Experience</Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-white text-white bg-white/10 backdrop-blur-sm hover:bg-white/20"
-            >
-              <Link href="/products">Shop Our Collection</Link>
-            </Button>
-          </div>
+      {/* Text Content Container */}
+      {/* On mobile (flex-col), this is the bottom item. On desktop (flex-row), this is the right item. */}
+      <div
+        className="
+          w-full md:w-1/2
+          z-10
+          flex flex-col
+          items-center md:items-start
+          justify-center
+          text-center md:text-left
+          order-2 md:order-2
+        "
+      >
+        <p className="text-secondary-foreground tracking-widest font-bold text-sm sm:text-base lg:text-lg mb-2">
+          Glow By Ugosylvia
+        </p>
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 tracking-tight font-montserrat leading-tight">
+          <span className="text-primary">Glow</span>{" "}
+          <span className="text-primary/60">Cosmetics</span>
+        </h1>
+        <p className="text-base sm:text-lg lg:text-xl max-w-xl md:max-w-none mb-8 text-gray-500">
+          Discover bespoke beauty treatments and curated wellness products
+          designed for your unique glow.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          <Button
+            asChild
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto" // Full width on mobile for buttons
+          >
+            <Link href="/booking">Book Your Experience</Link>
+          </Button>
+          <Button
+            asChild
+            size="lg"
+            variant="outline"
+            className="border-primary text-primary hover:bg-primary/10 w-full sm:w-auto" // Adjusted outline button style
+            // If you want the white button style:
+            // className="border-white text-white bg-gray-400/50 backdrop-blur-sm hover:bg-gray-500/50 w-full sm:w-auto"
+          >
+            <Link href="/products">Shop Our Collection</Link>
+          </Button>
         </div>
       </div>
     </section>

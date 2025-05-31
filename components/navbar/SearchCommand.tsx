@@ -91,7 +91,6 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
         <Button
           variant="ghost"
           size="sm"
-          // flex flex-col items-center justify-center rounded-none h-full text-xs text-gray-500
           className={`flex ${variant === "desktop" ? "flex-row" : "flex-col text-xs text-gray-500 rounded-none h-full"} items-center justify-center font-montserrat`}
           aria-label="Search"
         >
@@ -100,7 +99,7 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${variant === "desktop" ? "w-[300px] p-0" : "w-[90vw] max-w-[400px] p-0"}`}
+        className={`${variant === "desktop" ? "w-[300px] p-0" : "w-[100vw] max-w-[500px] p-0"}`}
         side="bottom"
         align={variant === "desktop" ? "end" : "center"}
         onOpenAutoFocus={(e) => e.preventDefault()}
