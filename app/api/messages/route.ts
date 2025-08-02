@@ -20,7 +20,6 @@ export async function POST(request: Request) {
       !messageData.recipients.length || !messageData.message ||
       !messageData.channel
     ) {
-      console.log("Missing required fields:", messageData);
       return NextResponse.json(
         { success: false, error: "Missing required fields" },
         { status: 400 },

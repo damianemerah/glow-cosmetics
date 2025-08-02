@@ -14,6 +14,7 @@ import {
 import { services } from "@/constants/data";
 import CustomerReviews from "@/components/customer-reviews";
 import { useScrollStore } from "@/store/scrollStore";
+import { formatZAR } from "@/utils";
 
 export default function ServicesPage() {
   const searchParams = useSearchParams();
@@ -131,7 +132,7 @@ export default function ServicesPage() {
                       <div>
                         <p className="mb-4">{service.details}</p>
                         <p className="text-xl font-semibold mb-6">
-                          {service.price}
+                          {formatZAR(service.price)}
                         </p>
                         <Button
                           asChild
