@@ -3,6 +3,7 @@
 import { RadioGroup, RadioGroupItem, Label } from "@/constants/ui/index";
 import { BanknoteIcon, CreditCard } from "lucide-react";
 import { formatZAR } from "@/utils";
+import { PaymentMethodType } from "@/types";
 
 interface BankDetails {
   bank_name: string;
@@ -12,8 +13,8 @@ interface BankDetails {
 }
 
 interface PaymentMethodProps {
-  selectedMethod: "bank_transfer" | "paystack";
-  onMethodChange: (value: "bank_transfer" | "paystack") => void;
+  selectedMethod: PaymentMethodType;
+  onMethodChange: (value: PaymentMethodType) => void;
   bankDetails: BankDetails;
   whatsappNumber: string;
   paymentReference: string; // The generated reference
@@ -43,9 +44,7 @@ export default function PaymentMethod({
       </p>
       <RadioGroup
         value={selectedMethod}
-        onValueChange={(value) =>
-          onMethodChange(value as "bank_transfer" | "paystack")
-        }
+        onValueChange={(value) => onMethodChange(value as PaymentMethodType)}
         className="space-y-3" // Increased spacing
       >
         {/* Paystack Option */}

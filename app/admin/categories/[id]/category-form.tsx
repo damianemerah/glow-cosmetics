@@ -144,7 +144,8 @@ export default function CategoryForm({
         );
         return;
       }
-      const result = await saveCategory(data, id);
+      const trimmedData = { ...data, name: data.name.trim() };
+      const result = await saveCategory(trimmedData, id);
 
       if (result.success) {
         if (id !== "new") {

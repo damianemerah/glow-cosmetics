@@ -59,9 +59,7 @@ export async function getOrCreateCart(userId: string) {
   }
 
   // If cart doesn't exist, attempt to insert, ignoring conflict if it was created concurrently
-  console.log(
-    `No existing cart found for user ${userId}, attempting insert...`,
-  );
+
   const { data: newCart, error: insertError } = await supabaseAdmin
     .from("carts")
     .insert([{ user_id: userId }])
@@ -105,7 +103,6 @@ export async function getOrCreateCart(userId: string) {
     throw new Error("Failed to create or retrieve cart.");
   }
 
-  console.log(`Successfully created new cart for user ${userId}`);
   return newCart;
 }
 

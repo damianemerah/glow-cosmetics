@@ -2,12 +2,13 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import Image from "next/image"; // Import Image component
 import { useRouter } from "next/navigation"; // Use for refresh
 import { toast } from "sonner";
 import { deleteProduct } from "@/actions/adminActions"; // Import Server Action
 import type { Product, ProductWithCategories } from "@/types/index";
 import DataTable from "@/components/admin/data-table"; // Adjust path if needed
-import { Badge, Button } from "@/constants/ui/index";
+import { Badge, Button } from "@/constants/ui/index"; // Import AspectRatio
 import { ArrowUpDown, Loader2 } from "lucide-react";
 import { formatZAR } from "@/utils";
 import ConfirmDialog from "@/components/common/confirm-dialog";
@@ -94,6 +95,20 @@ export default function ProductList({
 
   // --- Columns Definition (specific to this client component) ---
   const productColumns: ProductColumn[] = [
+    {
+      key: "image",
+      title: "Image",
+      render: (row: Product) => (
+        <div className="relative h-14 w-14 overflow-hidden rounded-md bg-muted">
+          <Image
+            src={row.image_url?.[0] || "/images/placeholder.png"}
+            alt={row.name}
+            fill
+            className="object-contain"
+          />
+        </div>
+      ),
+    },
     { key: "name", title: "Name" },
     {
       key: "price",
@@ -230,6 +245,7 @@ export default function ProductList({
       <DataTable
         columns={productColumns}
         data={products}
+        allowToggleView={true}
         emptyState={
           <div className="text-center py-8">
             <p className="text-muted-foreground">No products found</p>

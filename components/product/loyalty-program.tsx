@@ -1,6 +1,14 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
+import { useUserStore } from "@/store/authStore";
 
 export default function LoyaltyProgram() {
+  const setShowModal = useUserStore((state) => state.setShowModal);
+  const user = useUserStore((state) => state.user);
+
+  if (user) return null;
+
   return (
     <section className="py-16 bg-green-light">
       <div className="container mx-auto px-4">
@@ -84,7 +92,10 @@ export default function LoyaltyProgram() {
                   <span>Birthday rewards</span>
                 </li>
               </ul>
-              <Button className="w-full bg-green-500 hover:bg-green-600">
+              <Button
+                className="w-full bg-green-500 hover:bg-green-600"
+                onClick={() => setShowModal(true)}
+              >
                 Join Now
               </Button>
             </div>

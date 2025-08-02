@@ -168,7 +168,7 @@ export interface FetchProductsParams {
   limit?: number;
 }
 
-const PRODUCTS_PER_PAGE = 12; // Or your desired page size
+const PRODUCTS_PER_PAGE = 16; //products per page 16
 
 export async function fetchFilteredProducts(params: FetchProductsParams) {
   const {

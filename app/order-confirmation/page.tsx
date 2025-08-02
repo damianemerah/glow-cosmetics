@@ -75,6 +75,13 @@ export default async function OrderConfirmationPage({
     country: string;
   };
 
+  // Store pickup info (from project rules)
+  const storeInfo = {
+    address: "4 westminister close, Bryanston",
+    phone: "078 147 0504",
+    hours: ["Monday to Friday: 9am - 6pm", "Saturday to Sunday: 8am - 6pm"],
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-md">
       <Card className="border-green-100">
@@ -114,33 +121,70 @@ export default async function OrderConfirmationPage({
             {order.email}.
           </p>
 
-          {shippingAddress && (
+          {/* Delivery Info: Show different info for store pickup */}
+          {order.delivery_method === "store_pickup" ? (
             <Collapsible className="bg-gray-50 p-4 rounded-md mb-4">
               <CollapsibleTrigger className="flex items-center justify-between w-full font-medium">
                 <div className="flex items-center">
                   <Package className="h-4 w-4 mr-2" />
-                  Shipping Information
+                  Pickup Information
                 </div>
                 <ChevronDown className="h-4 w-4" />
               </CollapsibleTrigger>
               <CollapsibleContent className="text-sm text-muted-foreground text-left mt-2">
                 <p>
-                  {shippingAddress.firstName} {shippingAddress.lastName}
+                  <span className="font-medium">Pickup Location:</span>
+                  <br />
+                  {storeInfo.address}
                 </p>
-                <p>{shippingAddress.address}</p>
-                {shippingAddress.apartment && (
-                  <p>{shippingAddress.apartment}</p>
-                )}
                 <p>
-                  {shippingAddress.city}, {shippingAddress.state}{" "}
-                  {shippingAddress.zipCode}
+                  <span className="font-medium">Contact:</span>{" "}
+                  {storeInfo.phone}
                 </p>
-                <p>{shippingAddress.country}</p>
+                <p>
+                  <span className="font-medium">Hours:</span>
+                  <br />
+                  {storeInfo.hours.map((h) => (
+                    <span key={h} className="block">
+                      {h}
+                    </span>
+                  ))}
+                </p>
                 <p className="mt-2">
-                  Your order will be shipped within 1-2 business days.
+                  Your order will be ready for pickup within 1-2 business days.
+                  Please bring your order reference and ID.
                 </p>
               </CollapsibleContent>
             </Collapsible>
+          ) : (
+            shippingAddress && (
+              <Collapsible className="bg-gray-50 p-4 rounded-md mb-4">
+                <CollapsibleTrigger className="flex items-center justify-between w-full font-medium">
+                  <div className="flex items-center">
+                    <Package className="h-4 w-4 mr-2" />
+                    Shipping Information
+                  </div>
+                  <ChevronDown className="h-4 w-4" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="text-sm text-muted-foreground text-left mt-2">
+                  <p>
+                    {shippingAddress.firstName} {shippingAddress.lastName}
+                  </p>
+                  <p>{shippingAddress.address}</p>
+                  {shippingAddress.apartment && (
+                    <p>{shippingAddress.apartment}</p>
+                  )}
+                  <p>
+                    {shippingAddress.city}, {shippingAddress.state}{" "}
+                    {shippingAddress.zipCode}
+                  </p>
+                  <p>{shippingAddress.country}</p>
+                  <p className="mt-2">
+                    Your order will be shipped within 1-2 business days.
+                  </p>
+                </CollapsibleContent>
+              </Collapsible>
+            )
           )}
 
           {order.status !== "paid" && (

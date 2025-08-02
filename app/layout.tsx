@@ -10,6 +10,7 @@ import "react-phone-input-2/lib/style.css";
 import { Skeleton } from "@/components/ui/skeleton";
 import TawkChat from "@/components/tawkChat";
 import { CategoryListServer } from "@/components/navbar/CategoryListServer";
+import { ScrollProvider } from "@/context/ScrollContext";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -146,20 +147,22 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${montserrat.variable} ${openSans.variable} font-sans`}>
-        <Suspense
-          fallback={
-            <div className="flex justify-center items-center h-16 md:h-20">
-              <Skeleton className="w-full h-16 animate-pulse" />
-            </div>
-          }
-        >
-          <Navbar />
-        </Suspense>
-        <Toaster />
-        <main>{children}</main>
-        <Footer />
-        <TawkChat />
-        <MobileNavigation productCategories={categories} />
+        <ScrollProvider>
+          <Suspense
+            fallback={
+              <div className="flex justify-center items-center h-16 md:h-20">
+                <Skeleton className="w-full h-16 animate-pulse" />
+              </div>
+            }
+          >
+            <Navbar />
+          </Suspense>
+          <Toaster />
+          <main className="pt-16 md:pt-20">{children}</main>
+          <Footer />
+          <TawkChat />
+          <MobileNavigation productCategories={categories} />
+        </ScrollProvider>
       </body>
     </html>
   );

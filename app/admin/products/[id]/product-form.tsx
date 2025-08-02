@@ -430,7 +430,6 @@ export default function ProductForm({
                         field.value === undefined ? "" : field.value.toString()
                       }
                       onChange={(e) => {
-                        console.log(e.target.value);
                         field.onChange(Number(e.target.value));
                       }}
                       id="stock_quantity"

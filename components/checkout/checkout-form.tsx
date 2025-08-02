@@ -8,7 +8,12 @@ import { toast } from "sonner";
 import { useUserStore } from "@/store/authStore";
 import { formatZAR } from "@/utils";
 import { createOrder } from "@/actions/orderAction";
-import type { CheckoutCartItem, OrderInputData, Order } from "@/types";
+import type {
+  CheckoutCartItem,
+  OrderInputData,
+  Order,
+  PaymentMethodType,
+} from "@/types";
 
 // Import sub-components
 import OrderSummary from "@/components/checkout/order-summary";
@@ -56,9 +61,8 @@ export default function CheckoutForm({
 
   // --- State Management ---
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<
-    "bank_transfer" | "paystack"
-  >("paystack");
+  const [paymentMethod, setPaymentMethod] =
+    useState<PaymentMethodType>("paystack");
   const [generatedPaymentReference, setGeneratedPaymentReference] =
     useState<string>(""); // Store reference after order creation
 
@@ -161,12 +165,9 @@ export default function CheckoutForm({
     [errors, clearError]
   );
 
-  const handlePaymentChange = useCallback(
-    (value: "bank_transfer" | "paystack") => {
-      setPaymentMethod(value);
-    },
-    []
-  );
+  const handlePaymentChange = useCallback((value: PaymentMethodType) => {
+    setPaymentMethod(value);
+  }, []);
 
   // --- Form Validation ---
   const validateForm = useCallback(() => {

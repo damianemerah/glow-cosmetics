@@ -229,29 +229,29 @@ export default function CreateOrderPage() {
       // Generate reference number
       const reference = `ORD-${nanoid()}`;
 
-      // Create shipping address object
+      // Create shipping address object and trim values
       const shippingAddress = {
-        firstName: orderData.first_name,
-        lastName: orderData.last_name,
-        address: orderData.address,
-        apartment: orderData.apartment,
-        city: orderData.city,
-        state: orderData.state,
-        zipCode: orderData.zipCode,
-        country: orderData.country,
+        firstName: orderData.first_name.trim(),
+        lastName: orderData.last_name.trim(),
+        address: orderData.address.trim(),
+        apartment: orderData.apartment?.trim() || undefined,
+        city: orderData.city.trim(),
+        state: orderData.state.trim(),
+        zipCode: orderData.zipCode.trim(),
+        country: orderData.country.trim(),
       };
 
       // Calculate total
       const totalPrice = calculateTotal();
 
-      // Insert order
+      // Insert order and trim values
       const { data: order, error: orderError } = await supabaseClient
         .from("orders")
         .insert({
-          first_name: orderData.first_name,
-          last_name: orderData.last_name,
-          email: orderData.email,
-          phone: orderData.phone,
+          first_name: orderData.first_name.trim(),
+          last_name: orderData.last_name.trim(),
+          email: orderData.email.trim(),
+          phone: orderData.phone.trim(),
           payment_method: orderData.payment_method,
           status: orderData.status,
           shipping_address: shippingAddress,
@@ -268,7 +268,7 @@ export default function CreateOrderPage() {
       const orderItemsToInsert = orderItems.map((item) => ({
         order_id: order.id,
         product_id: item.product_id,
-        product_name: item.product_name,
+        product_name: item.product_name.trim(),
         quantity: item.quantity,
         price_at_time: item.price,
       }));
@@ -550,8 +550,8 @@ export default function CreateOrderPage() {
                       <SelectItem value="bank_transfer">
                         Bank Transfer
                       </SelectItem>
-                      <SelectItem value="paystack">
-                        Card Payment (Paystack)
+                      <SelectItem value="paystack" disabled>
+                        Card Payment (Paystack) Coming Soon
                       </SelectItem>
                       <SelectItem value="cash">Cash</SelectItem>
                     </SelectContent>

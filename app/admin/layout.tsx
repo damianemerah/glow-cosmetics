@@ -46,7 +46,10 @@ export default function AdminLayout({
         <SidebarRail />
         <SidebarInset>
           <div className="p-6">
-            <SidebarTrigger className="fixed top-4 left-4 z-50" />
+            <SidebarTrigger
+              className="fixed top-4 left-4 z-50"
+              variant={"default"}
+            />
             {children}
           </div>
         </SidebarInset>

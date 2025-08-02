@@ -37,14 +37,14 @@ export default function ProductSortView({
 }: ProductSortViewProps) {
   return (
     <div
-      className={`flex  items-center justify-between gap-4 py-3 ${className}`}
+      className={`sm:flex  items-center justify-between sm:gap-4 py-3 ${className}`}
     >
-      <div className="text-sm text-muted-foreground">
+      <div className="text-sm text-muted-foreground mb-4 sm:mb-0">
         Showing {displayCount} of {productCount} result
         {productCount !== 1 ? "s" : ""}
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 justify-between">
         <Select
           value={currentSort}
           onValueChange={(value) => onSortChange(value as SortOption)}
@@ -85,10 +85,18 @@ export default function ProductSortView({
           value={currentView}
           onValueChange={(value) => value && onViewChange(value as ViewMode)}
         >
-          <ToggleGroupItem value="grid" aria-label="Grid view">
+          <ToggleGroupItem
+            value="grid"
+            aria-label="Grid view"
+            className="px-4 py-2"
+          >
             <Grid className="h-4 w-4" />
           </ToggleGroupItem>
-          <ToggleGroupItem value="list" aria-label="List view">
+          <ToggleGroupItem
+            value="list"
+            aria-label="List view"
+            className="px-4 py-2"
+          >
             <List className="h-4 w-4" />
           </ToggleGroupItem>
         </ToggleGroup>

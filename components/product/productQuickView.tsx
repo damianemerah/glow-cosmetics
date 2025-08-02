@@ -6,7 +6,7 @@ import { useState } from "react";
 import { X, Check, Heart } from "lucide-react";
 import { Badge, DialogTitle } from "@/constants/ui/index";
 import type { ProductWithCategories, ColorInfo } from "@/types/index";
-import { Json } from "@/types/types";
+import { Json } from "@/types/supabase";
 import { formatZAR } from "@/utils";
 import EnhancedAddToCart from "./enhanced-add-to-cart";
 import { toast } from "sonner";

@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import type { Category } from "@/types/index";
 import { toast } from "sonner";
 import ConfirmDialog from "@/components/common/confirm-dialog";
+import Image from "next/image"; // Import Image component
 
 // Create a deleteCategory function if it doesn't exist
 import { deleteCategory } from "@/actions/adminActions";
@@ -71,6 +72,23 @@ export default function CategoryList({
 
   // Category columns definition
   const categoryColumns = [
+    {
+      key: "image",
+      title: "Image",
+      render: (row: Category) => {
+        if (!row.images || row.images.length === 0) return null;
+        return (
+          <div className="relative h-14 w-14 overflow-hidden rounded-md bg-muted">
+            <Image
+              src={row.images[0]}
+              alt={row.name}
+              fill
+              className="object-contain"
+            />
+          </div>
+        );
+      },
+    },
     { key: "name", title: "Name" },
     {
       key: "slug",
@@ -128,6 +146,7 @@ export default function CategoryList({
       <DataTable
         columns={categoryColumns}
         data={categories}
+        allowToggleView={true} // Enable view toggling
         emptyState={
           <div className="text-center py-8">
             <p className="text-muted-foreground">No categories found</p>

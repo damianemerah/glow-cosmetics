@@ -12,7 +12,7 @@ const Footer = () => {
     return <AdminFooter />;
   }
   const MainFooter = () => (
-    <footer className="bg-green-light text-gray-600 pb-16 md:pb-0">
+    <footer className="bg-green-light text-gray-600 pb-16 md:pb-0 inset-shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 xl:gap-12">
           <div className="md:col-span-4 lg:col-span-5 text-center md:text-left">
@@ -30,48 +30,52 @@ const Footer = () => {
             </p>
           </div>
 
-          <div className="md:col-span-4 lg:col-span-3 text-center md:text-left">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-primary mb-4">
-              Quick Links
-            </h3>
-            <ul className="space-y-2">
-              <li>
-                <FooterLink href="/about">About Us</FooterLink>
-              </li>
-              <li>
-                <FooterLink href="/services">Services</FooterLink>
-              </li>
-              <li>
-                <FooterLink href="/products">Products</FooterLink>
-              </li>
-              <li>
-                <FooterLink href="/booking">Book Appointment</FooterLink>
-              </li>
-              <li>
-                <FooterLink href="/contact">Contact</FooterLink>
-              </li>
-            </ul>
-          </div>
-
-          <div className="md:col-span-4 lg:col-span-4 text-center md:text-left">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-primary mb-4">
-              Connect & Legal
-            </h3>
-            <ul className="space-y-2 mb-6">
-              <li>
-                <FooterLink href="/terms">Terms of Service</FooterLink>
-              </li>
-              <li>
-                <FooterLink href="/privacy">Privacy Policy</FooterLink>
-              </li>
-            </ul>
-            <div className="flex justify-center md:justify-start space-x-5">
-              <SocialLink href={keyValueData.instagram} ariaLabel="Instagram">
-                <FaInstagram className="h-6 w-6" />
-              </SocialLink>
-              <SocialLink href={keyValueData.facebook} ariaLabel="Facebook">
-                <FaFacebookF className="h-6 w-6" />
-              </SocialLink>
+          <div className="flex md:col-span-8 lg:col-span-6 justify-around">
+            <div className="text-left">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+                Quick Links
+              </h3>
+              <ul className="space-y-2">
+                <li>
+                  <FooterLink href="/about">About Us</FooterLink>
+                </li>
+                <li>
+                  <FooterLink href="/services">Services</FooterLink>
+                </li>
+                <li>
+                  <FooterLink href="/products">Products</FooterLink>
+                </li>
+                <li>
+                  <FooterLink href="/booking">Book Appointment</FooterLink>
+                </li>
+                <li>
+                  <FooterLink href="/contact">Contact</FooterLink>
+                </li>
+              </ul>
+            </div>
+            <div className="text-left">
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+                Connect & Legal
+              </h3>
+              <ul className="space-y-2 mb-6">
+                <li>
+                  <FooterLink href="/terms">Terms of Service</FooterLink>
+                </li>
+                <li>
+                  <FooterLink href="/terms#returnno">Return Policy</FooterLink>
+                </li>
+                <li>
+                  <FooterLink href="/privacy">Privacy Policy</FooterLink>
+                </li>
+              </ul>
+              <div className="flex  space-x-5">
+                <SocialLink href={keyValueData.instagram} ariaLabel="Instagram">
+                  <FaInstagram className="h-6 w-6" />
+                </SocialLink>
+                <SocialLink href={keyValueData.facebook} ariaLabel="Facebook">
+                  <FaFacebookF className="h-6 w-6" />
+                </SocialLink>
+              </div>
             </div>
           </div>
         </div>
@@ -82,7 +86,13 @@ const Footer = () => {
             reserved.
           </p>
           <p className="mt-1 text-xs text-gray-500">
-            Website designed with ♥ by Damian
+            Website built with ♥ by{" "}
+            <FooterLink
+              href="https://wa.me/2347066765698
+"
+            >
+              Damian
+            </FooterLink>
           </p>
         </div>
       </div>
@@ -98,7 +108,7 @@ const Footer = () => {
   }) => (
     <Link
       href={href}
-      className="text-sm text-gray-600 hover:text-white hover:underline transition-colors duration-200"
+      className="text-sm text-gray-600 hover:text-primary hover:underline transition-colors duration-200"
     >
       {children}
     </Link>

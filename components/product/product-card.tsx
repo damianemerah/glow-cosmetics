@@ -349,13 +349,13 @@ export function ProductCard({ product }: ProductCardProps) {
               href={`/products/${product.slug}`}
               className="hover:text-primary"
             >
-              <h3 className="font-medium text-sm leading-snug mb-1 truncate capitalize">
+              <h3 className="font-semibold text-sm leading-snug mb-1 truncate capitalize">
                 {product.name}
               </h3>
             </Link>
 
             <div className="mt-auto">
-              <p className="text-lg font-semibold text-gray-800 mb-3">
+              <p className="text-lg text-gray-800 mb-3">
                 {formatZAR(product.price)}
                 {product.compare_price &&
                   product.compare_price > product.price && (

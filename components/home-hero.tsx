@@ -1,13 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/constants/ui"; // Assuming this path is correct
+import { useScroll } from "@/context/ScrollContext";
 
 export default function HomeHero() {
+  const heroRef = useRef<HTMLElement>(null);
+  const { setHeroHeight } = useScroll();
+
+  useEffect(() => {
+    if (heroRef.current) {
+      setHeroHeight(heroRef.current.offsetHeight);
+    }
+  }, [setHeroHeight]);
+
   return (
     <section
+      ref={heroRef}
       className="
         relative
         flex flex-col md:flex-row
@@ -22,7 +33,7 @@ export default function HomeHero() {
         py-12 md:py-0
       "
       style={{
-        backgroundImage: `url('/images/hero-bg.png')`, // Corrected path based on your note
+        backgroundImage: `url('/images/hero-bg.png')`,
       }}
     >
       <div
@@ -37,11 +48,11 @@ export default function HomeHero() {
       >
         <Image
           src="/images/hero-person.png"
-          alt="Glow Cosmetics model" // More descriptive alt text
+          alt="Glow Cosmetics model"
           fill
-          className="object-contain object-center" // Contain ensures full image is visible. Center it.
-          priority // Load this image eagerly as it's LCP
-          sizes="(max-width: 767px) 100vw, 50vw" // 100vw on mobile, 50vw on desktop
+          className="object-contain object-center"
+          priority
+          sizes="(max-width: 767px) 100vw, 50vw"
         />
       </div>
 
@@ -69,11 +80,11 @@ export default function HomeHero() {
           Discover bespoke beauty treatments and curated wellness products
           designed for your unique glow.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+        <div className="flex gap-4 w-auto">
           <Button
             asChild
             size="lg"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto" // Full width on mobile for buttons
+            className="bg-primary hover:bg-primary/90 text-primary-foreground w-auto" // Full width on mobile for buttons
           >
             <Link href="/booking">Book Your Experience</Link>
           </Button>
@@ -81,9 +92,7 @@ export default function HomeHero() {
             asChild
             size="lg"
             variant="outline"
-            className="border-primary text-primary hover:bg-primary/10 w-full sm:w-auto" // Adjusted outline button style
-            // If you want the white button style:
-            // className="border-white text-white bg-gray-400/50 backdrop-blur-sm hover:bg-gray-500/50 w-full sm:w-auto"
+            className="border-primary text-primary hover:bg-primary/10 hover:text-primary w-auto"
           >
             <Link href="/products">Shop Our Collection</Link>
           </Button>

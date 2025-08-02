@@ -48,6 +48,8 @@
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
+  /* --shadow-top-lg: "0 -10px 15px -3px rgb(0 0 0 / 0.1), 0 -4px 6px -4px rgb(0 0 0 / 0.1)"; */
+
   @keyframes accordion-down {
     from {
       height: 0;
@@ -295,4 +297,10 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+iframe[title="chat widget"] {
+  bottom: 70px !important;
+  right: 20px !important;
+  position: fixed !important;
 }

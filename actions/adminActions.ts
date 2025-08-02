@@ -139,7 +139,6 @@ export async function fetchCategoryById(id: string): Promise<
         .order("name");
 
       if (error) {
-        console.log(`Failed to fetch categories: ${error.message}`);
         return { success: false, error: error.message };
       }
 
@@ -154,7 +153,6 @@ export async function fetchCategoryById(id: string): Promise<
         .order("name");
 
       if (error) {
-        console.log(`Failed to fetch categories: ${error.message}`);
         return { success: false, error: error.message };
       }
 

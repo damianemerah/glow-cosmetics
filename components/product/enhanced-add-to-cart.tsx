@@ -265,7 +265,7 @@ export default function EnhancedAddToCart({
       {/* Buttons */}
       <div className="flex flex-wrap gap-3">
         <Button
-          className="flex-1 min-w-[150px] sm:flex-none bg-primary/90 hover:bg-primary text-primary-foreground"
+          className="flex-1 min-w-[150px] sm:flex-none bg-primary hover:bg-primary/90 text-primary-foreground"
           onClick={handleAddToCart}
           disabled={isActionDisabled}
           aria-label={

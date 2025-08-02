@@ -9,6 +9,7 @@ import { AuthSessionMissingError, User } from "@supabase/supabase-js";
 
 import { useUserStore } from "@/store/authStore";
 import { useCartStore } from "@/store/cartStore";
+import { useUiStore } from "@/store/uiStore";
 
 import { mergeOfflineCart } from "@/actions/cartAction";
 
@@ -22,6 +23,8 @@ import { UserAuth } from "./navbar/UserAuth";
 import { MobileMenu } from "./navbar/MobileMenu";
 import Link from "next/link";
 import { Button } from "@/constants/ui/index";
+import { useScroll } from "@/context/ScrollContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const supabase = createClient();
 
@@ -51,6 +54,9 @@ const Navbar = () => {
     (state) => state.needsProfileCompletion
   );
   const signOut = useUserStore((state) => state.signOut);
+
+  const { isSearchOpen, setIsSearchOpen } = useUiStore();
+  const isMobile = useIsMobile();
 
   const { mutate: mutateCartCount } = useSWR(
     initialAuthCheckComplete && user && !isFetchingUser && isOnline
@@ -192,6 +198,8 @@ const Navbar = () => {
     };
   }, [processAuthUser]);
 
+  const { isScrolledPastHero, scrollDirection } = useScroll();
+
   const handleLogout = useCallback(async () => {
     const result = await signOut();
     if (result.success) {
@@ -208,17 +216,25 @@ const Navbar = () => {
     return null;
   }
 
+  const hideNavbar = isScrolledPastHero && scrollDirection === "down";
+
   return (
     <>
       <header
-        className={`${pathname === "/" && "absolute top-0 z-40 bg-transparent"} w-full backdrop-blur-lg`}
+        className={`fixed top-0 z-40 w-full backdrop-blur-lg transition-transform duration-300 ease-in-out ${hideNavbar ? "-translate-y-full" : "translate-y-0"} ${pathname === "/" && !isScrolledPastHero ? "absolute bg-transparent" : ""}`}
       >
         <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4">
           <BrandLogo />
           <DesktopNavLinks navLinks={navLinks} />
           <div className="hidden lg:flex items-center">
             <div className="flex items-center space-x-4 ml-8">
-              <SearchCommand variant="desktop" />
+              {!isMobile && (
+                <SearchCommand
+                  variant="desktop"
+                  isOpen={isSearchOpen}
+                  onOpenChange={setIsSearchOpen}
+                />
+              )}
               {!pathname.startsWith("/cart") &&
                 !pathname.startsWith("/checkout") && (
                   <CartIndicator
@@ -243,7 +259,13 @@ const Navbar = () => {
             </Button>
           </div>
           <div className="lg:hidden flex items-center space-x-2">
-            <SearchCommand variant="desktop" />
+            {isMobile && (
+              <SearchCommand
+                variant="mobile"
+                isOpen={isSearchOpen}
+                onOpenChange={setIsSearchOpen}
+              />
+            )}
             {!pathname.startsWith("/cart") &&
               !pathname.startsWith("/checkout") && (
                 <CartIndicator

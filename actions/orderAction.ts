@@ -3,7 +3,7 @@
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { Order } from "@/types/index";
 import { customAlphabet } from "nanoid";
-import type { OrderInputData } from "@/types"; // Import types
+import type { OrderInputData, PaymentMethodType } from "@/types"; // Import types
 import { revalidatePath } from "next/cache";
 
 interface FetchOrdersResult {
@@ -18,7 +18,7 @@ export type CreateOrderResult =
         success: true;
         orderId: string;
         paymentReference: string;
-        paymentMethod: "bank_transfer" | "paystack";
+        paymentMethod: PaymentMethodType;
     }
     | { success: false; error: string };
 const nanoid = customAlphabet("0123456789", 6);

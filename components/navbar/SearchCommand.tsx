@@ -29,11 +29,16 @@ type SearchResult = {
 
 interface SearchCommandProps {
   variant: "desktop" | "mobile";
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
 }
 
-export const SearchCommand = ({ variant }: SearchCommandProps) => {
+export const SearchCommand = ({
+  variant,
+  isOpen,
+  onOpenChange,
+}: SearchCommandProps) => {
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 300);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -72,7 +77,7 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
   }, [performSearch]); // Effect runs when performSearch (and thus debouncedQuery) changes
 
   const handleSelect = (result: SearchResult) => {
-    setIsOpen(false); // Close popover on selection
+    onOpenChange(false); // Close popover on selection
     setSearchQuery(""); // Clear search input
 
     if (result.item_type === "product") {
@@ -86,12 +91,12 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
   const categories = searchResults.filter((i) => i.item_type === "category");
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={isOpen} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
-          className={`flex ${variant === "desktop" ? "flex-row" : "flex-col text-xs text-gray-500 rounded-none h-full"} items-center justify-center font-montserrat`}
+          className={`flex items-center justify-center font-montserrat`}
           aria-label="Search"
         >
           <Search className="h-5 w-5" />
@@ -99,7 +104,7 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${variant === "desktop" ? "w-[300px] p-0" : "w-[100vw] max-w-[500px] p-0"}`}
+        className={`${variant === "desktop" ? "w-[60%] p-0" : "w-[100vw] max-w-[1000px] p-0"}`}
         side="bottom"
         align={variant === "desktop" ? "end" : "center"}
         onOpenAutoFocus={(e) => e.preventDefault()}
@@ -110,7 +115,6 @@ export const SearchCommand = ({ variant }: SearchCommandProps) => {
             placeholder="Search products & categories..."
             value={searchQuery}
             onValueChange={setSearchQuery}
-            autoFocus // Focus input when popover opens
           />
           {/* CommandList is always rendered, content changes based on state */}
           <CommandList>

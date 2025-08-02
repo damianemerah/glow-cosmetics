@@ -25,8 +25,6 @@ async function getProductsByCategory(categorySlug: string) {
     .eq("slug", categorySlug)
     .single();
 
-  console.log(category, "category🎈🎈");
-
   if (categoryError || !category) {
     console.warn(
       `Category not found for slug "${categorySlug}":`,

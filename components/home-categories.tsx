@@ -25,7 +25,7 @@ export default function HomeCategories({ categories }: HomeCategoriesProps) {
 
   return (
     flattenedGroupedCat.length > 0 && (
-      <section className="pb-8 pt-16 ">
+      <section className="pb-8 pt-16 bg-primary-foreground inset-shadow-sm">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl uppercase font-bold mb-10 md:mb-12 md:text-start text-center font-montserrat text-secondary-foreground">
             Explore By Category

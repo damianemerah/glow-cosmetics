@@ -26,7 +26,11 @@ block content
         br
         | Email: #{user.email}
 
-    if order.shippingAddress
+    if order.deliveryMethod && (order.deliveryMethod.toLowerCase().includes('postnet') || order.deliveryMethod.toLowerCase().includes('paxi'))
+      tr
+        th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Pickup Method
+        td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{order.deliveryMethod}
+    else if order.shippingAddress
       tr
         th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Shipping Address
         td(style="padding: 8px; border-bottom: 1px solid #ddd;")

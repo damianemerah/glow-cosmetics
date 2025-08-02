@@ -26,13 +26,15 @@ block content
       th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Total Paid
       td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{order.total}
 
-    tr
-      th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Shipping Address
-      td(style="padding: 8px; border-bottom: 1px solid #ddd;")
-        | #{order.shippingAddress.street}, #{order.shippingAddress.city}, #{order.shippingAddress.state}, #{order.shippingAddress.country} #{order.shippingAddress.postal_code}
-
-  if order.deliveryMethod
-    p Delivery Method: #{order.deliveryMethod}
+    if order.deliveryMethod && (order.deliveryMethod.toLowerCase().includes('postnet') || order.deliveryMethod.toLowerCase().includes('paxi'))
+      tr
+        th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Pickup Method
+        td(style="padding: 8px; border-bottom: 1px solid #ddd;") #{order.deliveryMethod}
+    else if order.shippingAddress
+      tr
+        th(style="text-align: left; padding: 8px; border-bottom: 1px solid #ddd;") Shipping Address
+        td(style="padding: 8px; border-bottom: 1px solid #ddd;")
+          | #{order.shippingAddress.street}, #{order.shippingAddress.city}, #{order.shippingAddress.state}, #{order.shippingAddress.country} #{order.shippingAddress.postal_code}
 
   p If you have any questions, feel free to reply to this email or visit
     a(href=siteUrl) our site.

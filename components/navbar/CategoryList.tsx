@@ -10,8 +10,12 @@ import {
   SheetTitle,
   Button,
   SheetDescription,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
 } from "@/constants/ui/index";
-import { Menu, Grid3X3, ShoppingBag, Sparkles } from "lucide-react";
+import { Menu, Grid3X3, Sparkles } from "lucide-react";
 import type { Category, ServiceItem, UnifiedCategory } from "@/types";
 import { services as staticServices } from "@/constants/data";
 import { SocialIcons } from "@/components/navbar/SocialIcons";
@@ -85,25 +89,45 @@ export const CategoryList = ({
 }: CategoryListProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { allProductCategories, featuredProductCategories, serviceCategories } =
-    useMemo(() => {
-      const processedProductCategories =
-        initialCategories.length > 0
-          ? buildProductCategoryTree(initialCategories)
-          : [];
-      const featured = processedProductCategories.filter((c) => c.pinned);
+  const { productCategoriesGrouped, serviceCategories } = useMemo(() => {
+    const productCategories =
+      initialCategories.length > 0
+        ? buildProductCategoryTree(initialCategories)
+        : [];
 
-      const groupedServiceItems = groupServices(staticServices);
+    const beautyProducts: UnifiedCategory = {
+      id: "group-beauty-products",
+      name: "Beauty Products",
+      slug: "beauty-products",
+      type: "product-group",
+      children: [],
+    };
 
-      return {
-        allProductCategories: processedProductCategories,
-        featuredProductCategories:
-          featured.length > 0
-            ? featured
-            : processedProductCategories.slice(0, 4),
-        serviceCategories: groupedServiceItems,
-      };
-    }, [initialCategories]);
+    const jewellery: UnifiedCategory = {
+      id: "group-jewellery",
+      name: "Jewellery",
+      slug: "jewellery",
+      type: "product-group",
+      children: [],
+    };
+
+    productCategories.forEach((cat) => {
+      if (cat.slug === "jewellers") {
+        jewellery.children?.push(cat);
+      } else {
+        beautyProducts.children?.push(cat);
+      }
+    });
+
+    const groupedServices = groupServices(staticServices);
+
+    return {
+      productCategoriesGrouped: [beautyProducts, jewellery].filter(
+        (group) => group.children && group.children.length > 0
+      ),
+      serviceCategories: groupedServices,
+    };
+  }, [initialCategories]);
 
   const isLoading = false;
 
@@ -115,15 +139,13 @@ export const CategoryList = ({
   const renderTriggerButton = () => {
     if (buttonStyle === "mobile-nav") {
       return (
-        <Button
-          variant="ghost"
-          size="sm"
+        <div
           className="font-montserrat flex flex-col items-center justify-center rounded-none h-full text-xs text-gray-500 w-full"
           aria-label="Open categories menu"
         >
-          <Grid3X3 className="h-5 w-5 mb-1" />
+          <Grid3X3 className="h-7 w-7 mb-1" />
           <span className="font-montserrat">Categories</span>
-        </Button>
+        </div>
       );
     }
     return (
@@ -135,6 +157,7 @@ export const CategoryList = ({
   };
 
   const renderCategoryLink = (
+    pad: boolean,
     category: UnifiedCategory,
     isSubCategory = false,
     parentProductSlug?: string
@@ -148,16 +171,19 @@ export const CategoryList = ({
       } else {
         href = `${baseProductPath}/${category.slug}`;
       }
-    } else {
+    } else if (category.type === "service") {
       // Services now link to the main services page with an ID
       href = `/services?service=${category.slug}`;
+    } else {
+      // For product-groups like 'Beauty Products' or 'Jewellery', link to a general products page or first child
+      href = "/products";
     }
 
     return (
       <Link
         key={category.id}
         href={href}
-        className={`block px-4 py-3 hover:bg-muted transition-colors rounded-md ${isSubCategory ? "text-sm pl-8" : "font-medium"}`}
+        className={`block py-3 hover:bg-muted transition-colors rounded-md ${isSubCategory ? "text-sm pl-8" : "font-medium"} ${pad ? "px-4" : ""}`}
         onClick={() => {
           // if (category.type === "service") {
           //   clearServicesScrollId();
@@ -199,76 +225,67 @@ export const CategoryList = ({
 
           {!isLoading && (
             <>
-              {/* Featured Product Categories Section */}
-              {featuredProductCategories.length > 0 && (
+              {/* Grouped Product Categories Section */}
+              {productCategoriesGrouped.length > 0 && (
                 <div className="p-4">
-                  <h3 className="font-semibold text-md mb-3 text-muted-foreground tracking-wide">
-                    Featured Products
-                  </h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {featuredProductCategories.map((category) => (
-                      <Link
-                        key={category.id}
-                        href={`/products/c/${category.slug}`}
-                        className="bg-secondary/50 rounded-lg p-3 hover:bg-secondary transition-colors flex flex-col items-center justify-center text-center text-sm"
-                        onClick={closeSheet}
-                      >
-                        {/* Icon can be based on category.images or a default one */}
-                        <ShoppingBag className="h-6 w-6 mb-1 text-primary" />
-                        <span className="font-medium">{category.name}</span>
-                      </Link>
+                  <Accordion type="multiple" className="w-full">
+                    {productCategoriesGrouped.map((group) => (
+                      <AccordionItem key={group.id} value={group.id}>
+                        <AccordionTrigger className="font-semibold text-md text-primary flex items-center py-4">
+                          <div className="flex items-center">
+                            <Sparkles className="h-5 w-5 mr-2 text-yellow-500" />
+                            <span>{group.name}</span>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <Accordion type="multiple" className="w-full pl-4">
+                            {group.children?.map((category) =>
+                              category.children &&
+                              category.children.length > 0 ? (
+                                <AccordionItem
+                                  key={category.id}
+                                  value={category.id}
+                                >
+                                  <AccordionTrigger className="font-medium text-sm py-3">
+                                    {category.name}
+                                  </AccordionTrigger>
+                                  <AccordionContent>
+                                    <div className="pl-4 border-l-2 border-muted ml-2">
+                                      {category.children.map((child) =>
+                                        renderCategoryLink(
+                                          true,
+                                          child,
+                                          true,
+                                          category.slug
+                                        )
+                                      )}
+                                    </div>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              ) : (
+                                renderCategoryLink(false, category) // Render as a link if no children
+                              )
+                            )}
+                          </Accordion>
+                        </AccordionContent>
+                      </AccordionItem>
                     ))}
-                  </div>
+                  </Accordion>
                 </div>
               )}
 
               {/* Services Section */}
               {serviceCategories.length > 0 && (
                 <div className="p-4 border-t mt-4 ">
-                  <h3 className="font-semibold text-md mb-2 text-muted-foreground tracking-wide">
+                  <h3 className="font-medium text-primary-foreground bg-primary px-3 py-1.5 rounded-md mb-2 flex items-center">
+                    <Sparkles className="h-4 w-4 mr-2" />
                     Our Services
                   </h3>
-                  {serviceCategories.map((serviceGroup) => (
-                    <div key={serviceGroup.id} className="mb-3">
-                      <h4 className="font-medium text-primary-foreground bg-primary px-3 py-1.5 rounded-md text-sm mb-2 flex items-center">
-                        <Sparkles className="h-4 w-4 mr-2" />
-                        {serviceGroup.name}
-                      </h4>
-                      {serviceGroup.children?.map((service) =>
-                        renderCategoryLink(service)
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* All Product Categories Section */}
-              {allProductCategories.length > 0 && (
-                <div className="p-4 border-y mt-4">
-                  <h3 className="font-semibold text-md mb-2 text-muted-foreground tracking-wide">
-                    All Product Categories
-                  </h3>
-                  <Link
-                    href="/products?filter=all"
-                    className={`block px-4 py-3 hover:bg-muted transition-colors rounded-md`}
-                    onClick={() => {
-                      closeSheet();
-                    }}
-                  >
-                    All Products
-                  </Link>
-                  {allProductCategories.map((category) => (
-                    <div key={category.id} className="mb-1">
-                      {renderCategoryLink(category)}
-                      {category.children && category.children.length > 0 && (
-                        <div className="pl-4 border-l-2 border-muted ml-2">
-                          {category.children.map((child) =>
-                            renderCategoryLink(child, true, category.slug)
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {serviceCategories.map((serviceGroup) =>
+                    serviceGroup.children?.map((service) =>
+                      renderCategoryLink(true, service)
+                    )
+                  )}
                 </div>
               )}
               <SocialIcons className="p-4 border-t mb-16 flex items-center justify-center" />

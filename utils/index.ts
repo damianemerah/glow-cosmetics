@@ -1,5 +1,5 @@
 import type { ProductAdditionalDetails } from "@/types/index";
-import { Json } from "@/types/types";
+import { Json } from "@/types/supabase";
 
 export function formatZAR(price: number): string {
   return new Intl.NumberFormat("en-ZA", {

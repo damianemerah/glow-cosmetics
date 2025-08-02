@@ -1,7 +1,7 @@
 "use client";
 
 import type { ProductWithCategories, ColorInfo, Product } from "@/types/index";
-import { Json } from "@/types/types";
+import { Json } from "@/types/supabase";
 import { Badge } from "@/constants/ui/index";
 import EnhancedAddToCart from "./enhanced-add-to-cart";
 import { useState, useEffect, useCallback } from "react"; // Added useCallback
@@ -10,6 +10,7 @@ import { formatZAR } from "@/utils";
 import { SocialShare } from "@/components/social-share";
 import { cn } from "@/lib/utils";
 import { Check, Heart, Expand } from "lucide-react";
+import HtmlDescription from "@/components/common/html-description";
 
 import { useUserStore } from "@/store/authStore";
 import { toggleWishlistItem } from "@/actions/wishlistActions";
@@ -204,10 +205,7 @@ function ProductDetailsText({
         </button>
       </div>
       {product.short_description && (
-        <div
-          className="prose prose-sm max-w-none text-gray-700 link:text-primary"
-          dangerouslySetInnerHTML={{ __html: product.short_description }}
-        />
+        <HtmlDescription description={product.short_description} />
       )}
       <div className="text-sm pt-2">
         {product.stock_quantity > 5 ? (

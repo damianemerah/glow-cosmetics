@@ -16,7 +16,7 @@ import { getCartWithItems, removeCartItem } from "@/actions/cartAction";
 import { getProductsByIds } from "@/actions/productActions";
 import { toast } from "sonner";
 import type { CartItem } from "@/types/index";
-import { Database } from "@/types/types";
+import { Database } from "@/types/supabase";
 import CartPaneSkeleton from "@/components/cart/cart-pane-skeleton";
 import useSWR, { mutate } from "swr";
 import { formatZAR } from "@/utils";

@@ -131,7 +131,6 @@ export default async function DashboardPage() {
   // Fetch users with birthdays in 4 days
   const daysAhead = 4;
   const birthdayResult = await getUpcomingBirthdays();
-  console.log(birthdayResult, "Birthday Result");
   const upcomingBirthdays = birthdayResult.success ? birthdayResult.users : [];
 
   const activityColumns = [

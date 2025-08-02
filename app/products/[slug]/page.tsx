@@ -125,7 +125,8 @@ export default async function ProductInfo({
 
       <Suspense fallback={<RelatedProductsSkeleton />}>
         <RelatedProducts
-          productId={product.product_categories[0].category_id}
+          categoryId={product.product_categories[0].category_id}
+          productId={product.id}
         />
       </Suspense>
 

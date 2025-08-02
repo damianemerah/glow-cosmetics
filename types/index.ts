@@ -1,4 +1,4 @@
-import { Database } from "./types";
+import { Database } from "./supabase";
 
 type DbProfile = Database["public"]["Tables"]["profiles"]["Row"];
 type DbBooking = Database["public"]["Tables"]["bookings"]["Row"];
@@ -11,6 +11,9 @@ type DBCategory = Database["public"]["Tables"]["categories"]["Row"];
 type DBWishlist = Database["public"]["Tables"]["wishlists"]["Row"];
 
 export type Profile = DbProfile;
+
+// Export paymentMethod type
+export type PaymentMethodType = "bank_transfer" | "paystack";
 
 export type ShippingAddress = {
   street: string;
@@ -54,7 +57,7 @@ export interface OrderInputData {
   };
   deliveryMethod: string;
   deliveryFee: number;
-  paymentMethod: "bank_transfer" | "paystack";
+  paymentMethod: PaymentMethodType;
   totalAmount: number; // Total including delivery
   emailOffers: boolean; // Whether user opted in
   cartItems: Array<
@@ -206,7 +209,7 @@ export interface UnifiedCategory {
   id: string;
   name: string;
   slug: string;
-  type: "product" | "service";
+  type: "product" | "service" | "product-group";
   children?: UnifiedCategory[];
   parent_slug?: string; // For constructing URLs for product subcategories
   pinned?: boolean;

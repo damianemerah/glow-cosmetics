@@ -1,5 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ProductAdditionalDetails } from "@/types";
+import HtmlDescription from "@/components/common/html-description";
 
 interface Props {
   description: string | null;
@@ -43,10 +44,7 @@ export default function ProductDescriptionAndDetails({
 
         {hasDescription && (
           <TabsContent value="description">
-            <div
-              className="prose max-w-none text-gray-700 p-4 md:p-6 bg-gray-50/50 rounded-lg border"
-              dangerouslySetInnerHTML={{ __html: description || "" }}
-            />
+            <HtmlDescription description={description || ""} limit={400} />
           </TabsContent>
         )}
 

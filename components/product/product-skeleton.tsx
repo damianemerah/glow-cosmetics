@@ -52,17 +52,11 @@ export function ProductDescriptionSkeleton() {
 
 export function RelatedProductsSkeleton() {
   return (
-    <div>
+    <div className="mt-10 md:mt-16 mb-16">
       <Skeleton className="h-8 w-48 mb-6" />
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="border rounded-lg overflow-hidden">
-            <Skeleton className="aspect-square w-full" />
-            <div className="p-4 space-y-2">
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-4 w-16" />
-            </div>
-          </div>
+          <ProductCardSkeleton key={i} />
         ))}
       </div>
     </div>
@@ -113,11 +107,8 @@ export function ProductCTASkeleton() {
 export function RecentlyViewedProductsSkeleton() {
   return (
     <div className="mt-10 md:mt-16 mb-16">
-      <div className="flex items-center justify-between mb-6">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-8 w-24" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <Skeleton className="h-8 w-48 mb-6" />
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
         {[...Array(4)].map((_, index) => (
           <ProductCardSkeleton key={index} />
         ))}

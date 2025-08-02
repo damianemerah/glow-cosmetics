@@ -179,20 +179,28 @@ export async function sendClientEmail(
     }
 
     const adminEmail = adminProfile.email;
+    const trimmedFormData = {
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
+      email: formData.email.trim(),
+      subject: formData.subject.trim(),
+      message: formData.message, // Do not trim message, as it could be rich text
+    };
+
     const messageBody = `
       <h2>New Contact Form Submission</h2>
       <hr>
-      <p><strong>Name:</strong> ${formData.firstName} ${formData.lastName}</p>
-      <p><strong>Email:</strong> ${formData.email}</p>
-      <p><strong>Subject:</strong> ${formData.subject}</p>
+      <p><strong>Name:</strong> ${trimmedFormData.firstName} ${trimmedFormData.lastName}</p>
+      <p><strong>Email:</strong> ${trimmedFormData.email}</p>
+      <p><strong>Subject:</strong> ${trimmedFormData.subject}</p>
       <hr>
       <h3>Message:</h3>
-      <p>${formData.message.replace(/\n/g, "<br>")}</p>
+      <p>${trimmedFormData.message.replace(/\n/g, "<br>")}</p>
     `;
 
     const messageData: MessageData = {
       recipients: [adminEmail],
-      subject: `New Contact Form: ${formData.subject}`,
+      subject: `New Contact Form: ${trimmedFormData.subject}`,
       message: messageBody,
       channel: "email",
       type: "contact-form-submission",

@@ -97,7 +97,9 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
       });
     } catch (error) {
       console.error("Error fetching order details:", error);
-      toast.warning("Failed to load order details");
+      toast.warning(
+        `Failed to load order details\n${error instanceof Error ? error.message : "Unknown error"}`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -126,7 +128,9 @@ export function OrderDetail({ orderId, initialStatus }: OrderDetailProps) {
       }
     } catch (error) {
       console.error("Error updating order status:", error);
-      toast.warning("Failed to update order status");
+      toast.warning(
+        `Failed to update order status\n${error instanceof Error ? error.message : "Unknown error"}`
+      );
     } finally {
       setIsUpdating(false);
     }

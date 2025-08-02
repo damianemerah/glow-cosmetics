@@ -151,9 +151,17 @@ export async function updateProfile(
   userId: string,
 ) {
   try {
+    const processedUpdateData: Partial<Profile> = {
+      ...updateData,
+      first_name: updateData.first_name?.trim(),
+      last_name: updateData.last_name?.trim(),
+      phone: updateData.phone?.trim(),
+      email: updateData.email?.trim(),
+    };
+
     const { error } = await supabaseAdmin
       .from("profiles")
-      .update(updateData)
+      .update(processedUpdateData)
       .eq("user_id", userId);
 
     if (error) {
@@ -164,8 +172,8 @@ export async function updateProfile(
 
     return { success: true };
   } catch (error) {
-    console.log(error);
-    return { success: false };
+    const err = error as Error;
+    return { success: false, error: err.message };
   }
 }
 
@@ -257,9 +265,18 @@ export async function createBooking(bookingData: {
   }
 > {
   try {
+    const processedBookingData = {
+      ...bookingData,
+      first_name: bookingData.first_name.trim(),
+      last_name: bookingData.last_name?.trim() || undefined,
+      phone: bookingData.phone.trim(),
+      special_requests: bookingData.special_requests?.trim() || undefined,
+      service_name: bookingData.service_name.trim(),
+    };
+
     const { data, error } = await supabaseAdmin
       .from("bookings")
-      .insert([bookingData])
+      .insert([processedBookingData])
       .select();
 
     if (error) {
@@ -310,7 +327,6 @@ export async function setNotificationSettings(
     .eq("user_id", userId);
 
   if (error) {
-    console.log(error, "error🎈");
     throw new Error(error.message);
   }
 
