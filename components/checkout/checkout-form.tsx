@@ -62,7 +62,7 @@ export default function CheckoutForm({
   // --- State Management ---
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] =
-    useState<PaymentMethodType>("paystack");
+    useState<PaymentMethodType>("bank_transfer");
   const [generatedPaymentReference, setGeneratedPaymentReference] =
     useState<string>(""); // Store reference after order creation
 

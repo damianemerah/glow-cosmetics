@@ -29,7 +29,7 @@ function DepositPaymentPageContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<
     "credit-card" | "direct-transfer"
-  >("credit-card");
+  >("direct-transfer");
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [depositAmount] = useState(200);
   const user = useUserStore((state) => state.user);
@@ -163,22 +163,22 @@ function DepositPaymentPageContent() {
                 className="space-y-2"
               >
                 <div className="flex items-center space-x-2 border p-3 rounded-md">
-                  <RadioGroupItem value="credit-card" id="credit-card" />
-                  <Label
-                    htmlFor="credit-card"
-                    className="flex items-center cursor-pointer"
-                  >
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Credit Card
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2 border p-3 rounded-md">
                   <RadioGroupItem
                     value="direct-transfer"
                     id="direct-transfer"
                   />
                   <Label htmlFor="direct-transfer" className="cursor-pointer">
                     Direct Transfer
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2 border p-3 rounded-md">
+                  <RadioGroupItem value="credit-card" id="credit-card" disabled/>
+                  <Label
+                    htmlFor="credit-card"
+                    className="flex items-center cursor-pointer opacity-50"
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Card Payment (Paystack) Coming Soon
                   </Label>
                 </div>
               </RadioGroup>

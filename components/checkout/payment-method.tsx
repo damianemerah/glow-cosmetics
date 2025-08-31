@@ -47,21 +47,6 @@ export default function PaymentMethod({
         onValueChange={(value) => onMethodChange(value as PaymentMethodType)}
         className="space-y-3" // Increased spacing
       >
-        {/* Paystack Option */}
-        <Label
-          htmlFor="paystack"
-          className={`flex items-center space-x-3 border p-4 rounded-md cursor-pointer transition-colors hover:border-gray-400 ${
-            // Increased padding
-            selectedMethod === "paystack"
-              ? "border-primary ring-1 ring-primary"
-              : "border-input"
-          }`}
-        >
-          <RadioGroupItem value="paystack" id="paystack" />
-          <CreditCard className="h-5 w-5 text-gray-600" />{" "}
-          {/* Slightly larger icon */}
-          <span className="font-medium text-sm">Card Payment (Paystack)</span>
-        </Label>
 
         {/* Bank Transfer Option */}
         <Label
@@ -77,6 +62,21 @@ export default function PaymentMethod({
           <BanknoteIcon className="h-5 w-5 text-gray-600" />{" "}
           {/* Slightly larger icon */}
           <span className="font-medium text-sm">Bank Transfer / EFT</span>
+        </Label>
+        {/* Paystack Option */}
+        <Label
+          htmlFor="paystack"
+          className={`flex items-center space-x-3 border p-4 rounded-md cursor-pointer transition-colors hover:border-gray-400 ${
+            // Increased padding
+            selectedMethod === "paystack"
+              ? "border-primary ring-1 ring-primary"
+              : "border-input"
+          }`}
+        >
+          <RadioGroupItem value="paystack" id="paystack" disabled/>
+          <CreditCard className="h-5 w-5 text-gray-600" />{" "}
+          {/* Slightly larger icon */}
+          <span className="font-medium text-sm opacity-50">Card Payment (Paystack) Coming Soon</span>
         </Label>
       </RadioGroup>
 

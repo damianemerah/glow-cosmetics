@@ -31,7 +31,7 @@ export function DepositPopup({
     return null;
   }
 
-  const handlePayDeposit = () => {
+  const handlePaidDeposit = () => {
     // Redirect to payment page with booking ID
     router.push(`/payment/deposit?bookingId=${bookingId}`);
   };
@@ -64,7 +64,7 @@ export function DepositPopup({
         <DialogFooter className="sm:justify-center">
           <Button
             className="bg-green-500 hover:bg-green-600 w-full sm:w-auto"
-            onClick={handlePayDeposit}
+            onClick={handlePaidDeposit}
           >
             Pay Deposit Now
           </Button>

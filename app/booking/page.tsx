@@ -498,8 +498,10 @@ export default function BookingPage() {
                             disabled={(d) => {
                               const today = new Date();
                               today.setHours(0, 0, 0, 0);
-                              // Disable past dates and Sundays
-                              return d < today || d.getDay() === 0;
+                              // Disable past dates and Sundays, and the current day
+                              const tomorrow = new Date(today);
+                              tomorrow.setDate(today.getDate() + 1);
+                              return d < tomorrow || d.getDay() === 0;
                             }}
                           />
                         </PopoverContent>
@@ -514,7 +516,7 @@ export default function BookingPage() {
                           handleSelectChange("time", value)
                         }
                         required
-                        disabled={!date || !currentSelection.serviceId} // Disable if no date/service
+                        disabled={!date || !currentSelection.serviceId}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select a time" />
@@ -555,6 +557,8 @@ export default function BookingPage() {
                                   return now > slotTime;
                                 })();
 
+                              const isSunday = date.getDay() === 0;
+
                               return (
                                 <SelectItem
                                   key={time}
@@ -563,7 +567,8 @@ export default function BookingPage() {
                                     isBooked ||
                                     isInCart ||
                                     isPastTime ||
-                                    slotsLoading
+                                    slotsLoading ||
+                                    isSunday
                                   }
                                 >
                                   {time}

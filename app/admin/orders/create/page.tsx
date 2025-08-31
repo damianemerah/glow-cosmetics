@@ -550,7 +550,7 @@ export default function CreateOrderPage() {
                       <SelectItem value="bank_transfer">
                         Bank Transfer
                       </SelectItem>
-                      <SelectItem value="paystack" disabled>
+                      <SelectItem value="paystack" disabled className="opacity-50">
                         Card Payment (Paystack) Coming Soon
                       </SelectItem>
                       <SelectItem value="cash">Cash</SelectItem>
