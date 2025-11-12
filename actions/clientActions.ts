@@ -11,6 +11,7 @@ interface ContactFormData {
   email: string;
   subject: string;
   message: string;
+  phone?: string; // Added phone field
 }
 
 export async function getClients(page = 1, itemsPerPage = 10) {
@@ -185,6 +186,7 @@ export async function sendClientEmail(
       email: formData.email.trim(),
       subject: formData.subject.trim(),
       message: formData.message, // Do not trim message, as it could be rich text
+      phone: formData.phone?.trim(), // Trim phone number
     };
 
     const messageBody = `
@@ -192,6 +194,7 @@ export async function sendClientEmail(
       <hr>
       <p><strong>Name:</strong> ${trimmedFormData.firstName} ${trimmedFormData.lastName}</p>
       <p><strong>Email:</strong> ${trimmedFormData.email}</p>
+      <p><strong>Phone:</strong> ${trimmedFormData.phone || "N/A"}</p>
       <p><strong>Subject:</strong> ${trimmedFormData.subject}</p>
       <hr>
       <h3>Message:</h3>
