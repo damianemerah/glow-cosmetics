@@ -82,7 +82,7 @@ export default function OrderHistory({
       <EmptyState
         icon={ShoppingBag}
         title="No orders yet"
-        description="When you shop skincare, makeup or jewellery with us, your orders and their status will show up here."
+        description="When you shop skincare or makeup with us, your orders and their status will show up here."
         action={{ label: "Shop the collection", href: "/products" }}
       />
     );

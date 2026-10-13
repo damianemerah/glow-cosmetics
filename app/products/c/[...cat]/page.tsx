@@ -17,6 +17,7 @@ import { Breadcrumbs, BreadcrumSkeleton } from "@/components/Breadcrumbs";
 
 import { getCachedCategories } from "@/actions/productActions";
 import ProductNavigation from "@/components/product/product-navigation";
+import { filterVisibleCategories } from "@/lib/visible-categories";
 
 async function getProductsByCategory(categorySlug: string) {
   const { data: category, error: categoryError } = await supabaseAdmin
@@ -162,7 +163,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     <div className="flex flex-col min-h-screen bg-background">
       <ProductHero />
 
-      <ProductNavigation categoryData={categories} />
+      <ProductNavigation categoryData={filterVisibleCategories(categories)} />
 
       <div className="container mx-auto px-4">
         <div className="mt-4">

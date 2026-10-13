@@ -6,17 +6,17 @@ import type { ProductWithCategories, Category } from "@/types/index";
 import { unstable_cache } from "next/cache";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { ProductCard } from "@/components/product/product-card";
-import {
-  LoyaltyProgramSkeleton,
-  RelatedProductsSkeleton,
-} from "@/components/product/product-skeleton";
-import LoyaltyProgram from "@/components/product/loyalty-program";
+import { RelatedProductsSkeleton } from "@/components/product/product-skeleton";
 import SignatureServices from "@/components/signature-services";
 import HomeHero from "@/components/home-hero";
 import HomeCategory from "@/components/home-categories";
 import CustomerReviews from "@/components/customer-reviews";
 import { ProductGroupSection } from "@/components/product/product-group-section";
 import SectionHeading from "@/components/common/section-heading";
+import {
+  filterVisibleCategories,
+  isCategoryHidden,
+} from "@/lib/visible-categories";
 
 export interface FetchCategoriesResult {
   categories: Category[];
@@ -87,7 +87,10 @@ export default async function Home() {
   const [beautyRecommendations, jewelleryRecommendations, categoryData] =
     await Promise.all([
       getCachedBeautyRecommendations(),
-      getCachedJewelleryRecommendations(),
+      // Skip the query while the jewellery category is hidden from the UI.
+      isCategoryHidden("jewellers")
+        ? Promise.resolve([])
+        : getCachedJewelleryRecommendations(),
       getCachedCategories(),
     ]);
 
@@ -98,7 +101,9 @@ export default async function Home() {
       </Suspense>
 
       {/* Home Category  */}
-      <HomeCategory categories={categoryData.categories} />
+      <HomeCategory
+        categories={filterVisibleCategories(categoryData.categories)}
+      />
 
       <SignatureServices services={services} />
 
@@ -140,9 +145,6 @@ export default async function Home() {
       )}
 
       <CustomerReviews />
-      <Suspense fallback={<LoyaltyProgramSkeleton />}>
-        <LoyaltyProgram />
-      </Suspense>
 
       <section className="py-16 md:py-24">
         <div className="container mx-auto">

@@ -6,7 +6,6 @@ export default function ProductHero() {
       eyebrow="The Collection"
       title="Shop Our Products"
       description="Discover our curated collection of premium beauty and wellness products."
-      video={{ src: "/videos/makeupkits.mp4", poster: "/images/makeup.jpg" }}
     />
   );
 }

@@ -353,7 +353,7 @@ const quickLinks = [
   {
     href: "/products",
     label: "Shop products",
-    description: "Skincare, makeup & jewellery",
+    description: "Skincare, makeup & supplements",
     icon: ShoppingBag,
   },
   {

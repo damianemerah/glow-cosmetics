@@ -313,7 +313,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
           Your bag is empty
         </h2>
         <p className="mb-8 mt-2 text-muted-foreground">
-          Discover skincare, makeup and jewellery picked by our experts.
+          Discover skincare and makeup picked by our experts.
         </p>
         <Button size="lg" onClick={() => router.push("/products")}>
           Start shopping

@@ -25,6 +25,7 @@ import {
 } from "@/components/product/product-skeleton";
 import Pagination from "@/components/common/pagination";
 import ProductNavigation from "@/components/product/product-navigation";
+import { filterVisibleCategories } from "@/lib/visible-categories";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -143,7 +144,7 @@ export default async function ProductsPage({
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <ProductHero />
-      <ProductNavigation categoryData={categories} />
+      <ProductNavigation categoryData={filterVisibleCategories(categories)} />
       <div className="container mx-auto px-4">
 
         {showFilteredGrid ? (

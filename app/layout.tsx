@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     template: "%s | Glow by UgoSylvia",
   },
   description:
-    "Your premier destination for expert permanent makeup (Microblading, Ombre, Eyeliner, Lip Blush), stunning lash extensions, and professional makeup services. Discover our curated collection of high-quality skincare, makeup, beauty supplements, and unique jewellery.",
+    "Your premier destination for expert permanent makeup (Microblading, Ombre, Eyeliner, Lip Blush), stunning lash extensions, and professional makeup services. Discover our curated collection of high-quality skincare, makeup and beauty supplements.",
   manifest: "/manifest.json",
   keywords: [
     "permanent makeup",
@@ -54,7 +54,6 @@ export const metadata: Metadata = {
     "makeup services",
     "skincare",
     "beauty supplements",
-    "jewellery",
     "beauty salon",
     "acne treatment",
     "anti-aging",

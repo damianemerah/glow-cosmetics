@@ -25,8 +25,8 @@ const Footer = () => {
               Your premier destination for expert permanent makeup
               (Microblading, Ombre, Eyeliner, Lip Blush), stunning lash
               extensions, and professional makeup services. Discover our curated
-              collection of high-quality skincare, makeup, beauty supplements,
-              and unique jewellery.
+              collection of high-quality skincare, makeup and beauty
+              supplements.
             </p>
           </div>
 
