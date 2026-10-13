@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductWithCategories } from "@/types";
-import { Button } from "@/constants/ui"; // Assuming you have a Button component
+import { Button } from "@/constants/ui";
+import { cn } from "@/lib/utils";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -14,6 +15,7 @@ import {
 
 interface ProductGroupSectionProps {
   title: string;
+  eyebrow?: string;
   products: ProductWithCategories[];
   viewAllHref?: string;
   className?: string;
@@ -21,9 +23,10 @@ interface ProductGroupSectionProps {
 
 export function ProductGroupSection({
   title,
+  eyebrow,
   products,
   viewAllHref,
-  className = "",
+  className,
 }: ProductGroupSectionProps) {
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
@@ -53,91 +56,84 @@ export function ProductGroupSection({
   }
 
   return (
-    <section className={`py-8 md:py-12 ${className}`}>
-      <div className=" mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+    <section className={cn("py-10 md:py-16", className)}>
+      <div className="mb-8 flex items-end justify-between gap-4 md:mb-10">
+        <div>
+          {eyebrow && <p className="eyebrow mb-2 text-primary">{eyebrow}</p>}
+          <h2 className="font-heading text-3xl font-medium leading-tight text-foreground md:text-4xl">
             {title}
           </h2>
-          {viewAllHref && (
-            <Button variant="outline" size="sm" asChild>
-              <Link href={viewAllHref} className="flex items-center gap-1">
-                View All
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          )}
         </div>
-        <Carousel
-          opts={{
-            align: "start",
-          }}
-          setApi={setApi}
-          className="w-full relative group"
-        >
-          <CarouselContent className="-ml-4">
-            {products.map((product) => (
-              <CarouselItem
-                key={product.id}
-                className="basis-[70%] md:basis-1/2 lg:basis-1/4 pl-4"
-              >
-                <ProductCard key={product.id} product={product} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          {/* Custom Navigation Buttons */}
-          {canScrollPrev && (
-            <div className="absolute inset-y-0 left-0 flex items-center">
-              <Button
-                variant="secondary"
-                size="icon"
-                onClick={() => api?.scrollPrev()}
-                className="p-2"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </Button>
-            </div>
-          )}
-          {canScrollNext && (
-            <div className="absolute inset-y-0 right-0 flex items-center">
-              <Button
-                variant="secondary"
-                size="icon"
-                onClick={() => api?.scrollNext()}
-                className="p-2"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </Button>
-            </div>
-          )}
-        </Carousel>
+        {viewAllHref && (
+          <Link
+            href={viewAllHref}
+            className="group inline-flex shrink-0 items-center gap-1.5 text-sm font-medium text-primary"
+          >
+            View all
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        )}
       </div>
+      <Carousel
+        opts={{
+          align: "start",
+        }}
+        setApi={setApi}
+        className="group relative w-full"
+      >
+        <CarouselContent className="-ml-4 md:-ml-6">
+          {products.map((product) => (
+            <CarouselItem
+              key={product.id}
+              className="basis-[70%] pl-4 sm:basis-1/2 md:pl-6 lg:basis-1/4"
+            >
+              <ProductCard key={product.id} product={product} />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        {/* Custom Navigation Buttons */}
+        {canScrollPrev && (
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Previous products"
+            onClick={() => api?.scrollPrev()}
+            className="absolute -left-3 top-[38%] hidden h-11 w-11 -translate-y-1/2 rounded-full bg-card/95 shadow-elevated backdrop-blur md:flex"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        )}
+        {canScrollNext && (
+          <Button
+            variant="outline"
+            size="icon"
+            aria-label="Next products"
+            onClick={() => api?.scrollNext()}
+            className="absolute -right-3 top-[38%] hidden h-11 w-11 -translate-y-1/2 rounded-full bg-card/95 shadow-elevated backdrop-blur md:flex"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+        )}
+      </Carousel>
     </section>
   );
 }
 
-// Optional: Create a Skeleton Loader for this section
 export function ProductGroupSkeleton({ title }: { title: string }) {
   return (
-    <section className="py-8 md:py-12 animate-pulse">
-      <h1>{title}</h1>
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-6">
-          <div className="h-8 bg-muted rounded w-1/3"></div>
-          <div className="h-8 bg-muted rounded w-24"></div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="border rounded-lg overflow-hidden bg-card">
-              <div className="h-48 bg-muted"></div>
-              <div className="p-4 space-y-2">
-                <div className="h-4 bg-muted rounded w-3/4"></div>
-                <div className="h-4 bg-muted rounded w-1/2"></div>
-                <div className="h-6 bg-muted rounded w-1/4"></div>
-              </div>
-            </div>
-          ))}
-        </div>
+    <section className="py-10 md:py-16" aria-busy="true" aria-label={title}>
+      <div className="mb-8 flex items-end justify-between md:mb-10">
+        <div className="h-9 w-56 animate-pulse rounded-md bg-muted" />
+        <div className="h-5 w-16 animate-pulse rounded-md bg-muted" />
+      </div>
+      <div className="grid grid-cols-2 gap-4 md:gap-6 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className={cn("space-y-3", i > 1 && "hidden lg:block")}>
+            <div className="aspect-[4/5] animate-pulse rounded-xl bg-muted" />
+            <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+            <div className="h-4 w-1/3 animate-pulse rounded bg-muted" />
+          </div>
+        ))}
       </div>
     </section>
   );

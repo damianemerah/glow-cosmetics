@@ -156,8 +156,8 @@ function FormMessage({
       className={cn(
         "text-sm",
         {
-          "text-red-600": error || type === "error",
-          "text-green-600": type === "success",
+          "text-destructive": error || type === "error",
+          "text-primary": type === "success",
         },
         className
       )}

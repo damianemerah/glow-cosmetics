@@ -27,15 +27,16 @@ export default function HomeHero() {
         w-full
         min-h-[80vh] md:min-h-screen
         overflow-hidden
-        bg-cover
-        bg-center
+        bg-background
+        isolate
         px-4 sm:px-6 lg:px-12 xl:px-24
         py-12 md:py-0
       "
-      style={{
-        backgroundImage: `url('/images/hero-bg.png')`,
-      }}
     >
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_20%_40%,var(--accent),transparent_70%),radial-gradient(ellipse_40%_40%_at_85%_20%,color-mix(in_oklch,var(--highlight)_18%,transparent),transparent_70%)]"
+      />
       <div
         className="
           relative
@@ -69,33 +70,29 @@ export default function HomeHero() {
           order-2 md:order-2
         "
       >
-        <p className="text-secondary-foreground tracking-widest font-bold text-sm sm:text-base lg:text-lg mb-2">
-          Glow By Ugosylvia
-        </p>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-4 tracking-tight font-montserrat leading-tight">
-          <span className="text-primary">Glow</span>{" "}
-          <span className="text-primary/60">Cosmetics</span>
+        <p className="eyebrow mb-5 text-primary">Glow by UgoSylvia</p>
+        <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-medium mb-6 leading-[1.05] text-foreground">
+          Reveal your{" "}
+          <span className="italic text-primary">natural glow</span>
         </h1>
-        <p className="text-base sm:text-lg lg:text-xl max-w-xl md:max-w-none mb-8 text-gray-500">
+        <p className="text-base sm:text-lg max-w-lg mb-10 text-muted-foreground leading-relaxed">
           Discover bespoke beauty treatments and curated wellness products
           designed for your unique glow.
         </p>
-        <div className="flex gap-4 w-auto">
-          <Button
-            asChild
-            size="lg"
-            className="bg-primary hover:bg-primary/90 text-primary-foreground w-auto" // Full width on mobile for buttons
-          >
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
+          <Button asChild size="lg">
             <Link href="/booking">Book Your Experience</Link>
           </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="border-primary text-primary hover:bg-primary/10 hover:text-primary w-auto"
-          >
-            <Link href="/products">Shop Our Collection</Link>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/products">Shop the Collection</Link>
           </Button>
+        </div>
+        <div className="mt-10 flex items-center gap-4 sm:gap-6 text-[11px] sm:text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          <span>Permanent Makeup</span>
+          <span className="h-1 w-1 rounded-full bg-highlight" />
+          <span>Lashes</span>
+          <span className="h-1 w-1 rounded-full bg-highlight" />
+          <span>Skincare</span>
         </div>
       </div>
     </section>

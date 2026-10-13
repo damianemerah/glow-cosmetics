@@ -80,7 +80,7 @@ const appointmentColumns = [
         <div className="flex items-center space-x-2">
           <span className="break-all">{booking.booking_id}</span>
           <Copy
-            className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-pointer"
+            className="w-4 h-4 text-muted-foreground hover:text-muted-foreground cursor-pointer"
             onClick={handleCopy}
           />
         </div>
@@ -143,15 +143,15 @@ const appointmentColumns = [
     title: "Status",
     render: (booking: Booking) => {
       const statusStyles = {
-        confirmed: "bg-green-100 text-green-800",
-        pending: "bg-yellow-100 text-yellow-800",
-        cancelled: "bg-red-100 text-red-800",
-        completed: "bg-blue-100 text-blue-800",
+        confirmed: "bg-success/10 text-success",
+        pending: "bg-warning/10 text-warning",
+        cancelled: "bg-destructive/10 text-destructive",
+        completed: "bg-info/10 text-info",
       };
 
       const style =
         statusStyles[booking.status as keyof typeof statusStyles] ||
-        "bg-gray-100 text-gray-800";
+        "bg-muted text-foreground";
 
       return <Badge className={style}>{booking.status}</Badge>;
     },
@@ -647,7 +647,7 @@ export default function AppointmentsClient({
               <Button
                 variant="outline"
                 size="sm"
-                className="text-red-500"
+                className="text-destructive"
                 onClick={() => handleBookingDelete(booking.id)}
               >
                 Cancel
@@ -909,7 +909,7 @@ export default function AppointmentsClient({
           <DialogFooter>
             <Button
               type="submit"
-              className="bg-primary text-white hover:bg-primary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
               onClick={handleCreateAppointment}
               disabled={isLoading}
             >

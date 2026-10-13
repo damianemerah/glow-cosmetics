@@ -1,163 +1,71 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { Clock, Phone, Info, CheckCircle } from "lucide-react";
 
-export default function Loading() {
+function StepSkeleton({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section Skeleton */}
-      <section className="bg-secondary py-16">
-        <div className="container mx-auto px-4 text-center">
-          <Skeleton className="h-10 w-64 mx-auto mb-4" />
-          <Skeleton className="h-6 w-full max-w-2xl mx-auto" />
+    <div className="rounded-2xl border bg-card p-5 shadow-soft md:p-8">
+      <div className="mb-6 flex gap-4">
+        <Skeleton className="h-9 w-9 shrink-0 rounded-full" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-6 w-56" />
+          <Skeleton className="h-4 w-72 max-w-full" />
         </div>
-        zx
+      </div>
+      {children}
+    </div>
+  );
+}
+
+export default function BookingLoading() {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <section className="flex min-h-[320px] items-end bg-primary md:min-h-[420px]">
+        <div className="container mx-auto space-y-4 pb-12 md:pb-16">
+          <Skeleton className="h-3 w-32 bg-primary-foreground/20" />
+          <Skeleton className="h-12 w-80 max-w-full bg-primary-foreground/20" />
+          <Skeleton className="h-5 w-96 max-w-full bg-primary-foreground/15" />
+        </div>
       </section>
 
-      {/* Booking Form and Services Section Skeleton */}
-      <section className="py-16 bg-white">
-        <div className="px-4 sm:px-8 md:px-16 mx-auto grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-8">
-          {/* Booking Form Skeleton */}
-          <div className="border rounded-lg shadow-sm">
-            <div className="p-6 border-b">
-              <Skeleton className="h-7 w-48 mb-2" />
-              <Skeleton className="h-5 w-full max-w-md" />
-            </div>
-            <div className="p-6 space-y-6">
-              {/* Name Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-24" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-24" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-              </div>
-
-              {/* Contact Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-24" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-24" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-              </div>
-
-              {/* Service Selection */}
-              <div className="space-y-2">
-                <Skeleton className="h-5 w-24" />
-                <Skeleton className="h-10 w-full rounded-md" />
-              </div>
-
-              {/* Date and Time Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-                <div className="space-y-2">
-                  <Skeleton className="h-5 w-32" />
-                  <Skeleton className="h-10 w-full rounded-md" />
-                </div>
-              </div>
-
-              {/* Special Requests */}
-              <div className="space-y-2">
-                <Skeleton className="h-5 w-36" />
-                <Skeleton className="h-32 w-full rounded-md" />
-              </div>
-            </div>
-            <div className="p-6 border-t">
-              <Skeleton className="h-12 w-full rounded-md" />
-            </div>
-          </div>
-
-          {/* Services List Skeleton */}
-          <div className="border rounded-lg shadow-sm">
-            <div className="p-6 border-b">
-              <Skeleton className="h-7 w-32 mb-2" />
-            </div>
-            <div className="p-6">
-              <div className="space-y-4">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="p-4 rounded-lg border relative">
-                    <Skeleton className="h-6 w-40 mb-2" />
-                    <Skeleton className="h-4 w-full mb-3" />
-                    <Skeleton className="h-4 w-full mb-3" />
-                    <Skeleton className="h-5 w-16" />
+      <section className="bg-background py-12 md:py-20">
+        <div className="container mx-auto grid grid-cols-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-12">
+          <div className="flex flex-col gap-8">
+            <StepSkeleton>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex gap-4 rounded-xl border p-3">
+                    <Skeleton className="h-20 w-20 shrink-0 rounded-lg" />
+                    <div className="flex-1 space-y-2 py-1">
+                      <Skeleton className="h-3 w-24" />
+                      <Skeleton className="h-5 w-32" />
+                      <Skeleton className="h-3 w-full" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </StepSkeleton>
+            <StepSkeleton>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-[auto_minmax(0,1fr)]">
+                <Skeleton className="h-[320px] w-[300px] max-w-full rounded-xl" />
+                <div className="grid grid-cols-3 gap-2 self-start">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <Skeleton key={i} className="h-12 rounded-full" />
+                  ))}
+                </div>
+              </div>
+            </StepSkeleton>
           </div>
-        </div>
-      </section>
 
-      <section className="py-16 bg-secondary">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <Skeleton className="h-8 w-48 mb-4" />
-              <ul className="space-y-4">
-                <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <Clock className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
-                  <div>
-                    <Skeleton className="h-5 w-32 mb-2" />
-                    <Skeleton className="h-4 w-48 mb-1" />
-                    <Skeleton className="h-4 w-48 mb-1" />
-                    <Skeleton className="h-4 w-32" />
-                  </div>
-                </li>
-                <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <Phone className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
-                  <div>
-                    <Skeleton className="h-5 w-48 mb-2" />
-                    <Skeleton className="h-4 w-40 mb-1" />
-                    <Skeleton className="h-4 w-48" />
-                  </div>
-                </li>
-                <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <Info className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
-                  <div>
-                    <Skeleton className="h-5 w-40 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-                </li>
-              </ul>
+          <div className="overflow-hidden rounded-xl border bg-card shadow-soft">
+            <div className="space-y-2 bg-primary px-6 py-5">
+              <Skeleton className="h-3 w-20 bg-primary-foreground/20" />
+              <Skeleton className="h-7 w-40 bg-primary-foreground/20" />
             </div>
-            <div>
-              <Skeleton className="h-8 w-36 mb-4" />
-              <ul className="space-y-4">
-                <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <CheckCircle className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
-                  <div>
-                    <Skeleton className="h-5 w-32 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-                </li>
-                <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <CheckCircle className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
-                  <div>
-                    <Skeleton className="h-5 w-24 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-1/2" />
-                  </div>
-                </li>
-                <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <CheckCircle className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
-                  <div>
-                    <Skeleton className="h-5 w-24 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-                </li>
-              </ul>
+            <div className="space-y-4 p-6">
+              <Skeleton className="mx-auto h-12 w-12 rounded-full" />
+              <Skeleton className="mx-auto h-4 w-40" />
+              <Skeleton className="h-px w-full" />
+              <Skeleton className="h-12 w-full rounded-full" />
             </div>
           </div>
         </div>

@@ -1,4 +1,6 @@
 "use client";
+import PageHero from "@/components/common/page-hero";
+import SectionHeading from "@/components/common/section-heading";
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
@@ -21,7 +23,7 @@ export default function ServicesPage() {
   const serviceParam = searchParams.get("service");
   const servicesScrollId = useScrollStore((state) => state.servicesScrollId);
   const clearServicesScrollId = useScrollStore(
-    (state) => state.clearServicesScrollId
+    (state) => state.clearServicesScrollId,
   );
   const [activeAccordion, setActiveAccordion] = useState<string>("");
 
@@ -68,43 +70,27 @@ export default function ServicesPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative h-[400px] bg-secondary">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/beauty.jpg"
-            alt="Beauty services"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-        <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
-          <div className="max-w-2xl text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">
-              Our Services
-            </h1>
-            <p className="text-xl md:text-2xl italic">
-              Enhance your natural beauty with our semi permanent makeup
-              service.
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="flex min-h-screen flex-col">
+      <PageHero
+        eyebrow="Treatments"
+        title="Our Services"
+        description="Enhance your natural beauty with our semi-permanent makeup services."
+        image="/images/beauty.jpg"
+      />
 
       {/* Services List */}
-      <section className="py-16 bg-white">
+      <section className="bg-background py-16 md:py-24">
         <div className="container mx-auto px-4">
-          {/* <h2 className="text-lg md:text-2xl font-bold mb-10 md:mb-12 text-center font-montserrat italic max-w-2xl mx-auto">
-            Enhance your natural beauty with our semi permanent makeup service.
-          </h2> */}
-          <div className="max-w-4xl mx-auto">
+          <SectionHeading
+            eyebrow="Menu"
+            title="Treatments & pricing"
+            description="Tap a treatment to see what's involved, then book a time that suits you."
+          />
+          <div className="mx-auto max-w-4xl">
             <Accordion
               type="single"
               collapsible
-              className="w-full"
+              className="w-full space-y-3"
               value={activeAccordion}
               onValueChange={handleAccordionChange}
             >
@@ -112,34 +98,70 @@ export default function ServicesPage() {
                 <AccordionItem
                   key={service.id}
                   value={service.id}
+                  className="overflow-hidden rounded-xl border bg-card shadow-soft transition-shadow last:border-b data-[state=open]:shadow-elevated"
                   ref={(el) => {
                     serviceRefs.current[service.id] = el;
                   }}
                 >
-                  <AccordionTrigger className="text-xl font-montserrat py-4">
-                    {service.name}
+                  <AccordionTrigger className="items-center gap-4 px-4 py-4 hover:no-underline md:px-6">
+                    <span className="flex min-w-0 flex-1 items-center gap-4">
+                      <span className="relative hidden h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-secondary sm:block">
+                        <Image
+                          src={service.image || "/placeholder.svg"}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </span>
+                      <span className="min-w-0 text-left">
+                        <span className="block font-heading text-xl font-medium text-foreground md:text-2xl">
+                          {service.name}
+                        </span>
+                        {service.category && (
+                          <span className="eyebrow mt-0.5 block text-muted-foreground">
+                            {service.category}
+                          </span>
+                        )}
+                      </span>
+                    </span>
+                    <span className="shrink-0 font-semibold text-primary">
+                      {formatZAR(service.price)}
+                    </span>
                   </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="grid md:grid-cols-2 gap-6 py-4">
-                      <div className="relative h-64 md:h-auto">
+                  <AccordionContent className="px-4 md:px-6">
+                    <div className="grid gap-6 border-t pb-2 pt-6 md:grid-cols-2 md:gap-8">
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-secondary">
                         <Image
                           src={service.image || "/placeholder.svg"}
                           alt={service.name}
                           fill
-                          className="object-cover rounded-md"
+                          sizes="(max-width: 768px) 100vw, 420px"
+                          className="object-cover"
                         />
                       </div>
-                      <div>
-                        <p className="mb-4">{service.details}</p>
-                        <p className="text-xl font-semibold mb-6">
-                          {formatZAR(service.price)}
+                      <div className="flex flex-col">
+                        {service.description && (
+                          <p className="font-heading text-xl italic text-foreground">
+                            {service.description}
+                          </p>
+                        )}
+                        <p className="mt-3 leading-relaxed text-muted-foreground">
+                          {service.details}
                         </p>
-                        <Button
-                          asChild
-                          className="bg-green-500 hover:bg-green-600"
-                        >
-                          <Link href="/booking">Book Now</Link>
-                        </Button>
+                        <div className="mt-6 flex items-center justify-between gap-4 border-t pt-6 md:mt-auto">
+                          <div>
+                            <p className="eyebrow text-muted-foreground">
+                              From
+                            </p>
+                            <p className="font-heading text-3xl text-foreground">
+                              {formatZAR(service.price)}
+                            </p>
+                          </div>
+                          <Button asChild size="lg">
+                            <Link href="/booking">Book now</Link>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </AccordionContent>

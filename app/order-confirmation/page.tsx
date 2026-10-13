@@ -84,12 +84,12 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-md">
-      <Card className="border-green-100">
+      <Card className="border-success/20">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-            <CheckCircle className="h-6 w-6 text-green-600" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
+            <CheckCircle className="h-6 w-6 text-primary" />
           </div>
-          <CardTitle className="text-xl font-bold font-montserrat">
+          <CardTitle className="text-xl font-bold font-heading">
             Order Confirmed!
           </CardTitle>
           <CardDescription>
@@ -97,12 +97,12 @@ export default async function OrderConfirmationPage({
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
-          <div className="mb-4 p-2 rounded bg-gray-50 text-sm">
+          <div className="mb-4 p-2 rounded bg-muted/50 text-sm">
             <div className="flex justify-between mb-2">
               <span className="font-medium">Status:</span>
               <span
                 className={`font-medium ${
-                  order.status === "paid" ? "text-green-600" : "text-orange-500"
+                  order.status === "paid" ? "text-success" : "text-warning"
                 }`}
               >
                 {order.status === "paid" ? "Paid" : "Pending Payment"}
@@ -123,7 +123,7 @@ export default async function OrderConfirmationPage({
 
           {/* Delivery Info: Show different info for store pickup */}
           {order.delivery_method === "store_pickup" ? (
-            <Collapsible className="bg-gray-50 p-4 rounded-md mb-4">
+            <Collapsible className="bg-muted/50 p-4 rounded-md mb-4">
               <CollapsibleTrigger className="flex items-center justify-between w-full font-medium">
                 <div className="flex items-center">
                   <Package className="h-4 w-4 mr-2" />
@@ -158,7 +158,7 @@ export default async function OrderConfirmationPage({
             </Collapsible>
           ) : (
             shippingAddress && (
-              <Collapsible className="bg-gray-50 p-4 rounded-md mb-4">
+              <Collapsible className="bg-muted/50 p-4 rounded-md mb-4">
                 <CollapsibleTrigger className="flex items-center justify-between w-full font-medium">
                   <div className="flex items-center">
                     <Package className="h-4 w-4 mr-2" />
@@ -188,12 +188,12 @@ export default async function OrderConfirmationPage({
           )}
 
           {order.status !== "paid" && (
-            <div className="mt-4 mb-4 p-3 border border-orange-200 rounded-md bg-orange-50">
-              <h3 className="font-medium mb-2 flex items-center text-orange-700">
+            <div className="mt-4 mb-4 p-3 border border-warning/30 rounded-md bg-warning/5">
+              <h3 className="font-medium mb-2 flex items-center text-warning">
                 <CreditCard className="h-4 w-4 mr-2" />
                 Payment Pending
               </h3>
-              <p className="text-sm text-orange-700">
+              <p className="text-sm text-warning">
                 We&apos;re still processing your payment. Please contact support
                 if you&apos;ve already paid.
               </p>
@@ -204,7 +204,7 @@ export default async function OrderConfirmationPage({
           <Button asChild variant="outline">
             <Link href="/dashboard">View My Orders</Link>
           </Button>
-          <Button asChild className="bg-green-500 hover:bg-green-600">
+          <Button asChild className="bg-primary hover:bg-primary/90">
             <Link href="/products">Continue Shopping</Link>
           </Button>
         </CardFooter>

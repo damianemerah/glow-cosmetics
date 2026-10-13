@@ -124,15 +124,16 @@ export default function RelatedProducts({
   }
 
   return (
-    <div className="mt-10 md:mt-16 mb-16">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 font-montserrat">
-        You May Also Like
+    <section className="border-t py-12 md:py-16">
+      <p className="eyebrow mb-2 text-primary">Complete the routine</p>
+      <h2 className="mb-8 font-heading text-3xl font-medium text-foreground md:mb-10 md:text-4xl">
+        You may also like
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4">
         {products.map((product) => (
           <ProductCard product={product} key={product.id} />
         ))}
       </div>
-    </div>
+    </section>
   );
 }

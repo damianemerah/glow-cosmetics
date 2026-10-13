@@ -311,7 +311,7 @@ export default function ProductForm({
   // };
 
   return (
-    <div className="min-h-screen bg-gray-50 sm:py-6">
+    <div className="min-h-screen bg-muted/50 sm:py-6">
       <Card className="max-w-6xl mx-auto sm:shadow-md border-none sm:border">
         <CardContent className="pt-6 p-0 sm:p-6">
           {/* Header remains the same */}
@@ -349,7 +349,7 @@ export default function ProductForm({
                   )}
                 />
                 {errors.name && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     {errors.name.message}
                   </p>
                 )}
@@ -378,7 +378,7 @@ export default function ProductForm({
                   )}
                 />
                 {errors.price && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     {errors.price.message}
                   </p>
                 )}
@@ -409,7 +409,7 @@ export default function ProductForm({
                   )}
                 />
                 {errors.compare_price && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     {errors.compare_price.message}
                   </p>
                 )}
@@ -439,7 +439,7 @@ export default function ProductForm({
                   )}
                 />
                 {errors.stock_quantity && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     {errors.stock_quantity.message}
                   </p>
                 )}
@@ -496,7 +496,7 @@ export default function ProductForm({
                           </DropdownMenuContent>
                         </DropdownMenu>
                         {fieldState.error && (
-                          <p className="text-red-600 text-sm mt-1">
+                          <p className="text-destructive text-sm mt-1">
                             {fieldState.error.message}
                           </p>
                         )}
@@ -561,7 +561,7 @@ export default function ProductForm({
                         </DropdownMenu>
                         {fieldState.error && (
                           // Display error for the 'color' array field itself if any
-                          <p className="text-red-600 text-sm mt-1">
+                          <p className="text-destructive text-sm mt-1">
                             {fieldState.error.message}
                           </p>
                         )}
@@ -592,15 +592,15 @@ export default function ProductForm({
                         alt={`Product image ${index + 1}`}
                         fill
                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
-                        className="object-cover border rounded-md bg-gray-50"
+                        className="object-cover border rounded-md bg-muted/50"
                       />
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        className="absolute top-1 right-1 bg-white/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 hover:bg-white"
+                        className="absolute top-1 right-1 bg-background/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 hover:bg-background"
                         aria-label="Remove image"
                       >
-                        <X className="h-3.5 w-3.5 text-red-600" />
+                        <X className="h-3.5 w-3.5 text-destructive" />
                       </button>
                     </div>
                   )
@@ -608,7 +608,7 @@ export default function ProductForm({
                 <div className="aspect-square">
                   <label
                     htmlFor="image-upload"
-                    className="h-full w-full border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors text-gray-400 hover:text-primary"
+                    className="h-full w-full border-2 border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-muted/60 transition-colors text-muted-foreground hover:text-primary"
                     aria-disabled={isUploading}
                   >
                     {isUploading ? (
@@ -650,7 +650,7 @@ export default function ProductForm({
                 </div>
               </div>
               {errors.image_url && (
-                <p className="text-sm text-red-500 mt-1">
+                <p className="text-sm text-destructive mt-1">
                   {/* Displaying array-level errors if needed */}
                   {typeof errors.image_url.message === "string"
                     ? errors.image_url.message
@@ -673,7 +673,7 @@ export default function ProductForm({
                   )}
                 />
                 {errors.short_description && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     {errors.short_description.message}
                   </p>
                 )}
@@ -694,7 +694,7 @@ export default function ProductForm({
               </div>
             </div>
             {/* --- Row 4: Additional Details --- */}
-            <div className="space-y-4 p-4 border rounded-md bg-white">
+            <div className="space-y-4 p-4 border rounded-md bg-card">
               <Label className="text-base font-medium">
                 Additional Details
               </Label>
@@ -726,7 +726,7 @@ export default function ProductForm({
                         )}
                       />
                       {errors.additional_details?.[index]?.key && (
-                        <p className="text-sm text-red-500 mt-1">
+                        <p className="text-sm text-destructive mt-1">
                           {errors.additional_details[index]?.key?.message}
                         </p>
                       )}
@@ -751,7 +751,7 @@ export default function ProductForm({
                         )}
                       />
                       {errors.additional_details?.[index]?.value && (
-                        <p className="text-sm text-red-500 mt-1">
+                        <p className="text-sm text-destructive mt-1">
                           {errors.additional_details[index]?.value?.message}
                         </p>
                       )}
@@ -784,14 +784,14 @@ export default function ProductForm({
               {errors.additional_details &&
                 !Array.isArray(errors.additional_details) &&
                 errors.additional_details.root && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     {errors.additional_details.root.message}
                   </p>
                 )}
               {/* Display generic array errors if needed */}
               {errors.additional_details &&
                 typeof errors.additional_details.message === "string" && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     {errors.additional_details.message}
                   </p>
                 )}

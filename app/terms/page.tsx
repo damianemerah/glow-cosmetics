@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function TermsOfService() {
   return (
-    <div className=" mx-auto py-6 px-4 md:px-16 flex justify-center items-center">
+    <div className="container mx-auto px-4">
       <Suspense
         fallback={
           <div className="flex justify-center items-center">

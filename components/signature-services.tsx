@@ -11,6 +11,7 @@ import {
 } from "@/constants/ui"; // Assuming all UI components are here
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
+import SectionHeading from "@/components/common/section-heading";
 
 interface Service {
   id: string;
@@ -32,11 +33,13 @@ export default function SignatureServices({
   const servicesToDisplay = Array.isArray(services) ? services.slice(0, 6) : [];
 
   return (
-    <section className="py-16 md:py-20 bg-background">
+    <section className="py-16 md:py-24 bg-secondary/60">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="uppercase text-3xl md:text-4xl font-bold mb-10 md:mb-12 md:text-start text-center font-montserrat text-secondary-foreground">
-          Signature Services
-        </h2>
+        <SectionHeading
+          eyebrow="Signature Treatments"
+          title="Artistry, Tailored to You"
+          description="Expert permanent makeup, lash and skin treatments performed with clinical precision."
+        />
 
         <Carousel
           opts={{
@@ -52,7 +55,7 @@ export default function SignatureServices({
                 className="pl-4 md:basis-1/2 lg:basis-1/3"
               >
                 <div className="p-1 h-full">
-                  <Card className="overflow-hidden border-none shadow-lg bg-card text-card-foreground flex flex-col h-full">
+                  <Card className="group overflow-hidden border-none bg-card text-card-foreground flex flex-col h-full hover:shadow-elevated transition-shadow duration-300">
                     {/* --- Simplified Image Section --- */}
                     <div className="relative h-52 md:h-64 overflow-hidden bg-muted">
                       {service.image ? ( // Check if image exists
@@ -62,13 +65,13 @@ export default function SignatureServices({
                           src={service.image} // Use the service image directly
                           alt={service.name}
                           fill // Use fill to cover the container
-                          className="object-cover" // Ensure image covers the area
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // Responsive image sizes
                           priority={index < 3} // Prioritize loading images visible initially
                         />
                       ) : (
                         // Fallback if no image is provided
-                        <div className="w-full h-full flex items-center justify-center bg-gray-200 text-muted-foreground">
+                        <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">
                           <span>No Preview Available</span>{" "}
                           {/* Or a placeholder icon */}
                         </div>
@@ -77,7 +80,7 @@ export default function SignatureServices({
                     {/* --- End Simplified Image Section --- */}
 
                     <CardContent className="p-5 md:p-6 flex flex-col flex-grow">
-                      <h3 className="text-xl font-semibold mb-2 font-montserrat">
+                      <h3 className="text-2xl font-medium mb-2">
                         {service.name}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-4 flex-grow line-clamp-3">

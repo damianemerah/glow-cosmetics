@@ -58,7 +58,7 @@ export function EmailForm({
         />
         <Button
           type="submit"
-          className="w-full bg-green-500 hover:bg-green-600"
+          className="w-full bg-primary hover:bg-primary/90"
           disabled={isLoading}
         >
           {isLoading ? (

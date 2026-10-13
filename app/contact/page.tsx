@@ -1,20 +1,44 @@
 "use client";
+import PageHero from "@/components/common/page-hero";
 
 import type React from "react";
 
 import { useState } from "react";
-import Image from "next/image";
-import {
-  Button,
-  Input,
-  Label,
-  Textarea,
-  Card,
-  CardContent,
-} from "@/constants/ui/index";
+import Link from "next/link";
+import { Button, Input, Label, Textarea } from "@/constants/ui/index";
+import SectionHeading from "@/components/common/section-heading";
 import { MapPin, Phone, Mail, Clock } from "lucide-react";
 import { sendClientEmail } from "@/actions/clientActions";
 import { toast } from "sonner";
+
+const contactDetails = [
+  {
+    icon: MapPin,
+    title: "Our location",
+    lines: ["4 Westminster Close, Bryanston", "Sandton, Gauteng 2196"],
+  },
+  {
+    icon: Phone,
+    title: "Phone",
+    lines: ["+27781470504"],
+    href: "tel:+27781470504",
+  },
+  {
+    icon: Mail,
+    title: "Email",
+    lines: ["sylvia_emerah@yahoo.com"],
+    href: "mailto:sylvia_emerah@yahoo.com",
+  },
+  {
+    icon: Clock,
+    title: "Business hours",
+    lines: [
+      "Monday - Friday: 9:00 AM - 6:00 PM",
+      "Saturday: 8:00 AM - 6:00 PM",
+      "Sunday: Closed",
+    ],
+  },
+];
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -27,7 +51,7 @@ export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -55,7 +79,7 @@ export default function ContactPage() {
         // Handle specific error returned from the action
         console.error("Failed to send message:", result.error);
         toast.warning(
-          result.error || "Failed to send message. Please try again."
+          result.error || "Failed to send message. Please try again.",
         );
       }
     } catch (error) {
@@ -68,175 +92,138 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen ">
-      {/* Hero Section */}
-      <section className="relative h-[300px] bg-secondary">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/contact-bg.jpg"
-            alt="Contact us"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-        <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
-          <div className="max-w-2xl text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">
-              Contact Us
-            </h1>
-            <p className="text-xl md:text-2xl">
-              We&apos;d love to hear from you. Get in touch with our team.
-            </p>
-          </div>
-        </div>
-      </section>
+    <div className="flex min-h-screen flex-col">
+      <PageHero
+        eyebrow="Get in Touch"
+        title="Contact Us"
+        description="We'd love to hear from you. Get in touch with our team."
+        image="/images/contact-bg.jpg"
+      />
 
       {/* Contact Form & Info Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              {/* Contact Form */}
-              <div>
-                <h2 className="text-2xl font-bold mb-6 font-montserrat">
-                  Send us a message
-                </h2>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input
-                        id="lastName"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
+      <section className="bg-background py-16 md:py-24">
+        <div className="container mx-auto max-w-6xl px-4">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-5 lg:gap-14">
+            {/* Contact Form */}
+            <div className="rounded-xl border bg-card p-6 shadow-soft md:p-10 lg:col-span-3">
+              <p className="eyebrow mb-2 text-primary">Write to us</p>
+              <h2 className="mb-8 font-heading text-3xl font-medium md:text-4xl">
+                Send us a message
+              </h2>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="firstName">First Name</Label>
                     <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
                       onChange={handleInputChange}
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="subject">Subject</Label>
+                    <Label htmlFor="lastName">Last Name</Label>
                     <Input
-                      id="subject"
-                      name="subject"
-                      type="subject"
-                      value={formData.subject}
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
                       onChange={handleInputChange}
                       required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea
-                      id="message"
-                      name="message"
-                      rows={5}
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    className="w-full bg-green-500 hover:bg-green-600"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Sending..." : "Send Message"}
-                  </Button>
-                </form>
-              </div>
-
-              {/* Contact Information */}
-              <div>
-                <h2 className="text-2xl font-bold mb-6 font-montserrat">
-                  Contact Information
-                </h2>
-                <div className="space-y-6">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-start">
-                        <MapPin className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                        <div>
-                          <h3 className="font-semibold mb-1">Our Location</h3>
-                          <p>4 Westminster Close, Bryanston</p>
-                          <p>Sandton, Gauteng 2196</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-start">
-                        <Phone className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                        <div>
-                          <h3 className="font-semibold mb-1">Phone</h3>
-                          <p>+27781470504</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-start">
-                        <Mail className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                        <div>
-                          <h3 className="font-semibold mb-1">Email</h3>
-                          <p>sylvia_emerah@yahoo.com</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-start">
-                        <Clock className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
-                        <div>
-                          <h3 className="font-semibold mb-1">Business Hours</h3>
-                          <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-                          <p>Saturday: 8:00 AM - 6:00 PM</p>
-                          <p>Sunday: Closed</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
                 </div>
-              </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input
+                    id="subject"
+                    name="subject"
+                    type="text"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="message">Message</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    rows={5}
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Sending..." : "Send Message"}
+                </Button>
+              </form>
+            </div>
+
+            {/* Contact Information */}
+            <div className="lg:col-span-2">
+              <p className="eyebrow mb-2 text-primary">Visit or call</p>
+              <h2 className="mb-8 font-heading text-3xl font-medium md:text-4xl">
+                Contact information
+              </h2>
+              <ul className="divide-y rounded-xl border bg-card">
+                {contactDetails.map(({ icon: Icon, title, lines, href }) => (
+                  <li key={title} className="flex items-start gap-4 p-5">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <div className="min-w-0 text-sm">
+                      <h3 className="mb-1 font-semibold text-foreground">
+                        {title}
+                      </h3>
+                      {lines.map((line) =>
+                        href ? (
+                          <a
+                            key={line}
+                            href={href}
+                            className="block break-words text-muted-foreground transition-colors hover:text-primary"
+                          >
+                            {line}
+                          </a>
+                        ) : (
+                          <p key={line} className="text-muted-foreground">
+                            {line}
+                          </p>
+                        ),
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
       {/* Map Section */}
-      <section className="py-16 bg-secondary">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6 text-center font-montserrat">
-            Find Us
-          </h2>
-          <div className="max-w-6xl mx-auto h-[400px] relative rounded-lg overflow-hidden shadow-lg">
+      <section className="bg-secondary py-16 md:py-24">
+        <div className="container mx-auto max-w-6xl px-4">
+          <SectionHeading eyebrow="Bryanston, Sandton" title="Find us" />
+          <div className="relative h-[400px] overflow-hidden rounded-xl border shadow-elevated">
             <iframe
+              title="Glow by UgoSylvia on Google Maps"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3584.0542924795564!2d28.019232400000003!3d-26.064482!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1e9573878dbb82d7%3A0x2b8692048198867c!2s4%20Westminster%20Ave%2C%20Bryanston%2C%20Sandton%2C%202191%2C%20South%20Africa!5e0!3m2!1sen!2sro!4v1746123412209!5m2!1sen!2sro"
               width="100%"
               height="100%"
@@ -250,17 +237,19 @@ export default function ContactPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-20 bg-primary text-primary-foreground">
+      <section className="relative isolate overflow-hidden bg-primary py-20 text-primary-foreground md:py-24">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,color-mix(in_oklch,var(--highlight)_28%,transparent),transparent_60%)]" />
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6 font-montserrat">
-            Don&apos;t have any questions? Go straight to booking!
+          <p className="eyebrow mb-4 text-highlight">Ready when you are</p>
+          <h2 className="mx-auto mb-10 max-w-2xl font-heading text-3xl font-medium leading-tight md:text-5xl">
+            No questions? Go straight to booking.
           </h2>
           <Button
             asChild
             size="lg"
-            className="bg-white text-[#5a6b47] hover:bg-gray-100"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
           >
-            <a href="/booking">Book your appointment</a>
+            <Link href="/booking">Book your appointment</Link>
           </Button>
         </div>
       </section>

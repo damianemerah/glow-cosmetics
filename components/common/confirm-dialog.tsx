@@ -58,7 +58,7 @@ export default function ConfirmDialog({
             disabled={isLoading}
             className={
               confirmVariant === "destructive"
-                ? "bg-red-600 hover:bg-red-700"
+                ? "bg-destructive hover:bg-destructive/90"
                 : ""
             }
           >

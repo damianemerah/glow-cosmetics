@@ -2,7 +2,16 @@
 import React, { useState, useEffect, useCallback } from "react"; // Added useCallback
 import useSWR from "swr";
 import { format } from "date-fns";
-import { Edit, Upload, AlertCircle, CalendarIcon, Loader2 } from "lucide-react";
+import {
+  Edit,
+  Upload,
+  AlertCircle,
+  CalendarIcon,
+  Cake,
+  Loader2,
+  Mail,
+  Phone,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import PhoneInput from "react-phone-input-2";
 import { useForm } from "react-hook-form";
@@ -146,13 +155,13 @@ export default function ProfileSection({
         field &&
         String(field).trim() !== "" &&
         field !== null &&
-        field !== undefined
+        field !== undefined,
     ).length;
     return Math.round((completedFields / fieldsToConsider.length) * 100);
   }, [profile]);
 
   const handleAvatarFileSelect = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -197,7 +206,7 @@ export default function ProfileSection({
             uploadResult.errorCode === "FILE_TOO_LARGE"
               ? "Selected image is too large (max 2MB)." // Using 2MB as per your server error message
               : "Please try again or select a different image.",
-          icon: <AlertCircle className="text-red-500 w-5 h-5" />,
+          icon: <AlertCircle className="text-destructive w-5 h-5" />,
         });
         setIsSubmitting(false);
         return;
@@ -224,7 +233,7 @@ export default function ProfileSection({
       // 3. Update Profile
       const profileUpdateResult = await updateProfile(
         updatePayload,
-        profile.user_id
+        profile.user_id,
       );
 
       if (!profileUpdateResult.success) {
@@ -249,7 +258,7 @@ export default function ProfileSection({
 
   if (swrError || (initialError && !profile)) {
     return (
-      <div className="flex items-center p-4 text-red-800 bg-red-50 rounded-md my-6">
+      <div className="flex items-center p-4 text-destructive bg-destructive/5 rounded-md my-6">
         <AlertCircle className="h-5 w-5 mr-2" />
         <p>
           Unable to load profile data. Please refresh the page or try again
@@ -266,60 +275,87 @@ export default function ProfileSection({
   //    return <p>Loading profile...</p>; // Or a skeleton loader
   // }
 
+  const fullName = [
+    capitalize(profile?.first_name),
+    capitalize(profile?.last_name),
+  ]
+    .filter(Boolean)
+    .join(" ");
+  const initials =
+    [profile?.first_name, profile?.last_name]
+      .map((n) => n?.trim().charAt(0).toUpperCase())
+      .filter(Boolean)
+      .join("") || "G";
+  const completion = calculateProfileCompletion();
+
   return (
     <>
-      <div className="flex flex-col md:flex-row md:items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Avatar className="h-16 w-16 md:h-20 md:w-20">
-            <AvatarImage
-              src={
-                profile?.avatar ||
-                `https://api.dicebear.com/7.x/initials/svg?seed=${
-                  capitalize(profile?.first_name) || "User"
-                }`
-              }
-              alt={capitalize(profile?.first_name) || "User"}
-            />
-            <AvatarFallback className="text-xl md:text-2xl">
-              {capitalize(profile?.first_name)?.charAt(0) || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <h3 className="text-xl md:text-2xl font-semibold text-gray-800">
-              {capitalize(profile?.first_name)} {capitalize(profile?.last_name)}
-            </h3>
-            <p className="text-sm text-muted-foreground">{profile?.email}</p>
-          </div>
+      <div className="flex flex-col gap-6 md:flex-row md:items-center">
+        <Avatar className="h-20 w-20 shrink-0 ring-2 ring-highlight ring-offset-4 ring-offset-card md:h-24 md:w-24">
+          <AvatarImage src={profile?.avatar || undefined} alt={fullName} />
+          <AvatarFallback className="bg-accent font-heading text-2xl text-accent-foreground md:text-3xl">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="min-w-0 flex-1">
+          <p className="eyebrow text-primary">Welcome back</p>
+          <h2 className="mt-1 truncate font-heading text-3xl font-medium text-foreground md:text-4xl">
+            {fullName || "Glow member"}
+          </h2>
+          <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-muted-foreground">
+            {profile?.email && (
+              <li className="inline-flex min-w-0 items-center gap-1.5">
+                <Mail className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{profile.email}</span>
+              </li>
+            )}
+            {profile?.phone && (
+              <li className="inline-flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5" />
+                {profile.phone}
+              </li>
+            )}
+            {profile?.date_of_birth && (
+              <li className="inline-flex items-center gap-1.5">
+                <Cake className="h-3.5 w-3.5" />
+                {format(new Date(profile.date_of_birth), "d MMMM")}
+              </li>
+            )}
+          </ul>
         </div>
 
-        <div className="mt-4 md:mt-0 ">
-          <div className="flex items-center space-x-2 mb-2">
-            <span className="text-sm font-medium">Profile Completion</span>
-            <span className="text-sm font-medium">
-              {calculateProfileCompletion()}%
-            </span>
+        <div className="flex flex-col gap-4 md:w-60 md:items-end">
+          <div className="w-full">
+            <div className="mb-2 flex items-baseline justify-between text-sm">
+              <span className="text-muted-foreground">Profile complete</span>
+              <span className="font-semibold text-foreground">
+                {completion}%
+              </span>
+            </div>
+            <Progress value={completion} className="h-1.5" />
+            {completion < 100 && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Add your details so we can send birthday treats.
+              </p>
+            )}
           </div>
-          <Progress
-            value={calculateProfileCompletion()}
-            className="h-2 w-full md:w-[200px]"
-          />
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full md:w-auto"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            <Edit className="mr-2 h-4 w-4" />
+            Edit profile
+          </Button>
         </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          className="mt-4 md:ml-6 md:mt-0"
-          onClick={() => setIsDialogOpen(true)}
-        >
-          <Edit className="h-4 w-4 mr-2" />
-          Edit Profile
-        </Button>
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px] profile-dialog-content max-h-[90vh] overflow-y-auto p-6">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-montserrat">
+            <DialogTitle className="text-2xl font-heading">
               Edit Profile
             </DialogTitle>
             <DialogDescription>
@@ -339,15 +375,13 @@ export default function ProfileSection({
                       src={
                         avatarPreview || // Shows selected file preview, then current profile avatar
                         profile?.avatar ||
-                        `https://api.dicebear.com/7.x/initials/svg?seed=${
-                          watchedFirstName || profile?.first_name || "User"
-                        }`
+                        undefined
                       }
                       alt={watchedFirstName || profile?.first_name || "User"}
                     />
-                    <AvatarFallback className="text-3xl">
+                    <AvatarFallback className="bg-accent font-heading text-3xl text-accent-foreground">
                       {(watchedFirstName || profile?.first_name || "U")?.charAt(
-                        0
+                        0,
                       )}
                     </AvatarFallback>
                   </Avatar>
@@ -437,7 +471,7 @@ export default function ProfileSection({
                               ? phoneValue.startsWith("+")
                                 ? phoneValue
                                 : `+${phoneValue}`
-                              : ""
+                              : "",
                           )
                         }
                         inputProps={{ name: field.name, onBlur: field.onBlur }}
@@ -466,7 +500,7 @@ export default function ProfileSection({
                             variant={"outline"}
                             className={cn(
                               "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              !field.value && "text-muted-foreground",
                             )}
                           >
                             {field.value ? (
@@ -485,16 +519,16 @@ export default function ProfileSection({
                         onInteractOutside={(e) => {
                           if (
                             (e.target as HTMLElement)?.closest(
-                              "[data-radix-popper-content-wrapper]"
+                              "[data-radix-popper-content-wrapper]",
                             ) &&
                             (e.target as HTMLElement)?.closest(
-                              '[role="dialog"]'
+                              '[role="dialog"]',
                             )
                           ) {
                             // Allow interaction inside the dialog's popover
                           } else if (
                             (e.target as HTMLElement)?.closest(
-                              '[role="combobox"]'
+                              '[role="combobox"]',
                             )
                           ) {
                             e.preventDefault();
@@ -511,7 +545,7 @@ export default function ProfileSection({
                             currentValue,
                             _selectedDay,
                             _activeModifiers,
-                            e
+                            e,
                           ) => {
                             e?.stopPropagation();
                             field.onChange(currentValue);
@@ -543,7 +577,7 @@ export default function ProfileSection({
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-green-500 hover:bg-green-600 text-white"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {isSubmitting ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

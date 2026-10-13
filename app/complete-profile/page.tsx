@@ -204,7 +204,7 @@ export default function CompleteProfilePage({
     <div className="container max-w-md mx-auto py-12">
       <Card>
         <CardHeader>
-          <CardTitle className="text-center text-2xl font-montserrat">
+          <CardTitle className="text-center text-2xl font-heading">
             Complete Your Profile
           </CardTitle>
           <CardDescription className="text-center">

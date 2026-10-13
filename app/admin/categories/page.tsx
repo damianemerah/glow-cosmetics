@@ -33,7 +33,7 @@ export default function CategoriesPage() {
 
       <div className="flex justify-end mb-6">
         <Link href="/admin/categories/new">
-          <Button className="bg-primary text-white hover:bg-primary/90 hover:scale-105 transition-transform">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform">
             Add Category
           </Button>
         </Link>

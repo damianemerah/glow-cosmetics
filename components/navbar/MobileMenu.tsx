@@ -74,7 +74,7 @@ export const MobileMenu = ({
             <div className="flex items-center space-x-3 border-b pb-4 mb-2">
               <Avatar className="h-10 w-10">
                 {isLoading ? (
-                  <AvatarFallback className="bg-gray-100">
+                  <AvatarFallback className="bg-muted">
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </AvatarFallback>
                 ) : (
@@ -83,7 +83,7 @@ export const MobileMenu = ({
                       src={user.avatar || ""}
                       alt={user.email || "User"}
                     />
-                    <AvatarFallback className="bg-green-100 text-green-800">
+                    <AvatarFallback className="bg-success/10 text-success">
                       {getInitial()}
                     </AvatarFallback>
                   </>
@@ -106,7 +106,7 @@ export const MobileMenu = ({
               {user.role === "admin" && (
                 <Link
                   href="/admin"
-                  className="flex items-center text-lg font-medium text-gray-700 hover:text-primary transition-colors"
+                  className="flex items-center text-lg font-medium text-foreground hover:text-primary transition-colors"
                   onClick={closeSheet}
                 >
                   <Layers className="mr-2 h-5 w-5" />
@@ -115,7 +115,7 @@ export const MobileMenu = ({
               )}
               <Link
                 href="/dashboard"
-                className="flex items-center text-lg font-medium text-gray-700 hover:text-primary transition-colors"
+                className="flex items-center text-lg font-medium text-foreground hover:text-primary transition-colors"
                 onClick={closeSheet}
               >
                 <Layers className="mr-2 h-5 w-5" />
@@ -130,7 +130,7 @@ export const MobileMenu = ({
               <Button
                 onClick={handleLogoutClick}
                 variant="ghost"
-                className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+                className="w-full justify-start text-destructive hover:bg-destructive/5 hover:text-destructive"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
@@ -144,7 +144,7 @@ export const MobileMenu = ({
 
           {/* Booking Button - Ensure it closes sheet */}
           <div className="mt-auto">
-            <Button asChild className="bg-green-500 hover:bg-green-600">
+            <Button asChild className="bg-primary hover:bg-primary/90">
               <Link href="/booking" onClick={closeSheet}>
                 Book Your Appointment
               </Link>

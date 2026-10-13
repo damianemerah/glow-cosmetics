@@ -63,8 +63,9 @@ export default function CustomerReviews() {
   );
 
   return (
-    <section className="py-16 md:py-24 bg-[#5a6b47] text-white">
+    <section className="py-16 md:py-24 bg-primary text-primary-foreground">
       <div className="container mx-auto px-4">
+        <p className="eyebrow w-full justify-center text-highlight">Kind Words</p>
         <Carousel
           plugins={[plugin.current]}
           className="w-full max-w-3xl mx-auto"
@@ -77,18 +78,18 @@ export default function CustomerReviews() {
             {reviews.map((review) => (
               <CarouselItem key={review.id} className="text-center">
                 <div className="py-12 px-6 md:px-10">
-                  <p className="text-2xl md:text-3xl lg:text-4xl font-serif italic leading-relaxed md:leading-loose mb-8 text-gray-100">
+                  <p className="text-2xl md:text-3xl lg:text-4xl font-serif italic leading-relaxed md:leading-snug mb-8 text-primary-foreground">
                     &quot;{review.reviewText}&quot;
                   </p>
-                  <h3 className="text-xl md:text-2xl font-montserrat font-semibold text-gray-200">
-                    - {review.name}
+                  <h3 className="font-sans text-sm uppercase tracking-[0.2em] font-semibold text-primary-foreground/80">
+                    {review.name}
                   </h3>
                   {review.sourceLink && (
                     <a
                       href={review.sourceLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-gray-300 hover:text-white transition-colors mt-2 inline-block"
+                      className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors mt-2 inline-block"
                     >
                       View Review
                     </a>
@@ -98,7 +99,7 @@ export default function CustomerReviews() {
                       {[...Array(review.rating)].map((_, i) => (
                         <svg
                           key={i}
-                          className="w-5 h-5 text-yellow-400"
+                          className="w-5 h-5 text-highlight"
                           fill="currentColor"
                           viewBox="0 0 20 20"
                         >
@@ -111,8 +112,8 @@ export default function CustomerReviews() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="absolute left-[-15px] md:left-[-50px] top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[#5a6b47] border-none h-12 w-12 rounded-full disabled:opacity-30" />
-          <CarouselNext className="absolute right-[-15px] md:right-[-50px] top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-[#5a6b47] border-none h-12 w-12 rounded-full disabled:opacity-30" />
+          <CarouselPrevious className="absolute left-[-15px] md:left-[-50px] top-1/2 -translate-y-1/2 bg-primary-foreground/85 hover:bg-primary-foreground text-primary border-none h-12 w-12 rounded-full disabled:opacity-30" />
+          <CarouselNext className="absolute right-[-15px] md:right-[-50px] top-1/2 -translate-y-1/2 bg-primary-foreground/85 hover:bg-primary-foreground text-primary border-none h-12 w-12 rounded-full disabled:opacity-30" />
         </Carousel>
       </div>
     </section>

@@ -37,8 +37,13 @@ export default function PaymentMethod({
   };
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4 font-montserrat">Payment</h2>
+    <section className="rounded-xl border bg-card p-5 shadow-soft md:p-7">
+      <h2 className="mb-5 flex items-center gap-3 font-heading text-2xl font-medium">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary font-sans text-xs font-semibold text-primary-foreground">
+          3
+        </span>
+        Payment
+      </h2>
       <p className="text-sm text-muted-foreground mb-3">
         All transactions are secure and encrypted.
       </p>
@@ -51,7 +56,7 @@ export default function PaymentMethod({
         {/* Bank Transfer Option */}
         <Label
           htmlFor="bank_transfer"
-          className={`flex items-center space-x-3 border p-4 rounded-md cursor-pointer transition-colors hover:border-gray-400 ${
+          className={`flex items-center space-x-3 border p-4 rounded-md cursor-pointer transition-colors hover:border-input ${
             // Increased padding
             selectedMethod === "bank_transfer"
               ? "border-primary ring-1 ring-primary"
@@ -59,14 +64,14 @@ export default function PaymentMethod({
           }`}
         >
           <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-          <BanknoteIcon className="h-5 w-5 text-gray-600" />{" "}
+          <BanknoteIcon className="h-5 w-5 text-muted-foreground" />{" "}
           {/* Slightly larger icon */}
           <span className="font-medium text-sm">Bank Transfer / EFT</span>
         </Label>
         {/* Paystack Option */}
         <Label
           htmlFor="paystack"
-          className={`flex items-center space-x-3 border p-4 rounded-md cursor-pointer transition-colors hover:border-gray-400 ${
+          className={`flex items-center space-x-3 border p-4 rounded-md cursor-pointer transition-colors hover:border-input ${
             // Increased padding
             selectedMethod === "paystack"
               ? "border-primary ring-1 ring-primary"
@@ -74,7 +79,7 @@ export default function PaymentMethod({
           }`}
         >
           <RadioGroupItem value="paystack" id="paystack" disabled/>
-          <CreditCard className="h-5 w-5 text-gray-600" />{" "}
+          <CreditCard className="h-5 w-5 text-muted-foreground" />{" "}
           {/* Slightly larger icon */}
           <span className="font-medium text-sm opacity-50">Card Payment (Paystack) Coming Soon</span>
         </Label>
@@ -82,13 +87,13 @@ export default function PaymentMethod({
 
       {/* Bank Transfer Details (Conditional) */}
       {selectedMethod === "bank_transfer" && (
-        <div className="mt-4 space-y-3 bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <div className="mt-4 space-y-3 bg-info/5 p-4 rounded-lg border border-info/20">
           {" "}
           {/* Styled info box */}
-          <p className="text-sm font-medium text-blue-800">
+          <p className="text-sm font-medium text-info">
             Please use the details below for your Bank Transfer / EFT:
           </p>
-          <div className="bg-white p-3 rounded border border-blue-100 text-sm space-y-1.5">
+          <div className="bg-card p-3 rounded border border-info/20 text-sm space-y-1.5">
             <p>
               <strong>Bank:</strong> {bankDetails.bank_name}
             </p>
@@ -112,7 +117,7 @@ export default function PaymentMethod({
               </span>
             </p>
           </div>
-          <p className="text-xs text-blue-700">
+          <p className="text-xs text-primary">
             After placing the order and making payment, please use the button
             below or manually contact us on WhatsApp ({whatsappNumber}) with
             your Order Reference (<strong>{paymentReference || "..."}</strong>)
@@ -127,7 +132,7 @@ export default function PaymentMethod({
               rel="noopener noreferrer"
               className="block mt-3" // Margin top
             >
-              <div className="w-full border border-green-500 text-green-600 hover:bg-green-50 text-center py-2 px-4 rounded-md text-sm font-medium transition-colors">
+              <div className="w-full rounded-md border border-primary px-4 py-2 text-center text-sm font-medium text-primary transition-colors hover:bg-primary/5">
                 Confirm Transfer via WhatsApp
               </div>
               {/* Use div styled as button if Link component causes issues */}
@@ -135,6 +140,6 @@ export default function PaymentMethod({
           )}
         </div>
       )}
-    </div>
+    </section>
   );
 }

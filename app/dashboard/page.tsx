@@ -1,11 +1,22 @@
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { unstable_cache } from "next/cache";
 import { type SupabaseClient } from "@supabase/supabase-js";
 import DashboardTabs from "@/components/dashboard/dashboard-tabs";
 import { SWRConfig } from "swr";
 import { WishlistSkeleton } from "@/components/dashboard/wishlist";
+import {
+  ArrowUpRight,
+  CalendarHeart,
+  Heart,
+  LayoutGrid,
+  Package,
+  Settings,
+  ShoppingBag,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // UI Components
 import {
@@ -25,94 +36,54 @@ import { createClient } from "@/utils/supabase/server";
 
 // Dynamic Imports (Streaming)
 const ProfileSection = dynamic(
-  () => import("@/components/dashboard/profile-section")
+  () => import("@/components/dashboard/profile-section"),
 );
 const UpcomingBookings = dynamic(
-  () => import("@/components/dashboard/upcoming-bookings")
+  () => import("@/components/dashboard/upcoming-bookings"),
 );
 
 const BookingsList = dynamic(
-  () => import("@/components/dashboard/bookings-list")
+  () => import("@/components/dashboard/bookings-list"),
 );
 const ProductRecommendations = dynamic(
-  () => import("@/components/dashboard/product-recommendations")
+  () => import("@/components/dashboard/product-recommendations"),
 );
 const OrderHistory = dynamic(
-  () => import("@/components/dashboard/order-history")
+  () => import("@/components/dashboard/order-history"),
 );
 const AccountSettings = dynamic(
-  () => import("@/components/dashboard/account-settings")
+  () => import("@/components/dashboard/account-settings"),
 );
 const Wishlist = dynamic(() => import("@/components/dashboard/wishlist"));
 
 const ProfileSectionFallback = () => (
-  <div className="space-y-3">
-    <div className="flex items-center space-x-4">
-      <Skeleton className="h-12 w-12 rounded-full" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-[250px]" />
-        <Skeleton className="h-4 w-[200px]" />
-      </div>
+  <div className="flex items-center gap-6">
+    <Skeleton className="h-20 w-20 rounded-full md:h-24 md:w-24" />
+    <div className="flex-1 space-y-3">
+      <Skeleton className="h-3 w-24" />
+      <Skeleton className="h-8 w-64 max-w-full" />
+      <Skeleton className="h-4 w-48" />
     </div>
   </div>
 );
 
-const UpcomingBookingsFallback = () => (
-  <div className="space-y-4">
+const RowsFallback = () => (
+  <div className="space-y-3">
     {[1, 2, 3].map((i) => (
-      <div key={i} className="flex justify-between p-4 border rounded-md">
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-[150px]" />
-          <Skeleton className="h-4 w-[100px]" />
+      <div key={i} className="flex items-center gap-4 rounded-xl border p-4">
+        <Skeleton className="h-14 w-14 rounded-lg" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-1/2" />
+          <Skeleton className="h-3 w-1/3" />
         </div>
-        <Skeleton className="h-8 w-[100px]" />
+        <Skeleton className="h-6 w-20 rounded-full" />
       </div>
     ))}
   </div>
 );
 
-const ProductRecommendationsFallback = () => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-    {[1, 2, 3].map((i) => (
-      <div key={i} className="border rounded-md p-4">
-        <Skeleton className="h-40 w-full rounded-md mb-3" />
-        <Skeleton className="h-4 w-[150px] mb-2" />
-        <Skeleton className="h-4 w-[100px]" />
-      </div>
-    ))}
-  </div>
-);
-
-const OrderHistoryFallback = () => (
-  <div className="space-y-4">
-    {[1, 2, 3].map((i) => (
-      <div key={i} className="p-4 border rounded-md">
-        <div className="flex justify-between mb-3">
-          <Skeleton className="h-4 w-[150px]" />
-          <Skeleton className="h-4 w-[100px]" />
-        </div>
-        <Skeleton className="h-4 w-full" />
-      </div>
-    ))}
-  </div>
-);
-
-const BookingsListFallback = () => (
-  <div className="space-y-4">
-    {[1, 2, 3].map((i) => (
-      <div key={i} className="flex justify-between p-4 border rounded-md">
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-[150px]" />
-          <Skeleton className="h-4 w-[100px]" />
-        </div>
-        <Skeleton className="h-8 w-[100px]" />
-      </div>
-    ))}
-  </div>
-);
-
-const WishlistFallback = () => (
-  <div className="space-y-6">
+const ProductGridFallback = () => (
+  <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
     {[1, 2, 3].map((i) => (
       <WishlistSkeleton key={i} />
     ))}
@@ -174,8 +145,13 @@ async function BookingsData() {
 
   try {
     const bookings = await getBookingsData(session.user.id);
+    const now = new Date();
+    const upcoming = bookings.filter(
+      (booking) =>
+        new Date(booking.booking_time) >= now && booking.status !== "cancelled",
+    );
     return (
-      <UpcomingBookings bookings={bookings.slice(0, 4)} initialError={false} />
+      <UpcomingBookings bookings={upcoming.slice(0, 4)} initialError={false} />
     );
   } catch (error) {
     console.error("Error loading bookings:", error);
@@ -219,7 +195,7 @@ async function getProfileData(userId: string) {
     {
       revalidate: 60,
       tags: [`profile-${userId}`],
-    }
+    },
   );
 
   return getProfile(userId, supabase);
@@ -242,7 +218,7 @@ async function getOrdersData(userId: string) {
     {
       revalidate: 60,
       tags: [`orders-${userId}`],
-    }
+    },
   );
 
   return getOrders(userId, supabase);
@@ -264,7 +240,7 @@ async function getBookingsData(userId: string) {
     {
       revalidate: 60,
       tags: [`bookings-${userId}`],
-    }
+    },
   );
 
   return getBookings(userId, supabase);
@@ -286,7 +262,7 @@ async function getRecommendationsData() {
     {
       revalidate: 300,
       tags: ["products"],
-    }
+    },
   );
 
   return getRecommendations(supabase);
@@ -298,7 +274,7 @@ async function getWishlistData(userId: string) {
   const { data } = await supabase
     .from("wishlists")
     .select(
-      "id, user_id, product_id, created_at, products:products(id, name, price, image_url, slug, stock_quantity, is_bestseller, compare_price)"
+      "id, user_id, product_id, created_at, products:products(id, name, price, image_url, slug, stock_quantity, is_bestseller, compare_price)",
     )
     .eq("user_id", userId);
 
@@ -320,7 +296,7 @@ async function WishlistData() {
 
   // Create fallback data for SWR to use initially
   const fallbackData = {
-    "/api/wishlists": wishlistData,
+    userWishlist: wishlistData,
   };
 
   return (
@@ -330,142 +306,221 @@ async function WishlistData() {
   );
 }
 
+function Panel({
+  title,
+  description,
+  action,
+  children,
+  className,
+}: {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <Card className={className}>
+      <CardHeader className="flex-row items-end justify-between gap-4 space-y-0 pb-4">
+        <div className="space-y-1">
+          <CardTitle className="font-heading text-2xl font-medium">
+            {title}
+          </CardTitle>
+          {description && <CardDescription>{description}</CardDescription>}
+        </div>
+        {action}
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
+}
+
+const tabs = [
+  { value: "overview", label: "Overview", icon: LayoutGrid },
+  { value: "orders", label: "Orders", icon: Package },
+  { value: "bookings", label: "Bookings", icon: CalendarHeart },
+  { value: "wishlists", label: "Wishlist", icon: Heart },
+  { value: "settings", label: "Settings", icon: Settings },
+];
+
+const quickLinks = [
+  {
+    href: "/booking",
+    label: "Book a treatment",
+    description: "Brows, lashes, makeup & more",
+    icon: CalendarHeart,
+  },
+  {
+    href: "/products",
+    label: "Shop products",
+    description: "Skincare, makeup & supplements",
+    icon: ShoppingBag,
+  },
+  {
+    href: "#wishlists",
+    label: "Your wishlist",
+    description: "Pieces you've saved for later",
+    icon: Heart,
+  },
+  {
+    href: "#orders",
+    label: "Track orders",
+    description: "Order history and status",
+    icon: Package,
+  },
+];
+
 export default function DashboardPage() {
   return (
-    <div className=" mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 font-montserrat">
-          My Dashboard
-        </h1>
+    <div className="pb-20">
+      <DashboardTabs defaultValue="overview">
+        <section className="border-b bg-secondary/60">
+          <div className="container mx-auto max-w-6xl px-4 pt-10 md:pt-14">
+            <p className="eyebrow text-primary">Your account</p>
+            <h1 className="mt-2 font-heading text-4xl font-medium text-foreground md:text-5xl">
+              My Dashboard
+            </h1>
+            <p className="mt-3 max-w-xl text-muted-foreground">
+              Manage your appointments, orders, saved favourites and preferences
+              in one place.
+            </p>
 
-        <DashboardTabs defaultValue="overview">
-          <TabsList className="grid w-full grid-cols-5 mb-8">
-            <TabsTrigger className="text-xs md:text-sm" value="overview">
-              Overview
-            </TabsTrigger>
-            <TabsTrigger className="text-xs md:text-sm" value="orders">
-              Orders
-            </TabsTrigger>
-            <TabsTrigger className="text-xs md:text-sm" value="bookings">
-              Bookings
-            </TabsTrigger>
-            <TabsTrigger className="text-xs md:text-sm" value="wishlists">
-              Wishlists
-            </TabsTrigger>
-            <TabsTrigger className="text-xs md:text-sm" value="settings">
-              Settings
-            </TabsTrigger>
-          </TabsList>
+            <TabsList className="-mb-px mt-8 flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-none bg-transparent p-0 [scrollbar-width:none]">
+              {tabs.map(({ value, label, icon: Icon }) => (
+                <TabsTrigger
+                  key={value}
+                  value={value}
+                  className={cn(
+                    "flex-none rounded-none border-b-2 border-transparent px-4 py-3 text-sm text-muted-foreground shadow-none transition-colors hover:text-foreground",
+                    "data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none",
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+        </section>
 
+        <div className="container mx-auto max-w-6xl px-4 pt-8 md:pt-10">
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Summary</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <Card className="overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-primary via-highlight to-primary" />
+              <CardContent className="p-6 md:p-8">
                 <Suspense fallback={<ProfileSectionFallback />}>
                   <ProfileData />
                 </Suspense>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Upcoming Bookings</CardTitle>
-                <CardDescription>
-                  Your next scheduled appointments
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Suspense fallback={<UpcomingBookingsFallback />}>
+            <div className="grid gap-6 lg:grid-cols-3">
+              <Panel
+                title="Upcoming appointments"
+                description="Your next scheduled treatments"
+                className="lg:col-span-2"
+              >
+                <Suspense fallback={<RowsFallback />}>
                   <BookingsData />
                 </Suspense>
-              </CardContent>
-            </Card>
+              </Panel>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Recommended For You</CardTitle>
-                <CardDescription>
-                  Products we think you&apos;ll love
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Suspense fallback={<ProductRecommendationsFallback />}>
-                  <RecommendationsData />
-                </Suspense>
-              </CardContent>
-            </Card>
+              <Panel title="Quick links">
+                <ul className="-mx-2 space-y-1">
+                  {quickLinks.map(
+                    ({ href, label, description, icon: Icon }) => {
+                      // Hash links switch tabs via the hashchange listener, which
+                      // next/link's pushState wouldn't trigger.
+                      const Anchor = href.startsWith("#") ? "a" : Link;
+                      return (
+                        <li key={href}>
+                          <Anchor
+                            href={href}
+                            className="group flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-secondary"
+                          >
+                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                              <Icon className="h-4 w-4" />
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-sm font-medium text-foreground">
+                                {label}
+                              </span>
+                              <span className="block truncate text-xs text-muted-foreground">
+                                {description}
+                              </span>
+                            </span>
+                            <ArrowUpRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" />
+                          </Anchor>
+                        </li>
+                      );
+                    },
+                  )}
+                </ul>
+              </Panel>
+            </div>
+
+            <Panel
+              title="Recommended for you"
+              description="Bestsellers we think you'll love"
+              action={
+                <Link
+                  href="/products"
+                  className="hidden shrink-0 text-sm font-medium text-primary hover:underline sm:inline"
+                >
+                  Shop all
+                </Link>
+              }
+            >
+              <Suspense fallback={<ProductGridFallback />}>
+                <RecommendationsData />
+              </Suspense>
+            </Panel>
           </TabsContent>
 
           {/* Orders Tab */}
-          <TabsContent value="orders" className="container">
-            <Card>
-              <CardHeader>
-                <CardTitle>Order History</CardTitle>
-                <CardDescription>View all your past orders</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Suspense fallback={<OrderHistoryFallback />}>
-                  <OrdersData />
-                </Suspense>
-              </CardContent>
-            </Card>
+          <TabsContent value="orders">
+            <Panel title="Order history" description="All of your past orders">
+              <Suspense fallback={<RowsFallback />}>
+                <OrdersData />
+              </Suspense>
+            </Panel>
           </TabsContent>
 
           {/* Bookings Tab */}
           <TabsContent value="bookings">
-            <Card>
-              <CardHeader>
-                <CardTitle>All Bookings</CardTitle>
-                <CardDescription>Manage your appointments</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Suspense fallback={<BookingsListFallback />}>
-                  <BookingsListData />
-                </Suspense>
-              </CardContent>
-            </Card>
+            <Panel
+              title="All bookings"
+              description="Upcoming and past appointments"
+            >
+              <Suspense fallback={<RowsFallback />}>
+                <BookingsListData />
+              </Suspense>
+            </Panel>
           </TabsContent>
 
           {/* Wishlists Tab */}
           <TabsContent value="wishlists">
-            <Card>
-              <CardHeader>
-                <CardTitle>My Wishlist</CardTitle>
-                <CardDescription>
-                  Products you&apos;ve saved for later
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Suspense fallback={<WishlistFallback />}>
-                  <WishlistData />
-                </Suspense>
-              </CardContent>
-            </Card>
+            <Panel
+              title="My wishlist"
+              description="Products you've saved for later"
+            >
+              <Suspense fallback={<ProductGridFallback />}>
+                <WishlistData />
+              </Suspense>
+            </Panel>
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings">
-            <Card className="border-none">
-              <CardHeader className="px-0">
-                <CardTitle>Account Settings</CardTitle>
-                <CardDescription>
-                  Manage your account preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="px-0">
-                <Suspense
-                  fallback={<Skeleton className="h-24 w-full rounded-md" />}
-                >
-                  <AccountSettingsData />
-                </Suspense>
-              </CardContent>
-            </Card>
+          <TabsContent value="settings" className="max-w-3xl">
+            <Suspense
+              fallback={<Skeleton className="h-64 w-full rounded-xl" />}
+            >
+              <AccountSettingsData />
+            </Suspense>
           </TabsContent>
-        </DashboardTabs>
-      </div>
+        </div>
+      </DashboardTabs>
     </div>
   );
 }

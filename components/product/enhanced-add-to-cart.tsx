@@ -221,8 +221,8 @@ export default function EnhancedAddToCart({
       {/* Quantity Selector */}
       {showQuantitySelector && (
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium">Quantity:</span>
-          <div className="inline-flex items-center overflow-hidden border rounded-md">
+          <span className="text-sm font-medium">Quantity</span>
+          <div className="inline-flex items-center overflow-hidden rounded-full border">
             <Button
               variant="outline"
               size="icon"
@@ -251,13 +251,13 @@ export default function EnhancedAddToCart({
             </Button>
           </div>
           {availableStock <= 5 && availableStock > 0 && (
-            <span className="text-xs text-orange-600">
+            <span className="text-xs text-warning">
               ({availableStock} left)
             </span>
           )}
           {availableStock <= 0 &&
             quantity > 0 && ( // Show OOS only if trying to select quantity > 0
-              <span className="text-xs text-red-600">(Out of stock)</span>
+              <span className="text-xs text-destructive">(Out of stock)</span>
             )}
         </div>
       )}
@@ -265,7 +265,8 @@ export default function EnhancedAddToCart({
       {/* Buttons */}
       <div className="flex flex-wrap gap-3">
         <Button
-          className="flex-1 min-w-[150px] sm:flex-none bg-primary hover:bg-primary/90 text-primary-foreground"
+          size="lg"
+          className="min-w-[150px] flex-1"
           onClick={handleAddToCart}
           disabled={isActionDisabled}
           aria-label={
@@ -283,8 +284,9 @@ export default function EnhancedAddToCart({
         </Button>
         {showBuyNow && (
           <Button
-            variant="default"
-            className="flex-1 min-w-[150px] sm:flex-none"
+            variant="outline"
+            size="lg"
+            className="min-w-[150px] flex-1"
             onClick={handleBuyNow}
             disabled={isActionDisabled}
             aria-label={
@@ -301,10 +303,10 @@ export default function EnhancedAddToCart({
       </div>
       {/* Validation Message */}
       {requiresColorSelection && !selectedColor && (
-        <p className="text-sm text-red-600 pt-1">Select a color.</p>
+        <p className="text-sm text-destructive pt-1">Select a color.</p>
       )}
       {availableStock <= 0 && (
-        <p className="text-sm text-red-600 pt-1">
+        <p className="text-sm text-destructive pt-1">
           This product is out of stock.
         </p>
       )}

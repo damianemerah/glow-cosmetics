@@ -209,11 +209,11 @@ export function ProductCard({ product }: ProductCardProps) {
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <TooltipProvider delayDuration={100}>
         <div
-          className="group relative border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col"
+          className="group relative rounded-xl overflow-hidden bg-card ring-1 ring-border/60 shadow-soft hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 flex flex-col"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <div className="relative w-full overflow-hidden bg-gray-100">
+          <div className="relative w-full overflow-hidden bg-muted">
             <div style={{ paddingTop: "110%" }} />
             <div className="absolute inset-0">
               <Link
@@ -224,19 +224,19 @@ export function ProductCard({ product }: ProductCardProps) {
                   src={imageUrl}
                   alt={product.name}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
               </Link>
-              <div className="absolute top-4 left-4">
+              <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
                 {product.is_bestseller && (
-                  <Badge className="bg-green-500 mr-3">Bestseller</Badge>
+                  <Badge variant="highlight">Bestseller</Badge>
                 )}
                 {calculateDiscountPercentage(
                   product.price,
                   product.compare_price
                 ) && (
-                  <Badge className="bg-red-500">
+                  <Badge variant="destructive">
                     {calculateDiscountPercentage(
                       product.price,
                       product.compare_price
@@ -251,7 +251,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
-                      className={`absolute top-2 right-2 z-10 p-1.5 bg-white rounded-full shadow-md hover:bg-red-100 text-gray-500 hover:text-red-500 transition-colors ${
+                      className={`absolute top-2 right-2 z-10 p-1.5 bg-background/90 rounded-full shadow-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors ${
                         isWishlistLoading ? "opacity-50 cursor-wait" : ""
                       }`}
                       title={
@@ -264,7 +264,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     >
                       <Heart
                         className={`w-4 h-4 ${
-                          isInWishlist ? "fill-red-500 text-red-500" : ""
+                          isInWishlist ? "fill-destructive text-destructive" : ""
                         }`}
                       />
                     </button>
@@ -279,14 +279,14 @@ export function ProductCard({ product }: ProductCardProps) {
                 </Tooltip>
               )}
 
-              <div className="absolute bottom-0 left-0 right-0 z-10 p-2 flex justify-center items-center space-x-2 bg-gradient-to-t from-black/30 via-black/10 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute bottom-0 left-0 right-0 z-10 p-2 flex justify-center items-center space-x-2 bg-gradient-to-t from-foreground/30 via-foreground/10 to-transparent opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 {/* Add to Cart */}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="bg-white/80 hover:bg-white text-primary rounded-full shadow"
+                      className="bg-background/85 hover:bg-background text-primary rounded-full shadow"
                       onClick={handleAddToCart}
                       disabled={isAddingToCart || product.stock_quantity <= 0}
                       aria-label="Add to cart"
@@ -310,7 +310,7 @@ export function ProductCard({ product }: ProductCardProps) {
                       <Button
                         variant="secondary"
                         size="icon"
-                        className="bg-white/80 hover:bg-white text-primary rounded-full shadow"
+                        className="bg-background/85 hover:bg-background text-primary rounded-full shadow"
                         aria-label="Quick view"
                       >
                         <Eye className="h-4 w-4" />
@@ -328,7 +328,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     <Button
                       variant="secondary"
                       size="icon"
-                      className="bg-white/80 hover:bg-white text-primary rounded-full shadow cursor-not-allowed opacity-60"
+                      className="bg-background/85 hover:bg-background text-primary rounded-full shadow cursor-not-allowed opacity-60"
                       disabled
                       onClick={(e) => e.stopPropagation()}
                       aria-label="Compare"
@@ -349,17 +349,17 @@ export function ProductCard({ product }: ProductCardProps) {
               href={`/products/${product.slug}`}
               className="hover:text-primary"
             >
-              <h3 className="font-semibold text-sm leading-snug mb-1 truncate capitalize">
+              <h3 className="font-sans font-semibold text-sm leading-snug mb-1 truncate capitalize tracking-normal">
                 {product.name}
               </h3>
             </Link>
 
             <div className="mt-auto">
-              <p className="text-lg text-gray-800 mb-3">
+              <p className="text-base font-semibold text-foreground mb-3">
                 {formatZAR(product.price)}
                 {product.compare_price &&
                   product.compare_price > product.price && (
-                    <span className="ml-2 text-sm text-gray-400 line-through">
+                    <span className="ml-2 text-sm text-muted-foreground line-through">
                       {formatZAR(product.compare_price)}
                     </span>
                   )}

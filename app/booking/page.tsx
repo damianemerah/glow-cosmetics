@@ -3,29 +3,26 @@
 import type React from "react";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Trash2 } from "lucide-react";
+import Image from "next/image";
+import {
+  CalendarDays,
+  Check,
+  Loader2,
+  Plus,
+  Trash2,
+  type LucideIcon,
+} from "lucide-react";
 import {
   Button,
   Calendar,
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
   Input,
   Textarea,
   Label,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Separator,
 } from "@/constants/ui/index";
+import PageHero from "@/components/common/page-hero";
 
 import { cn } from "@/lib/utils";
 import { services, getTimeSlotsForDay } from "@/constants/data";
@@ -50,8 +47,36 @@ interface PendingBooking {
   special_requests: string;
 }
 
+// Bookings open from tomorrow; the studio is closed on Sundays.
+function isDateUnavailable(d: Date) {
+  const tomorrow = new Date();
+  tomorrow.setHours(0, 0, 0, 0);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return d < tomorrow || d.getDay() === 0;
+}
+
+function getFirstBookableDate() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  do {
+    d.setDate(d.getDate() + 1);
+  } while (isDateUnavailable(d));
+  return d;
+}
+
+function parseSlotTime(date: Date, time: string) {
+  const [hoursStr, minutesStr] = time.split(":");
+  const period = time.includes("PM") ? "PM" : "AM";
+  let hours = parseInt(hoursStr);
+  if (period === "PM" && hours !== 12) hours += 12;
+  if (period === "AM" && hours === 12) hours = 0;
+  const slotTime = new Date(date);
+  slotTime.setHours(hours, parseInt(minutesStr) || 0, 0, 0);
+  return slotTime;
+}
+
 export default function BookingPage() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(getFirstBookableDate);
   const user = useUserStore((state) => state.user);
   const setShowModal = useUserStore((state) => state.setShowModal);
   const {
@@ -124,7 +149,9 @@ export default function BookingPage() {
   }, [date, fetchSlotsForDate]);
 
   useEffect(() => {
-    if (pendingBookings.length === 1 && bookingCartRef.current) {
+    // On small screens the summary sits below the form, so bring it into view.
+    const isStacked = window.matchMedia("(max-width: 1023px)").matches;
+    if (isStacked && pendingBookings.length === 1 && bookingCartRef.current) {
       bookingCartRef.current.scrollIntoView({
         behavior: "smooth",
         block: "start",
@@ -173,16 +200,6 @@ export default function BookingPage() {
     }
     if (!currentSelection.time) {
       toast.warning("Please select a time.");
-      return;
-    }
-    if (
-      !userDetails.firstName ||
-      !userDetails.lastName ||
-      !userDetails.email ||
-      !userDetails.phone ||
-      userDetails.phone.length < 5
-    ) {
-      toast.warning("Please fill in all your contact details.");
       return;
     }
 
@@ -259,18 +276,7 @@ export default function BookingPage() {
     const uniqueBookingId = `GLOW-${nanoid()}`;
 
     for (const booking of pendingBookings) {
-      const [hoursStr, minutesStr] = booking.time.split(":");
-      const period = booking.time.includes("PM") ? "PM" : "AM";
-      let hours = parseInt(hoursStr);
-
-      if (period === "PM" && hours !== 12) {
-        hours += 12;
-      } else if (period === "AM" && hours === 12) {
-        hours = 0;
-      }
-
-      const bookingTime = new Date(booking.date);
-      bookingTime.setHours(hours, parseInt(minutesStr) || 0, 0, 0);
+      const bookingTime = parseSlotTime(booking.date, booking.time);
 
       const bookingData = {
         user_id: user.user_id,
@@ -343,6 +349,14 @@ export default function BookingPage() {
   };
   // --- ---
 
+  const getSlotStatus = (time: string): string | null => {
+    if (!date) return null;
+    if (currentDateBookedTimes.includes(time)) return "Booked";
+    if (cartTimesForSelectedDate.includes(time)) return "Added";
+    if (new Date() > parseSlotTime(date, time)) return "Past";
+    return null;
+  };
+
   // Calculate total price for the cart
   const totalCartPrice = useMemo(() => {
     return pendingBookings.reduce(
@@ -359,477 +373,517 @@ export default function BookingPage() {
         bookingId={lastCreatedBookingId}
       />
       <div className="flex flex-col min-h-screen">
-        <section className="bg-secondary py-16">
-          <h1 className="text-4xl font-bold mb-4 font-montserrat container">
-            Book Your Appointment(s)
-          </h1>
-        </section>
+        <PageHero
+          eyebrow="Reserve Your Visit"
+          title="Book an Appointment"
+          description="Choose your treatment, pick a time that suits you, and we'll take care of the rest."
+          image="/images/consultation.jpg"
+        />
 
-        {/* Booking Form and Services Section */}
-        <section className="py-16 bg-white">
-          <div className="px-4 sm:px-8 md:px-16 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1fr] gap-8">
-            {/* Booking Form Column */}
+        <section className="py-12 md:py-20 bg-background">
+          <div className="container mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-8 lg:gap-12 items-start">
             <div className="flex flex-col gap-8">
-              {/* User Details Card (Now potentially editable) */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-montserrat">
-                    Your Details
-                  </CardTitle>
-                  <CardDescription>
-                    Please confirm or update your contact information.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        value={userDetails.firstName}
-                        onChange={handleUserDetailChange}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input
-                        id="lastName"
-                        name="lastName"
-                        value={userDetails.lastName}
-                        onChange={handleUserDetailChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={userDetails.email}
-                        onChange={handleUserDetailChange}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone</Label>
-                      <PhoneInput
-                        country={"za"}
-                        value={userDetails.phone || ""}
-                        onChange={handlePhoneChange}
-                        inputProps={{
-                          id: "phone",
-                          name: "phone",
-                          required: true,
-                        }}
-                        containerClass="w-full"
-                        inputClass="w-full p-2 border rounded-md"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Appointment Selection Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-montserrat">
-                    Select Appointment Slot
-                  </CardTitle>
-                  <CardDescription>
-                    Choose a service, date, and time, then add it to your
-                    booking request below.
-                  </CardDescription>
-                </CardHeader>
-                {/* Remove form tag here */}
-                <CardContent className="space-y-6">
-                  {/* Service Selection */}
-                  <div className="space-y-2">
-                    <Label htmlFor="service">Service</Label>
-                    <Select
-                      value={currentSelection.serviceId} // Controlled component
-                      onValueChange={(value) =>
-                        handleSelectChange("serviceId", value)
-                      }
-                      required
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a service" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {services.map((service) => (
-                          <SelectItem key={service.id} value={service.id}>
-                            {service.name} - {formatZAR(service.price)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Date and Time Selection */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2 relative z-10">
-                      {" "}
-                      {/* Adjusted z-index */}
-                      <Label>Preferred Date</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !date && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {date ? format(date, "PPP") : "Select a date"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={date}
-                            onSelect={handleDateSelect}
-                            initialFocus
-                            disabled={(d) => {
-                              const today = new Date();
-                              today.setHours(0, 0, 0, 0);
-                              // Disable past dates and Sundays, and the current day
-                              const tomorrow = new Date(today);
-                              tomorrow.setDate(today.getDate() + 1);
-                              return d < tomorrow || d.getDay() === 0;
-                            }}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="time">Preferred Time</Label>
-                      <Select
-                        value={currentSelection.time} // Controlled component
-                        onValueChange={(value) =>
-                          handleSelectChange("time", value)
+              {/* Step 1: Treatment */}
+              <BookingStep
+                step={1}
+                title="Choose your treatment"
+                description="Select a service. You can add more than one appointment to a single request."
+              >
+                <div
+                  role="radiogroup"
+                  aria-label="Service"
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                >
+                  {services.map((service) => {
+                    const isSelected =
+                      currentSelection.serviceId === service.id;
+                    return (
+                      <button
+                        key={service.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        onClick={() =>
+                          handleSelectChange("serviceId", service.id)
                         }
-                        required
-                        disabled={!date || !currentSelection.serviceId}
+                        className={cn(
+                          "group flex gap-4 rounded-xl border bg-card p-3 text-left transition-all hover:border-primary/40 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                          isSelected &&
+                            "border-primary bg-accent/60 ring-1 ring-primary"
+                        )}
                       >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a time" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {date ? (
-                            getTimeSlotsForDay(date).map((time: string) => {
-                              const isBooked =
-                                currentDateBookedTimes.includes(time);
-                              const isInCart =
-                                cartTimesForSelectedDate.includes(time);
-                              const isPastTime =
-                                date &&
-                                new Date().toDateString() ===
-                                  date.toDateString() &&
-                                (() => {
-                                  // IIFE for cleaner logic
-                                  const [hoursStr, minutesStr] =
-                                    time.split(":");
-                                  const period = time.includes("PM")
-                                    ? "PM"
-                                    : "AM";
-                                  let hours = parseInt(hoursStr);
-                                  if (period === "PM" && hours !== 12)
-                                    hours += 12;
-                                  if (period === "AM" && hours === 12)
-                                    hours = 0; // Midnight case
-
-                                  const now = new Date();
-                                  const slotTime = new Date(date);
-                                  slotTime.setHours(
-                                    hours,
-                                    parseInt(minutesStr) || 0,
-                                    0,
-                                    0
-                                  );
-
-                                  return now > slotTime;
-                                })();
-
-                              const isSunday = date.getDay() === 0;
-
-                              return (
-                                <SelectItem
-                                  key={time}
-                                  value={time}
-                                  disabled={
-                                    isBooked ||
-                                    isInCart ||
-                                    isPastTime ||
-                                    slotsLoading ||
-                                    isSunday
-                                  }
-                                >
-                                  {time}
-                                  {isBooked && " (Booked)"}
-                                  {isInCart && " (In Request)"}
-                                  {isPastTime && " (Past)"}
-                                </SelectItem>
-                              );
-                            })
-                          ) : (
-                            <SelectItem value="" disabled>
-                              Select date first
-                            </SelectItem>
+                        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+                          {service.image && (
+                            <Image
+                              src={service.image}
+                              alt=""
+                              fill
+                              sizes="80px"
+                              className="object-cover"
+                            />
                           )}
-                          {slotsLoading && date && (
-                            <SelectItem value="loading" disabled>
-                              Loading slots...
-                            </SelectItem>
+                        </div>
+                        <div className="flex min-w-0 flex-1 flex-col">
+                          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                            {service.category}
+                          </span>
+                          <span className="mt-0.5 font-heading text-lg leading-tight">
+                            {service.name}
+                          </span>
+                          <span className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                            {service.description}
+                          </span>
+                          <span className="mt-auto pt-2 text-sm font-semibold">
+                            {formatZAR(service.price)}
+                          </span>
+                        </div>
+                        <span
+                          aria-hidden
+                          className={cn(
+                            "mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors",
+                            isSelected
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-input"
                           )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                        >
+                          {isSelected && <Check className="h-3 w-3" />}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </BookingStep>
 
-                  {/* Special Requests */}
-                  <div className="space-y-2">
-                    <Label htmlFor="special_requests">
-                      Special Request (Optional)
-                    </Label>
-                    <Textarea
-                      id="special_requests"
-                      name="special_requests"
-                      value={currentSelection.special_requests}
-                      onChange={handleTextAreaChange}
-                      placeholder="Enter any special requests for this specific appointment"
-                      rows={3} // Reduced rows maybe
+              {/* Step 2: Date & time */}
+              <BookingStep
+                step={2}
+                title="Pick a date & time"
+                description="We're open Monday to Saturday. Bookings open from tomorrow."
+              >
+                <div className="grid grid-cols-1 md:grid-cols-[auto_minmax(0,1fr)] gap-6 md:gap-8">
+                  <div className="rounded-xl border bg-card p-2 self-start justify-self-center md:justify-self-start">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={handleDateSelect}
+                      disabled={isDateUnavailable}
+                      classNames={{
+                        head_cell:
+                          "text-muted-foreground w-10 font-medium text-[0.75rem]",
+                        day: "h-10 w-10 p-0 font-normal rounded-full hover:bg-accent aria-selected:opacity-100",
+                        cell: "relative p-0 text-center text-sm",
+                      }}
                     />
                   </div>
-                </CardContent>
-                <CardFooter>
-                  {/* --- Changed Button --- */}
-                  <Button
-                    type="button" // Change type to button
-                    onClick={handleAddBooking} // Call add handler
-                    className="w-full"
-                    disabled={
-                      slotsLoading ||
-                      !date ||
-                      !currentSelection.serviceId ||
-                      !currentSelection.time
-                    } // Disable if loading or fields missing
-                  >
-                    Add to Booking Request
-                  </Button>
-                  {/* --- --- */}
-                </CardFooter>
-                {/* Removed form tag here */}
-              </Card>
 
-              {/* --- Booking Cart Section --- */}
-              {pendingBookings.length > 0 && (
-                <Card ref={bookingCartRef}>
-                  <CardHeader>
-                    <CardTitle className="font-montserrat">
-                      Your Booking Request
-                    </CardTitle>
-                    <CardDescription>
-                      Review your selections below before submitting.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {pendingBookings.map((booking, index) => (
+                  <div className="min-w-0">
+                    <p className="mb-3 text-sm font-medium">
+                      {date
+                        ? `Available times · ${format(date, "EEEE, d MMMM")}`
+                        : "Select a date to see available times"}
+                    </p>
+                    {!currentSelection.serviceId && (
+                      <p className="mb-3 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+                        Choose a treatment first to select a time.
+                      </p>
+                    )}
+                    {date && (
                       <div
-                        key={booking.id}
-                        className="border p-4 rounded-md space-y-2 relative"
+                        role="radiogroup"
+                        aria-label="Time"
+                        className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-3 xl:grid-cols-4"
                       >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-2 right-2 h-7 w-7 text-destructive hover:bg-destructive/10"
-                          onClick={() => handleRemoveBooking(booking.id)}
-                          aria-label="Remove booking"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                        <p className="font-semibold">{booking.service.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Date: {format(booking.date, "PPP")}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Time: {booking.time}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Price: {formatZAR(booking.service.price)}
-                        </p>
-                        {booking.special_requests && (
-                          <p className="text-sm text-muted-foreground italic">
-                            Request: {booking.special_requests}
-                          </p>
-                        )}
-                        {/* Add a separator between items, but not after the last one */}
-                        {index < pendingBookings.length - 1 && (
-                          <Separator className="my-3" />
-                        )}
+                        {getTimeSlotsForDay(date).map((time: string) => {
+                          const status = getSlotStatus(time);
+                          const isSelected = currentSelection.time === time;
+                          const isDisabled =
+                            !!status ||
+                            slotsLoading ||
+                            !currentSelection.serviceId;
+                          return (
+                            <button
+                              key={time}
+                              type="button"
+                              role="radio"
+                              aria-checked={isSelected}
+                              disabled={isDisabled}
+                              onClick={() => handleSelectChange("time", time)}
+                              className={cn(
+                                "flex h-12 flex-col items-center justify-center rounded-full border text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                                isSelected
+                                  ? "border-primary bg-primary text-primary-foreground shadow-soft"
+                                  : "bg-card hover:border-primary/50 hover:bg-accent/50",
+                                isDisabled &&
+                                  !isSelected &&
+                                  "cursor-not-allowed bg-muted/40 text-muted-foreground/60 hover:border-border hover:bg-muted/40"
+                              )}
+                            >
+                              <span className={cn(status && "line-through")}>
+                                {time}
+                              </span>
+                              {status && (
+                                <span className="text-[10px] leading-none no-underline">
+                                  {status}
+                                </span>
+                              )}
+                            </button>
+                          );
+                        })}
                       </div>
-                    ))}
-                    <Separator className="my-4" />
-                    <div className="flex justify-between items-center font-semibold">
-                      <span>Total Estimated Price:</span>
-                      <span>{formatZAR(totalCartPrice)}</span>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
+                    )}
+                    {slotsLoading && (
+                      <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Checking availability…
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-2">
+                  <Label htmlFor="special_requests">
+                    Special request{" "}
+                    <span className="font-normal text-muted-foreground">
+                      (optional)
+                    </span>
+                  </Label>
+                  <Textarea
+                    id="special_requests"
+                    name="special_requests"
+                    value={currentSelection.special_requests}
+                    onChange={handleTextAreaChange}
+                    placeholder="Anything we should know for this appointment?"
+                    rows={3}
+                  />
+                </div>
+
+                <Button
+                  type="button"
+                  size="lg"
+                  onClick={handleAddBooking}
+                  className="mt-6 w-full sm:w-auto"
+                  disabled={
+                    slotsLoading ||
+                    !date ||
+                    !currentSelection.serviceId ||
+                    !currentSelection.time
+                  }
+                >
+                  <Plus className="h-4 w-4" />
+                  Add to Booking Request
+                </Button>
+              </BookingStep>
+
+              {/* Step 3: Details */}
+              <BookingStep
+                step={3}
+                title="Your details"
+                description="We'll use these to confirm your appointment."
+                action={
+                  !user && (
                     <Button
                       type="button"
-                      onClick={handleFinalSubmit}
-                      className="w-full bg-green-500 hover:bg-green-600"
-                      disabled={isSubmitting || slotsLoading}
+                      variant="link"
+                      className="h-auto p-0"
+                      onClick={() => setShowModal(true)}
                     >
-                      {isSubmitting
-                        ? "Submitting..."
-                        : `Submit ${pendingBookings.length} Booking(s)`}
+                      Already a client? Log in
                     </Button>
-                  </CardFooter>
-                </Card>
-              )}
-              {/* --- --- */}
+                  )
+                }
+              >
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">First name</Label>
+                    <Input
+                      id="firstName"
+                      name="firstName"
+                      autoComplete="given-name"
+                      value={userDetails.firstName}
+                      onChange={handleUserDetailChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Last name</Label>
+                    <Input
+                      id="lastName"
+                      name="lastName"
+                      autoComplete="family-name"
+                      value={userDetails.lastName}
+                      onChange={handleUserDetailChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      value={userDetails.email}
+                      onChange={handleUserDetailChange}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <PhoneInput
+                      country={"za"}
+                      value={userDetails.phone || ""}
+                      onChange={handlePhoneChange}
+                      inputProps={{
+                        id: "phone",
+                        name: "phone",
+                        required: true,
+                        autoComplete: "tel",
+                      }}
+                      containerClass="w-full"
+                    />
+                  </div>
+                </div>
+              </BookingStep>
             </div>
 
-            {/* Service Details Column (keep mostly as is) */}
-            <Card className="md:sticky top-24 self-start">
-              {" "}
-              {/* Make sticky */}
-              <CardHeader>
-                <CardTitle className="font-montserrat">Our Services</CardTitle>
-                <CardDescription>
-                  Click a service below to select it in the form.
-                </CardDescription>{" "}
-                {/* Added hint */}
-              </CardHeader>
-              <CardContent>
-                {/* Make services clickable to select them */}
-                <div className="space-y-4 max-h-[70vh] overflow-y-auto">
-                  {" "}
-                  {/* Added scroll */}
-                  {services.map((service) => (
-                    <button // Change div to button for accessibility/semantics
-                      key={service.id}
-                      type="button" // Prevent form submission if accidentally nested
-                      onClick={() =>
-                        handleSelectChange("serviceId", service.id)
-                      } // Select service on click
-                      className={cn(
-                        "w-full text-left p-4 rounded-lg border relative transition-colors hover:bg-muted/50", // Added hover state
-                        currentSelection.serviceId === service.id && // Highlight based on current selection
-                          "border-primary bg-primary/10 ring-1 ring-primary"
-                      )}
-                    >
-                      {currentSelection.serviceId === service.id && (
-                        <span className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                          Selected
-                        </span>
-                      )}
-
-                      <h3 className="font-semibold">{service.name}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {service.description}
-                      </p>
-                      {/* <br /> // Remove extra breaks for cleaner look */}
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {service.details}
-                      </p>
-                      <p className="text-sm font-medium mt-2">
-                        {formatZAR(service.price)}
-                      </p>
-                    </button> // Close button tag
-                  ))}
+            {/* Booking summary */}
+            <aside
+              ref={bookingCartRef}
+              className="lg:sticky lg:top-28 scroll-mt-28"
+            >
+              <Card className="overflow-hidden">
+                <div className="bg-primary px-6 py-5 text-primary-foreground">
+                  <p className="eyebrow text-highlight">Summary</p>
+                  <h2 className="mt-2 text-2xl font-medium">Your booking</h2>
                 </div>
-              </CardContent>
-            </Card>
+                <CardContent className="p-6">
+                  {pendingBookings.length === 0 ? (
+                    <div className="flex flex-col items-center py-6 text-center">
+                      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-accent text-primary">
+                        <CalendarDays className="h-5 w-5" />
+                      </div>
+                      <p className="font-medium">No appointments yet</p>
+                      <p className="mt-1 max-w-[16rem] text-sm text-muted-foreground">
+                        Choose a treatment and time, then add it to your
+                        request.
+                      </p>
+                    </div>
+                  ) : (
+                    <ul className="divide-y">
+                      {pendingBookings.map((booking) => (
+                        <li
+                          key={booking.id}
+                          className="flex gap-3 py-4 first:pt-0"
+                        >
+                          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+                            {booking.service.image && (
+                              <Image
+                                src={booking.service.image}
+                                alt=""
+                                fill
+                                sizes="56px"
+                                className="object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold leading-tight">
+                              {booking.service.name}
+                            </p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {format(booking.date, "EEE, d MMM")} ·{" "}
+                              {booking.time}
+                            </p>
+                            {booking.special_requests && (
+                              <p className="mt-1 line-clamp-2 text-xs italic text-muted-foreground">
+                                “{booking.special_requests}”
+                              </p>
+                            )}
+                            <p className="mt-1 text-sm font-semibold">
+                              {formatZAR(booking.service.price)}
+                            </p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                            onClick={() => handleRemoveBooking(booking.id)}
+                            aria-label={`Remove ${booking.service.name}`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <Separator className="my-4" />
+                  <div className="flex items-baseline justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      Estimated total
+                    </span>
+                    <span className="font-heading text-2xl">
+                      {formatZAR(totalCartPrice)}
+                    </span>
+                  </div>
+
+                  <Button
+                    type="button"
+                    size="lg"
+                    onClick={handleFinalSubmit}
+                    className="mt-5 w-full"
+                    disabled={
+                      isSubmitting ||
+                      slotsLoading ||
+                      pendingBookings.length === 0
+                    }
+                  >
+                    {isSubmitting && (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
+                    {isSubmitting
+                      ? "Submitting…"
+                      : pendingBookings.length > 1
+                        ? `Request ${pendingBookings.length} Appointments`
+                        : "Request Appointment"}
+                  </Button>
+                  <p className="mt-3 text-center text-xs text-muted-foreground">
+                    You&apos;ll be asked to pay a deposit to confirm your
+                    booking.
+                  </p>
+                </CardContent>
+              </Card>
+            </aside>
           </div>
         </section>
 
         {/* Information Section */}
-        <section className="py-16 bg-secondary">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h2 className="text-2xl font-bold mb-4 font-montserrat">
-                  Booking Information
-                </h2>
-                <ul className="space-y-4">
-                  <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <Clock className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Business Hours</p>
-                      <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
-                      <p>Saturday: 8:00 AM - 6:00 PM</p>
-                      <p>Sunday: Closed</p>
-                    </div>
-                  </li>
-                  <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <Phone className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Contact Information</p>
-                      <p>Phone: +27781470504</p>
-                      <p>Email: sylvia_emerah@yahoo.com</p>
-                    </div>
-                  </li>
-                  <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <Info className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Cancellation Policy </p>
-                      <p>
-                        Please provide at least 24 hours notice for
-                        cancellations or rescheduling to avoid a cancellation
-                        fee.
-                      </p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold mb-4 font-montserrat">
-                  What to Expect
-                </h2>
-                <ul className="space-y-4">
-                  <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Consultation</p>
-                      <p>
-                        All new clients receive a complimentary consultation to
-                        discuss your goals and create a personalized treatment
-                        plan.
-                      </p>
-                    </div>
-                  </li>
-                  <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Arrival</p>
-                      <p>
-                        Please arrive 10-15 minutes before your scheduled
-                        appointment to complete any necessary paperwork.
-                      </p>
-                    </div>
-                  </li>
-                  <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
-                    <div>
-                      <p className="font-semibold">Payment</p>
-                      <p>We accept all major credit cards and cash.</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
+        <section className="py-16 md:py-20 bg-secondary/60">
+          <div className="container mx-auto">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <InfoCard title="Booking Information">
+                <InfoItem icon={Clock} title="Business Hours">
+                  <p>Monday – Friday: 9:00 AM – 6:00 PM</p>
+                  <p>Saturday: 8:00 AM – 6:00 PM</p>
+                  <p>Sunday: Closed</p>
+                </InfoItem>
+                <InfoItem icon={Phone} title="Contact">
+                  <p>
+                    <a href="tel:+27781470504" className="hover:text-primary">
+                      +27 78 147 0504
+                    </a>
+                  </p>
+                  <p>
+                    <a
+                      href="mailto:sylvia_emerah@yahoo.com"
+                      className="hover:text-primary"
+                    >
+                      sylvia_emerah@yahoo.com
+                    </a>
+                  </p>
+                </InfoItem>
+                <InfoItem icon={Info} title="Cancellation Policy">
+                  <p>
+                    Please provide at least 24 hours notice for cancellations
+                    or rescheduling to avoid a cancellation fee.
+                  </p>
+                </InfoItem>
+              </InfoCard>
+              <InfoCard title="What to Expect">
+                <InfoItem icon={CheckCircle} title="Consultation">
+                  <p>
+                    All new clients receive a complimentary consultation to
+                    discuss your goals and create a personalised treatment
+                    plan.
+                  </p>
+                </InfoItem>
+                <InfoItem icon={CheckCircle} title="Arrival">
+                  <p>
+                    Please arrive 10–15 minutes before your scheduled
+                    appointment to complete any necessary paperwork.
+                  </p>
+                </InfoItem>
+                <InfoItem icon={CheckCircle} title="Payment">
+                  <p>We accept all major credit cards and cash.</p>
+                </InfoItem>
+              </InfoCard>
             </div>
           </div>
         </section>
       </div>
     </>
+  );
+}
+
+function BookingStep({
+  step,
+  title,
+  description,
+  action,
+  children,
+}: {
+  step: number;
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="rounded-2xl border bg-card p-5 shadow-soft md:p-8">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div className="flex gap-4">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-highlight font-heading text-base text-primary">
+            {step}
+          </span>
+          <div>
+            <h2 className="text-2xl font-medium leading-tight">{title}</h2>
+            {description && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {description}
+              </p>
+            )}
+          </div>
+        </div>
+        {action}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function InfoCard({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border bg-card p-6 shadow-soft md:p-8">
+      <h2 className="mb-6 text-2xl font-medium">{title}</h2>
+      <ul className="space-y-5">{children}</ul>
+    </div>
+  );
+}
+
+function InfoItem({
+  icon: Icon,
+  title,
+  children,
+}: {
+  icon: LucideIcon;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <li className="flex gap-4">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent text-primary">
+        <Icon className="h-4 w-4" />
+      </span>
+      <div className="text-sm leading-relaxed text-muted-foreground">
+        <p className="mb-0.5 font-semibold text-foreground">{title}</p>
+        {children}
+      </div>
+    </li>
   );
 }

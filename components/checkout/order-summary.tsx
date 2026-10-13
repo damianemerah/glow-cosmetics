@@ -21,12 +21,8 @@ export default function OrderSummary({
   totalAmount,
 }: OrderSummaryProps) {
   return (
-    <div className="bg-gray-50 p-4 md:p-6 rounded-lg border border-gray-200 sticky top-24">
-      {" "}
-      {/* Make summary sticky */}
-      <h2 className="text-lg font-semibold mb-4 font-montserrat">
-        Order Summary
-      </h2>
+    <div className="rounded-xl border bg-secondary/50 p-5 md:p-6">
+      <h2 className="mb-4 font-heading text-xl font-medium">Order summary</h2>
       {/* Scrollable item list for many items */}
       <div className="space-y-3 mb-4 max-h-60 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
         {cartItems.map((item) => (
@@ -35,7 +31,7 @@ export default function OrderSummary({
             className="flex items-center py-2 border-b last:border-b-0"
           >
             {/* Image and Quantity Badge */}
-            <div className="relative h-16 w-16 flex-shrink-0 rounded-md border bg-white mr-4">
+            <div className="relative h-16 w-16 flex-shrink-0 rounded-md border bg-card mr-4">
               {item.products?.image_url?.[0] ? ( // Safely access image
                 <Image
                   src={item.products.image_url[0]}
@@ -89,15 +85,17 @@ export default function OrderSummary({
             Delivery ({deliveryMethodName})
           </span>
           <span
-            className={`font-medium ${deliveryFee === 0 ? "text-green-600" : ""}`}
+            className={`font-medium ${deliveryFee === 0 ? "text-primary" : ""}`}
           >
             {deliveryFee === 0 ? "Free" : formatZAR(deliveryFee)}
           </span>
         </div>
         <Separator className="my-2" />
-        <div className="flex justify-between font-bold text-base md:text-lg pt-1">
-          <span>Total</span>
-          <span>{formatZAR(totalAmount)}</span>
+        <div className="flex items-baseline justify-between pt-1">
+          <span className="font-medium">Total</span>
+          <span className="font-heading text-2xl md:text-3xl">
+            {formatZAR(totalAmount)}
+          </span>
         </div>
       </div>
     </div>

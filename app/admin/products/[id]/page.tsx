@@ -12,7 +12,7 @@ export default async function ProductPage({
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 p-6 flex justify-center items-center">
+        <div className="min-h-screen bg-muted/50 p-6 flex justify-center items-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       }

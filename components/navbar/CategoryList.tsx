@@ -140,11 +140,11 @@ export const CategoryList = ({
     if (buttonStyle === "mobile-nav") {
       return (
         <div
-          className="font-montserrat flex flex-col items-center justify-center rounded-none h-full text-xs text-gray-500 w-full"
+          className="font-heading flex flex-col items-center justify-center rounded-none h-full text-xs text-muted-foreground w-full"
           aria-label="Open categories menu"
         >
           <Grid3X3 className="h-7 w-7 mb-1" />
-          <span className="font-montserrat">Categories</span>
+          <span className="font-heading">Categories</span>
         </div>
       );
     }
@@ -233,7 +233,7 @@ export const CategoryList = ({
                       <AccordionItem key={group.id} value={group.id}>
                         <AccordionTrigger className="font-semibold text-md text-primary flex items-center py-4">
                           <div className="flex items-center">
-                            <Sparkles className="h-5 w-5 mr-2 text-yellow-500" />
+                            <Sparkles className="h-5 w-5 mr-2 text-highlight" />
                             <span>{group.name}</span>
                           </div>
                         </AccordionTrigger>

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Category } from "@/types/index";
+import SectionHeading from "@/components/common/section-heading";
 
 export interface HomeCategoriesProps {
   categories: Category[];
@@ -25,11 +26,9 @@ export default function HomeCategories({ categories }: HomeCategoriesProps) {
 
   return (
     flattenedGroupedCat.length > 0 && (
-      <section className="pb-8 pt-16 bg-primary-foreground inset-shadow-sm">
+      <section className="py-16 md:py-24 bg-background">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl md:text-4xl uppercase font-bold mb-10 md:mb-12 md:text-start text-center font-montserrat text-secondary-foreground">
-            Explore By Category
-          </h2>
+          <SectionHeading eyebrow="Shop by Category" title="Explore the Edit" />
 
           <div className="grid grid-cols-3 md:grid-cols-7 md:gap-6 gap-4">
             {flattenedGroupedCat.map((category, i) => (
@@ -46,9 +45,9 @@ export default function HomeCategories({ categories }: HomeCategoriesProps) {
                   lg:w-34 lg:h-34
                   xl:w-40 xl:h-40
                   rounded-full overflow-hidden
-                  border-2 border-transparent
-                  group-hover:border-primary
-                  transition-colors duration-300
+                  ring-1 ring-border ring-offset-4 ring-offset-background
+                  group-hover:ring-highlight
+                  transition-all duration-300
                 "
                 >
                   <Image
@@ -72,7 +71,7 @@ export default function HomeCategories({ categories }: HomeCategoriesProps) {
                 </div>
 
                 {/* label underneath */}
-                <span className="mt-2 text-sm md:text-base font-medium text-secondary-foreground">
+                <span className="mt-4 text-sm md:text-base font-medium text-foreground group-hover:text-primary transition-colors">
                   {category.name}
                 </span>
               </Link>

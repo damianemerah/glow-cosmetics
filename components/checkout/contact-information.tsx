@@ -36,8 +36,13 @@ export default function ContactInformation({
   const showOffersCheckbox = !isUserLoggedIn || !hasOptedInBefore;
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4 font-montserrat">Contact</h2>
+    <section className="rounded-xl border bg-card p-5 shadow-soft md:p-7">
+      <h2 className="mb-5 flex items-center gap-3 font-heading text-2xl font-medium">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary font-sans text-xs font-semibold text-primary-foreground">
+          1
+        </span>
+        Contact
+      </h2>
       <div className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="checkout-email">Email</Label>
@@ -48,13 +53,13 @@ export default function ContactInformation({
             placeholder="you@example.com"
             value={email}
             onChange={handleInputChange}
-            className={error ? "border-red-500" : ""}
+            className={error ? "border-destructive" : ""}
             aria-invalid={!!error}
             aria-describedby="checkout-email-error"
             required
           />
           {error && (
-            <p id="checkout-email-error" className="text-red-600 text-sm mt-1">
+            <p id="checkout-email-error" className="text-destructive text-sm mt-1">
               {error}
             </p>
           )}
@@ -76,6 +81,6 @@ export default function ContactInformation({
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

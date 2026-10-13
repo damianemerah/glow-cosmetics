@@ -241,7 +241,7 @@ export function UserDetailsForm({
           </Button>
           <Button
             type="submit"
-            className="bg-green-500 hover:bg-green-600"
+            className="bg-primary hover:bg-primary/90"
             disabled={isLoading}
           >
             {isLoading ? (

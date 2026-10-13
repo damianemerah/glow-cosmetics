@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Switch, Separator } from "@/constants/ui/index";
-// import Link from "next/link";
+import { Button, Switch } from "@/constants/ui/index";
 import { toast } from "sonner";
 import {
   setNotificationSettings,
   deleteUserAccount,
 } from "@/actions/dashboardAction";
-import { Loader2 } from "lucide-react";
+import { Bell, Download, Loader2, ShieldAlert, Trash2 } from "lucide-react";
 import ConfirmDialog from "@/components/common/confirm-dialog";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/authStore";
@@ -52,7 +51,7 @@ export default function AccountSettings({
           await setNotificationSettings(
             userId,
             "appointment_reminder",
-            checked
+            checked,
           );
           toast("Preferences Updated", {
             description:
@@ -78,7 +77,7 @@ export default function AccountSettings({
       const result = await deleteUserAccount(userId);
       if (result.success) {
         toast.success(
-          "Account deleted successfully. You will be logged out shortly."
+          "Account deleted successfully. You will be logged out shortly.",
         );
         await signOut();
         router.push("/");
@@ -96,148 +95,142 @@ export default function AccountSettings({
     }
   };
 
+  const handleExportData = async () => {
+    toast("Exporting...", {
+      description: "Preparing your data...",
+    });
+
+    const res = await fetch("/api/export-user-data", {
+      method: "POST",
+      body: JSON.stringify({ userId }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      // Download the file
+      const blob = new Blob(
+        [atob(result.data)], // decode base64
+        { type: "application/json" },
+      );
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "your-data.json";
+      link.click();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Your data has been downloaded.");
+    } else {
+      toast.warning("Failed to export data", {
+        description: result.error || "Please try again.",
+      });
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="relative space-y-6">
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 backdrop-blur-xs">
-          <div className="bg-white p-3 rounded-full shadow-md">
-            <Loader2 className="h-8 w-8 text-green-500 animate-spin" />
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl backdrop-blur-xs">
+          <div className="rounded-full bg-card p-3 shadow-md">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         </div>
       )}
-      <div>
-        <h3 className="text-lg font-medium mb-3">Email Preferences</h3>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between p-3 border rounded-md">
+
+      <section className="rounded-xl border bg-card shadow-soft">
+        <header className="flex items-center gap-3 border-b px-5 py-4">
+          <Bell className="h-4 w-4 text-primary" />
+          <h3 className="font-heading text-lg font-medium">
+            Email preferences
+          </h3>
+        </header>
+        <div className="divide-y">
+          <label
+            htmlFor="marketing-emails"
+            className="flex cursor-pointer items-center justify-between gap-6 px-5 py-4"
+          >
             <div>
-              <p className="font-medium">Marketing Emails</p>
+              <p className="font-medium text-foreground">Marketing emails</p>
               <p className="text-sm text-muted-foreground">
                 Stay informed with our latest product updates and exclusive
                 promotions.
               </p>
             </div>
             <Switch
+              id="marketing-emails"
               checked={isMarketingEnabled}
               onCheckedChange={(checked) => {
                 handleNotificationChange("marketing", checked);
               }}
             />
-          </div>
+          </label>
 
-          <div className="flex items-center justify-between p-3 border rounded-md">
+          <label
+            htmlFor="appointment-reminders"
+            className="flex cursor-pointer items-center justify-between gap-6 px-5 py-4"
+          >
             <div>
-              <p className="font-medium">Appointment Reminders</p>
+              <p className="font-medium text-foreground">
+                Appointment reminders
+              </p>
               <p className="text-sm text-muted-foreground">
                 Receive timely notifications about your upcoming appointments.
               </p>
             </div>
             <Switch
+              id="appointment-reminders"
               checked={isAppointmentEnabled}
               onCheckedChange={(checked) => {
                 handleNotificationChange("appointment", checked);
               }}
             />
-          </div>
+          </label>
         </div>
-      </div>
+      </section>
 
-      <Separator />
-
-      {/* <div>
-        <h3 className="text-lg font-medium mb-3">Security</h3>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between p-3 border rounded-md">
-            <div>
-              <p className="font-medium">Change Password</p>
-              <p className="text-sm text-muted-foreground">
-                Update your account password
-              </p>
-            </div>
-            <Button variant="outline" asChild>
-              <Link href="/change-password">Update</Link>
-            </Button>
+      <section className="rounded-xl border bg-card shadow-soft">
+        <header className="flex items-center gap-3 border-b px-5 py-4">
+          <Download className="h-4 w-4 text-primary" />
+          <h3 className="font-heading text-lg font-medium">Your data</h3>
+        </header>
+        <div className="flex items-center justify-between gap-6 px-5 py-4">
+          <div>
+            <p className="font-medium text-foreground">Download your data</p>
+            <p className="text-sm text-muted-foreground">
+              Get a copy of your personal data as a JSON file.
+            </p>
           </div>
-
-          <div className="flex items-center justify-between p-3 border rounded-md">
-            <div>
-              <p className="font-medium">Two-Factor Authentication</p>
-              <p className="text-sm text-muted-foreground">
-                Add an extra layer of security to your account
-              </p>
-            </div>
-            <Button variant="outline" asChild>
-              <Link href="/two-factor-auth">Setup</Link>
-            </Button>
-          </div>
+          <Button variant="outline" onClick={handleExportData}>
+            Export
+          </Button>
         </div>
-      </div> */}
+      </section>
 
-      <div>
-        <h3 className="text-lg font-medium mb-3">Account Management</h3>
-        <div className="space-y-2">
-          <div className="flex items-center justify-between p-3 border rounded-md">
-            <div>
-              <p className="font-medium">Download Your Data</p>
-              <p className="text-sm text-muted-foreground">
-                Get a copy of your personal data
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={async () => {
-                toast("Exporting...", {
-                  description: "Preparing your data...",
-                });
-
-                const res = await fetch("/api/export-user-data", {
-                  method: "POST",
-                  body: JSON.stringify({ userId }),
-                  headers: { "Content-Type": "application/json" },
-                });
-
-                const result = await res.json();
-
-                if (result.success) {
-                  // Download the file
-                  const blob = new Blob(
-                    [atob(result.data)], // decode base64
-                    { type: "application/json" }
-                  );
-                  const url = window.URL.createObjectURL(blob);
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.download = "your-data.json";
-                  link.click();
-                  window.URL.revokeObjectURL(url);
-
-                  toast.success("Your data has been downloaded.");
-                } else {
-                  toast.warning("Failed to export data", {
-                    description: result.error || "Please try again.",
-                  });
-                }
-              }}
-            >
-              Export
-            </Button>
+      <section className="rounded-xl border border-destructive/30 bg-destructive/5">
+        <header className="flex items-center gap-3 border-b border-destructive/20 px-5 py-4">
+          <ShieldAlert className="h-4 w-4 text-destructive" />
+          <h3 className="font-heading text-lg font-medium text-destructive">
+            Danger zone
+          </h3>
+        </header>
+        <div className="flex items-center justify-between gap-6 px-5 py-4">
+          <div>
+            <p className="font-medium text-foreground">Delete account</p>
+            <p className="text-sm text-muted-foreground">
+              Permanently delete your account and all of its data.
+            </p>
           </div>
-
-          <div className="flex items-center justify-between p-3 border rounded-md">
-            <div>
-              <p className="font-medium text-red-600">Delete Account</p>
-              <p className="text-sm text-muted-foreground">
-                Permanently delete your account and all data
-              </p>
-            </div>
-            <Button
-              variant="destructive"
-              onClick={() => setIsDeleteDialogOpen(true)}
-            >
-              Delete
-            </Button>
-          </div>
+          <Button
+            variant="destructive"
+            onClick={() => setIsDeleteDialogOpen(true)}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            Delete
+          </Button>
         </div>
-      </div>
+      </section>
 
       {/* Delete Account Confirmation Dialog */}
       <ConfirmDialog

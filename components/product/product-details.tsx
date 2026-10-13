@@ -94,12 +94,15 @@ function ProductDetailsText({
     hexCode: string | null | undefined
   ): React.CSSProperties => {
     if (!hexCode || !/^#[0-9A-F]{6}$/i.test(hexCode)) {
-      return { backgroundColor: "#e5e7eb", border: "1px solid #d1d5db" };
+      return {
+        backgroundColor: "var(--muted)",
+        border: "1px solid var(--border)",
+      };
     }
     const isWhite = hexCode.toLowerCase() === "#ffffff";
     return {
       backgroundColor: hexCode,
-      border: isWhite ? "1px solid #d1d5db" : undefined,
+      border: isWhite ? "1px solid var(--border)" : undefined,
     };
   };
   const productUrl =
@@ -118,29 +121,24 @@ function ProductDetailsText({
     typeof colorJson.hex === "string";
 
   return (
-    <div className="space-y-4 md:space-y-5 py-4 md:py-0">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+    <div className="space-y-5 py-2 md:py-0 lg:sticky lg:top-24 lg:self-start">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         {categoryDisplay && (
-          <span className="text-gray-600 capitalize">{categoryDisplay}</span>
+          <span className="eyebrow text-primary">{categoryDisplay}</span>
         )}
-        {product.is_bestseller && (
-          <Badge
-            variant="outline"
-            className="border-yellow-500 text-yellow-700"
-          >
-            Bestseller
+        {product.is_bestseller && <Badge variant="highlight">Bestseller</Badge>}
+        {discountPercentage !== null && (
+          <Badge className="border-transparent bg-destructive/10 text-destructive hover:bg-destructive/10">
+            {discountPercentage}% off
           </Badge>
         )}
-        {discountPercentage !== null && (
-          <Badge variant="destructive">{discountPercentage}% OFF</Badge>
-        )}
       </div>
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 font-montserrat capitalize">
+      <h1 className="font-heading text-3xl font-medium capitalize leading-tight text-foreground md:text-4xl">
         {product.name}
       </h1>
       {hasColorOptions && (
         <div className="mb-4">
-          <p className="text-sm font-medium text-gray-700 mb-2">
+          <p className="text-sm font-medium text-foreground mb-2">
             Select Color:{" "}
             <span className="font-semibold text-primary">
               {selectedColor?.name || "(Not selected)"}
@@ -158,14 +156,14 @@ function ProductDetailsText({
                   "relative block w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary",
                   selectedColor?.name === colorInfo.name
                     ? "border-primary ring-1 ring-primary"
-                    : "border-transparent hover:border-gray-400"
+                    : "border-transparent hover:border-input"
                 )}
                 style={getColorStyle(colorInfo.hex)}
               >
                 {selectedColor?.name === colorInfo.name && (
                   <span className="absolute inset-0 flex items-center justify-center">
                     <Check
-                      className={`h-4 w-4 ${colorInfo.hex && ["#000000", "#755237"].includes(colorInfo.hex.toLowerCase()) ? "text-white" : "text-black"} mix-blend-difference`}
+                      className={`h-4 w-4 ${colorInfo.hex && ["#000000", "#755237"].includes(colorInfo.hex.toLowerCase()) ? "text-primary-foreground" : "text-foreground"} mix-blend-difference`}
                     />
                   </span>
                 )}
@@ -173,21 +171,21 @@ function ProductDetailsText({
             ))}
           </div>
           {hasColorOptions && !selectedColor && (
-            <p className="text-xs text-red-600 mt-1.5">Selection required</p>
+            <p className="text-xs text-destructive mt-1.5">Selection required</p>
           )}
         </div>
       )}
-      <div className="flex items-baseline space-x-3">
-        <span className="text-2xl md:text-3xl font-semibold text-primary">
+      <div className="flex items-baseline gap-3 border-b pb-5">
+        <span className="font-heading text-3xl text-primary md:text-4xl">
           {formatZAR(product.price)}
         </span>
         {product.compare_price && product.compare_price > product.price && (
-          <span className="text-lg text-gray-500 line-through">
+          <span className="text-lg text-muted-foreground line-through">
             {formatZAR(product.compare_price)}
           </span>
         )}
       </div>
-      <div className="flex items-center gap-2 pt-2">
+      <div className="flex items-start gap-2">
         <EnhancedAddToCart
           product={product}
           selectedColor={selectedColor}
@@ -196,11 +194,14 @@ function ProductDetailsText({
         <button
           onClick={handleToggleWishlist}
           disabled={isWishlistLoading || !user?.id}
-          className={`flex items-center justify-center p-3 h-11 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors ${isWishlistLoading ? "opacity-50 cursor-wait" : ""}`}
+          className={cn(
+            "flex h-10 w-10 shrink-0 self-end items-center justify-center rounded-full border border-border transition-colors hover:bg-secondary",
+            isWishlistLoading && "cursor-wait opacity-50"
+          )}
           aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart
-            className={`h-5 w-5 ${isInWishlist ? "fill-red-500 text-red-500" : "text-gray-700"}`}
+            className={`h-5 w-5 ${isInWishlist ? "fill-destructive text-destructive" : "text-foreground"}`}
           />
         </button>
       </div>
@@ -209,18 +210,17 @@ function ProductDetailsText({
       )}
       <div className="text-sm pt-2">
         {product.stock_quantity > 5 ? (
-          <Badge
-            variant="outline"
-            className="border-green-300 bg-green-50 text-green-700"
-          >
-            <Check className="w-3.5 h-3.5 mr-1" /> In Stock
+          <Badge variant="success">
+            <Check className="mr-1 h-3.5 w-3.5" /> In stock
           </Badge>
         ) : product.stock_quantity > 0 ? (
-          <span className="text-orange-600 font-medium">
-            Low stock ({product.stock_quantity} left)
-          </span>
+          <Badge variant="warning">
+            Only {product.stock_quantity} left
+          </Badge>
         ) : (
-          <Badge variant="destructive">Out of stock</Badge>
+          <Badge className="border-transparent bg-destructive/10 text-destructive hover:bg-destructive/10">
+            Out of stock
+          </Badge>
         )}
       </div>
       <div className="pt-2">
@@ -329,11 +329,11 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
   return (
     <div className="mb-8 md:mb-12">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-16">
         <div className="flex flex-col gap-4">
           {/* Main Image Display Container with Manual Zoom */}
           <div
-            className="aspect-square w-full bg-gray-100 rounded-lg border relative group overflow-hidden cursor-zoom-in"
+            className="group relative aspect-square w-full cursor-zoom-in overflow-hidden rounded-xl bg-secondary"
             onMouseMove={handleMouseMoveForZoom}
             onMouseEnter={handleMouseEnterForZoom}
             onMouseLeave={handleMouseLeaveForZoom}
@@ -361,7 +361,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                 }
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gray-200">
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted">
                 No image available
               </div>
             )}
@@ -369,8 +369,8 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             {/* Overlays: Badges and Expand Icon (should be on top) */}
             {product.is_bestseller && (
               <Badge
-                variant="outline"
-                className="absolute top-3 left-3 z-10 bg-white/80 border-yellow-500 text-yellow-700 shadow-sm pointer-events-none"
+                variant="highlight"
+                className="pointer-events-none absolute left-4 top-4 z-10 shadow-sm"
               >
                 Bestseller
               </Badge>
@@ -378,9 +378,9 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             {calculateDiscountPercentage(product) !== null && (
               <Badge
                 variant="destructive"
-                className="absolute top-3 right-3 z-10 shadow-sm pointer-events-none"
+                className="pointer-events-none absolute right-4 top-4 z-10 shadow-sm"
               >
-                {calculateDiscountPercentage(product)}% OFF
+                {calculateDiscountPercentage(product)}% off
               </Badge>
             )}
             {hasImages && (
@@ -389,27 +389,27 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                   e.stopPropagation();
                   handleOpenLightbox(selectedImage);
                 }}
-                className="absolute bottom-3 right-3 z-10 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all duration-200 "
+                className="absolute bottom-4 right-4 z-10 rounded-full bg-card/90 p-2.5 text-foreground shadow-soft backdrop-blur transition-colors hover:bg-card"
                 aria-label="View image in full screen"
               >
-                <Expand size={20} />
+                <Expand size={18} />
               </button>
             )}
           </div>
 
           {/* Thumbnail Navigation */}
           {hasImages && product.image_url.length > 1 && (
-            <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+            <div className="flex gap-3 overflow-x-auto pb-2">
               {product.image_url.map((url, index) => (
                 <button
                   key={index}
                   type="button"
                   aria-label={`View image ${index + 1}`}
                   className={cn(
-                    "relative w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden block border-2 transition-all duration-200 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary",
+                    "relative block h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-secondary transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:h-20 sm:w-20",
                     url === selectedImage
-                      ? "border-primary"
-                      : "border-transparent hover:border-gray-400"
+                      ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                      : "opacity-70 hover:opacity-100"
                   )}
                   onClick={() => {
                     setSelectedImage(url);
@@ -426,9 +426,6 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                       console.warn("Failed to load thumbnail image:", url)
                     }
                   />
-                  {url === selectedImage && (
-                    <div className="absolute inset-0 bg-black/30 pointer-events-none" />
-                  )}
                 </button>
               ))}
             </div>

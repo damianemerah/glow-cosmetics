@@ -119,7 +119,7 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
         Link.configure({
           openOnClick: false,
           HTMLAttributes: {
-            class: "text-blue-600 hover:text-blue-800",
+            class: "text-primary hover:text-info",
           },
         }),
         Placeholder.configure({
@@ -150,16 +150,16 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
         attributes: {
           class:
             "prose max-w-none min-h-[120px] focus:outline-none " +
-            "prose-headings:font-bold prose-headings:text-gray-800 " +
-            "prose-p:text-base prose-p:text-gray-600 prose-p:leading-normal ![&>p]:my-2 " +
-            "prose-a:text-blue-600 prose-a:no-underline hover:prose-a:text-blue-700 " +
-            "prose-strong:font-bold prose-strong:text-gray-800 " +
+            "prose-headings:font-bold prose-headings:text-foreground " +
+            "prose-p:text-base prose-p:text-muted-foreground prose-p:leading-normal ![&>p]:my-2 " +
+            "prose-a:text-primary prose-a:no-underline hover:prose-a:text-primary " +
+            "prose-strong:font-bold prose-strong:text-foreground " +
             "prose-ul:list-disc prose-ol:list-decimal " +
-            "prose-li:text-gray-600 prose-li:my-2 " +
+            "prose-li:text-muted-foreground prose-li:my-2 " +
             "prose-img:rounded-lg prose-img:shadow-md max-w-full " +
-            "prose-blockquote:border-l-4 prose-blockquote:border-gray-300 prose-blockquote:pl-4 prose-blockquote:italic " +
-            "prose-hr:border-gray-200 " +
-            "prose-pre:bg-gray-50 prose-pre:rounded prose-pre:p-4 " +
+            "prose-blockquote:border-l-4 prose-blockquote:border-border prose-blockquote:pl-4 prose-blockquote:italic " +
+            "prose-hr:border-border " +
+            "prose-pre:bg-muted/50 prose-pre:rounded prose-pre:p-4 " +
             "[&>*]:my-2 " +
             "forced-colors-mode:prose-img:border forced-colors-mode:prose-img:border-solid ",
         },
@@ -224,11 +224,11 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 
     // Color palette from app theme
     const appColors = [
-      { name: "Primary", color: "hsl(var(--primary))" },
-      { name: "Secondary", color: "hsl(var(--secondary))" },
-      { name: "Destructive", color: "hsl(var(--destructive))" },
-      { name: "Accent", color: "hsl(var(--accent))" },
-      { name: "Muted", color: "hsl(var(--muted))" },
+      { name: "Primary", color: "var(--primary)" },
+      { name: "Secondary", color: "var(--secondary)" },
+      { name: "Destructive", color: "var(--destructive)" },
+      { name: "Accent", color: "var(--accent)" },
+      { name: "Muted", color: "var(--muted)" },
       { name: "Black", color: "#000000" },
       { name: "Red", color: "#f44336" },
       { name: "Blue", color: "#2196f3" },
@@ -248,7 +248,7 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
 
     return (
       <div className={`border rounded-md relative ${className}`}>
-        <div className="flex flex-wrap items-center p-2 border-b gap-1 bg-white sticky top-0 z-10">
+        <div className="flex flex-wrap items-center p-2 border-b gap-1 bg-background sticky top-0 z-10">
           {/* Text formatting controls */}
           <div className="flex items-center gap-1">
             <Button
@@ -496,7 +496,7 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
                     <Button
                       key={color.name}
                       type="button"
-                      className="w-8 h-8 rounded-full p-0 overflow-hidden border border-gray-200"
+                      className="w-8 h-8 rounded-full p-0 overflow-hidden border border-border"
                       style={{ backgroundColor: color.color }}
                       onClick={() =>
                         editor.chain().focus().setColor(color.color).run()
@@ -534,7 +534,7 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
                 This is how your content will appear.
               </DialogDescription>
             </DialogHeader>
-            <div className="border p-4 rounded-md bg-white overflow-auto max-h-[60vh]">
+            <div className="border p-4 rounded-md bg-card overflow-auto max-h-[60vh]">
               <div
                 className="prose prose-sm sm:prose lg:prose-lg"
                 dangerouslySetInnerHTML={{ __html: editor.getHTML() }}

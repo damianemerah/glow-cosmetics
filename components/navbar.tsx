@@ -221,7 +221,7 @@ const Navbar = () => {
   return (
     <>
       <header
-        className={`fixed top-0 z-40 w-full backdrop-blur-lg transition-transform duration-300 ease-in-out ${hideNavbar ? "-translate-y-full" : "translate-y-0"} ${pathname === "/" && !isScrolledPastHero ? "absolute bg-transparent" : ""}`}
+        className={`fixed top-0 z-40 w-full backdrop-blur-lg transition-all duration-300 ease-in-out ${hideNavbar ? "-translate-y-full" : "translate-y-0"} ${pathname === "/" && !isScrolledPastHero ? "absolute bg-transparent" : "bg-background/80 border-b border-border/60"}`}
       >
         <div className="container mx-auto flex h-16 md:h-20 items-center justify-between px-4">
           <BrandLogo />
@@ -252,8 +252,7 @@ const Navbar = () => {
             <Button
               asChild
               size="sm"
-              // Added ml-8 for significant separation before the primary CTA
-              className="bg-primary hover:bg-primary/90 text-primary-foreground ml-8"
+              className="ml-8"
             >
               <Link href="/booking">Book Appointment</Link>
             </Button>

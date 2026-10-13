@@ -126,7 +126,7 @@ export default function CategoryList({
           <Button
             variant="outline"
             size="sm"
-            className="text-red-500 hover:bg-red-50 hover:text-red-600"
+            className="text-destructive hover:bg-destructive/5 hover:text-destructive"
             onClick={() => handleDelete(row)}
             disabled={isPending && categoryToDelete?.id === row.id}
           >

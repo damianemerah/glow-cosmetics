@@ -10,6 +10,7 @@ import ProductSortView, {
   type ViewMode,
 } from "./product-sort-view";
 import Link from "next/link";
+import { SearchX } from "lucide-react";
 import { useScrollStore } from "@/store/scrollStore";
 
 interface ProductsGridProps {
@@ -77,8 +78,8 @@ export default function ProductsGrid({
 
   return (
     <section ref={localFiltersRef} className="pb-8 md:pb-12 bg-background">
-      <div className=" mx-auto relative">
-        <div className="sticky top-0 md:top-14 z-20 -mx-4 px-4 bg-background border-b border-border">
+      <div className="relative">
+        <div className="sticky top-0 z-20 -mx-4 border-b border-border bg-background/95 px-4 backdrop-blur md:top-14">
           <ProductSortView
             currentSort={currentSort}
             currentView={currentView}
@@ -92,7 +93,7 @@ export default function ProductsGrid({
         {/* Product Grid/List */}
         {products.length > 0 ? (
           currentView === "grid" ? (
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">
+            <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-6 md:gap-y-10 lg:grid-cols-4">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -105,21 +106,27 @@ export default function ProductsGrid({
             </div>
           )
         ) : (
-          <div className="mt-16 text-center text-muted-foreground">
-            {initialFilter || currentSort !== "latest" ? (
-              <p>No products found matching your criteria.</p>
-            ) : (
-              <p>No products available yet.</p>
-            )}
+          <div className="mx-auto mt-12 flex max-w-md flex-col items-center rounded-xl border border-dashed bg-secondary/40 px-6 py-14 text-center">
+            <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-accent-foreground">
+              <SearchX className="h-6 w-6" />
+            </span>
+            <h3 className="font-heading text-xl font-medium text-foreground">
+              {initialFilter || currentSort !== "latest"
+                ? "No products match these filters"
+                : "No products available yet"}
+            </h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Try a different sort or browse the full collection.
+            </p>
             <Link
               href="/products"
-              className="text-primary hover:underline mt-2 inline-block"
+              className="mt-6 text-sm font-medium text-primary hover:underline"
               onClick={(e) => {
                 e.preventDefault();
                 router.push("/products");
               }}
             >
-              View All Products
+              View all products
             </Link>
           </div>
         )}

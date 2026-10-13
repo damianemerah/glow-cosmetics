@@ -6,49 +6,184 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+/*
+  Glow by UgoSylvia — design tokens
 
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+  Follows the shadcn/ui + Tailwind v4 convention:
+    1. Raw values live as CSS variables on :root / .dark (below).
+    2. `@theme inline` maps them to Tailwind color utilities
+       (bg-primary, text-muted-foreground, border-border, ...).
 
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  Always reach for a semantic utility (text-foreground, bg-card,
+  text-destructive, bg-success/10 ...) instead of a palette color
+  (text-gray-600, bg-green-500 ...), so the whole UI follows the theme.
 
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  Palette: deep botanical green (from the logo), warm ivory surfaces and a
+  champagne-gold highlight.
+*/
 
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
+:root {
+  --radius: 0.75rem;
 
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
+  /* Surfaces */
+  --background: oklch(0.985 0.006 95);
+  --foreground: oklch(0.24 0.025 160);
+  --card: oklch(0.997 0.003 95);
+  --card-foreground: oklch(0.24 0.025 160);
+  --popover: oklch(0.997 0.003 95);
+  --popover-foreground: oklch(0.24 0.025 160);
 
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
+  /* Brand */
+  --primary: oklch(0.4 0.085 155);
+  --primary-foreground: oklch(0.985 0.01 95);
+  --secondary: oklch(0.96 0.014 90);
+  --secondary-foreground: oklch(0.3 0.05 155);
+  --accent: oklch(0.94 0.025 150);
+  --accent-foreground: oklch(0.3 0.06 155);
+  --highlight: oklch(0.74 0.1 80);
+  --highlight-foreground: oklch(0.24 0.04 70);
 
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
+  /* Neutrals */
+  --muted: oklch(0.955 0.009 95);
+  --muted-foreground: oklch(0.5 0.02 155);
+  --border: oklch(0.9 0.012 95);
+  --input: oklch(0.88 0.014 95);
+  --ring: oklch(0.4 0.085 155);
 
-  --color-green-500: #4caf50;
+  /* Status */
+  --destructive: oklch(0.55 0.2 27);
+  --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(0.52 0.12 152);
+  --success-foreground: oklch(0.985 0.01 95);
+  --warning: oklch(0.6 0.13 65);
+  --warning-foreground: oklch(0.985 0.01 95);
+  --info: oklch(0.52 0.11 240);
+  --info-foreground: oklch(0.985 0.01 95);
 
-  --color-green-light: #f4fff5;
+  /* Charts */
+  --chart-1: oklch(0.4 0.085 155);
+  --chart-2: oklch(0.74 0.1 80);
+  --chart-3: oklch(0.62 0.09 165);
+  --chart-4: oklch(0.55 0.08 30);
+  --chart-5: oklch(0.52 0.11 240);
 
-  --font-montserrat: var(--font-montserrat);
-  --font-sans: var(--font-open-sans);
+  /* Admin sidebar */
+  --sidebar: oklch(0.975 0.008 95);
+  --sidebar-foreground: oklch(0.3 0.03 160);
+  --sidebar-primary: oklch(0.4 0.085 155);
+  --sidebar-primary-foreground: oklch(0.985 0.01 95);
+  --sidebar-accent: oklch(0.94 0.025 150);
+  --sidebar-accent-foreground: oklch(0.3 0.06 155);
+  --sidebar-border: oklch(0.9 0.012 95);
+  --sidebar-ring: oklch(0.4 0.085 155);
+}
 
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
+.dark {
+  --background: oklch(0.17 0.015 160);
+  --foreground: oklch(0.95 0.01 95);
+  --card: oklch(0.21 0.018 160);
+  --card-foreground: oklch(0.95 0.01 95);
+  --popover: oklch(0.21 0.018 160);
+  --popover-foreground: oklch(0.95 0.01 95);
+
+  --primary: oklch(0.74 0.11 152);
+  --primary-foreground: oklch(0.18 0.03 160);
+  --secondary: oklch(0.25 0.02 160);
+  --secondary-foreground: oklch(0.92 0.015 95);
+  --accent: oklch(0.28 0.035 155);
+  --accent-foreground: oklch(0.92 0.015 95);
+  --highlight: oklch(0.8 0.1 82);
+  --highlight-foreground: oklch(0.2 0.03 70);
+
+  --muted: oklch(0.25 0.018 160);
+  --muted-foreground: oklch(0.72 0.02 140);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.74 0.11 152);
+
+  --destructive: oklch(0.65 0.19 25);
+  --destructive-foreground: oklch(0.985 0 0);
+  --success: oklch(0.72 0.13 152);
+  --success-foreground: oklch(0.18 0.03 160);
+  --warning: oklch(0.8 0.13 75);
+  --warning-foreground: oklch(0.2 0.03 70);
+  --info: oklch(0.72 0.11 240);
+  --info-foreground: oklch(0.18 0.03 250);
+
+  --chart-1: oklch(0.74 0.11 152);
+  --chart-2: oklch(0.8 0.1 82);
+  --chart-3: oklch(0.7 0.09 190);
+  --chart-4: oklch(0.68 0.12 30);
+  --chart-5: oklch(0.72 0.11 240);
+
+  --sidebar: oklch(0.2 0.018 160);
+  --sidebar-foreground: oklch(0.92 0.015 95);
+  --sidebar-primary: oklch(0.74 0.11 152);
+  --sidebar-primary-foreground: oklch(0.18 0.03 160);
+  --sidebar-accent: oklch(0.28 0.035 155);
+  --sidebar-accent-foreground: oklch(0.92 0.015 95);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.74 0.11 152);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-display), ui-serif, Georgia, serif;
+  --font-serif: var(--font-display), ui-serif, Georgia, serif;
+
   --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-soft: 0 1px 2px oklch(0.24 0.025 160 / 0.04),
+    0 8px 24px -8px oklch(0.24 0.025 160 / 0.08);
+  --shadow-elevated: 0 2px 4px oklch(0.24 0.025 160 / 0.04),
+    0 24px 48px -16px oklch(0.24 0.025 160 / 0.16);
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
-
-  /* --shadow-top-lg: "0 -10px 15px -3px rgb(0 0 0 / 0.1), 0 -4px 6px -4px rgb(0 0 0 / 0.1)"; */
 
   @keyframes accordion-down {
     from {
@@ -70,111 +205,51 @@
 
 @utility container {
   margin-inline: auto;
-  padding-inline: 2rem;
+  padding-inline: 1rem;
   @media (width >= --theme(--breakpoint-sm)) {
-    max-width: none;
+    padding-inline: 1.5rem;
+  }
+  @media (width >= --theme(--breakpoint-lg)) {
+    padding-inline: 2rem;
   }
   @media (width >= 1400px) {
-    max-width: 1400px;
+    max-width: 1320px;
   }
 }
 
 /*
-  The default border color has changed to `currentColor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
+  Small uppercase label above section headings, led by a gold rule.
+  Pair with a text color for its surface: text-primary on light
+  backgrounds, text-highlight on primary bands.
 */
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentColor);
-  }
-}
-
-@layer utilities {
-  :root {
-    --font-montserrat: var(--font-montserrat);
-    --font-open-sans: var(--font-open-sans);
-  }
-}
-
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-
-    --primary: 122 39% 49%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 60 30% 96%;
-    --secondary-foreground: 0 0% 10%;
-
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-
-    --accent: 122 39% 49%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 122 39% 49%;
-
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 15%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 15%;
-    --popover-foreground: 0 0% 98%;
-
-    --primary: 122 39% 49%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 98%;
-
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 65%;
-
-    --accent: 122 39% 49%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 122 39% 49%;
+@utility eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  &::before {
+    content: "";
+    width: 1.75rem;
+    height: 1px;
+    background-color: var(--highlight);
   }
 }
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-border outline-ring/50;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    @apply bg-background text-foreground font-sans;
   }
   h1,
   h2,
@@ -182,107 +257,52 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-montserrat);
+    @apply font-heading tracking-tight;
   }
-  p,
-  span,
-  div,
-  a,
-  button,
-  input,
-  textarea {
-    font-family: var(--font-open-sans);
+  ::selection {
+    @apply bg-primary/15 text-foreground;
   }
 }
 
-.font-montserrat {
-  font-family: var(--font-montserrat);
+/* react-phone-input-2: match the shadcn Input */
+.react-tel-input {
+  font-family: var(--font-sans) !important;
 }
-
-.font-open-sans {
-  font-family: var(--font-open-sans);
+.react-tel-input .form-control {
+  width: 100% !important;
+  height: 2.5rem !important;
+  border-radius: calc(var(--radius) - 2px) !important;
+  border: 1px solid var(--input) !important;
+  background: transparent !important;
+  color: var(--foreground) !important;
+  font-size: 0.875rem !important;
 }
-
-/*
-  ---break---
-*/
-
-:root {
-  --sidebar: hsl(0 0% 98%);
-  --sidebar-foreground: hsl(240 5.3% 26.1%);
-  --sidebar-primary: hsl(240 5.9% 10%);
-  --sidebar-primary-foreground: hsl(0 0% 98%);
-  --sidebar-accent: hsl(240 4.8% 95.9%);
-  --sidebar-accent-foreground: hsl(240 5.9% 10%);
-  --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+.react-tel-input .form-control:focus {
+  border-color: var(--ring) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 25%, transparent) !important;
 }
-
-/*
-  ---break---
-*/
-
-.dark {
-  --sidebar: hsl(240 5.9% 10%);
-  --sidebar-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-primary: hsl(224.3 76.3% 48%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(240 3.7% 15.9%);
-  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
-  --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+.react-tel-input .form-control[aria-invalid="true"] {
+  border-color: var(--destructive) !important;
 }
-
-/*
-  ---break---
-*/
-
-@theme inline {
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
-  /*
-  ---break---
-*/
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
-  /*
-  ---break---
-*/
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-    to {
-      height: 0;
-    }
-  }
+.react-tel-input .flag-dropdown {
+  border: 1px solid var(--input) !important;
+  border-radius: calc(var(--radius) - 2px) 0 0 calc(var(--radius) - 2px) !important;
+  background: var(--muted) !important;
 }
-
-/*
-  ---break---
-*/
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+.react-tel-input .flag-dropdown.open .selected-flag,
+.react-tel-input .selected-flag:hover,
+.react-tel-input .selected-flag:focus {
+  background: var(--accent) !important;
+}
+.react-tel-input .country-list {
+  background: var(--popover) !important;
+  color: var(--popover-foreground) !important;
+  border-radius: calc(var(--radius) - 2px) !important;
+  box-shadow: var(--shadow-elevated) !important;
+}
+.react-tel-input .country-list .country:hover,
+.react-tel-input .country-list .country.highlight {
+  background: var(--accent) !important;
 }
 
 .prose {

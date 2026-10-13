@@ -31,25 +31,25 @@ type OrderItemWithCategories = {
 const revenueChartConfig = {
   services: {
     label: "Services",
-    color: "hsl(142, 71%, 45%)", // Green
+    color: "var(--chart-1)",
   },
   products: {
     label: "Products",
-    color: "hsl(47, 100%, 50%)", // Yellow
+    color: "var(--chart-2)",
   },
 };
 
 const appointmentChartConfig = {
   count: {
     label: "Appointments",
-    color: "hsl(142, 71%, 45%)",
+    color: "var(--chart-1)",
   },
 };
 
 const productChartConfig = {
   value: {
     label: "Sales",
-    color: "hsl(142, 71%, 45%)",
+    color: "var(--chart-1)",
   },
 };
 
@@ -257,14 +257,12 @@ async function getRevenueDistribution(startDate: string, endDate: string) {
 
   // Define colors for the pie chart
   const colors = [
-    "#4CAF50",
-    "#8BC34A",
-    "#CDDC39",
-    "#FFC107",
-    "#FF9800",
-    "#F44336",
-    "#9C27B0",
-  ]; // Added more colors
+    "var(--chart-1)",
+    "var(--chart-2)",
+    "var(--chart-3)",
+    "var(--chart-4)",
+    "var(--chart-5)",
+  ];
 
   // Convert to percentage and format for chart
   const result = Object.keys(serviceRevenue)

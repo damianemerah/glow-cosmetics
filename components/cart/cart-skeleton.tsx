@@ -11,7 +11,7 @@ export default function CartSkeleton() {
           </div>
 
           <div className="divide-y">
-            <div className="hidden md:grid md:grid-cols-5 text-sm text-gray-500 p-4">
+            <div className="hidden md:grid md:grid-cols-5 text-sm text-muted-foreground p-4">
               <div className="col-span-2">Product</div>
               <div className="text-center">Price</div>
               <div className="text-center">Quantity</div>

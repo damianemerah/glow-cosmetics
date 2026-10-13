@@ -44,13 +44,13 @@ export const UserAuth = ({ onLogout, isLoading }: UserAuthProps) => {
         >
           <Avatar className="h-8 w-8">
             {isLoading ? (
-              <AvatarFallback className="bg-gray-100">
+              <AvatarFallback className="bg-muted">
                 <Loader2 className="h-4 w-4 animate-spin" />
               </AvatarFallback>
             ) : (
               <>
                 <AvatarImage src={user?.avatar || ""} alt="User avatar" />
-                <AvatarFallback className="bg-green-100 text-green-800">
+                <AvatarFallback className="bg-success/10 text-success">
                   {getInitial()}
                 </AvatarFallback>
               </>
@@ -95,7 +95,7 @@ export const UserAuth = ({ onLogout, isLoading }: UserAuthProps) => {
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={onLogout}
-              className="text-red-600 cursor-pointer hover:bg-red-50 focus:bg-red-50 focus:text-red-700"
+              className="text-destructive cursor-pointer hover:bg-destructive/5 focus:bg-destructive/5 focus:text-destructive"
             >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Log out</span>

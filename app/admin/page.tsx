@@ -170,7 +170,7 @@ export default async function DashboardPage() {
       />
 
       <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-4 font-montserrat">
+        <h2 className="text-lg font-semibold mb-4 font-heading">
           Recent Activity
         </h2>
         <DataTable columns={activityColumns} data={recentActivity} />
@@ -179,19 +179,19 @@ export default async function DashboardPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Button
           asChild
-          className="bg-primary text-white hover:bg-primary/90 hover:scale-105 transition-transform"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform"
         >
           <Link href="/admin/appointments">Add Appointment</Link>
         </Button>
         <Button
           asChild
-          className="bg-primary text-white hover:bg-primary/90 hover:scale-105 transition-transform"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform"
         >
           <Link href="/admin/products">Add Product</Link>
         </Button>
         <Button
           asChild
-          className="bg-primary text-white hover:bg-primary/90 hover:scale-105 transition-transform"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform"
         >
           <Link href="/admin/messaging">Send Message</Link>
         </Button>

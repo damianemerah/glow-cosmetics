@@ -135,7 +135,7 @@ function DepositPaymentPageContent() {
     <div className="container mx-auto px-4 py-8 max-w-md">
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl font-bold font-montserrat">
+          <CardTitle className="text-xl font-bold font-heading">
             Pay Deposit
           </CardTitle>
           <CardDescription>
@@ -210,12 +210,12 @@ function DepositPaymentPageContent() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-green-500 hover:bg-green-600"
+                  className="w-full bg-primary hover:bg-primary/90"
                   disabled={isLoading}
                 >
                   {isLoading ? (
                     <span className="flex items-center">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
                       Processing...
                     </span>
                   ) : (
@@ -231,7 +231,7 @@ function DepositPaymentPageContent() {
                   Please transfer the deposit amount to the following bank
                   details:
                 </p>
-                <div className="bg-gray-100 p-4 rounded-md text-sm">
+                <div className="bg-muted p-4 rounded-md text-sm">
                   <p>
                     <strong>Bank:</strong> {bankDetails.bank_name}
                   </p>
@@ -254,7 +254,7 @@ function DepositPaymentPageContent() {
                 </div>
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                   <Button
-                    className="w-full bg-green-500 hover:bg-green-600"
+                    className="w-full bg-primary hover:bg-primary/90"
                     type="button"
                   >
                     Confirm Transfer via WhatsApp

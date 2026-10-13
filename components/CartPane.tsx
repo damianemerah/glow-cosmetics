@@ -218,11 +218,11 @@ export function CartPane({
         side="right"
       >
         <SheetHeader className="mb-4">
-          <SheetTitle className="text-xl font-bold font-montserrat flex items-center">
+          <SheetTitle className="text-xl font-bold font-heading flex items-center">
             <ShoppingBag className="mr-2 h-5 w-5" />
             Your Cart
             {!isOnline && (
-              <div className="ml-auto flex items-center text-amber-500 text-sm">
+              <div className="ml-auto flex items-center text-warning text-sm">
                 <WifiOff className="h-4 w-4 mr-1" />
                 Offline Mode
               </div>
@@ -233,7 +233,7 @@ export function CartPane({
         {isLoading ? (
           <CartPaneSkeleton />
         ) : error ? (
-          <div className="text-red-500 p-4 text-center">
+          <div className="text-destructive p-4 text-center">
             <p>Failed to load cart items</p>
             <Button
               variant="outline"
@@ -248,7 +248,7 @@ export function CartPane({
             <ShoppingBag className="h-12 w-12 text-muted-foreground mb-2" />
             <p className="text-muted-foreground">Your cart is empty</p>
             <Button
-              className="mt-4 bg-green-500 hover:bg-green-600"
+              className="mt-4 bg-primary hover:bg-primary/90"
               onClick={() => {
                 router.push("/products");
                 onOpenChange(false);
@@ -278,8 +278,8 @@ export function CartPane({
                         />
                       </div>
                     ) : (
-                      <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
-                        <ShoppingBag className="h-8 w-8 text-gray-400" />
+                      <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
+                        <ShoppingBag className="h-8 w-8 text-muted-foreground" />
                       </div>
                     )}
                     <div className="flex-grow">
@@ -300,7 +300,7 @@ export function CartPane({
                   </div>
                   <button
                     onClick={() => handleRemoveItem(item.id, item.color || "")}
-                    className="text-muted-foreground hover:text-red-500 opacity-50 group-hover:opacity-100 transition-opacity"
+                    className="text-muted-foreground hover:text-destructive opacity-50 group-hover:opacity-100 transition-opacity"
                     aria-label="Remove item"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -320,7 +320,7 @@ export function CartPane({
                 Shipping and taxes calculated at checkout
               </p>
               <Button
-                className="w-full bg-green-500 hover:bg-green-600 mb-2"
+                className="w-full bg-primary hover:bg-primary/90 mb-2"
                 onClick={handleViewCart}
               >
                 View Cart
@@ -333,7 +333,7 @@ export function CartPane({
                 Checkout
               </Button>
               {!isOnline && (
-                <div className="mt-3 text-center text-xs text-amber-600">
+                <div className="mt-3 text-center text-xs text-warning">
                   <p>
                     You&apos;re currently offline. Your cart is saved locally.
                   </p>

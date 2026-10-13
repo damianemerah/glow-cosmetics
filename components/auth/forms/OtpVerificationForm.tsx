@@ -163,7 +163,7 @@ export function OtpVerificationForm({
           <Button
             type="button"
             variant="link"
-            className="text-green-600 hover:text-green-700 h-auto p-0"
+            className="text-primary hover:text-primary h-auto p-0"
             onClick={handleResendOtp}
             disabled={resendTimer > 0 || isResending}
           >
@@ -186,7 +186,7 @@ export function OtpVerificationForm({
           </Button>
           <Button
             type="submit"
-            className="bg-green-500 hover:bg-green-600"
+            className="bg-primary hover:bg-primary/90"
             disabled={isLoading}
           >
             {isLoading ? (

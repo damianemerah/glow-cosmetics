@@ -139,10 +139,13 @@ export default async function CheckoutPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6 font-montserrat text-center">
-        Checkout
-      </h1>
+    <div className="container mx-auto px-4 pb-20 pt-10 md:pt-14">
+      <div className="mb-8 md:mb-10">
+        <p className="eyebrow text-primary">Secure checkout</p>
+        <h1 className="mt-2 font-heading text-4xl font-medium text-foreground md:text-5xl">
+          Checkout
+        </h1>
+      </div>
       <Suspense fallback={<CheckoutSkeleton />}>
         <CheckoutForm
           userId={userId}

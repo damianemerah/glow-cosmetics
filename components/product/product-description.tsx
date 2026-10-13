@@ -2,6 +2,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ProductAdditionalDetails } from "@/types";
 import HtmlDescription from "@/components/common/html-description";
 
+const tabTrigger =
+  "-mb-px flex-none rounded-none border-b-2 border-transparent px-0 pb-3 pt-0 font-heading text-xl font-medium text-muted-foreground shadow-none data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none";
+
 interface Props {
   description: string | null;
   additionalDetails: ProductAdditionalDetails;
@@ -20,24 +23,17 @@ export default function ProductDescriptionAndDetails({
   const defaultTab = hasDescription ? "description" : "details";
 
   return (
-    <div className="mt-10 md:mt-16 mb-16">
+    <div className="mb-16 mt-12 md:mt-20">
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList
-          className={`grid w-full mb-5 ${
-            hasDescription && hasDetails ? "grid-cols-2" : "grid-cols-1"
-          }`}
-        >
+        <TabsList className="mb-6 h-auto w-full justify-start gap-6 rounded-none border-b bg-transparent p-0">
           {hasDescription && (
-            <TabsTrigger
-              value="description"
-              className="text-base font-semibold"
-            >
-              Product Description
+            <TabsTrigger value="description" className={tabTrigger}>
+              Description
             </TabsTrigger>
           )}
           {hasDetails && (
-            <TabsTrigger value="details" className="text-base font-semibold">
-              Additional Details
+            <TabsTrigger value="details" className={tabTrigger}>
+              Details
             </TabsTrigger>
           )}
         </TabsList>
@@ -50,19 +46,19 @@ export default function ProductDescriptionAndDetails({
 
         {hasDetails && (
           <TabsContent value="details">
-            <div className="p-4 md:p-6 bg-gray-50/50 rounded-lg border space-y-3">
+            <dl className="max-w-3xl space-y-3 rounded-xl border bg-card p-4 md:p-6">
               {additionalDetails.map(({ key, value }, index) => (
                 <div
                   key={key}
-                  className={`grid grid-cols-2 gap-4 text-sm items-center pt-4 ${index !== 0 && "border-t border-gray-200"}`}
+                  className={`grid grid-cols-2 gap-4 text-sm items-center pt-4 ${index !== 0 && "border-t border-border"}`}
                 >
-                  <dt className="font-medium text-gray-600 capitalize">
+                  <dt className="font-medium text-muted-foreground capitalize">
                     {key.replace(/_/g, " ")}
                   </dt>
-                  <dd className="text-gray-800">{value}</dd>
+                  <dd className="text-foreground">{value}</dd>
                 </div>
               ))}
-            </div>
+            </dl>
           </TabsContent>
         )}
       </Tabs>
