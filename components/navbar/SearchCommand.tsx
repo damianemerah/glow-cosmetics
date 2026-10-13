@@ -104,7 +104,7 @@ export const SearchCommand = ({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${variant === "desktop" ? "w-[60%] p-0" : "w-[100vw] max-w-[1000px] p-0"}`}
+        className={`${variant === "desktop" ? "w-[min(32rem,calc(100vw-2rem))] p-0" : "w-[100vw] max-w-[1000px] p-0"}`}
         side="bottom"
         align={variant === "desktop" ? "end" : "center"}
         onOpenAutoFocus={(e) => e.preventDefault()}
