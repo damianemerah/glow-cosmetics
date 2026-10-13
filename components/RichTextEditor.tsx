@@ -19,7 +19,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import Focus from "@tiptap/extension-focus";
 import TextStyle from "@tiptap/extension-text-style";
 import BulletList from "@tiptap/extension-bullet-list";
-import FontSize from "@tiptap/extension-font-size";
+import FontSize from "@/lib/tiptap/font-size";
 import {
   Button,
   Dialog,
