@@ -63,9 +63,9 @@ export default function CustomerReviews() {
   );
 
   return (
-    <section className="py-16 md:py-24 bg-primary text-primary-foreground">
+    <section className="py-16 md:py-24 bg-secondary text-foreground">
       <div className="container mx-auto px-4">
-        <p className="eyebrow w-full justify-center text-highlight">Kind Words</p>
+        <p className="eyebrow w-full justify-center text-primary">Kind Words</p>
         <Carousel
           plugins={[plugin.current]}
           className="w-full max-w-3xl mx-auto"
@@ -77,11 +77,11 @@ export default function CustomerReviews() {
           <CarouselContent>
             {reviews.map((review) => (
               <CarouselItem key={review.id} className="text-center">
-                <div className="py-12 px-6 md:px-10">
-                  <p className="text-2xl md:text-3xl lg:text-4xl font-serif italic leading-relaxed md:leading-snug mb-8 text-primary-foreground">
+                <div className="pt-12 pb-24 px-2 md:py-12 md:px-10">
+                  <p className="text-2xl md:text-3xl lg:text-4xl font-serif italic leading-relaxed md:leading-snug mb-8 text-foreground">
                     &quot;{review.reviewText}&quot;
                   </p>
-                  <h3 className="font-sans text-sm uppercase tracking-[0.2em] font-semibold text-primary-foreground/80">
+                  <h3 className="font-sans text-sm uppercase tracking-[0.2em] font-semibold text-foreground/80">
                     {review.name}
                   </h3>
                   {review.sourceLink && (
@@ -89,7 +89,7 @@ export default function CustomerReviews() {
                       href={review.sourceLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors mt-2 inline-block"
+                      className="text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline transition-colors mt-2 inline-block"
                     >
                       View Review
                     </a>
@@ -112,8 +112,9 @@ export default function CustomerReviews() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="absolute left-[-15px] md:left-[-50px] top-1/2 -translate-y-1/2 bg-primary-foreground/85 hover:bg-primary-foreground text-primary border-none h-12 w-12 rounded-full disabled:opacity-30" />
-          <CarouselNext className="absolute right-[-15px] md:right-[-50px] top-1/2 -translate-y-1/2 bg-primary-foreground/85 hover:bg-primary-foreground text-primary border-none h-12 w-12 rounded-full disabled:opacity-30" />
+          {/* Below the quote on mobile so they never cover the text; beside it from md up. */}
+          <CarouselPrevious className="absolute top-auto bottom-6 left-[calc(50%-3.25rem)] translate-y-0 md:top-1/2 md:bottom-auto md:left-[-50px] md:-translate-y-1/2 h-11 w-11 md:h-12 md:w-12 rounded-full border-primary/30 bg-transparent text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-30" />
+          <CarouselNext className="absolute top-auto bottom-6 right-[calc(50%-3.25rem)] translate-y-0 md:top-1/2 md:bottom-auto md:right-[-50px] md:-translate-y-1/2 h-11 w-11 md:h-12 md:w-12 rounded-full border-primary/30 bg-transparent text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-30" />
         </Carousel>
       </div>
     </section>
