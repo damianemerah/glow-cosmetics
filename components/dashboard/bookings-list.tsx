@@ -1,9 +1,7 @@
-// UNUSED
-
 "use client";
 
-import { Badge, Button, Separator } from "@/constants/ui/index";
-import { AlertCircle, Calendar, Clock, RefreshCw } from "lucide-react";
+import { Button } from "@/constants/ui/index";
+import { AlertCircle, CalendarHeart, Plus, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { Booking } from "@/types/index";
@@ -20,7 +18,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { capitalize } from "@/utils";
+import BookingRow from "./booking-row";
+import EmptyState from "./empty-state";
 
 interface BookingsListProps {
   bookings: Booking[];
@@ -59,7 +58,7 @@ export default function BookingsList({
         console.error("Error fetching bookings:", error);
         toast.warning("Failed to load bookings");
       },
-    }
+    },
   );
 
   // Sort bookings: upcoming first, then past
@@ -88,7 +87,7 @@ export default function BookingsList({
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
   const currentBookings = sortedBookings.slice(
     indexOfFirstBooking,
-    indexOfLastBooking
+    indexOfLastBooking,
   );
 
   // Change page
@@ -144,7 +143,7 @@ export default function BookingsList({
 
   if (error || initialError) {
     return (
-      <div className="flex items-center p-4 text-destructive bg-destructive/5 rounded-md">
+      <div className="flex items-center rounded-lg bg-destructive/5 p-4 text-destructive">
         <AlertCircle className="h-5 w-5 mr-2" />
         <p>Unable to load booking data.</p>
         <Button
@@ -170,89 +169,49 @@ export default function BookingsList({
 
   if (!sortedBookings || sortedBookings.length === 0) {
     return (
-      <div className="text-center py-6">
-        <p className="text-muted-foreground">You have no bookings yet</p>
-        <Button className="mt-4 bg-primary hover:bg-primary/90" asChild>
-          <Link href="/booking">Book Your First Appointment</Link>
-        </Button>
-      </div>
+      <EmptyState
+        icon={CalendarHeart}
+        title="You have no bookings yet"
+        description="Your appointments will appear here once you book a treatment with us."
+        action={{ label: "Book your first appointment", href: "/booking" }}
+      />
     );
   }
 
+  const now = new Date();
+
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
+    <div className="space-y-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Showing {indexOfFirstBooking + 1} to{" "}
+          Showing {indexOfFirstBooking + 1}–
           {Math.min(indexOfLastBooking, totalBookings)} of {totalBookings}{" "}
           bookings
         </p>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={refreshBookings}
-          disabled={loading}
-        >
-          <RefreshCw className="h-4 w-4 mr-1" /> Refresh
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={refreshBookings}
+            disabled={loading}
+          >
+            <RefreshCw className="mr-1 h-4 w-4" /> Refresh
+          </Button>
+          <Button size="sm" asChild>
+            <Link href="/booking">
+              <Plus className="mr-1 h-4 w-4" /> New booking
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      {currentBookings.map((booking) => {
-        return (
-          <div key={booking.id}>
-            <div className="flex flex-wrap items-center justify-between">
-              <div>
-                <h4 className="font-medium">
-                  {capitalize(booking.service_name)}
-                </h4>
-                <div className="flex items-center text-sm text-muted-foreground mt-1">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  <span>
-                    {new Date(booking.booking_time).toLocaleDateString()}
-                  </span>
-                  <Clock className="h-4 w-4 ml-3 mr-1" />
-                  <span>
-                    {new Date(booking.booking_time).toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-3 md:mt-0 flex items-center">
-                <Badge
-                  className={
-                    booking.status === "confirmed"
-                      ? "bg-success/10 text-success"
-                      : booking.status === "pending"
-                        ? "bg-warning/10 text-warning"
-                        : booking.status === "completed"
-                          ? "bg-info/10 text-info"
-                          : "bg-destructive/10 text-destructive"
-                  }
-                >
-                  {booking.status}
-                </Badge>
-
-                {/* {booking.status === "pending" && (
-                <div className="ml-2 flex">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:text-destructive hover:bg-destructive/5"
-                    onClick={() => handleCancelBooking(booking.id)}
-                  >
-                    <X className="h-4 w-4" /> Cancel
-                  </Button>
-                </div>
-              )} */}
-              </div>
-            </div>
-            <Separator className="mt-2" />
-          </div>
-        );
-      })}
+      {currentBookings.map((booking) => (
+        <BookingRow
+          key={booking.id}
+          booking={booking}
+          isPast={new Date(booking.booking_time) < now}
+        />
+      ))}
 
       {/* Pagination controls */}
       {totalPages > 1 && (
@@ -343,12 +302,6 @@ export default function BookingsList({
           </PaginationContent>
         </Pagination>
       )}
-
-      <div className="text-center mt-6">
-        <Button className="bg-primary hover:bg-primary/90" asChild>
-          <Link href="/booking">Book New Appointment</Link>
-        </Button>
-      </div>
     </div>
   );
 }

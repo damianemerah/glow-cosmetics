@@ -1,13 +1,11 @@
 "use client";
 
-import { AlertCircle, ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { AlertCircle, ChevronRight, Package, ShoppingBag } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
-import type { Order } from "@/types/index";
+import type { Order, OrderItem } from "@/types/index";
 import useSWR from "swr";
 import {
-  Badge,
-  Button,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -15,10 +13,42 @@ import {
   DialogTitle,
 } from "@/constants/ui/index";
 import { formatZAR } from "@/utils";
+import EmptyState from "./empty-state";
+import StatusBadge from "./status-badge";
 
 interface OrderHistoryProps {
   orders: Order[];
   initialError: boolean;
+}
+
+// The dashboard query joins each item's product; it isn't in the base type.
+type OrderItemWithProduct = OrderItem & {
+  product?: { image_url?: string[] | null } | null;
+};
+
+const itemImage = (item: OrderItem) =>
+  (item as OrderItemWithProduct).product?.image_url?.[0] ?? null;
+
+function ItemThumb({ item, size }: { item: OrderItem; size: number }) {
+  const src = itemImage(item);
+  return (
+    <div
+      className="relative shrink-0 overflow-hidden rounded-md border-2 border-card bg-secondary"
+      style={{ width: size, height: size }}
+    >
+      {src ? (
+        <Image
+          src={src}
+          alt={item.product_name}
+          fill
+          sizes={`${size}px`}
+          className="object-cover"
+        />
+      ) : (
+        <Package className="absolute inset-0 m-auto h-1/2 w-1/2 text-muted-foreground" />
+      )}
+    </div>
+  );
 }
 
 export default function OrderHistory({
@@ -35,13 +65,13 @@ export default function OrderHistory({
       fallbackData: initialOrders,
       revalidateOnFocus: false,
       dedupingInterval: 10000, // 10 seconds
-    }
+    },
   );
 
   if (error || initialError) {
     return (
-      <div className="flex items-center p-4 text-destructive bg-destructive/5 rounded-md">
-        <AlertCircle className="h-5 w-5 mr-2" />
+      <div className="flex items-center rounded-lg bg-destructive/5 p-4 text-destructive">
+        <AlertCircle className="mr-2 h-5 w-5" />
         <p>Unable to load order data. Please try again.</p>
       </div>
     );
@@ -49,17 +79,17 @@ export default function OrderHistory({
 
   if (!orders || orders.length === 0) {
     return (
-      <div className="text-center py-6">
-        <p className="text-muted-foreground">No orders yet</p>
-        <Button className="mt-4 bg-primary hover:bg-primary/90" asChild>
-          <Link href="/products">Shop Now</Link>
-        </Button>
-      </div>
+      <EmptyState
+        icon={ShoppingBag}
+        title="No orders yet"
+        description="When you shop skincare, makeup or jewellery with us, your orders and their status will show up here."
+        action={{ label: "Shop the collection", href: "/products" }}
+      />
     );
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("en-ZA", {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -69,54 +99,63 @@ export default function OrderHistory({
   };
 
   return (
-    <div className="space-y-4">
-      {orders.map((order) => (
-        <div
-          key={order.id}
-          className="p-4 border rounded-md hover:bg-muted/60 cursor-pointer transition-colors"
-          onClick={() => setSelectedOrder(order)}
-        >
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
-            <div>
-              <p className="font-medium">Order #{order.payment_reference}</p>
-              <p className="text-sm text-muted-foreground">
+    <div className="space-y-3">
+      {orders.map((order) => {
+        const itemCount =
+          order.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+
+        return (
+          <button
+            type="button"
+            key={order.id}
+            className="group flex w-full items-center gap-4 rounded-xl border bg-card p-4 text-left transition-colors hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            onClick={() => setSelectedOrder(order)}
+          >
+            <div className="hidden -space-x-3 sm:flex">
+              {order.items
+                ?.slice(0, 3)
+                .map((item) => (
+                  <ItemThumb key={item.id} item={item} size={48} />
+                ))}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-medium text-foreground">
+                Order #{order.payment_reference}
+              </p>
+              <p className="mt-0.5 text-sm text-muted-foreground">
                 {order?.created_at &&
-                  new Date(order.created_at).toLocaleDateString()}
+                  new Date(order.created_at).toLocaleDateString("en-ZA", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                {" · "}
+                {itemCount} {itemCount === 1 ? "item" : "items"}
               </p>
             </div>
-            <div className="mt-2 md:mt-0 flex items-center">
-              <p className="font-semibold text-primary">
+
+            <div className="flex flex-col items-end gap-1.5 sm:flex-row sm:items-center sm:gap-4">
+              <p className="font-semibold text-foreground">
                 {formatZAR(order.total_price)}
               </p>
-              <Badge
-                className={
-                  order.status === "completed"
-                    ? "ml-3 bg-success/10 text-success"
-                    : order.status === "paid"
-                      ? "ml-3 bg-info/10 text-info"
-                      : order.status === "shipped"
-                        ? "ml-3 bg-highlight/15 text-highlight-foreground"
-                        : "ml-3 bg-destructive/10 text-destructive"
-                }
-              >
-                {order.status}
-              </Badge>
+              <StatusBadge status={order.status} />
             </div>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            {order.items?.length} {order.items?.length === 1 ? "item" : "items"}
-          </div>
-        </div>
-      ))}
+            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+          </button>
+        );
+      })}
 
       {/* Order Details Dialog */}
       <Dialog
         open={!!selectedOrder}
         onOpenChange={(open) => !open && setSelectedOrder(null)}
       >
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[560px]">
           <DialogHeader>
-            <DialogTitle>Order Details</DialogTitle>
+            <DialogTitle className="font-heading text-2xl font-medium">
+              Order details
+            </DialogTitle>
             <DialogDescription>
               {selectedOrder ? `Order #${selectedOrder.payment_reference}` : ""}
             </DialogDescription>
@@ -124,67 +163,52 @@ export default function OrderHistory({
 
           {selectedOrder && (
             <div className="space-y-6">
-              <div className="flex justify-between">
+              <dl className="grid grid-cols-2 gap-4 rounded-lg bg-secondary/50 p-4 text-sm">
                 <div>
-                  <h4 className="font-semibold text-sm">Date</h4>
-                  <p>
+                  <dt className="eyebrow text-muted-foreground">Placed</dt>
+                  <dd className="mt-1 text-foreground">
                     {selectedOrder.created_at &&
                       formatDate(selectedOrder.created_at)}
-                  </p>
+                  </dd>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-sm">Status</h4>
-                  <Badge
-                    className={
-                      selectedOrder.status === "completed"
-                        ? "ml-3 bg-success/10 text-success"
-                        : selectedOrder.status === "paid"
-                          ? "ml-3 bg-info/10 text-info"
-                          : selectedOrder.status === "shipped"
-                            ? "ml-3 bg-highlight/15 text-highlight-foreground"
-                            : "ml-3 bg-destructive/10 text-destructive"
-                    }
-                  >
-                    {selectedOrder.status}
-                  </Badge>
+                  <dt className="eyebrow text-muted-foreground">Status</dt>
+                  <dd className="mt-1">
+                    <StatusBadge status={selectedOrder.status} />
+                  </dd>
                 </div>
-              </div>
+              </dl>
 
               <div>
-                <h4 className="font-semibold mb-2">Items</h4>
-                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                <h4 className="eyebrow mb-3 text-muted-foreground">Items</h4>
+                <ul className="max-h-[260px] divide-y overflow-y-auto">
                   {selectedOrder.items?.map((item) => (
-                    <div key={item.id} className="border-b pb-2">
-                      <div className="flex justify-between">
-                        <div className="flex-1">
-                          <p className="font-medium">{item.product_name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            Quantity: {item.quantity}
-                          </p>
-                        </div>
-                        <p className="font-semibold">
-                          {formatZAR(item.price_at_time)}
+                    <li
+                      key={item.id}
+                      className="flex items-center gap-3 py-3 first:pt-0"
+                    >
+                      <ItemThumb item={item} size={48} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium text-foreground">
+                          {item.product_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Qty {item.quantity}
                         </p>
                       </div>
-                    </div>
+                      <p className="font-medium text-foreground">
+                        {formatZAR(item.price_at_time * item.quantity)}
+                      </p>
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
 
-              <div className="border-t pt-4">
-                <div className="flex justify-between font-semibold">
-                  <span>Total</span>
-                  <span>{formatZAR(selectedOrder.total_price)}</span>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Button variant="outline" asChild>
-                  <a href="#" className="flex items-center gap-2">
-                    <ExternalLink className="h-4 w-4" />
-                    Track Order
-                  </a>
-                </Button>
+              <div className="flex items-center justify-between border-t pt-4">
+                <span className="text-muted-foreground">Total</span>
+                <span className="font-heading text-2xl text-foreground">
+                  {formatZAR(selectedOrder.total_price)}
+                </span>
               </div>
             </div>
           )}
