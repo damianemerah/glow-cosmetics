@@ -140,6 +140,7 @@ export type CartItemInputData = {
   price: number;
   image_url?: string[] | null;
   color?: ColorInfo | null;
+  slug?: string;
 };
 
 export interface CartItem extends DbCartItem {
