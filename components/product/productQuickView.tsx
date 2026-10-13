@@ -170,7 +170,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
                             ["#000000", "#755237"].includes(
                               colorInfo.hex.toLowerCase()
                             )
-                              ? "text-white"
+                              ? "text-primary-foreground"
                               : "text-foreground"
                           } mix-blend-difference`}
                         />
