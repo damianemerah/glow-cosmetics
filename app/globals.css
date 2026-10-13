@@ -264,6 +264,47 @@
   }
 }
 
+/* react-phone-input-2: match the shadcn Input */
+.react-tel-input {
+  font-family: var(--font-sans) !important;
+}
+.react-tel-input .form-control {
+  width: 100% !important;
+  height: 2.5rem !important;
+  border-radius: calc(var(--radius) - 2px) !important;
+  border: 1px solid var(--input) !important;
+  background: transparent !important;
+  color: var(--foreground) !important;
+  font-size: 0.875rem !important;
+}
+.react-tel-input .form-control:focus {
+  border-color: var(--ring) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--ring) 25%, transparent) !important;
+}
+.react-tel-input .form-control[aria-invalid="true"] {
+  border-color: var(--destructive) !important;
+}
+.react-tel-input .flag-dropdown {
+  border: 1px solid var(--input) !important;
+  border-radius: calc(var(--radius) - 2px) 0 0 calc(var(--radius) - 2px) !important;
+  background: var(--muted) !important;
+}
+.react-tel-input .flag-dropdown.open .selected-flag,
+.react-tel-input .selected-flag:hover,
+.react-tel-input .selected-flag:focus {
+  background: var(--accent) !important;
+}
+.react-tel-input .country-list {
+  background: var(--popover) !important;
+  color: var(--popover-foreground) !important;
+  border-radius: calc(var(--radius) - 2px) !important;
+  box-shadow: var(--shadow-elevated) !important;
+}
+.react-tel-input .country-list .country:hover,
+.react-tel-input .country-list .country.highlight {
+  background: var(--accent) !important;
+}
+
 .prose {
   :where(p):not(:where([class~="not-prose"], [class~="not-prose"] *)) {
     margin-top: 0.5em !important;

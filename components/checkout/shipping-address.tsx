@@ -120,9 +120,14 @@ export default function ShippingAddress({
             country={"za"} // Default country South Africa
             value={formData.phone}
             onChange={handlePhoneInputChange}
-            inputProps={{ id: "checkout-phone", name: "phone", required: true }}
+            inputProps={{
+              id: "checkout-phone",
+              name: "phone",
+              required: true,
+              "aria-invalid": !!errors.phone,
+              "aria-describedby": errors.phone ? "checkout-phone-error" : undefined,
+            }}
             containerClass="w-full"
-            inputClass={`!w-full !py-2 !px-3 !h-10 !border !rounded-md ${errors.phone ? "!border-destructive" : "!border-input"}`} // Use !important to override defaults if needed
             placeholder="+27 12 345 6789"
           />
           {errors.phone && (
