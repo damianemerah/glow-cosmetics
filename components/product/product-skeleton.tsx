@@ -126,16 +126,6 @@ export function ProductGridSkeletonWrapper() {
   );
 }
 
-export function LoyaltyProgramSkeleton() {
-  return (
-    <section className="py-16 bg-secondary">
-      <div className="container mx-auto px-4">
-        <Skeleton className="h-64 w-full max-w-4xl mx-auto rounded-lg" />
-      </div>
-    </section>
-  );
-}
-
 /** Mirrors the inset green card in components/product/product-cta.tsx. */
 export function ProductCTASkeleton() {
   return (

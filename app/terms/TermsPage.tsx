@@ -9,7 +9,7 @@ export default function TermsPage() {
           Terms of Service
         </h1>
         <div className="mt-3 border-b pb-8 text-sm text-muted-foreground">
-          Last updated <strong>May 18, 2025</strong>
+          Last updated <strong>October 13, 2026</strong>
         </div>
         <h2 className="mt-10 scroll-mt-28 text-sm font-semibold uppercase tracking-[0.14em] text-foreground mb-4">
           AGREEMENT TO OUR LEGAL TERMS

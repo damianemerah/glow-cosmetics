@@ -16,6 +16,8 @@ import {
   PopoverTrigger,
 } from "@/constants/ui/index";
 import { useDebounce } from "@/hooks/useDebounce";
+import useSWR from "swr";
+import { getHiddenCatalogIds } from "@/actions/productActions";
 import { createClient } from "@/utils/supabase/client";
 
 const supabase = createClient();
@@ -43,6 +45,10 @@ export const SearchCommand = ({
   const debouncedQuery = useDebounce(searchQuery, 300);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  // Products/categories hidden from the storefront (HIDDEN_CATEGORY_SLUGS).
+  const { data: hidden } = useSWR("hidden-catalog-ids", () =>
+    getHiddenCatalogIds(),
+  );
 
   const performSearch = useCallback(async () => {
     if (!debouncedQuery || debouncedQuery.length < 2) {
@@ -87,8 +93,13 @@ export const SearchCommand = ({
     }
   };
 
-  const products = searchResults.filter((i) => i.item_type === "product");
-  const categories = searchResults.filter((i) => i.item_type === "category");
+  const visibleResults = searchResults.filter((i) =>
+    i.item_type === "product"
+      ? !hidden?.productIds.includes(i.id)
+      : !hidden?.categoryIds.includes(i.id),
+  );
+  const products = visibleResults.filter((i) => i.item_type === "product");
+  const categories = visibleResults.filter((i) => i.item_type === "category");
 
   return (
     <Popover open={isOpen} onOpenChange={onOpenChange}>
@@ -126,10 +137,10 @@ export const SearchCommand = ({
             )}
             {!isSearching &&
               debouncedQuery.length > 0 &&
-              searchResults.length === 0 && (
+              visibleResults.length === 0 && (
                 <CommandEmpty>No results found.</CommandEmpty>
               )}
-            {!isSearching && searchResults.length > 0 && (
+            {!isSearching && visibleResults.length > 0 && (
               <>
                 {products.length > 0 && (
                   <CommandGroup heading="Products">
