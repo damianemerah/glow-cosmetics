@@ -33,6 +33,7 @@ import {
 
 // Supabase Utils
 import { createClient } from "@/utils/supabase/server";
+import { getHiddenCatalogIds } from "@/actions/productActions";
 
 // Dynamic Imports (Streaming)
 const ProfileSection = dynamic(
@@ -248,24 +249,28 @@ async function getBookingsData(userId: string) {
 
 async function getRecommendationsData() {
   const supabase = await createClient();
+  const { productIds: hiddenIds } = await getHiddenCatalogIds();
 
   const getRecommendations = unstable_cache(
-    async (client: SupabaseClient) => {
-      const { data: recommendations } = await client
+    async (client: SupabaseClient, excludeIds: string[]) => {
+      let query = client
         .from("products")
         .select("*")
-        .eq("is_bestseller", true)
-        .limit(3);
+        .eq("is_bestseller", true);
+      if (excludeIds.length > 0) {
+        query = query.not("id", "in", `(${excludeIds.join(",")})`);
+      }
+      const { data: recommendations } = await query.limit(3);
       return recommendations || [];
     },
-    ["product-recommendations"],
+    ["product-recommendations", "visible"],
     {
       revalidate: 300,
       tags: ["products"],
     },
   );
 
-  return getRecommendations(supabase);
+  return getRecommendations(supabase, hiddenIds);
 }
 
 async function getWishlistData(userId: string) {

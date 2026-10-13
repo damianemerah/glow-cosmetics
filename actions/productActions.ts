@@ -7,8 +7,61 @@ import type {
   ProductWithCategories,
 } from "@/types";
 import { unstable_cache } from "next/cache";
+import {
+  HIDDEN_CATEGORY_SLUGS,
+  filterVisibleCategories,
+} from "@/lib/visible-categories";
 
 const DEFAULT_GROUP_LIMIT = 8;
+
+/**
+ * Category and product IDs hidden from mixed storefront lists and search,
+ * derived from HIDDEN_CATEGORY_SLUGS (subcategories included). Category
+ * pages and direct product URLs are not filtered.
+ */
+export const getHiddenCatalogIds = unstable_cache(
+  async (): Promise<{ categoryIds: string[]; productIds: string[] }> => {
+    const none = { categoryIds: [], productIds: [] };
+    if (HIDDEN_CATEGORY_SLUGS.length === 0) return none;
+
+    const { data: categories, error } = await supabaseAdmin
+      .from("categories")
+      .select("id, slug, parent_id");
+    if (error || !categories) {
+      console.error("Error fetching categories for hidden IDs:", error);
+      return none;
+    }
+
+    const visible = new Set(filterVisibleCategories(categories).map((c) => c.id));
+    const categoryIds = categories
+      .filter((c) => !visible.has(c.id))
+      .map((c) => c.id);
+    if (categoryIds.length === 0) return none;
+
+    const { data: links, error: linkError } = await supabaseAdmin
+      .from("product_categories")
+      .select("product_id")
+      .in("category_id", categoryIds);
+    if (linkError) {
+      console.error("Error fetching hidden category products:", linkError);
+      return { categoryIds, productIds: [] };
+    }
+
+    const productIds = [
+      ...new Set(
+        (links ?? [])
+          .map((l) => l.product_id)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ];
+    return { categoryIds, productIds };
+  },
+  ["hidden-catalog-ids"],
+  { revalidate: 300, tags: ["products", "categories"] },
+);
+
+/** PostgREST list literal for .not("id", "in", ...). */
+const idList = (ids: string[]) => `(${ids.join(",")})`;
 
 async function fetchProductGroup(
   options: {
@@ -22,6 +75,7 @@ async function fetchProductGroup(
   } = {},
 ): Promise<ProductWithCategories[]> {
   const limit = options.limit ?? DEFAULT_GROUP_LIMIT;
+  const { productIds: hiddenIds } = await getHiddenCatalogIds();
   if (options.filter?.key === "random") {
     const {
       data: { user },
@@ -43,7 +97,9 @@ async function fetchProductGroup(
       return [];
     }
 
-    const productIds = data.map((p: ProductWithCategories) => p.id);
+    const productIds = data
+      .map((p: ProductWithCategories) => p.id)
+      .filter((id: string) => !hiddenIds.includes(id));
     const { data: detailedProducts, error: detailError } = await supabaseAdmin
       .from("products")
       .select(`*, product_categories ( categories ( id, name, slug ) )`)
@@ -66,6 +122,10 @@ async function fetchProductGroup(
               )`,
       )
       .eq("is_active", true);
+
+    if (hiddenIds.length > 0) {
+      query = query.not("id", "in", idList(hiddenIds));
+    }
 
     // Apply specific filters if options.filter exists (it won't be 'random' here)
     if (options.filter) {
@@ -115,7 +175,7 @@ async function fetchProductGroup(
 export const fetchNewlyAddedProducts = unstable_cache(
   async (limit: number = DEFAULT_GROUP_LIMIT) =>
     fetchProductGroup({ limit, orderBy: "created_at", ascending: false }),
-  ["products", "newly-added"],
+  ["products", "newly-added", "visible"],
   { revalidate: 300, tags: ["products"] },
 );
 
@@ -127,7 +187,7 @@ export const fetchDealsOfTheWeek = unstable_cache(
       orderBy: "created_at", // Optional: sort deals by newest first
       ascending: false,
     }),
-  ["products", "deals"],
+  ["products", "deals", "visible"],
   { revalidate: 3600, tags: ["products"] },
 );
 
@@ -139,7 +199,7 @@ export const fetchBestSellingProducts = unstable_cache(
       orderBy: "created_at", // Optional: sort bestsellers by newest first
       ascending: false,
     }),
-  ["products", "bestsellers"],
+  ["products", "bestsellers", "visible"],
   { revalidate: 3600, tags: ["products"] },
 );
 
@@ -147,7 +207,7 @@ export const fetchRecommendedProducts = unstable_cache(
   async (limit: number = DEFAULT_GROUP_LIMIT) =>
     // Use the 'random' filter handled in the helper
     fetchProductGroup({ limit, filter: { key: "random", value: true } }),
-  ["products", "recommended"],
+  ["products", "recommended", "visible"],
   { revalidate: 43400, tags: ["products"] }, // Revalidate less often for random
 );
 
@@ -192,6 +252,14 @@ export async function fetchFilteredProducts(params: FetchProductsParams) {
     )
     .eq("is_active", true)
     .range(offset, offset + limit - 1); // Apply pagination range
+
+  // Mixed listings (no category chosen) leave out hidden categories.
+  if (!categorySlug && !subCategorySlug) {
+    const { productIds: hiddenIds } = await getHiddenCatalogIds();
+    if (hiddenIds.length > 0) {
+      query = query.not("id", "in", idList(hiddenIds));
+    }
+  }
 
   // Apply Filters
   if (filter === "deals") {
