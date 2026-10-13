@@ -1,87 +1,60 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+/** Mirrors the cart list + order summary in components/cart/cart-client.tsx. */
 export default function CartSkeleton() {
   return (
-    <div className="grid md:grid-cols-3 gap-8">
-      {/* Cart Items Section */}
-      <div className="md:col-span-2">
-        <div className="border rounded-lg overflow-hidden">
-          <div className="bg-secondary p-4 border-b">
-            <h2 className="font-semibold">Cart Items</h2>
-          </div>
-
-          <div className="divide-y">
-            <div className="hidden md:grid md:grid-cols-5 text-sm text-muted-foreground p-4">
-              <div className="col-span-2">Product</div>
-              <div className="text-center">Price</div>
-              <div className="text-center">Quantity</div>
-              <div className="text-right">Total</div>
-            </div>
-
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div
-                key={index}
-                className="p-4 md:grid md:grid-cols-5 items-center"
-              >
-                <div className="col-span-2 flex items-center mb-4 md:mb-0">
-                  <Skeleton className="h-20 w-20 rounded-md mr-4 flex-shrink-0" />
-                  <div>
-                    <Skeleton className="h-5 w-32 mb-1" />
-                    <Skeleton className="h-4 w-16" />
-                  </div>
-                </div>
-
-                <div className="md:text-center text-sm mb-3 md:mb-0">
-                  <span className="md:hidden inline-block w-24 font-medium">
-                    Price:{" "}
-                  </span>
-                  <Skeleton className="h-4 w-16 md:mx-auto" />
-                </div>
-
-                <div className="flex items-center md:justify-center mb-3 md:mb-0">
-                  <Skeleton className="h-8 w-24 rounded-md" />
-                </div>
-
-                <div className="md:text-right font-medium">
-                  <span className="md:hidden inline-block w-24 font-medium">
-                    Total:{" "}
-                  </span>
-                  <Skeleton className="h-4 w-16 md:ml-auto" />
+    <div className="grid items-start gap-8 lg:grid-cols-3 lg:gap-12">
+      <div className="lg:col-span-2">
+        <div className="mb-2 hidden grid-cols-[1fr_auto_7rem] gap-6 border-b pb-3 md:grid">
+          <Skeleton className="h-3 w-16" />
+          <Skeleton className="mx-auto h-3 w-16" />
+          <Skeleton className="ml-auto h-3 w-12" />
+        </div>
+        <ul className="divide-y">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <li
+              key={index}
+              className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 py-6 md:grid-cols-[1fr_auto_7rem] md:items-center md:gap-6"
+            >
+              <div className="flex min-w-0 items-center gap-4 max-md:contents">
+                <Skeleton className="h-24 w-20 shrink-0 rounded-lg md:h-28 md:w-24" />
+                <div className="min-w-0 space-y-2">
+                  <Skeleton className="h-4 w-48 max-w-full" />
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-3 w-16" />
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+              <div className="col-start-2 flex items-center justify-between gap-4 md:col-start-auto md:contents">
+                <Skeleton className="h-9 w-28 rounded-full" />
+                <Skeleton className="h-5 w-20 md:ml-auto" />
+              </div>
+            </li>
+          ))}
+        </ul>
+        <Skeleton className="mt-4 h-4 w-36" />
       </div>
 
-      {/* Order Summary Section */}
-      <div className="md:col-span-1">
-        <div className="border rounded-lg overflow-hidden">
-          <div className="bg-secondary p-4 border-b">
-            <h2 className="font-semibold">Order Summary</h2>
+      <aside className="rounded-xl border bg-card p-6 shadow-soft">
+        <Skeleton className="h-7 w-40" />
+        <div className="mt-6 space-y-3">
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-16" />
           </div>
-          <div className="p-4">
-            <div className="flex justify-between py-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-4 w-16" />
-            </div>
-            <div className="flex justify-between py-2">
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-4 w-32" />
-            </div>
-            <div className="border-t mt-4 pt-4">
-              <div className="flex justify-between py-2 font-semibold">
-                <Skeleton className="h-5 w-12" />
-                <Skeleton className="h-5 w-16" />
-              </div>
-            </div>
-            <div className="mt-6 space-y-3">
-              <Skeleton className="h-11 w-full rounded-md" />
-              <Skeleton className="h-10 w-full rounded-md" />
-            </div>
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-32" />
           </div>
         </div>
-      </div>
+        <div className="mt-6 flex items-baseline justify-between border-t pt-6">
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-8 w-28" />
+        </div>
+        <div className="mt-6 space-y-3">
+          <Skeleton className="h-12 w-full rounded-full" />
+          <Skeleton className="h-12 w-full rounded-full" />
+        </div>
+      </aside>
     </div>
   );
 }

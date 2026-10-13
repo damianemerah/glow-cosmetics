@@ -1,101 +1,40 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  ProductCTASkeleton,
+  RelatedProductsSkeleton,
+} from "@/components/product/product-skeleton";
 
+/** Mirrors app/products/page.tsx: hero, category bar, product rows, CTA. */
 export default function Loading() {
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section Skeleton */}
-      <section className="relative h-[400px] bg-secondary">
-        <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
-          <div className="max-w-2xl">
-            <Skeleton className="h-12 w-2/3 mb-4" />
-            <Skeleton className="h-6 w-full" />
-            <Skeleton className="h-6 w-3/4 mt-2" />
+    <div className="flex min-h-screen flex-col bg-background">
+      {/* Hero (PageHero) */}
+      <section className="flex min-h-[320px] items-end bg-primary md:min-h-[420px]">
+        <div className="container mx-auto px-4 pb-12 pt-24 md:pb-16">
+          <div className="max-w-2xl space-y-4">
+            <Skeleton className="h-3 w-32 bg-primary-foreground/20" />
+            <Skeleton className="h-12 w-3/4 bg-primary-foreground/20 md:h-16" />
+            <Skeleton className="h-5 w-full max-w-md bg-primary-foreground/15" />
           </div>
         </div>
       </section>
 
-      {/* Products Section Skeleton */}
-      <section className="py-24 bg-background">
-        <div className=" mx-auto relative">
-          {/* Tabs Skeleton */}
-          <div className="mb-8">
-            <div className="flex gap-2 overflow-x-auto pb-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Skeleton
-                  key={i}
-                  className="h-10 w-24 rounded-md flex-shrink-0"
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Products Grid Skeleton */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8 lg:gap-10">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="overflow-hidden shadow-lg flex flex-row sm:block h-full"
-              >
-                <Skeleton className="w-[45%] sm:w-full aspect-square" />
-                <div className="flex-1 p-4">
-                  <Skeleton className="h-6 w-3/4 mb-2" />
-                  <Skeleton className="h-5 w-16 mb-4" />
-                  <Skeleton className="h-10 w-full rounded-lg" />
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Category bar (desktop only, as in ProductNavigation) */}
+      <div className="hidden border-b md:block">
+        <div className="container mx-auto flex h-14 items-center gap-6 px-4">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <Skeleton key={i} className="h-4 w-20" />
+          ))}
         </div>
-      </section>
+      </div>
 
-      {/* Loyalty Program Section Skeleton */}
-      <section className="py-16 bg-secondary">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto bg-card rounded-lg shadow-lg overflow-hidden">
-            <div className="md:flex">
-              <div className="md:w-1/2 p-8">
-                <Skeleton className="h-8 w-3/4 mb-4" />
-                <Skeleton className="h-4 w-full mb-4" />
-                <div className="space-y-2 mb-6">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex items-start">
-                      <Skeleton className="w-5 h-5 mr-2" />
-                      <Skeleton className="h-4 w-3/4" />
-                    </div>
-                  ))}
-                </div>
-                <Skeleton className="h-10 w-full" />
-              </div>
-              <div className="md:w-1/2 bg-primary p-8">
-                <Skeleton className="h-6 w-1/2 mb-4 bg-primary-foreground/30" />
-                <div className="space-y-4">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="flex">
-                      <Skeleton className="w-8 h-8 rounded-full bg-primary-foreground/50 mr-3" />
-                      <div>
-                        <Skeleton className="h-5 w-24 mb-1 bg-primary-foreground/30" />
-                        <Skeleton className="h-4 w-full bg-primary-foreground/20" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div className="container mx-auto px-4">
+        <RelatedProductsSkeleton />
+        <RelatedProductsSkeleton />
+        <RelatedProductsSkeleton />
+      </div>
 
-      {/* CTA Section Skeleton */}
-      <section className="py-16 bg-primary">
-        <div className="container mx-auto px-4 text-center">
-          <Skeleton className="h-8 w-1/2 mx-auto mb-6 bg-primary-foreground/20" />
-          <Skeleton className="h-6 w-3/4 mx-auto mb-8 bg-primary-foreground/20" />
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Skeleton className="h-12 w-32 rounded-md bg-primary-foreground/30" />
-            <Skeleton className="h-12 w-32 rounded-md bg-primary-foreground/30" />
-          </div>
-        </div>
-      </section>
+      <ProductCTASkeleton />
     </div>
   );
 }

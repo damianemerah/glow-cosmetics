@@ -3,15 +3,15 @@ import {
   ProductDescriptionSkeleton,
   RelatedProductsSkeleton,
 } from "@/components/product/product-skeleton";
+import { BreadcrumSkeleton } from "@/components/Breadcrumbs";
 
 export default function Loading() {
   return (
-    <div className="bg-background min-h-screen p-4.5 sm:p-8">
-      <div className="max-w-6xl mx-auto">
-        <ProductDetailSkeleton />
-        <ProductDescriptionSkeleton />
-        <RelatedProductsSkeleton />
-      </div>
+    <div className="container mx-auto px-4 py-8">
+      <BreadcrumSkeleton />
+      <ProductDetailSkeleton />
+      <ProductDescriptionSkeleton />
+      <RelatedProductsSkeleton />
     </div>
   );
 }
