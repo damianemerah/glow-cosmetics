@@ -259,6 +259,18 @@
   h6 {
     @apply font-heading tracking-tight;
   }
+  /* Playfair defaults to old-style figures, which make prices like "R 0.00"
+     read as "R o.oo"; use lining figures wherever the display face is used. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-heading,
+  .font-serif {
+    font-variant-numeric: lining-nums;
+  }
   ::selection {
     @apply bg-primary/15 text-foreground;
   }

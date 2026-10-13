@@ -96,11 +96,11 @@ export const SearchCommand = ({
         <Button
           variant="ghost"
           size="sm"
-          className={`flex items-center justify-center font-heading`}
+          className={`flex items-center justify-center`}
           aria-label="Search"
         >
           <Search className="h-5 w-5" />
-          <span className="font-heading">Search</span>
+          <span>Search</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent
