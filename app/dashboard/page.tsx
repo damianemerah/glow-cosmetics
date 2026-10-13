@@ -385,13 +385,13 @@ export default function DashboardPage() {
               in one place.
             </p>
 
-            <TabsList className="-mb-px mt-8 flex h-auto w-full justify-start gap-1 overflow-x-auto rounded-none bg-transparent p-0 [scrollbar-width:none]">
+            <TabsList className="-mb-px mt-8 grid h-auto w-full grid-cols-5 gap-0 rounded-none bg-transparent p-0 sm:flex sm:justify-start sm:gap-1 sm:overflow-x-auto [scrollbar-width:none]">
               {tabs.map(({ value, label, icon: Icon }) => (
                 <TabsTrigger
                   key={value}
                   value={value}
                   className={cn(
-                    "flex-none rounded-none border-b-2 border-transparent px-4 py-3 text-sm text-muted-foreground shadow-none transition-colors hover:text-foreground",
+                    "min-w-0 flex-col gap-1 rounded-none border-b-2 border-transparent px-1 py-3 text-xs text-muted-foreground shadow-none transition-colors hover:text-foreground sm:flex-none sm:flex-row sm:gap-1.5 sm:px-4 sm:text-sm",
                     "data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none",
                   )}
                 >
