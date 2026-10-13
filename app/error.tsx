@@ -18,28 +18,28 @@ export default function GlobalError({ error, reset }: ErrorProps) {
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="max-w-md w-full p-6 md:p-8 text-center">
-        <h1 className="text-3xl font-bold text-[#4CAF50] font-montserrat mb-4">
+        <h1 className="text-3xl font-bold text-primary font-heading mb-4">
           Oops, Something Went Wrong!
         </h1>
-        <p className="text-base text-[#727272] font-open-sans mb-6">
+        <p className="text-base text-muted-foreground font-sans mb-6">
           We encountered an unexpected error. Don’t worry, let’s try again.
         </p>
         {process.env.NODE_ENV === "development" && (
-          <p className="text-sm text-red-500 font-open-sans mb-4">
+          <p className="text-sm text-destructive font-sans mb-4">
             Error: {error.message || "An unknown error occurred"}
           </p>
         )}
         <Button
           onClick={reset}
-          className="bg-[#4CAF50] hover:bg-green-600 text-white rounded-lg py-3 px-6 text-lg"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg py-3 px-6 text-lg"
         >
           Try Again
         </Button>
-        <p className="text-sm text-[#727272] font-open-sans mt-4">
+        <p className="text-sm text-muted-foreground font-sans mt-4">
           If the problem persists, please{" "}
-          <a href="/contact" className="underline text-[#4CAF50]">
+          <a href="/contact" className="underline text-primary">
             contact support
           </a>
           .

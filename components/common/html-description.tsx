@@ -16,14 +16,14 @@ function HtmlDescription({
   const truncatedText = plainText.slice(0, limit) + (isLong ? "..." : "");
 
   return (
-    <div className="prose max-w-none text-gray-700 p-4 md:p-6 bg-gray-50/50 rounded-lg border">
+    <div className="prose max-w-none text-foreground p-4 md:p-6 bg-muted/30 rounded-lg border">
       {!showFull ? (
         <>
           <p>{truncatedText}</p>
           {isLong && (
             <button
               onClick={() => setShowFull(true)}
-              className="text-sm text-blue-600 mt-2 underline"
+              className="text-sm text-primary mt-2 underline"
             >
               Show more...
             </button>
@@ -34,7 +34,7 @@ function HtmlDescription({
           <div dangerouslySetInnerHTML={{ __html: description }} />
           <button
             onClick={() => setShowFull(false)}
-            className="text-sm text-blue-600 mt-2 underline"
+            className="text-sm text-primary mt-2 underline"
           >
             Show less
           </button>

@@ -21,10 +21,10 @@ export default function OrderSummary({
   totalAmount,
 }: OrderSummaryProps) {
   return (
-    <div className="bg-gray-50 p-4 md:p-6 rounded-lg border border-gray-200 sticky top-24">
+    <div className="bg-muted/50 p-4 md:p-6 rounded-lg border border-border sticky top-24">
       {" "}
       {/* Make summary sticky */}
-      <h2 className="text-lg font-semibold mb-4 font-montserrat">
+      <h2 className="text-lg font-semibold mb-4 font-heading">
         Order Summary
       </h2>
       {/* Scrollable item list for many items */}
@@ -35,7 +35,7 @@ export default function OrderSummary({
             className="flex items-center py-2 border-b last:border-b-0"
           >
             {/* Image and Quantity Badge */}
-            <div className="relative h-16 w-16 flex-shrink-0 rounded-md border bg-white mr-4">
+            <div className="relative h-16 w-16 flex-shrink-0 rounded-md border bg-card mr-4">
               {item.products?.image_url?.[0] ? ( // Safely access image
                 <Image
                   src={item.products.image_url[0]}
@@ -89,7 +89,7 @@ export default function OrderSummary({
             Delivery ({deliveryMethodName})
           </span>
           <span
-            className={`font-medium ${deliveryFee === 0 ? "text-green-600" : ""}`}
+            className={`font-medium ${deliveryFee === 0 ? "text-primary" : ""}`}
           >
             {deliveryFee === 0 ? "Free" : formatZAR(deliveryFee)}
           </span>

@@ -26,7 +26,7 @@ export function BirthdayReminder({
   return (
     <Card className="mb-8 shadow">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2 font-montserrat text-primary">
+        <CardTitle className="flex items-center space-x-2 font-heading text-primary">
           <CalendarDays />
           <span>Upcoming Birthdays (Next {daysAhead} Days)</span>
         </CardTitle>
@@ -36,7 +36,7 @@ export function BirthdayReminder({
         <div className="space-y-4">
           {upcomingBirthdays.map((user) => (
             <div key={user.id} className="flex items-start space-x-3">
-              <CalendarDays className="text-[#4a5a3a] shrink-0" />
+              <CalendarDays className="text-primary shrink-0" />
               <div>
                 <p className="font-medium capitalize">
                   {user.name}{" "}

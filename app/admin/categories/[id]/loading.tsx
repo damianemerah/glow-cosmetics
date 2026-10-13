@@ -2,7 +2,7 @@ import { Skeleton } from "@/constants/ui/index";
 
 export default function CategoryLoadingPage() {
   return (
-    <div className="min-h-screen bg-gray-50 sm:py-6">
+    <div className="min-h-screen bg-muted/50 sm:py-6">
       <div className="max-w-3xl mx-auto">
         <div className="space-y-4">
           <div className="flex items-center space-x-2">

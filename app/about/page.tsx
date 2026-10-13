@@ -1,3 +1,4 @@
+import PageHero from "@/components/common/page-hero";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -5,37 +6,19 @@ import { Button } from "@/components/ui/button";
 export default function AboutPage() {
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative h-[400px] bg-green-light">
-        <div className="absolute inset-0">
-          {/* <Image
-            src="/placeholder.svg?height=400&width=1200"
-            alt="About us"
-            fill
-            className="object-cover"
-            priority
-          /> */}
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-        <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
-          <div className="max-w-2xl text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">
-              About Glow by UgoSylvia
-            </h1>
-            <p className="text-xl md:text-2xl">
-              Where beauty is more than skin deep, and expertise meets passion.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Our Story"
+        title="About Glow by UgoSylvia"
+        description="Where beauty is more than skin deep, and expertise meets passion."
+      />
 
       {/* Owner Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl font-bold mb-6 font-montserrat">
+                <h2 className="text-3xl font-bold mb-6 font-heading">
                   Meet Sylvia the Owner and Nurse Practitioner
                 </h2>
                 <div className="space-y-4">
@@ -76,7 +59,7 @@ export default function AboutPage() {
                   </p> */}
                 </div>
                 <div className="mt-8">
-                  <Button asChild className="bg-green-500 hover:bg-green-600">
+                  <Button asChild className="bg-primary hover:bg-primary/90">
                     <Link href="/booking">Book a Consultation</Link>
                   </Button>
                 </div>
@@ -95,17 +78,17 @@ export default function AboutPage() {
       </section>
 
       {/* Mission & Values */}
-      <section className="py-16 bg-green-light">
+      <section className="py-16 bg-secondary">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-8 font-montserrat">
+            <h2 className="text-3xl font-bold mb-8 font-heading">
               Our Mission & Values
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-card p-6 rounded-lg shadow-md">
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg
-                    className="w-8 h-8 text-white"
+                    className="w-8 h-8 text-primary-foreground"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -119,7 +102,7 @@ export default function AboutPage() {
                     ></path>
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2 font-montserrat">
+                <h3 className="text-xl font-bold mb-2 font-heading">
                   Quality
                 </h3>
                 <p>
@@ -128,10 +111,10 @@ export default function AboutPage() {
                   exceptional results.
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-card p-6 rounded-lg shadow-md">
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg
-                    className="w-8 h-8 text-white"
+                    className="w-8 h-8 text-primary-foreground"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -145,7 +128,7 @@ export default function AboutPage() {
                     ></path>
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2 font-montserrat">
+                <h3 className="text-xl font-bold mb-2 font-heading">
                   Integrity
                 </h3>
                 <p>
@@ -154,10 +137,10 @@ export default function AboutPage() {
                   personalized recommendations.
                 </p>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="bg-card p-6 rounded-lg shadow-md">
+                <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg
-                    className="w-8 h-8 text-white"
+                    className="w-8 h-8 text-primary-foreground"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -171,7 +154,7 @@ export default function AboutPage() {
                     ></path>
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-2 font-montserrat">Care</h3>
+                <h3 className="text-xl font-bold mb-2 font-heading">Care</h3>
                 <p>
                   We genuinely care about our clients&apos; well-being and
                   strive to create a warm, welcoming environment where everyone
@@ -184,17 +167,17 @@ export default function AboutPage() {
       </section>
 
       {/* Credentials & Training */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-center font-montserrat">
+            <h2 className="text-3xl font-bold mb-8 text-center font-heading">
               Credentials & Training
             </h2>
-            <div className="bg-green-light p-8 rounded-lg">
+            <div className="bg-secondary p-8 rounded-lg">
               <ul className="space-y-4">
                 <li className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-green-500 mr-3 mt-0.5"
+                    className="w-5 h-5 text-primary mr-3 mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -216,7 +199,7 @@ export default function AboutPage() {
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-green-500 mr-3 mt-0.5"
+                    className="w-5 h-5 text-primary mr-3 mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -238,7 +221,7 @@ export default function AboutPage() {
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-green-500 mr-3 mt-0.5"
+                    className="w-5 h-5 text-primary mr-3 mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -260,7 +243,7 @@ export default function AboutPage() {
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-green-500 mr-3 mt-0.5"
+                    className="w-5 h-5 text-primary mr-3 mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -285,7 +268,7 @@ export default function AboutPage() {
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-green-500 mr-3 mt-0.5"
+                    className="w-5 h-5 text-primary mr-3 mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -315,13 +298,13 @@ export default function AboutPage() {
       {/* CTA Section */}
       <section className="py-16 md:py-20 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6 font-montserrat">
+          <h2 className="text-3xl font-bold mb-6 font-heading">
             Ready to book your appointment?
           </h2>
           <Button
             asChild
             size="lg"
-            className="bg-white text-[#5a6b47] hover:bg-gray-100"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
           >
             <Link href="/booking">Get started here!</Link>
           </Button>

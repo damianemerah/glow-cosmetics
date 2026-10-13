@@ -125,7 +125,7 @@ export default function RelatedProducts({
 
   return (
     <div className="mt-10 md:mt-16 mb-16">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 font-montserrat">
+      <h2 className="text-2xl font-bold text-foreground mb-6 font-heading">
         You May Also Like
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-6">

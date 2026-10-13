@@ -39,7 +39,7 @@ export function ProductDescriptionSkeleton() {
   return (
     <div className="mb-16">
       <Skeleton className="h-8 w-48 mb-4" />
-      <div className="p-6 bg-gray-50 rounded-lg space-y-3">
+      <div className="p-6 bg-muted/50 rounded-lg space-y-3">
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-full" />
         <Skeleton className="h-4 w-3/4" />
@@ -91,13 +91,13 @@ export function LoyaltyProgramSkeleton() {
 
 export function ProductCTASkeleton() {
   return (
-    <section className="py-16 bg-[#5a6b47]">
+    <section className="py-16 bg-primary">
       <div className="container mx-auto px-4 text-center">
-        <Skeleton className="h-8 w-1/2 mx-auto mb-6 bg-white/20" />
-        <Skeleton className="h-6 w-3/4 mx-auto mb-8 bg-white/20" />
+        <Skeleton className="h-8 w-1/2 mx-auto mb-6 bg-primary-foreground/20" />
+        <Skeleton className="h-6 w-3/4 mx-auto mb-8 bg-primary-foreground/20" />
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Skeleton className="h-12 w-32 rounded-md bg-white/30" />
-          <Skeleton className="h-12 w-32 rounded-md bg-white/30" />
+          <Skeleton className="h-12 w-32 rounded-md bg-primary-foreground/30" />
+          <Skeleton className="h-12 w-32 rounded-md bg-primary-foreground/30" />
         </div>
       </div>
     </section>
@@ -129,7 +129,7 @@ export function ProductCardSkeleton() {
 
 export function MobileNavigationSkeleton() {
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border border-gray-200 z-60">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-lg border-t border-border z-60">
       <div className="grid grid-cols-5 h-16">
         {Array.from({ length: 5 }).map((_, i) => (
           <div

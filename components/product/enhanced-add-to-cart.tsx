@@ -251,13 +251,13 @@ export default function EnhancedAddToCart({
             </Button>
           </div>
           {availableStock <= 5 && availableStock > 0 && (
-            <span className="text-xs text-orange-600">
+            <span className="text-xs text-warning">
               ({availableStock} left)
             </span>
           )}
           {availableStock <= 0 &&
             quantity > 0 && ( // Show OOS only if trying to select quantity > 0
-              <span className="text-xs text-red-600">(Out of stock)</span>
+              <span className="text-xs text-destructive">(Out of stock)</span>
             )}
         </div>
       )}
@@ -301,10 +301,10 @@ export default function EnhancedAddToCart({
       </div>
       {/* Validation Message */}
       {requiresColorSelection && !selectedColor && (
-        <p className="text-sm text-red-600 pt-1">Select a color.</p>
+        <p className="text-sm text-destructive pt-1">Select a color.</p>
       )}
       {availableStock <= 0 && (
-        <p className="text-sm text-red-600 pt-1">
+        <p className="text-sm text-destructive pt-1">
           This product is out of stock.
         </p>
       )}

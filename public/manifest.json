@@ -4,8 +4,8 @@
   "description": "Your premier destination for expert permanent makeup (Microblading, Ombre, Eyeliner, Lip Blush), stunning lash extensions, and professional makeup services. Discover our curated collection of high-quality skincare, makeup, beauty supplements, and unique jewellery.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#4CAF50",
+  "background_color": "#FBFAF5",
+  "theme_color": "#1f4d33",
   "orientation": "portrait-primary",
   "icons": [
     {

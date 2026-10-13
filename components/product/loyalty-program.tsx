@@ -10,12 +10,12 @@ export default function LoyaltyProgram() {
   if (user) return null;
 
   return (
-    <section className="py-16 bg-green-light">
+    <section className="py-16 bg-secondary">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="max-w-4xl mx-auto bg-card rounded-lg shadow-lg overflow-hidden">
           <div className="md:flex">
             <div className="md:w-1/2 p-8">
-              <h2 className="text-2xl font-bold mb-4 font-montserrat">
+              <h2 className="text-2xl font-bold mb-4 font-heading">
                 Join Our Loyalty Program
               </h2>
               <p className="mb-4">
@@ -25,7 +25,7 @@ export default function LoyaltyProgram() {
               <ul className="space-y-2 mb-6">
                 <li className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    className="w-5 h-5 text-primary mr-2 mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -42,7 +42,7 @@ export default function LoyaltyProgram() {
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    className="w-5 h-5 text-primary mr-2 mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -59,7 +59,7 @@ export default function LoyaltyProgram() {
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    className="w-5 h-5 text-primary mr-2 mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -76,7 +76,7 @@ export default function LoyaltyProgram() {
                 </li>
                 <li className="flex items-start">
                   <svg
-                    className="w-5 h-5 text-green-500 mr-2 mt-0.5"
+                    className="w-5 h-5 text-primary mr-2 mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -93,19 +93,19 @@ export default function LoyaltyProgram() {
                 </li>
               </ul>
               <Button
-                className="w-full bg-green-500 hover:bg-green-600"
+                className="w-full bg-primary hover:bg-primary/90"
                 onClick={() => setShowModal(true)}
               >
                 Join Now
               </Button>
             </div>
-            <div className="md:w-1/2 bg-green-500 p-8 text-white">
-              <h3 className="text-xl font-bold mb-4 font-montserrat">
+            <div className="md:w-1/2 bg-primary p-8 text-primary-foreground">
+              <h3 className="text-xl font-bold mb-4 font-heading">
                 How It Works
               </h3>
               <ol className="space-y-4">
                 <li className="flex">
-                  <span className="shrink-0 w-8 h-8 rounded-full bg-white text-green-500 flex items-center justify-center font-bold mr-3">
+                  <span className="shrink-0 w-8 h-8 rounded-full bg-primary-foreground text-primary flex items-center justify-center font-bold mr-3">
                     1
                   </span>
                   <div>
@@ -116,7 +116,7 @@ export default function LoyaltyProgram() {
                   </div>
                 </li>
                 <li className="flex">
-                  <span className="shrink-0 w-8 h-8 rounded-full bg-white text-green-500 flex items-center justify-center font-bold mr-3">
+                  <span className="shrink-0 w-8 h-8 rounded-full bg-primary-foreground text-primary flex items-center justify-center font-bold mr-3">
                     2
                   </span>
                   <div>
@@ -127,7 +127,7 @@ export default function LoyaltyProgram() {
                   </div>
                 </li>
                 <li className="flex">
-                  <span className="shrink-0 w-8 h-8 rounded-full bg-white text-green-500 flex items-center justify-center font-bold mr-3">
+                  <span className="shrink-0 w-8 h-8 rounded-full bg-primary-foreground text-primary flex items-center justify-center font-bold mr-3">
                     3
                   </span>
                   <div>

@@ -73,7 +73,7 @@ export default function AdminSidebar() {
         <SidebarHeader className="mt-2">
           <div className="p-4 border-b">
             <Link href="/admin" className="flex items-center">
-              <span className="text-xl font-bold text-primary font-montserrat">
+              <span className="text-xl font-bold text-primary font-heading">
                 Ugosylvia
               </span>
             </Link>

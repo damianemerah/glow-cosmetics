@@ -204,13 +204,13 @@ export default function OrderClient({
       title: "Status",
       render: (row: Order) => {
         const statusStyles: Record<string, string> = {
-          shipped: "bg-purple-100 text-purple-800",
-          cancelled: "bg-red-100 text-red-800",
-          paid: "bg-emerald-100 text-emerald-800",
-          pending: "bg-yellow-100 text-yellow-800",
+          shipped: "bg-highlight/15 text-highlight-foreground",
+          cancelled: "bg-destructive/10 text-destructive",
+          paid: "bg-success/10 text-success",
+          pending: "bg-warning/10 text-warning",
         };
         const style =
-          statusStyles[row.status || "all"] || "bg-gray-100 text-gray-800";
+          statusStyles[row.status || "all"] || "bg-muted text-foreground";
         return (
           <Badge className={`${style} capitalize`}>
             {row.status?.replace(/_/g, " ") || "Unknown"}

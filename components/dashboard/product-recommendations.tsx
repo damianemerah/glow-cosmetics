@@ -21,7 +21,7 @@ export default function ProductRecommendations({
 
   if (error) {
     return (
-      <div className="flex items-center p-4 text-red-800 bg-red-50 rounded-md">
+      <div className="flex items-center p-4 text-destructive bg-destructive/5 rounded-md">
         <AlertCircle className="h-5 w-5 mr-2" />
         <p>Unable to load product recommendations. Please try again.</p>
       </div>
@@ -59,10 +59,10 @@ export default function ProductRecommendations({
               />
             </div>
             <div className="p-3">
-              <h4 className="font-medium group-hover:text-green-500 transition-colors">
+              <h4 className="font-medium group-hover:text-primary transition-colors">
                 {product.name}
               </h4>
-              <p className="text-green-600 font-semibold mt-1">
+              <p className="text-primary font-semibold mt-1">
                 {formatZAR(product.price)}
               </p>
             </div>

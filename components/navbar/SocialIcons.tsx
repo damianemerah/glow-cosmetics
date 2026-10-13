@@ -10,7 +10,7 @@ export const SocialIcons = ({ className = "" }: { className?: string }) => (
       rel="noopener noreferrer"
       aria-label="Instagram"
     >
-      <FaInstagram className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
+      <FaInstagram className="h-5 w-5 text-foreground hover:text-primary transition-colors" />
     </Link>
     <Link
       href={keyValueData.facebook}
@@ -18,7 +18,7 @@ export const SocialIcons = ({ className = "" }: { className?: string }) => (
       rel="noopener noreferrer"
       aria-label="Facebook"
     >
-      <FaFacebookF className="h-5 w-5 text-gray-700 hover:text-primary transition-colors" />
+      <FaFacebookF className="h-5 w-5 text-foreground hover:text-primary transition-colors" />
     </Link>
   </div>
 );

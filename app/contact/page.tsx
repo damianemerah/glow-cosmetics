@@ -1,9 +1,9 @@
 "use client";
+import PageHero from "@/components/common/page-hero";
 
 import type React from "react";
 
 import { useState } from "react";
-import Image from "next/image";
 import {
   Button,
   Input,
@@ -69,38 +69,21 @@ export default function ContactPage() {
 
   return (
     <div className="flex flex-col min-h-screen ">
-      {/* Hero Section */}
-      <section className="relative h-[300px] bg-secondary">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/contact-bg.jpg"
-            alt="Contact us"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-        <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
-          <div className="max-w-2xl text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">
-              Contact Us
-            </h1>
-            <p className="text-xl md:text-2xl">
-              We&apos;d love to hear from you. Get in touch with our team.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Get in Touch"
+        title="Contact Us"
+        description="We'd love to hear from you. Get in touch with our team."
+        image="/images/contact-bg.jpg"
+      />
 
       {/* Contact Form & Info Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               {/* Contact Form */}
               <div>
-                <h2 className="text-2xl font-bold mb-6 font-montserrat">
+                <h2 className="text-2xl font-bold mb-6 font-heading">
                   Send us a message
                 </h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
@@ -161,7 +144,7 @@ export default function ContactPage() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full bg-green-500 hover:bg-green-600"
+                    className="w-full bg-primary hover:bg-primary/90"
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Sending..." : "Send Message"}
@@ -171,14 +154,14 @@ export default function ContactPage() {
 
               {/* Contact Information */}
               <div>
-                <h2 className="text-2xl font-bold mb-6 font-montserrat">
+                <h2 className="text-2xl font-bold mb-6 font-heading">
                   Contact Information
                 </h2>
                 <div className="space-y-6">
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-start">
-                        <MapPin className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                        <MapPin className="w-5 h-5 text-primary mr-3 mt-0.5" />
                         <div>
                           <h3 className="font-semibold mb-1">Our Location</h3>
                           <p>4 Westminster Close, Bryanston</p>
@@ -190,7 +173,7 @@ export default function ContactPage() {
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-start">
-                        <Phone className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                        <Phone className="w-5 h-5 text-primary mr-3 mt-0.5" />
                         <div>
                           <h3 className="font-semibold mb-1">Phone</h3>
                           <p>+27781470504</p>
@@ -201,7 +184,7 @@ export default function ContactPage() {
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-start">
-                        <Mail className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                        <Mail className="w-5 h-5 text-primary mr-3 mt-0.5" />
                         <div>
                           <h3 className="font-semibold mb-1">Email</h3>
                           <p>sylvia_emerah@yahoo.com</p>
@@ -212,7 +195,7 @@ export default function ContactPage() {
                   <Card>
                     <CardContent className="p-6">
                       <div className="flex items-start">
-                        <Clock className="w-5 h-5 text-green-500 mr-3 mt-0.5" />
+                        <Clock className="w-5 h-5 text-primary mr-3 mt-0.5" />
                         <div>
                           <h3 className="font-semibold mb-1">Business Hours</h3>
                           <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
@@ -232,7 +215,7 @@ export default function ContactPage() {
       {/* Map Section */}
       <section className="py-16 bg-secondary">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6 text-center font-montserrat">
+          <h2 className="text-2xl font-bold mb-6 text-center font-heading">
             Find Us
           </h2>
           <div className="max-w-6xl mx-auto h-[400px] relative rounded-lg overflow-hidden shadow-lg">
@@ -252,13 +235,13 @@ export default function ContactPage() {
       {/* CTA Section */}
       <section className="py-16 md:py-20 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6 font-montserrat">
+          <h2 className="text-3xl font-bold mb-6 font-heading">
             Don&apos;t have any questions? Go straight to booking!
           </h2>
           <Button
             asChild
             size="lg"
-            className="bg-white text-[#5a6b47] hover:bg-gray-100"
+            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
           >
             <a href="/booking">Book your appointment</a>
           </Button>

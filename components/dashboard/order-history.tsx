@@ -40,7 +40,7 @@ export default function OrderHistory({
 
   if (error || initialError) {
     return (
-      <div className="flex items-center p-4 text-red-800 bg-red-50 rounded-md">
+      <div className="flex items-center p-4 text-destructive bg-destructive/5 rounded-md">
         <AlertCircle className="h-5 w-5 mr-2" />
         <p>Unable to load order data. Please try again.</p>
       </div>
@@ -51,7 +51,7 @@ export default function OrderHistory({
     return (
       <div className="text-center py-6">
         <p className="text-muted-foreground">No orders yet</p>
-        <Button className="mt-4 bg-green-500 hover:bg-green-600" asChild>
+        <Button className="mt-4 bg-primary hover:bg-primary/90" asChild>
           <Link href="/products">Shop Now</Link>
         </Button>
       </div>
@@ -73,7 +73,7 @@ export default function OrderHistory({
       {orders.map((order) => (
         <div
           key={order.id}
-          className="p-4 border rounded-md hover:bg-gray-50 cursor-pointer transition-colors"
+          className="p-4 border rounded-md hover:bg-muted/60 cursor-pointer transition-colors"
           onClick={() => setSelectedOrder(order)}
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
@@ -85,18 +85,18 @@ export default function OrderHistory({
               </p>
             </div>
             <div className="mt-2 md:mt-0 flex items-center">
-              <p className="font-semibold text-green-600">
+              <p className="font-semibold text-primary">
                 {formatZAR(order.total_price)}
               </p>
               <Badge
                 className={
                   order.status === "completed"
-                    ? "ml-3 bg-green-100 text-green-800"
+                    ? "ml-3 bg-success/10 text-success"
                     : order.status === "paid"
-                      ? "ml-3 bg-blue-100 text-blue-800"
+                      ? "ml-3 bg-info/10 text-info"
                       : order.status === "shipped"
-                        ? "ml-3 bg-purple-100 text-purple-800"
-                        : "ml-3 bg-red-100 text-red-800"
+                        ? "ml-3 bg-highlight/15 text-highlight-foreground"
+                        : "ml-3 bg-destructive/10 text-destructive"
                 }
               >
                 {order.status}
@@ -137,12 +137,12 @@ export default function OrderHistory({
                   <Badge
                     className={
                       selectedOrder.status === "completed"
-                        ? "ml-3 bg-green-100 text-green-800"
+                        ? "ml-3 bg-success/10 text-success"
                         : selectedOrder.status === "paid"
-                          ? "ml-3 bg-blue-100 text-blue-800"
+                          ? "ml-3 bg-info/10 text-info"
                           : selectedOrder.status === "shipped"
-                            ? "ml-3 bg-purple-100 text-purple-800"
-                            : "ml-3 bg-red-100 text-red-800"
+                            ? "ml-3 bg-highlight/15 text-highlight-foreground"
+                            : "ml-3 bg-destructive/10 text-destructive"
                     }
                   >
                     {selectedOrder.status}

@@ -56,7 +56,7 @@ export function ProductGroupSection({
     <section className={`py-8 md:py-12 ${className}`}>
       <div className=" mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+          <h2 className="text-3xl md:text-5xl font-medium">
             {title}
           </h2>
           {viewAllHref && (

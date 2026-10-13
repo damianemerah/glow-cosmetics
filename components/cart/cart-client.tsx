@@ -285,9 +285,9 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
   ) {
     return (
       <div className="flex flex-col justify-center items-center h-screen">
-        <div className="text-red-500 mb-4">Error loading cart data</div>
+        <div className="text-destructive mb-4">Error loading cart data</div>
         <Button
-          className="bg-green-500 hover:bg-green-600"
+          className="bg-primary hover:bg-primary/90"
           onClick={() => router.push("/products")}
         >
           Browse Products
@@ -300,11 +300,11 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
   if (displayCartItems.length === 0 && !isLoading) {
     return (
       <div className="flex flex-col justify-center items-center h-screen">
-        <ShoppingBag className="h-16 w-16 text-gray-400 mb-4" />
+        <ShoppingBag className="h-16 w-16 text-muted-foreground mb-4" />
         <h2 className="text-2xl font-semibold mb-4">Your cart is empty</h2>
-        <p className="text-gray-500 mb-6">Start adding items to your cart!</p>
+        <p className="text-muted-foreground mb-6">Start adding items to your cart!</p>
         <Button
-          className="bg-green-500 hover:bg-green-600"
+          className="bg-primary hover:bg-primary/90"
           onClick={() => router.push("/products")}
         >
           Browse Products
@@ -318,8 +318,8 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
       {/* Loading Overlay - only shows the spinner without hiding the UI */}
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center z-10 backdrop-blur-xs">
-          <div className="bg-white p-3 rounded-full shadow-md">
-            <Loader2 className="h-8 w-8 text-green-500 animate-spin" />
+          <div className="bg-card p-3 rounded-full shadow-md">
+            <Loader2 className="h-8 w-8 text-primary animate-spin" />
           </div>
         </div>
       )}
@@ -331,7 +331,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
           </div>
 
           <div className="divide-y">
-            <div className="hidden md:grid md:grid-cols-5 text-sm text-gray-500 p-4">
+            <div className="hidden md:grid md:grid-cols-5 text-sm text-muted-foreground p-4">
               <div className="col-span-2">Product</div>
               <div className="text-center">Price</div>
               <div className="text-center">Quantity</div>
@@ -344,7 +344,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
                 className="p-4 md:grid md:grid-cols-5 items-center"
               >
                 <div className="col-span-2 flex items-center mb-4 md:mb-0">
-                  <div className="h-20 w-20 bg-gray-100 rounded-md mr-4 flex-shrink-0 overflow-hidden relative">
+                  <div className="h-20 w-20 bg-muted rounded-md mr-4 flex-shrink-0 overflow-hidden relative">
                     {item.product.image_url ? (
                       <Image
                         src={item.product.image_url[0] || "/placeholder.svg"}
@@ -366,7 +366,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
                       {item.product.name}
                     </Link>
                     {item.color && (
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         Color: {item.color}
                       </p>
                     )}
@@ -374,7 +374,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
                       onClick={() =>
                         removeItem(item.id, item.product.id, item.color)
                       }
-                      className="text-sm text-red-500 hover:text-red-700 mt-1"
+                      className="text-sm text-destructive hover:text-destructive mt-1"
                       disabled={isLoading}
                     >
                       Remove
@@ -452,7 +452,7 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
           </div>
           <div className="p-4">
             <div className="flex justify-between py-2">
-              <span className="text-gray-600">
+              <span className="text-muted-foreground">
                 Subtotal (
                 {displayCartItems.reduce((acc, item) => acc + item.quantity, 0)}{" "}
                 items):
@@ -460,12 +460,12 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
               <span className="font-medium">{formatZAR(totalAmount)}</span>
             </div>
             <div className="flex justify-between py-2">
-              <span className="text-gray-600">Shipping:</span>
+              <span className="text-muted-foreground">Shipping:</span>
               <span className="font-medium">Calculated at checkout</span>
             </div>
             <div className="border-t mt-4 pt-4 space-y-3">
               <Button
-                className="w-full bg-green-500 hover:bg-green-600"
+                className="w-full bg-primary hover:bg-primary/90"
                 size="lg"
                 onClick={handleCheckout}
                 disabled={isLoading}
@@ -474,14 +474,14 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
               </Button>
 
               {!isAuthenticated && (
-                <p className="text-sm text-gray-500 mt-2 text-center">
+                <p className="text-sm text-muted-foreground mt-2 text-center">
                   Please login to complete your purchase
                 </p>
               )}
 
               <Button
                 variant="outline"
-                className="w-full flex items-center justify-center gap-2 border-green-600 text-green-600 hover:bg-green-50"
+                className="w-full flex items-center justify-center gap-2 border-primary text-primary hover:bg-success/5"
                 onClick={handleWhatsAppOrder}
                 disabled={isLoading}
               >

@@ -12,16 +12,16 @@ const Footer = () => {
     return <AdminFooter />;
   }
   const MainFooter = () => (
-    <footer className="bg-green-light text-gray-600 pb-16 md:pb-0 inset-shadow-sm">
+    <footer className="bg-primary text-primary-foreground/75 pb-16 md:pb-0">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 xl:gap-12">
           <div className="md:col-span-4 lg:col-span-5 text-center md:text-left">
             <Link href="/" className="inline-block mb-4">
-              <span className="text-2xl font-bold text-primary font-montserrat tracking-tight">
+              <span className="text-3xl font-medium text-primary-foreground font-heading">
                 Glow by UgoSylvia
               </span>
             </Link>
-            <p className="text-[13px] text-gray-600 leading-relaxed">
+            <p className="text-sm text-primary-foreground/70 leading-relaxed max-w-md mx-auto md:mx-0">
               Your premier destination for expert permanent makeup
               (Microblading, Ombre, Eyeliner, Lip Blush), stunning lash
               extensions, and professional makeup services. Discover our curated
@@ -32,7 +32,7 @@ const Footer = () => {
 
           <div className="flex md:col-span-8 lg:col-span-6 justify-around">
             <div className="text-left">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+              <h3 className="eyebrow mb-5 text-highlight">
                 Quick Links
               </h3>
               <ul className="space-y-2">
@@ -54,7 +54,7 @@ const Footer = () => {
               </ul>
             </div>
             <div className="text-left">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+              <h3 className="eyebrow mb-5 text-highlight">
                 Connect & Legal
               </h3>
               <ul className="space-y-2 mb-6">
@@ -68,24 +68,24 @@ const Footer = () => {
                   <FooterLink href="/privacy">Privacy Policy</FooterLink>
                 </li>
               </ul>
-              <div className="flex  space-x-5">
+              <div className="flex gap-3">
                 <SocialLink href={keyValueData.instagram} ariaLabel="Instagram">
-                  <FaInstagram className="h-6 w-6" />
+                  <FaInstagram className="h-4 w-4" />
                 </SocialLink>
                 <SocialLink href={keyValueData.facebook} ariaLabel="Facebook">
-                  <FaFacebookF className="h-6 w-6" />
+                  <FaFacebookF className="h-4 w-4" />
                 </SocialLink>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-12 border-t border-gray-200/20 pt-8 text-center">
-          <p className="text-sm text-gray-400">
+        <div className="mt-12 border-t border-primary-foreground/15 pt-8 text-center">
+          <p className="text-sm text-primary-foreground/60">
             © {new Date().getFullYear()} Glow by UgoSylvia. All rights
             reserved.
           </p>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-primary-foreground/50">
             Website built with ♥ by{" "}
             <FooterLink
               href="https://wa.me/2347066765698
@@ -108,7 +108,7 @@ const Footer = () => {
   }) => (
     <Link
       href={href}
-      className="text-sm text-gray-600 hover:text-primary hover:underline transition-colors duration-200"
+      className="text-sm text-primary-foreground/75 hover:text-highlight transition-colors duration-200"
     >
       {children}
     </Link>
@@ -128,7 +128,7 @@ const Footer = () => {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={ariaLabel}
-      className="text-gray-400 hover:text-white transition-colors duration-200"
+      className="flex h-10 w-10 items-center justify-center rounded-full border border-primary-foreground/20 text-primary-foreground/80 hover:border-highlight hover:text-highlight transition-colors duration-200"
     >
       {children}
     </Link>

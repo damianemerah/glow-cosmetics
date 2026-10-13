@@ -360,20 +360,20 @@ export default function BookingPage() {
       />
       <div className="flex flex-col min-h-screen">
         <section className="bg-secondary py-16">
-          <h1 className="text-4xl font-bold mb-4 font-montserrat container">
+          <h1 className="text-4xl font-bold mb-4 font-heading container">
             Book Your Appointment(s)
           </h1>
         </section>
 
         {/* Booking Form and Services Section */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-background">
           <div className="px-4 sm:px-8 md:px-16 mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[2fr_1fr] gap-8">
             {/* Booking Form Column */}
             <div className="flex flex-col gap-8">
               {/* User Details Card (Now potentially editable) */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="font-montserrat">
+                  <CardTitle className="font-heading">
                     Your Details
                   </CardTitle>
                   <CardDescription>
@@ -437,7 +437,7 @@ export default function BookingPage() {
               {/* Appointment Selection Card */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="font-montserrat">
+                  <CardTitle className="font-heading">
                     Select Appointment Slot
                   </CardTitle>
                   <CardDescription>
@@ -632,7 +632,7 @@ export default function BookingPage() {
               {pendingBookings.length > 0 && (
                 <Card ref={bookingCartRef}>
                   <CardHeader>
-                    <CardTitle className="font-montserrat">
+                    <CardTitle className="font-heading">
                       Your Booking Request
                     </CardTitle>
                     <CardDescription>
@@ -685,7 +685,7 @@ export default function BookingPage() {
                     <Button
                       type="button"
                       onClick={handleFinalSubmit}
-                      className="w-full bg-green-500 hover:bg-green-600"
+                      className="w-full bg-primary hover:bg-primary/90"
                       disabled={isSubmitting || slotsLoading}
                     >
                       {isSubmitting
@@ -703,7 +703,7 @@ export default function BookingPage() {
               {" "}
               {/* Make sticky */}
               <CardHeader>
-                <CardTitle className="font-montserrat">Our Services</CardTitle>
+                <CardTitle className="font-heading">Our Services</CardTitle>
                 <CardDescription>
                   Click a service below to select it in the form.
                 </CardDescription>{" "}
@@ -757,12 +757,12 @@ export default function BookingPage() {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h2 className="text-2xl font-bold mb-4 font-montserrat">
+                <h2 className="text-2xl font-bold mb-4 font-heading">
                   Booking Information
                 </h2>
                 <ul className="space-y-4">
                   <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <Clock className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
+                    <Clock className="w-5 h-5 text-primary mr-2 mt-0.5" />
                     <div>
                       <p className="font-semibold">Business Hours</p>
                       <p>Monday - Friday: 9:00 AM - 6:00 PM</p>
@@ -771,7 +771,7 @@ export default function BookingPage() {
                     </div>
                   </li>
                   <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <Phone className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
+                    <Phone className="w-5 h-5 text-primary mr-2 mt-0.5" />
                     <div>
                       <p className="font-semibold">Contact Information</p>
                       <p>Phone: +27781470504</p>
@@ -779,7 +779,7 @@ export default function BookingPage() {
                     </div>
                   </li>
                   <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <Info className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
+                    <Info className="w-5 h-5 text-primary mr-2 mt-0.5" />
                     <div>
                       <p className="font-semibold">Cancellation Policy </p>
                       <p>
@@ -792,12 +792,12 @@ export default function BookingPage() {
                 </ul>
               </div>
               <div>
-                <h2 className="text-2xl font-bold mb-4 font-montserrat">
+                <h2 className="text-2xl font-bold mb-4 font-heading">
                   What to Expect
                 </h2>
                 <ul className="space-y-4">
                   <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
+                    <CheckCircle className="w-5 h-5 text-primary mr-2 mt-0.5" />
                     <div>
                       <p className="font-semibold">Consultation</p>
                       <p>
@@ -808,7 +808,7 @@ export default function BookingPage() {
                     </div>
                   </li>
                   <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
+                    <CheckCircle className="w-5 h-5 text-primary mr-2 mt-0.5" />
                     <div>
                       <p className="font-semibold">Arrival</p>
                       <p>
@@ -818,7 +818,7 @@ export default function BookingPage() {
                     </div>
                   </li>
                   <li className="grid grid-cols-[auto_1fr] gap-1">
-                    <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5" />
+                    <CheckCircle className="w-5 h-5 text-primary mr-2 mt-0.5" />
                     <div>
                       <p className="font-semibold">Payment</p>
                       <p>We accept all major credit cards and cash.</p>

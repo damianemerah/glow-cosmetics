@@ -458,12 +458,12 @@ export default function MessagingPage() {
       title: "Channel",
       render: (row: Message) => {
         const channelStyles = {
-          email: "bg-blue-100 text-blue-800",
+          email: "bg-info/10 text-info",
         };
         return (
           <Badge
             className={
-              channelStyles[row.channel] || "bg-gray-100 text-gray-800"
+              channelStyles[row.channel] || "bg-muted text-foreground"
             }
           >
             {row.channel.toUpperCase()}
@@ -571,7 +571,7 @@ export default function MessagingPage() {
 
                 {/* Selected booking information */}
                 {selectedBooking && (
-                  <div className="border border-green-200 rounded-md p-3 bg-green-50">
+                  <div className="border border-success/20 rounded-md p-3 bg-success/5">
                     <div className="flex justify-between">
                       <h4 className="font-medium">Booking Found</h4>
                       <Button
@@ -803,7 +803,7 @@ export default function MessagingPage() {
             <CardFooter>
               <Button
                 type="submit"
-                className="bg-primary text-white hover:bg-primary/90 w-full"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
                 disabled={
                   isLoading ||
                   (!messageForm.recipients.length && !selectedClient)
@@ -844,8 +844,8 @@ export default function MessagingPage() {
                     <Badge
                       className={
                         template.channel === "email"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-emerald-100 text-emerald-800"
+                          ? "bg-info/10 text-info"
+                          : "bg-success/10 text-success"
                       }
                     >
                       {template.channel.toUpperCase()}
@@ -862,7 +862,7 @@ export default function MessagingPage() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-4 font-montserrat">
+        <h2 className="text-lg font-semibold mb-4 font-heading">
           Message History
         </h2>
         <DataTable columns={messageColumns} data={messages} />
@@ -876,8 +876,8 @@ export default function MessagingPage() {
                 disabled={currentPage === 1}
                 className={`px-3 py-1 rounded-l-md border ${
                   currentPage === 1
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-primary hover:bg-primary hover:text-white"
+                    ? "bg-muted text-muted-foreground cursor-not-allowed"
+                    : "bg-background text-primary hover:bg-primary hover:text-primary-foreground"
                 }`}
               >
                 Previous
@@ -890,8 +890,8 @@ export default function MessagingPage() {
                     onClick={() => setCurrentPage(page)}
                     className={`px-3 py-1 border-t border-b ${
                       currentPage === page
-                        ? "bg-primary text-white"
-                        : "bg-white text-primary hover:bg-primary hover:text-white"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-primary hover:bg-primary hover:text-primary-foreground"
                     }`}
                   >
                     {page}
@@ -906,8 +906,8 @@ export default function MessagingPage() {
                 disabled={currentPage === totalPages}
                 className={`px-3 py-1 rounded-r-md border ${
                   currentPage === totalPages
-                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-primary hover:bg-primary hover:text-white"
+                    ? "bg-muted text-muted-foreground cursor-not-allowed"
+                    : "bg-background text-primary hover:bg-primary hover:text-primary-foreground"
                 }`}
               >
                 Next
@@ -939,7 +939,7 @@ export default function MessagingPage() {
               </Button>
             </div>
             {searchError && (
-              <p className="text-red-500 text-sm">
+              <p className="text-destructive text-sm">
                 Error searching for clients
               </p>
             )}

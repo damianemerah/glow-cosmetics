@@ -15,7 +15,7 @@ export default function Loading() {
       </section>
 
       {/* Products Section Skeleton */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className=" mx-auto relative">
           {/* Tabs Skeleton */}
           <div className="mb-8">
@@ -51,7 +51,7 @@ export default function Loading() {
       {/* Loyalty Program Section Skeleton */}
       <section className="py-16 bg-secondary">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="max-w-4xl mx-auto bg-card rounded-lg shadow-lg overflow-hidden">
             <div className="md:flex">
               <div className="md:w-1/2 p-8">
                 <Skeleton className="h-8 w-3/4 mb-4" />
@@ -66,15 +66,15 @@ export default function Loading() {
                 </div>
                 <Skeleton className="h-10 w-full" />
               </div>
-              <div className="md:w-1/2 bg-green-500 p-8">
-                <Skeleton className="h-6 w-1/2 mb-4 bg-white/30" />
+              <div className="md:w-1/2 bg-primary p-8">
+                <Skeleton className="h-6 w-1/2 mb-4 bg-primary-foreground/30" />
                 <div className="space-y-4">
                   {Array.from({ length: 3 }).map((_, i) => (
                     <div key={i} className="flex">
-                      <Skeleton className="w-8 h-8 rounded-full bg-white/50 mr-3" />
+                      <Skeleton className="w-8 h-8 rounded-full bg-primary-foreground/50 mr-3" />
                       <div>
-                        <Skeleton className="h-5 w-24 mb-1 bg-white/30" />
-                        <Skeleton className="h-4 w-full bg-white/20" />
+                        <Skeleton className="h-5 w-24 mb-1 bg-primary-foreground/30" />
+                        <Skeleton className="h-4 w-full bg-primary-foreground/20" />
                       </div>
                     </div>
                   ))}
@@ -86,13 +86,13 @@ export default function Loading() {
       </section>
 
       {/* CTA Section Skeleton */}
-      <section className="py-16 bg-[#5a6b47]">
+      <section className="py-16 bg-primary">
         <div className="container mx-auto px-4 text-center">
-          <Skeleton className="h-8 w-1/2 mx-auto mb-6 bg-white/20" />
-          <Skeleton className="h-6 w-3/4 mx-auto mb-8 bg-white/20" />
+          <Skeleton className="h-8 w-1/2 mx-auto mb-6 bg-primary-foreground/20" />
+          <Skeleton className="h-6 w-3/4 mx-auto mb-8 bg-primary-foreground/20" />
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Skeleton className="h-12 w-32 rounded-md bg-white/30" />
-            <Skeleton className="h-12 w-32 rounded-md bg-white/30" />
+            <Skeleton className="h-12 w-32 rounded-md bg-primary-foreground/30" />
+            <Skeleton className="h-12 w-32 rounded-md bg-primary-foreground/30" />
           </div>
         </div>
       </section>

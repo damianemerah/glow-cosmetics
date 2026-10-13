@@ -233,7 +233,7 @@ export default function CategoryForm({
     // If it's an edit, but we don't have data yet (e.g., SWR hasn't resolved fallback)
     // You might want a more specific check if SWR is actively fetching
     return (
-      <div className="min-h-screen bg-gray-50 sm:py-6">
+      <div className="min-h-screen bg-muted/50 sm:py-6">
         <Card className="max-w-3xl mx-auto sm:shadow-md border-none sm:border">
           <CardContent className="pt-6 p-0 sm:p-6">
             <Skeleton className="h-8 w-32 mb-4" />
@@ -251,7 +251,7 @@ export default function CategoryForm({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 sm:py-6">
+    <div className="min-h-screen bg-muted/50 sm:py-6">
       <Card className="max-w-3xl mx-auto sm:shadow-md border-none sm:border">
         <CardContent className="pt-6 p-0 sm:p-6">
           <div className="mb-6">
@@ -274,7 +274,7 @@ export default function CategoryForm({
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-foreground mb-1"
                 >
                   Category Name*
                 </label>
@@ -286,7 +286,7 @@ export default function CategoryForm({
                   )}
                 />
                 {errors.name && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     {errors.name.message}
                   </p>
                 )}
@@ -296,7 +296,7 @@ export default function CategoryForm({
               <div>
                 <label
                   htmlFor="parent_id"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-foreground mb-1"
                 >
                   Parent Category
                 </label>
@@ -346,13 +346,13 @@ export default function CategoryForm({
 
               {/* Image Upload Section */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Category Images
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mb-3">
                   {currentImages.map((url, index) => (
                     <div key={index} className="relative group aspect-square">
-                      <div className="h-full w-full border rounded-md overflow-hidden relative bg-gray-100">
+                      <div className="h-full w-full border rounded-md overflow-hidden relative bg-muted">
                         <Image
                           src={url}
                           alt={`Category image ${index + 1}`}
@@ -365,7 +365,7 @@ export default function CategoryForm({
                           type="button"
                           onClick={() => removeImage(index)}
                           aria-label={`Remove image ${index + 1}`}
-                          className="absolute top-1 right-1 bg-white rounded-full p-1 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 bg-background rounded-full p-1 text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -377,19 +377,19 @@ export default function CategoryForm({
                   <div className="aspect-square">
                     <label
                       htmlFor="image-upload"
-                      className={`h-full w-full border border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors ${isUploading ? "opacity-50 cursor-not-allowed" : ""}`}
+                      className={`h-full w-full border border-dashed rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-muted/60 transition-colors ${isUploading ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       {isUploading ? (
                         <div className="flex flex-col items-center justify-center text-center">
-                          <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                          <p className="text-xs text-gray-500 mt-2 px-1">
+                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground mt-2 px-1">
                             Uploading...
                           </p>
                         </div>
                       ) : (
                         <>
-                          <ImageIcon className="h-6 w-6 text-gray-400" />
-                          <p className="text-xs text-gray-500 mt-2">
+                          <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground mt-2">
                             Add Image
                           </p>
                         </>
@@ -422,7 +422,7 @@ export default function CategoryForm({
                   </div>
                 </div>
                 {errors.images && (
-                  <p className="text-sm text-red-500 mt-1">
+                  <p className="text-sm text-destructive mt-1">
                     {/* You might need a specific message if array validation fails */}
                     {typeof errors.images.message === "string"
                       ? errors.images.message
@@ -447,7 +447,7 @@ export default function CategoryForm({
               <div className="pt-4 flex flex-col gap-3">
                 <Button
                   type="submit"
-                  className="w-full bg-primary text-white"
+                  className="w-full bg-primary text-primary-foreground"
                   // Disable if loading OR if it's an edit and form isn't dirty
                   disabled={
                     isLoading || (id !== "new" && !isDirty) || isUploading

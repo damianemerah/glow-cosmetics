@@ -52,7 +52,7 @@ export default function ShippingAddress({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-4 font-montserrat">
+      <h2 className="text-lg font-semibold mb-4 font-heading">
         Shipping Address
       </h2>
       <div className="space-y-4">
@@ -66,7 +66,7 @@ export default function ShippingAddress({
           >
             <SelectTrigger
               id="checkout-country"
-              className={errors.country ? "border-red-500" : ""}
+              className={errors.country ? "border-destructive" : ""}
             >
               <SelectValue placeholder="Select Country" />
             </SelectTrigger>
@@ -76,7 +76,7 @@ export default function ShippingAddress({
             </SelectContent>
           </Select>
           {errors.country && (
-            <p className="text-red-600 text-sm mt-1">{errors.country}</p>
+            <p className="text-destructive text-sm mt-1">{errors.country}</p>
           )}
         </div>
 
@@ -90,10 +90,10 @@ export default function ShippingAddress({
               value={formData.firstName}
               onChange={handleChange}
               required
-              className={errors.firstName ? "border-red-500" : ""}
+              className={errors.firstName ? "border-destructive" : ""}
             />
             {errors.firstName && (
-              <p className="text-red-600 text-sm mt-1">{errors.firstName}</p>
+              <p className="text-destructive text-sm mt-1">{errors.firstName}</p>
             )}
           </div>
           <div className="space-y-1.5">
@@ -104,10 +104,10 @@ export default function ShippingAddress({
               value={formData.lastName}
               onChange={handleChange}
               required
-              className={errors.lastName ? "border-red-500" : ""}
+              className={errors.lastName ? "border-destructive" : ""}
             />
             {errors.lastName && (
-              <p className="text-red-600 text-sm mt-1">{errors.lastName}</p>
+              <p className="text-destructive text-sm mt-1">{errors.lastName}</p>
             )}
           </div>
         </div>
@@ -122,11 +122,11 @@ export default function ShippingAddress({
             onChange={handlePhoneInputChange}
             inputProps={{ id: "checkout-phone", name: "phone", required: true }}
             containerClass="w-full"
-            inputClass={`!w-full !py-2 !px-3 !h-10 !border !rounded-md ${errors.phone ? "!border-red-500" : "!border-input"}`} // Use !important to override defaults if needed
+            inputClass={`!w-full !py-2 !px-3 !h-10 !border !rounded-md ${errors.phone ? "!border-destructive" : "!border-input"}`} // Use !important to override defaults if needed
             placeholder="+27 12 345 6789"
           />
           {errors.phone && (
-            <p id="checkout-phone-error" className="text-red-600 text-sm mt-1">
+            <p id="checkout-phone-error" className="text-destructive text-sm mt-1">
               {errors.phone}
             </p>
           )}
@@ -141,10 +141,10 @@ export default function ShippingAddress({
             value={formData.address}
             onChange={handleChange}
             required
-            className={errors.address ? "border-red-500" : ""}
+            className={errors.address ? "border-destructive" : ""}
           />
           {errors.address && (
-            <p className="text-red-600 text-sm mt-1">{errors.address}</p>
+            <p className="text-destructive text-sm mt-1">{errors.address}</p>
           )}
         </div>
 
@@ -171,10 +171,10 @@ export default function ShippingAddress({
               value={formData.city}
               onChange={handleChange}
               required
-              className={errors.city ? "border-red-500" : ""}
+              className={errors.city ? "border-destructive" : ""}
             />
             {errors.city && (
-              <p className="text-red-600 text-sm mt-1">{errors.city}</p>
+              <p className="text-destructive text-sm mt-1">{errors.city}</p>
             )}
           </div>
           <div className="space-y-1.5">
@@ -185,10 +185,10 @@ export default function ShippingAddress({
               value={formData.state}
               onChange={handleChange}
               required
-              className={errors.state ? "border-red-500" : ""}
+              className={errors.state ? "border-destructive" : ""}
             />
             {errors.state && (
-              <p className="text-red-600 text-sm mt-1">{errors.state}</p>
+              <p className="text-destructive text-sm mt-1">{errors.state}</p>
             )}
           </div>
           <div className="space-y-1.5">
@@ -199,10 +199,10 @@ export default function ShippingAddress({
               value={formData.zipCode}
               onChange={handleChange}
               required
-              className={errors.zipCode ? "border-red-500" : ""}
+              className={errors.zipCode ? "border-destructive" : ""}
             />
             {errors.zipCode && (
-              <p className="text-red-600 text-sm mt-1">{errors.zipCode}</p>
+              <p className="text-destructive text-sm mt-1">{errors.zipCode}</p>
             )}
           </div>
         </div>

@@ -271,7 +271,7 @@ export default function EditBookingPopover({
               size="sm"
               onClick={handleUpdate}
               disabled={isLoading}
-              className="bg-green-500 hover:bg-green-600"
+              className="bg-primary hover:bg-primary/90"
             >
               {isLoading ? (
                 <>

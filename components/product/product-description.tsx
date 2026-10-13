@@ -50,16 +50,16 @@ export default function ProductDescriptionAndDetails({
 
         {hasDetails && (
           <TabsContent value="details">
-            <div className="p-4 md:p-6 bg-gray-50/50 rounded-lg border space-y-3">
+            <div className="p-4 md:p-6 bg-muted/30 rounded-lg border space-y-3">
               {additionalDetails.map(({ key, value }, index) => (
                 <div
                   key={key}
-                  className={`grid grid-cols-2 gap-4 text-sm items-center pt-4 ${index !== 0 && "border-t border-gray-200"}`}
+                  className={`grid grid-cols-2 gap-4 text-sm items-center pt-4 ${index !== 0 && "border-t border-border"}`}
                 >
-                  <dt className="font-medium text-gray-600 capitalize">
+                  <dt className="font-medium text-muted-foreground capitalize">
                     {key.replace(/_/g, " ")}
                   </dt>
-                  <dd className="text-gray-800">{value}</dd>
+                  <dd className="text-foreground">{value}</dd>
                 </div>
               ))}
             </div>

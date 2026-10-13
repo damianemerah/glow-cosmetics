@@ -187,11 +187,11 @@ export function ProductCardList({ product }: ProductCardListProps) {
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <TooltipProvider delayDuration={100}>
         <div
-          className="group relative border rounded-lg overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300 p-4 flex flex-row gap-4"
+          className="group relative rounded-xl overflow-hidden bg-card ring-1 ring-border/60 shadow-soft hover:shadow-elevated transition-shadow duration-300 p-4 flex flex-row gap-4"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <div className="relative w-36 h-auto aspect-square flex-shrink-0 overflow-hidden rounded-md bg-gray-50">
+          <div className="relative w-36 h-auto aspect-square flex-shrink-0 overflow-hidden rounded-md bg-muted/50">
             <Link
               href={`/products/${product.slug}`}
               className="absolute inset-0 z-10"
@@ -206,7 +206,7 @@ export function ProductCardList({ product }: ProductCardListProps) {
             />
             <div className="absolute top-2 left-2 z-15 flex flex-col gap-1">
               {product.is_bestseller && (
-                <Badge variant="default" className="bg-green-600 text-white">
+                <Badge variant="default" className="bg-primary text-primary-foreground">
                   Bestseller
                 </Badge>
               )}
@@ -231,12 +231,12 @@ export function ProductCardList({ product }: ProductCardListProps) {
                 {plainShortDescription}
               </p>
               <div className="flex items-baseline gap-2">
-                <p className="text-lg font-semibold text-gray-800">
+                <p className="text-lg font-semibold text-foreground">
                   {formatZAR(product.price)}
                 </p>
                 {product.compare_price &&
                   product.compare_price > product.price && (
-                    <p className="text-sm text-gray-400 line-through">
+                    <p className="text-sm text-muted-foreground line-through">
                       {formatZAR(product.compare_price)}
                     </p>
                   )}
@@ -247,7 +247,7 @@ export function ProductCardList({ product }: ProductCardListProps) {
               <Button
                 size="sm"
                 variant={hasStock ? "default" : "outline"}
-                className="bg-primary/90 hover:bg-primary disabled:bg-gray-300"
+                className="bg-primary/90 hover:bg-primary disabled:bg-muted"
                 onClick={handleAddToCart}
                 disabled={isAddingToCart || isBuyingNow || !hasStock}
                 aria-label={hasStock ? "Add to cart" : "Product out of stock"}
@@ -291,7 +291,7 @@ export function ProductCardList({ product }: ProductCardListProps) {
                       disabled={isWishlistLoading}
                     >
                       <Heart
-                        className={`h-4 w-4 mr-1 ${isInWishlist ? "fill-red-500 text-red-500" : ""}`}
+                        className={`h-4 w-4 mr-1 ${isInWishlist ? "fill-destructive text-destructive" : ""}`}
                       />
                       {isInWishlist ? "Remove" : "Wishlist"}
                     </Button>

@@ -121,12 +121,12 @@ function ProductDetailsText({
     <div className="space-y-4 md:space-y-5 py-4 md:py-0">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
         {categoryDisplay && (
-          <span className="text-gray-600 capitalize">{categoryDisplay}</span>
+          <span className="text-muted-foreground capitalize">{categoryDisplay}</span>
         )}
         {product.is_bestseller && (
           <Badge
             variant="outline"
-            className="border-yellow-500 text-yellow-700"
+            className="border-warning text-warning"
           >
             Bestseller
           </Badge>
@@ -135,12 +135,12 @@ function ProductDetailsText({
           <Badge variant="destructive">{discountPercentage}% OFF</Badge>
         )}
       </div>
-      <h1 className="text-2xl md:text-3xl font-bold text-gray-900 font-montserrat capitalize">
+      <h1 className="text-2xl md:text-3xl font-bold text-foreground font-heading capitalize">
         {product.name}
       </h1>
       {hasColorOptions && (
         <div className="mb-4">
-          <p className="text-sm font-medium text-gray-700 mb-2">
+          <p className="text-sm font-medium text-foreground mb-2">
             Select Color:{" "}
             <span className="font-semibold text-primary">
               {selectedColor?.name || "(Not selected)"}
@@ -158,14 +158,14 @@ function ProductDetailsText({
                   "relative block w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary",
                   selectedColor?.name === colorInfo.name
                     ? "border-primary ring-1 ring-primary"
-                    : "border-transparent hover:border-gray-400"
+                    : "border-transparent hover:border-input"
                 )}
                 style={getColorStyle(colorInfo.hex)}
               >
                 {selectedColor?.name === colorInfo.name && (
                   <span className="absolute inset-0 flex items-center justify-center">
                     <Check
-                      className={`h-4 w-4 ${colorInfo.hex && ["#000000", "#755237"].includes(colorInfo.hex.toLowerCase()) ? "text-white" : "text-black"} mix-blend-difference`}
+                      className={`h-4 w-4 ${colorInfo.hex && ["#000000", "#755237"].includes(colorInfo.hex.toLowerCase()) ? "text-white" : "text-foreground"} mix-blend-difference`}
                     />
                   </span>
                 )}
@@ -173,7 +173,7 @@ function ProductDetailsText({
             ))}
           </div>
           {hasColorOptions && !selectedColor && (
-            <p className="text-xs text-red-600 mt-1.5">Selection required</p>
+            <p className="text-xs text-destructive mt-1.5">Selection required</p>
           )}
         </div>
       )}
@@ -182,7 +182,7 @@ function ProductDetailsText({
           {formatZAR(product.price)}
         </span>
         {product.compare_price && product.compare_price > product.price && (
-          <span className="text-lg text-gray-500 line-through">
+          <span className="text-lg text-muted-foreground line-through">
             {formatZAR(product.compare_price)}
           </span>
         )}
@@ -196,11 +196,11 @@ function ProductDetailsText({
         <button
           onClick={handleToggleWishlist}
           disabled={isWishlistLoading || !user?.id}
-          className={`flex items-center justify-center p-3 h-11 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors ${isWishlistLoading ? "opacity-50 cursor-wait" : ""}`}
+          className={`flex items-center justify-center p-3 h-11 border border-border rounded-md hover:bg-muted/60 transition-colors ${isWishlistLoading ? "opacity-50 cursor-wait" : ""}`}
           aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
         >
           <Heart
-            className={`h-5 w-5 ${isInWishlist ? "fill-red-500 text-red-500" : "text-gray-700"}`}
+            className={`h-5 w-5 ${isInWishlist ? "fill-destructive text-destructive" : "text-foreground"}`}
           />
         </button>
       </div>
@@ -211,12 +211,12 @@ function ProductDetailsText({
         {product.stock_quantity > 5 ? (
           <Badge
             variant="outline"
-            className="border-green-300 bg-green-50 text-green-700"
+            className="border-success/20 bg-success/5 text-primary"
           >
             <Check className="w-3.5 h-3.5 mr-1" /> In Stock
           </Badge>
         ) : product.stock_quantity > 0 ? (
-          <span className="text-orange-600 font-medium">
+          <span className="text-warning font-medium">
             Low stock ({product.stock_quantity} left)
           </span>
         ) : (
@@ -333,7 +333,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         <div className="flex flex-col gap-4">
           {/* Main Image Display Container with Manual Zoom */}
           <div
-            className="aspect-square w-full bg-gray-100 rounded-lg border relative group overflow-hidden cursor-zoom-in"
+            className="aspect-square w-full bg-muted rounded-lg border relative group overflow-hidden cursor-zoom-in"
             onMouseMove={handleMouseMoveForZoom}
             onMouseEnter={handleMouseEnterForZoom}
             onMouseLeave={handleMouseLeaveForZoom}
@@ -361,7 +361,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                 }
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-gray-200">
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground bg-muted">
                 No image available
               </div>
             )}
@@ -370,7 +370,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             {product.is_bestseller && (
               <Badge
                 variant="outline"
-                className="absolute top-3 left-3 z-10 bg-white/80 border-yellow-500 text-yellow-700 shadow-sm pointer-events-none"
+                className="absolute top-3 left-3 z-10 bg-background/85 border-warning text-warning shadow-sm pointer-events-none"
               >
                 Bestseller
               </Badge>
@@ -409,7 +409,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                     "relative w-16 h-16 sm:w-20 sm:h-20 rounded-md overflow-hidden block border-2 transition-all duration-200 flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary",
                     url === selectedImage
                       ? "border-primary"
-                      : "border-transparent hover:border-gray-400"
+                      : "border-transparent hover:border-input"
                   )}
                   onClick={() => {
                     setSelectedImage(url);

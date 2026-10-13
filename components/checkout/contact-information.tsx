@@ -37,7 +37,7 @@ export default function ContactInformation({
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-4 font-montserrat">Contact</h2>
+      <h2 className="text-lg font-semibold mb-4 font-heading">Contact</h2>
       <div className="space-y-4">
         <div className="space-y-1.5">
           <Label htmlFor="checkout-email">Email</Label>
@@ -48,13 +48,13 @@ export default function ContactInformation({
             placeholder="you@example.com"
             value={email}
             onChange={handleInputChange}
-            className={error ? "border-red-500" : ""}
+            className={error ? "border-destructive" : ""}
             aria-invalid={!!error}
             aria-describedby="checkout-email-error"
             required
           />
           {error && (
-            <p id="checkout-email-error" className="text-red-600 text-sm mt-1">
+            <p id="checkout-email-error" className="text-destructive text-sm mt-1">
               {error}
             </p>
           )}

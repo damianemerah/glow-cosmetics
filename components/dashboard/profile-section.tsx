@@ -197,7 +197,7 @@ export default function ProfileSection({
             uploadResult.errorCode === "FILE_TOO_LARGE"
               ? "Selected image is too large (max 2MB)." // Using 2MB as per your server error message
               : "Please try again or select a different image.",
-          icon: <AlertCircle className="text-red-500 w-5 h-5" />,
+          icon: <AlertCircle className="text-destructive w-5 h-5" />,
         });
         setIsSubmitting(false);
         return;
@@ -249,7 +249,7 @@ export default function ProfileSection({
 
   if (swrError || (initialError && !profile)) {
     return (
-      <div className="flex items-center p-4 text-red-800 bg-red-50 rounded-md my-6">
+      <div className="flex items-center p-4 text-destructive bg-destructive/5 rounded-md my-6">
         <AlertCircle className="h-5 w-5 mr-2" />
         <p>
           Unable to load profile data. Please refresh the page or try again
@@ -285,7 +285,7 @@ export default function ProfileSection({
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="text-xl md:text-2xl font-semibold text-gray-800">
+            <h3 className="text-xl md:text-2xl font-semibold text-foreground">
               {capitalize(profile?.first_name)} {capitalize(profile?.last_name)}
             </h3>
             <p className="text-sm text-muted-foreground">{profile?.email}</p>
@@ -319,7 +319,7 @@ export default function ProfileSection({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px] profile-dialog-content max-h-[90vh] overflow-y-auto p-6">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-montserrat">
+            <DialogTitle className="text-2xl font-heading">
               Edit Profile
             </DialogTitle>
             <DialogDescription>
@@ -543,7 +543,7 @@ export default function ProfileSection({
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-green-500 hover:bg-green-600 text-white"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {isSubmitting ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

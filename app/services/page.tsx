@@ -1,4 +1,5 @@
 "use client";
+import PageHero from "@/components/common/page-hero";
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
@@ -69,35 +70,17 @@ export default function ServicesPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative h-[400px] bg-secondary">
-        <div className="absolute inset-0">
-          <Image
-            src="/images/beauty.jpg"
-            alt="Beauty services"
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-        <div className="relative container mx-auto px-4 h-full flex flex-col justify-center">
-          <div className="max-w-2xl text-white">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-montserrat">
-              Our Services
-            </h1>
-            <p className="text-xl md:text-2xl italic">
-              Enhance your natural beauty with our semi permanent makeup
-              service.
-            </p>
-          </div>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="Treatments"
+        title="Our Services"
+        description="Enhance your natural beauty with our semi-permanent makeup services."
+        image="/images/beauty.jpg"
+      />
 
       {/* Services List */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          {/* <h2 className="text-lg md:text-2xl font-bold mb-10 md:mb-12 text-center font-montserrat italic max-w-2xl mx-auto">
+          {/* <h2 className="text-lg md:text-2xl font-bold mb-10 md:mb-12 text-center font-heading italic max-w-2xl mx-auto">
             Enhance your natural beauty with our semi permanent makeup service.
           </h2> */}
           <div className="max-w-4xl mx-auto">
@@ -116,7 +99,7 @@ export default function ServicesPage() {
                     serviceRefs.current[service.id] = el;
                   }}
                 >
-                  <AccordionTrigger className="text-xl font-montserrat py-4">
+                  <AccordionTrigger className="text-xl font-heading py-4">
                     {service.name}
                   </AccordionTrigger>
                   <AccordionContent>
@@ -136,7 +119,7 @@ export default function ServicesPage() {
                         </p>
                         <Button
                           asChild
-                          className="bg-green-500 hover:bg-green-600"
+                          className="bg-primary hover:bg-primary/90"
                         >
                           <Link href="/booking">Book Now</Link>
                         </Button>

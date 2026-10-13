@@ -2,33 +2,33 @@ import React from "react";
 
 export default function TermsPage() {
   return (
-    <div className="font-sans bg-transparent text-gray-600 text-sm  my-16">
+    <div className="font-sans bg-transparent text-muted-foreground text-sm  my-16">
       <div className="text-left">
-        <h1 className="text-2xl font-bold font-sans text-black leading-relaxed">
+        <h1 className="text-2xl font-bold font-sans text-foreground leading-relaxed">
           TERMS OF SERVICE
         </h1>
-        <div className="text-sm font-bold text-gray-600 font-sans leading-relaxed">
+        <div className="text-sm font-bold text-muted-foreground font-sans leading-relaxed">
           Last updated <strong>May 18, 2025</strong>
         </div>
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed my-4">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed my-4">
           AGREEMENT TO OUR LEGAL TERMS
         </h2>
       </div>
       <div className="text-left mt-1">
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           We are GlowByUgosylvia (&apos;<strong>Company</strong>&apos;, &apos;
           <strong>we</strong>&apos;, &apos;<strong>us</strong>&apos;, or &apos;
           <strong>our</strong>
           &apos;), a company registered in South Africa at 4 Westminster Close,
           Bryanston, Sandton, Gauteng 2196.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           We operate the website
           <a
             href="https://ugosylviacosmetics.co.za"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             https://ugosylviacosmetics.co.za
           </a>
@@ -38,12 +38,12 @@ export default function TermsPage() {
           <strong>Legal Terms</strong>&apos;) (collectively, the &apos;
           <strong>Services</strong>&apos;).
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           You can contact us by phone at +27 78 147 0504, email at
           sylvia_emerah@yahoo.com, or by mail to 4 Westminster Close, Bryanston,
           Sandton, Gauteng 2196, South Africa.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           These Legal Terms constitute a legally binding agreement made between
           you, whether personally or on behalf of an entity (&apos;
           <strong>you</strong>&apos;), and GlowByUgosylvia, concerning your
@@ -53,7 +53,7 @@ export default function TermsPage() {
           THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST
           DISCONTINUE USE IMMEDIATELY.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           Supplemental terms and conditions or documents that may be posted on
           the Services from time to time are hereby expressly incorporated
           herein by reference. We reserve the right, in our sole discretion, to
@@ -67,117 +67,117 @@ export default function TermsPage() {
           revised Legal Terms by your continued use of the Services after the
           date such revised Legal Terms are posted.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           The Services are intended for users who are at least 18 years old.
           Persons under the age of 18 are not permitted to use or register for
           the Services.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           We recommend that you print a copy of these Legal Terms for your
           records.
         </p>
       </div>
       <div className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2 my-4">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2 my-4">
           TABLE OF CONTENTS
         </h2>
         <nav className="text-sm leading-relaxed space-y-1">
           <div>
-            <a href="#services" className="text-blue-600 font-sans break-words">
+            <a href="#services" className="text-primary font-sans break-words">
               1. OUR SERVICES
             </a>
           </div>
           <div>
-            <a href="#ip" className="text-blue-600 font-sans break-words">
+            <a href="#ip" className="text-primary font-sans break-words">
               2. INTELLECTUAL PROPERTY RIGHTS
             </a>
           </div>
           <div>
-            <a href="#userreps" className="text-blue-600 font-sans break-words">
+            <a href="#userreps" className="text-primary font-sans break-words">
               3. USER REPRESENTATIONS
             </a>
           </div>
           <div>
-            <a href="#userreg" className="text-blue-600 font-sans break-words">
+            <a href="#userreg" className="text-primary font-sans break-words">
               4. USER REGISTRATION
             </a>
           </div>
           <div>
-            <a href="#products" className="text-blue-600 font-sans break-words">
+            <a href="#products" className="text-primary font-sans break-words">
               5. PRODUCTS
             </a>
           </div>
           <div>
             <a
               href="#purchases"
-              className="text-blue-600 font-sans break-words"
+              className="text-primary font-sans break-words"
             >
               6. PURCHASES AND PAYMENT
             </a>
           </div>
           <div>
-            <a href="#returnno" className="text-blue-600 font-sans break-words">
+            <a href="#returnno" className="text-primary font-sans break-words">
               7. RETURN POLICY
             </a>
           </div>
           <div>
             <a
               href="#prohibited"
-              className="text-blue-600 font-sans break-words"
+              className="text-primary font-sans break-words"
             >
               8. PROHIBITED ACTIVITIES
             </a>
           </div>
           <div>
-            <a href="#ugc" className="text-blue-600 font-sans break-words">
+            <a href="#ugc" className="text-primary font-sans break-words">
               9. USER GENERATED CONTRIBUTIONS
             </a>
           </div>
           <div>
-            <a href="#license" className="text-blue-600 font-sans break-words">
+            <a href="#license" className="text-primary font-sans break-words">
               10. CONTRIBUTION LICENCE
             </a>
           </div>
           <div>
             <a
               href="#sitemanage"
-              className="text-blue-600 font-sans break-words"
+              className="text-primary font-sans break-words"
             >
               11. SERVICES MANAGEMENT
             </a>
           </div>
           <div>
-            <a href="#ppyes" className="text-blue-600 font-sans break-words">
+            <a href="#ppyes" className="text-primary font-sans break-words">
               12. PRIVACY POLICY
             </a>
           </div>
           <div>
-            <a href="#terms" className="text-blue-600 font-sans break-words">
+            <a href="#terms" className="text-primary font-sans break-words">
               13. TERM AND TERMINATION
             </a>
           </div>
           <div>
             <a
               href="#modifications"
-              className="text-blue-600 font-sans break-words"
+              className="text-primary font-sans break-words"
             >
               14. MODIFICATIONS AND INTERRUPTIONS
             </a>
           </div>
           <div>
-            <a href="#law" className="text-blue-600 font-sans break-words">
+            <a href="#law" className="text-primary font-sans break-words">
               15. GOVERNING LAW
             </a>
           </div>
           <div>
-            <a href="#disputes" className="text-blue-600 font-sans break-words">
+            <a href="#disputes" className="text-primary font-sans break-words">
               16. DISPUTE RESOLUTION
             </a>
           </div>
           <div>
             <a
               href="#corrections"
-              className="text-blue-600 font-sans break-words"
+              className="text-primary font-sans break-words"
             >
               17. CORRECTIONS
             </a>
@@ -185,7 +185,7 @@ export default function TermsPage() {
           <div>
             <a
               href="#disclaimer"
-              className="text-blue-600 font-sans break-words"
+              className="text-primary font-sans break-words"
             >
               18. DISCLAIMER
             </a>
@@ -193,7 +193,7 @@ export default function TermsPage() {
           <div>
             <a
               href="#liability"
-              className="text-blue-600 font-sans break-words"
+              className="text-primary font-sans break-words"
             >
               19. LIMITATIONS OF LIABILITY
             </a>
@@ -201,46 +201,46 @@ export default function TermsPage() {
           <div>
             <a
               href="#indemnification"
-              className="text-blue-600 font-sans break-words"
+              className="text-primary font-sans break-words"
             >
               20. INDEMNIFICATION
             </a>
           </div>
           <div>
-            <a href="#userdata" className="text-blue-600 font-sans break-words">
+            <a href="#userdata" className="text-primary font-sans break-words">
               21. USER DATA
             </a>
           </div>
           <div>
             <a
               href="#electronic"
-              className="text-blue-600 font-sans break-words"
+              className="text-primary font-sans break-words"
             >
               22. ELECTRONIC COMMUNICATIONS, TRANSACTIONS, AND SIGNATURES
             </a>
           </div>
           <div>
-            <a href="#sms" className="text-blue-600 font-sans break-words">
+            <a href="#sms" className="text-primary font-sans break-words">
               23. SMS TEXT MESSAGING
             </a>
           </div>
           <div>
-            <a href="#misc" className="text-blue-600 font-sans break-words">
+            <a href="#misc" className="text-primary font-sans break-words">
               24. MISCELLANEOUS
             </a>
           </div>
           <div>
-            <a href="#contact" className="text-blue-600 font-sans break-words">
+            <a href="#contact" className="text-primary font-sans break-words">
               25. CONTACT US
             </a>
           </div>
         </nav>
       </div>
       <section id="services" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           1. OUR SERVICES
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           The information provided when using the Services is not intended for
           distribution to or use by any person or entity in any jurisdiction or
           country where such distribution or use would be contrary to law or
@@ -252,14 +252,14 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="ip" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           2. INTELLECTUAL PROPERTY RIGHTS
         </h2>
 
-        <h3 className="text-lg font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-lg font-bold font-sans text-foreground leading-relaxed mb-1">
           Our intellectual property
         </h3>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           We are the owner or the licensee of all intellectual property rights
           in our Services, including all source code, databases, functionality,
           software, website designs, audio, video, text, photographs, and
@@ -267,42 +267,42 @@ export default function TermsPage() {
           well as the trademarks, service marks, and logos contained therein
           (the &apos;Marks&apos;).
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           Our Content and Marks are protected by copyright and trademark laws
           (and various other intellectual property rights and unfair competition
           laws) and treaties around the world.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           The Content and Marks are provided in or through the Services &apos;AS
           IS&apos; for your personal, non-commercial use only.
         </p>
 
-        <h3 className="text-lg font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-lg font-bold font-sans text-foreground leading-relaxed mb-1">
           Your use of our Services
         </h3>
-        <p className="text-base text-gray-600 leading-relaxed mb-1">
+        <p className="text-base text-muted-foreground leading-relaxed mb-1">
           Subject to your compliance with these Legal Terms, including the
           &apos;
           <a
             href="#prohibited"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             PROHIBITED ACTIVITIES
           </a>
           &apos; section below, we grant you a non-exclusive, non-transferable,
           revocable licence to:
         </p>
-        <ul className="list-disc pl-5 text-base text-gray-600 leading-relaxed mb-3">
+        <ul className="list-disc pl-5 text-base text-muted-foreground leading-relaxed mb-3">
           <li>access the Services; and</li>
           <li>
             download or print a copy of any portion of the Content to which you
             have properly gained access,
           </li>
         </ul>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           solely for your personal, non-commercial use.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           Except as set out in this section or elsewhere in our Legal Terms, no
           part of the Services and no Content or Marks may be copied,
           reproduced, aggregated, republished, uploaded, posted, publicly
@@ -310,7 +310,7 @@ export default function TermsPage() {
           licensed, or otherwise exploited for any commercial purpose
           whatsoever, without our express prior written permission.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           If you wish to make any use of the Services, Content, or Marks other
           than as set out in this section or elsewhere in our Legal Terms,
           please address your request to: sylvia_emerah@yahoo.com. If we ever
@@ -320,24 +320,24 @@ export default function TermsPage() {
           copyright or proprietary notice appears or is visible on posting,
           reproducing, or displaying our Content.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           We reserve all rights not expressly granted to you in and to the
           Services, Content, and Marks.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           Any breach of these Intellectual Property Rights will constitute a
           material breach of our Legal Terms and your right to use our Services
           will terminate immediately.
         </p>
 
-        <h3 className="text-lg font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-lg font-bold font-sans text-foreground leading-relaxed mb-1">
           Your submissions
         </h3>
-        <p className="text-base text-gray-600 leading-relaxed mb-3">
+        <p className="text-base text-muted-foreground leading-relaxed mb-3">
           Please review this section and the &apos;
           <a
             href="#prohibited"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             PROHIBITED ACTIVITIES
           </a>
@@ -345,7 +345,7 @@ export default function TermsPage() {
           (a) rights you give us and (b) obligations you have when you post or
           upload any content through the Services.
         </p>
-        <p className="text-base text-gray-600 leading-relaxed mb-3">
+        <p className="text-base text-muted-foreground leading-relaxed mb-3">
           <strong>Submissions:</strong> By directly sending us any question,
           comment, suggestion, idea, feedback, or other information about the
           Services (&apos;Submissions&apos;), you agree to assign to us all
@@ -354,16 +354,16 @@ export default function TermsPage() {
           dissemination for any lawful purpose, commercial or otherwise, without
           acknowledgment or compensation to you.
         </p>
-        <p className="text-base text-gray-600 leading-relaxed mb-1">
+        <p className="text-base text-muted-foreground leading-relaxed mb-1">
           <strong>You are responsible for what you post or upload:</strong> By
           sending us Submissions through any part of the Services you:
         </p>
-        <ul className="list-disc pl-5 text-base text-gray-600 leading-relaxed mb-3">
+        <ul className="list-disc pl-5 text-base text-muted-foreground leading-relaxed mb-3">
           <li>
             confirm that you have read and agree with our &apos;
             <a
               href="#prohibited"
-              className="text-blue-600 text-sm font-sans break-words"
+              className="text-primary text-sm font-sans break-words"
             >
               PROHIBITED ACTIVITIES
             </a>
@@ -388,7 +388,7 @@ export default function TermsPage() {
             confidential information.
           </li>
         </ul>
-        <p className="text-base text-gray-600 leading-relaxed">
+        <p className="text-base text-muted-foreground leading-relaxed">
           You are solely responsible for your Submissions and you expressly
           agree to reimburse us for any and all losses that we may suffer
           because of your breach of (a) this section, (b) any third party’s
@@ -396,13 +396,13 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="userreps" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           3. USER REPRESENTATIONS
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed mb-1">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-1">
           By using the Services, you represent and warrant that:
         </p>
-        <ol className="list-decimal list-inside text-sm text-gray-600 leading-relaxed space-y-1">
+        <ol className="list-decimal list-inside text-sm text-muted-foreground leading-relaxed space-y-1">
           <li>
             all registration information you submit will be true, accurate,
             current, and complete;
@@ -429,7 +429,7 @@ export default function TermsPage() {
             regulation.
           </li>
         </ol>
-        <p className="text-sm text-gray-600 leading-relaxed mt-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mt-3">
           If you provide any information that is untrue, inaccurate, not
           current, or incomplete, we have the right to suspend or terminate your
           account and refuse any and all current or future use of the Services
@@ -437,10 +437,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="userreg" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           4. USER REGISTRATION
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           You may be required to register to use the Services. You agree to keep
           your password confidential and will be responsible for all use of your
           account and password. We reserve the right to remove, reclaim, or
@@ -450,10 +450,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="products" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           5. PRODUCTS
         </h2>
-        <p className="text-base text-gray-600 leading-relaxed">
+        <p className="text-base text-muted-foreground leading-relaxed">
           We make every effort to display as accurately as possible the colours,
           features, specifications, and details of the products available on the
           Services. However, we do not guarantee that the colours, features,
@@ -467,17 +467,17 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="purchases" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           6. PURCHASES AND PAYMENT
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed mb-1">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-1">
           We accept the following forms of payment:
         </p>
-        <ul className="text-sm text-gray-600 leading-relaxed ml-5 mb-3">
+        <ul className="text-sm text-muted-foreground leading-relaxed ml-5 mb-3">
           <li>- Visa</li>
           <li>- Mastercard</li>
         </ul>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           You agree to provide current, complete, and accurate purchase and
           account information for all purchases made via the Services. You
           further agree to promptly update account and payment information,
@@ -487,14 +487,14 @@ export default function TermsPage() {
           required by us. We may change prices at any time. All payments shall
           be in <span className="text-base">Rand</span>.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           You agree to pay all charges at the prices then in effect for your
           purchases and any applicable shipping fees, and you authorise us to
           charge your chosen payment provider for any such amounts upon placing
           your order. We reserve the right to correct any errors or mistakes in
           pricing, even if we have already requested or received payment.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           We reserve the right to refuse any order placed through the Services.
           We may, in our sole discretion, limit or cancel quantities purchased
           per person, per household, or per order. These restrictions may
@@ -506,27 +506,27 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="returnno" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           7. RETURN POLICY
         </h2>
-        <p className="text-base text-gray-600 leading-relaxed">
+        <p className="text-base text-muted-foreground leading-relaxed">
           All sales are final and no refund will be issued.
         </p>
       </section>
       <section id="prohibited" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           8. PROHIBITED ACTIVITIES
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           You may not access or use the Services for any purpose other than that
           for which we make the Services available. The Services may not be used
           in connection with any commercial endeavours except those that are
           specifically endorsed or approved by us.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-1">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-1">
           As a user of the Services, you agree not to:
         </p>
-        <ul className="list-disc pl-5 text-sm text-gray-600 leading-relaxed space-y-1">
+        <ul className="list-disc pl-5 text-sm text-muted-foreground leading-relaxed space-y-1">
           <li>
             Systematically retrieve data or other content from the Services to
             create or compile, directly or indirectly, a collection,
@@ -638,10 +638,10 @@ export default function TermsPage() {
         </ul>
       </section>
       <section id="ugc" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           9. USER GENERATED CONTRIBUTIONS
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           The Services does not offer users to submit or post content. We may
           provide you with the opportunity to create, submit, post, display,
           transmit, perform, publish, distribute, or broadcast content and
@@ -654,7 +654,7 @@ export default function TermsPage() {
           Services&apos; Privacy Policy. When you create or make available any
           Contributions, you thereby represent and warrant that:
         </p>
-        <ul className="list-disc pl-5 text-sm text-gray-600 leading-relaxed space-y-1 mt-3">
+        <ul className="list-disc pl-5 text-sm text-muted-foreground leading-relaxed space-y-1 mt-3">
           <li>
             The creation, distribution, transmission, public display, or
             performance, and the accessing, downloading, or copying of your
@@ -720,27 +720,27 @@ export default function TermsPage() {
             law or regulation.
           </li>
         </ul>
-        <p className="text-sm text-gray-600 leading-relaxed mt-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mt-3">
           Any use of the Services in violation of the foregoing violates these
           Legal Terms and may result in, among other things, termination or
           suspension of your rights to use the Services.
         </p>
       </section>
       <section id="license" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           10. CONTRIBUTION LICENCE
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           You and Services agree that we may access, store, process, and use any
           information and personal data that you provide following the terms of
           the Privacy Policy and your choices (including settings).
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           By submitting suggestions or other feedback regarding the Services,
           you agree that we can use and share such feedback for any purpose
           without compensation to you.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           We do not assert any ownership over your Contributions. You retain
           full ownership of all of your Contributions and any intellectual
           property rights or other proprietary rights associated with your
@@ -752,10 +752,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="sitemanage" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           11. SERVICES MANAGEMENT
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           We reserve the right, but not the obligation, to: (1) monitor the
           Services for violations of these Legal Terms; (2) take appropriate
           legal action against anyone who, in our sole discretion, violates the
@@ -772,17 +772,17 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="ppyes" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           12. PRIVACY POLICY
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           We care about data privacy and security. Please review our Privacy
           Policy:
           <a
             href="https://ugosylviacosmetics.co.za/privacy"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 font-sans break-words"
+            className="text-primary font-sans break-words"
           >
             https://ugosylviacosmetics.co.za/privacy
           </a>
@@ -798,10 +798,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="terms" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           13. TERM AND TERMINATION
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           These Legal Terms shall remain in full force and effect while you use
           the Services. WITHOUT LIMITING ANY OTHER PROVISION OF THESE LEGAL
           TERMS, WE RESERVE THE RIGHT TO, IN OUR SOLE DISCRETION AND WITHOUT
@@ -814,7 +814,7 @@ export default function TermsPage() {
           OR INFORMATION THAT YOU POSTED AT ANY TIME, WITHOUT WARNING, IN OUR
           SOLE DISCRETION.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           If we terminate or suspend your account for any reason, you are
           prohibited from registering and creating a new account under your
           name, a fake or borrowed name, or the name of any third party, even if
@@ -825,10 +825,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="modifications" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           14. MODIFICATIONS AND INTERRUPTIONS
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           We reserve the right to change, modify, or remove the contents of the
           Services at any time or for any reason at our sole discretion without
           notice. However, we have no obligation to update any information on
@@ -837,7 +837,7 @@ export default function TermsPage() {
           liable to you or any third party for any modification, price change,
           suspension, or discontinuance of the Services.
         </p>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           We cannot guarantee the Services will be available at all times. We
           may experience hardware, software, or other problems or need to
           perform maintenance related to the Services, resulting in
@@ -853,10 +853,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="law" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           15. GOVERNING LAW
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           These Legal Terms shall be governed by and defined following the laws
           of South Africa. GlowByUgosylvia and yourself irrevocably consent that
           the courts of South Africa shall have exclusive jurisdiction to
@@ -865,14 +865,14 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="disputes" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           16. DISPUTE RESOLUTION
         </h2>
 
-        <h3 className="text-lg font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-lg font-bold font-sans text-foreground leading-relaxed mb-1">
           Informal Negotiations
         </h3>
-        <p className="text-base text-gray-600 leading-relaxed mb-3">
+        <p className="text-base text-muted-foreground leading-relaxed mb-3">
           To expedite resolution and control the cost of any dispute,
           controversy, or claim related to these Legal Terms (each a
           &apos;Dispute&apos; and collectively, the &apos;Disputes&apos;)
@@ -880,15 +880,15 @@ export default function TermsPage() {
           collectively, the &apos;Parties&apos;), the Parties agree to first
           attempt to negotiate any Dispute (except those Disputes expressly
           provided below) informally for at least
-          <span className="font-mono bg-gray-200 px-1">__________</span> days
+          <span className="font-mono bg-muted px-1">__________</span> days
           before initiating arbitration. Such informal negotiations commence
           upon written notice from one Party to the other Party.
         </p>
 
-        <h3 className="text-lg font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-lg font-bold font-sans text-foreground leading-relaxed mb-1">
           Binding Arbitration
         </h3>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           Any dispute arising out of or in connection with these Legal Terms,
           including any question regarding its existence, validity, or
           termination, shall be referred to and finally resolved by the
@@ -896,18 +896,18 @@ export default function TermsPage() {
           Arbitration Chamber (Belgium, Brussels, Avenue Louise, 146) according
           to the Rules of this ICAC, which, as a result of referring to it, is
           considered as the part of this clause. The number of arbitrators shall
-          be <span className="font-mono bg-gray-200 px-1">__________</span>. The
+          be <span className="font-mono bg-muted px-1">__________</span>. The
           seat, or legal place, or arbitration shall be South Africa. The
           language of the proceedings shall be
-          <span className="font-mono bg-gray-200 px-1">__________</span>. The
+          <span className="font-mono bg-muted px-1">__________</span>. The
           governing law of these Legal Terms shall be substantive law of South
           Africa. {/* Placeholder visual */}
         </p>
 
-        <h3 className="text-lg font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-lg font-bold font-sans text-foreground leading-relaxed mb-1">
           Restrictions
         </h3>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           The Parties agree that any arbitration shall be limited to the Dispute
           between the Parties individually. To the full extent permitted by law,
           (a) no arbitration shall be joined with any other proceeding; (b)
@@ -918,10 +918,10 @@ export default function TermsPage() {
           any other persons.
         </p>
 
-        <h3 className="text-lg font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-lg font-bold font-sans text-foreground leading-relaxed mb-1">
           Exceptions to Informal Negotiations and Arbitration
         </h3>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           The Parties agree that the following Disputes are not subject to the
           above provisions concerning informal negotiations binding arbitration:
           (a) any Disputes seeking to enforce or protect, or concerning the
@@ -938,10 +938,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="corrections" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           17. CORRECTIONS
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           There may be information on the Services that contains typographical
           errors, inaccuracies, or omissions, including descriptions, pricing,
           availability, and various other information. We reserve the right to
@@ -950,10 +950,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="disclaimer" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           18. DISCLAIMER
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed uppercase">
+        <p className="text-sm text-muted-foreground leading-relaxed uppercase">
           THE SERVICES ARE PROVIDED ON AN AS-IS AND AS-AVAILABLE BASIS. YOU
           AGREE THAT YOUR USE OF THE SERVICES WILL BE AT YOUR SOLE RISK. TO THE
           FULLEST EXTENT PERMITTED BY LAW, WE DISCLAIM ALL WARRANTIES, EXPRESS
@@ -987,10 +987,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="liability" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           19. LIMITATIONS OF LIABILITY
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed uppercase">
+        <p className="text-sm text-muted-foreground leading-relaxed uppercase">
           IN NO EVENT WILL WE OR OUR DIRECTORS, EMPLOYEES, OR AGENTS BE LIABLE
           TO YOU OR ANY THIRD PARTY FOR ANY DIRECT, INDIRECT, CONSEQUENTIAL,
           EXEMPLARY, INCIDENTAL, SPECIAL, OR PUNITIVE DAMAGES, INCLUDING LOST
@@ -1007,10 +1007,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="indemnification" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           20. INDEMNIFICATION
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           You agree to defend, indemnify, and hold us harmless, including our
           subsidiaries, affiliates, and all of our respective officers, agents,
           partners, and employees, from and against any loss, damage, liability,
@@ -1030,10 +1030,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="userdata" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           21. USER DATA
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           We will maintain certain data that you transmit to the Services for
           the purpose of managing the performance of the Services, as well as
           data relating to your use of the Services. Although we perform regular
@@ -1046,10 +1046,10 @@ export default function TermsPage() {
         </p>
       </section>
       <section id="electronic" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           22. ELECTRONIC COMMUNICATIONS, TRANSACTIONS, AND SIGNATURES
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed uppercase">
+        <p className="text-sm text-muted-foreground leading-relaxed uppercase">
           VISITING THE SERVICES, SENDING US EMAILS, AND COMPLETING ONLINE FORMS
           CONSTITUTE ELECTRONIC COMMUNICATIONS. YOU CONSENT TO RECEIVE
           ELECTRONIC COMMUNICATIONS, AND YOU AGREE THAT ALL AGREEMENTS, NOTICES,
@@ -1068,41 +1068,41 @@ export default function TermsPage() {
       </section>
       {/* Section 23 */}
       <section id="sms" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           23. SMS TEXT MESSAGING
         </h2>
 
-        <h3 className="text-base font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-base font-bold font-sans text-foreground leading-relaxed mb-1">
           Opting Out
         </h3>
-        <p className="text-base text-gray-600 leading-relaxed mb-3">
+        <p className="text-base text-muted-foreground leading-relaxed mb-3">
           If you wish to stop receiving SMS at any time, please contact us at
           +27781470504 or unsubscribe from our website.
         </p>
 
-        <h3 className="text-base font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-base font-bold font-sans text-foreground leading-relaxed mb-1">
           Message and Data Rates
         </h3>
-        <p className="text-base text-gray-600 leading-relaxed mb-3">
+        <p className="text-base text-muted-foreground leading-relaxed mb-3">
           Please be aware that message and data rates may apply to any SMS
           messages sent or received. The rates are determined by your carrier
           and the specifics of your mobile plan.
         </p>
 
-        <h3 className="text-base font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-base font-bold font-sans text-foreground leading-relaxed mb-1">
           Support
         </h3>
-        <p className="text-base text-gray-600 leading-relaxed">
+        <p className="text-base text-muted-foreground leading-relaxed">
           If you have any questions or need assistance regarding our SMS
           communications, please email us at sylvia_emerah@yahoo.com or call at
           +27 78 147 0504.
         </p>
       </section>
       <section id="misc" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           25. MISCELLANEOUS
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           These Legal Terms and any policies or operating rules posted by us on
           the Services or in respect to the Services constitute the entire
           agreement and understanding between you and us. Our failure to
@@ -1126,22 +1126,22 @@ export default function TermsPage() {
         </p>
       </section>
       <section>
-        <h3 className="text-base font-bold font-sans text-black leading-relaxed mb-1">
+        <h3 className="text-base font-bold font-sans text-foreground leading-relaxed mb-1">
           THIRD-PARTY AUTHENTICATION
         </h3>
-        <p className="text-base text-gray-600 leading-relaxed mb-3">
+        <p className="text-base text-muted-foreground leading-relaxed mb-3">
           a) Google Authentication
         </p>
-        <p className="text-base text-gray-600 leading-relaxed">
+        <p className="text-base text-muted-foreground leading-relaxed">
           Use of &quot;Sign in with Google&quot; is subject to:
         </p>
-        <ul className="list-disc pl-5 text-base text-gray-600 leading-relaxed">
+        <ul className="list-disc pl-5 text-base text-muted-foreground leading-relaxed">
           <li>
             <a
               href="https://policies.google.com/terms"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 text-sm font-sans break-words"
+              className="text-primary text-sm font-sans break-words"
             >
               Google Terms of Service
             </a>
@@ -1151,7 +1151,7 @@ export default function TermsPage() {
               href="https://developers.google.com/terms/api-services-user-data-policy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 text-sm font-sans break-words"
+              className="text-primary text-sm font-sans break-words"
             >
               Google API Services User Data Policy
             </a>
@@ -1161,7 +1161,7 @@ export default function TermsPage() {
               href="https://developers.google.com/terms/api-services-user-data-policy#additional-requirements-for-specific-api-scopes"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 text-sm font-sans break-words"
+              className="text-primary text-sm font-sans break-words"
             >
               Limited Use Requirements
             </a>
@@ -1177,15 +1177,15 @@ export default function TermsPage() {
         </ul>
       </section>
       <section id="contact" className="text-left mb-6">
-        <h2 className="text-xl font-bold font-sans text-black leading-relaxed mb-2">
+        <h2 className="text-xl font-bold font-sans text-foreground leading-relaxed mb-2">
           26. CONTACT US
         </h2>
-        <p className="text-sm text-gray-600 leading-relaxed mb-3">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
           In order to resolve a complaint regarding the Services or to receive
           further information regarding use of the Services, please contact us
           at:
         </p>
-        <div className="text-base text-gray-600 leading-relaxed font-bold space-y-1">
+        <div className="text-base text-muted-foreground leading-relaxed font-bold space-y-1">
           <p>GlowByUgosylvia</p>
           <p>4 Westminster Close, Bryanston</p>
           <p>Sandton, Gauteng 2196</p>

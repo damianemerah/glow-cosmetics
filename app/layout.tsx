@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 import type { Metadata, Viewport } from "next";
-import { Montserrat, Open_Sans } from "next/font/google";
+import { Manrope, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import MobileNavigation from "@/components/MobileNavigation";
@@ -12,20 +12,20 @@ import TawkChat from "@/components/tawkChat";
 import { CategoryListServer } from "@/components/navbar/CategoryListServer";
 import { ScrollProvider } from "@/context/ScrollContext";
 
-const montserrat = Montserrat({
+const display = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-montserrat",
+  variable: "--font-display",
 });
 
-const openSans = Open_Sans({
+const body = Manrope({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-open-sans",
+  variable: "--font-body",
 });
 
 export const viewport: Viewport = {
-  themeColor: "#4CAF50",
+  themeColor: "#1f4d33",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -146,7 +146,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${montserrat.variable} ${openSans.variable} font-sans`}>
+      <body className={`${display.variable} ${body.variable} font-sans`}>
         <ScrollProvider>
           <Suspense
             fallback={

@@ -138,13 +138,13 @@ export default function ProductList({
         <div className="flex items-center gap-2">
           <span>{row.stock_quantity ?? 0}</span> {/* Handle nullish stock */}
           {(row.stock_quantity ?? 0) === 0 ? (
-            <Badge variant="destructive" className="bg-red-100 text-red-800">
+            <Badge variant="destructive" className="bg-destructive/10 text-destructive">
               Out of Stock
             </Badge>
           ) : (row.stock_quantity ?? 0) < 10 ? (
             <Badge
               variant="secondary"
-              className="bg-yellow-100 text-yellow-800"
+              className="bg-warning/10 text-warning"
             >
               Low Stock
             </Badge>
@@ -188,8 +188,8 @@ export default function ProductList({
           variant={row.is_active ? "default" : "outline"}
           className={
             row.is_active
-              ? "bg-green-100 text-green-800"
-              : "bg-gray-100 text-gray-800"
+              ? "bg-success/10 text-success"
+              : "bg-muted text-foreground"
           }
         >
           {row.is_active ? "Active" : "Inactive"}
@@ -224,7 +224,7 @@ export default function ProductList({
           <Button
             variant="outline"
             size="sm"
-            className="text-red-500 hover:bg-red-50 hover:text-red-600"
+            className="text-destructive hover:bg-destructive/5 hover:text-destructive"
             onClick={() => handleDelete(row)} // Pass the whole row or just id
             disabled={isPending && productToDelete?.id === row.id} // Disable button for the specific product being deleted
           >

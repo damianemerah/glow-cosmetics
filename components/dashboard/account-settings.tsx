@@ -100,8 +100,8 @@ export default function AccountSettings({
     <div className="space-y-6">
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center z-10 backdrop-blur-xs">
-          <div className="bg-white p-3 rounded-full shadow-md">
-            <Loader2 className="h-8 w-8 text-green-500 animate-spin" />
+          <div className="bg-card p-3 rounded-full shadow-md">
+            <Loader2 className="h-8 w-8 text-primary animate-spin" />
           </div>
         </div>
       )}
@@ -224,7 +224,7 @@ export default function AccountSettings({
 
           <div className="flex items-center justify-between p-3 border rounded-md">
             <div>
-              <p className="font-medium text-red-600">Delete Account</p>
+              <p className="font-medium text-destructive">Delete Account</p>
               <p className="text-sm text-muted-foreground">
                 Permanently delete your account and all data
               </p>

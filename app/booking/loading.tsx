@@ -14,7 +14,7 @@ export default function Loading() {
       </section>
 
       {/* Booking Form and Services Section Skeleton */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="px-4 sm:px-8 md:px-16 mx-auto grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-8">
           {/* Booking Form Skeleton */}
           <div className="border rounded-lg shadow-sm">
@@ -104,7 +104,7 @@ export default function Loading() {
               <Skeleton className="h-8 w-48 mb-4" />
               <ul className="space-y-4">
                 <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <Clock className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
+                  <Clock className="w-5 h-5 text-muted-foreground/40 mr-2 mt-0.5" />
                   <div>
                     <Skeleton className="h-5 w-32 mb-2" />
                     <Skeleton className="h-4 w-48 mb-1" />
@@ -113,7 +113,7 @@ export default function Loading() {
                   </div>
                 </li>
                 <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <Phone className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
+                  <Phone className="w-5 h-5 text-muted-foreground/40 mr-2 mt-0.5" />
                   <div>
                     <Skeleton className="h-5 w-48 mb-2" />
                     <Skeleton className="h-4 w-40 mb-1" />
@@ -121,7 +121,7 @@ export default function Loading() {
                   </div>
                 </li>
                 <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <Info className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
+                  <Info className="w-5 h-5 text-muted-foreground/40 mr-2 mt-0.5" />
                   <div>
                     <Skeleton className="h-5 w-40 mb-2" />
                     <Skeleton className="h-4 w-full" />
@@ -134,7 +134,7 @@ export default function Loading() {
               <Skeleton className="h-8 w-36 mb-4" />
               <ul className="space-y-4">
                 <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <CheckCircle className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-muted-foreground/40 mr-2 mt-0.5" />
                   <div>
                     <Skeleton className="h-5 w-32 mb-2" />
                     <Skeleton className="h-4 w-full" />
@@ -142,7 +142,7 @@ export default function Loading() {
                   </div>
                 </li>
                 <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <CheckCircle className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-muted-foreground/40 mr-2 mt-0.5" />
                   <div>
                     <Skeleton className="h-5 w-24 mb-2" />
                     <Skeleton className="h-4 w-full" />
@@ -150,7 +150,7 @@ export default function Loading() {
                   </div>
                 </li>
                 <li className="grid grid-cols-[auto_1fr] gap-1">
-                  <CheckCircle className="w-5 h-5 text-gray-300 mr-2 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-muted-foreground/40 mr-2 mt-0.5" />
                   <div>
                     <Skeleton className="h-5 w-24 mb-2" />
                     <Skeleton className="h-4 w-full" />

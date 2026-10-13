@@ -40,7 +40,7 @@ export function DepositPopup({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold font-montserrat text-center">
+          <DialogTitle className="text-xl font-bold font-heading text-center">
             Confirm Your Booking with a Deposit
           </DialogTitle>
           <DialogDescription className="text-center pt-2">
@@ -54,8 +54,8 @@ export function DepositPopup({
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-center py-4">
-          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-            <span className="text-xl font-bold text-green-600">
+          <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center">
+            <span className="text-xl font-bold text-primary">
               {formatZAR(depositAmount)}
             </span>
           </div>
@@ -63,7 +63,7 @@ export function DepositPopup({
 
         <DialogFooter className="sm:justify-center">
           <Button
-            className="bg-green-500 hover:bg-green-600 w-full sm:w-auto"
+            className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
             onClick={handlePaidDeposit}
           >
             Pay Deposit Now

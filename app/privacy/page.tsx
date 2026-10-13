@@ -2,25 +2,25 @@ import React from "react";
 
 const PrivacyPolicy: React.FC = () => {
   return (
-    <div className="font-sans bg-transparent text-gray-600 text-sm px-4 md:px-16 my-16">
+    <div className="font-sans bg-transparent text-muted-foreground text-sm px-4 md:px-16 my-16">
       {/* <span className="block mx-auto mb-12 w-[11.125rem] h-[2.375rem]">
         Using embedded SVG
         <LogoSvg />
       </span> */}
 
       <div>
-        <h1 className="font-bold text-2xl font-sans text-black">
+        <h1 className="font-bold text-2xl font-sans text-foreground">
           PRIVACY POLICY
         </h1>
       </div>
       <div>
-        <span className="text-gray-500 font-bold text-base font-sans">
+        <span className="text-muted-foreground font-bold text-base font-sans">
           Last updated December 02, 2024
         </span>
       </div>
 
       <div className="leading-relaxed my-3">
-        <p className="text-base text-gray-700 font-sans mb-1">
+        <p className="text-base text-foreground font-sans mb-1">
           This Privacy Notice for Glow By Ugosylvia (&apos;<strong>we</strong>
           &apos;, &apos;
           <strong>us</strong>&apos;, or &apos;<strong>our</strong>&apos;),
@@ -31,29 +31,29 @@ const PrivacyPolicy: React.FC = () => {
           you:
         </p>
         <ul className="list-disc pl-5 leading-relaxed">
-          <li className="text-base text-gray-700">
+          <li className="text-base text-foreground">
             Visit our website at{" "}
             <a
               href="https://ugosylviacosmetics.co.za"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 break-words text-sm font-sans"
+              className="text-primary break-words text-sm font-sans"
             >
               https://ugosylviacosmetics.co.za
             </a>
             , or any website of ours that links to this Privacy Notice
           </li>
-          <li className="text-base text-gray-700 leading-relaxed">
+          <li className="text-base text-foreground leading-relaxed">
             Use GlowByUgosylvia. Glow Cosmetics allows clients to browse
             services, book appointments, purchase products, and manage their
             beauty journey all in one place.
           </li>
-          <li className="text-base text-gray-700 leading-relaxed">
+          <li className="text-base text-foreground leading-relaxed">
             Engage with us in other related ways, including any sales,
             marketing, or events
           </li>
         </ul>
-        <p className="text-base text-gray-700 mt-4 leading-relaxed">
+        <p className="text-base text-foreground mt-4 leading-relaxed">
           <strong>Questions or concerns? </strong>Reading this Privacy Notice
           will help you understand your privacy rights and choices. We are
           responsible for making decisions about how your personal information
@@ -66,7 +66,7 @@ const PrivacyPolicy: React.FC = () => {
       <div className="my-6"></div>
 
       <div className="leading-relaxed">
-        <h2 className="font-bold text-xl font-sans text-black">
+        <h2 className="font-bold text-xl font-sans text-foreground">
           SUMMARY OF KEY POINTS
         </h2>
         <p className="text-base font-sans mt-1 mb-4">
@@ -77,7 +77,7 @@ const PrivacyPolicy: React.FC = () => {
               the link following each key point or by using our{" "}
               <a
                 href="#toc"
-                className="text-blue-600 text-sm font-sans break-words"
+                className="text-primary text-sm font-sans break-words"
               >
                 table of contents
               </a>{" "}
@@ -94,7 +94,7 @@ const PrivacyPolicy: React.FC = () => {
           more about{" "}
           <a
             href="#personalinfo"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             personal information you disclose to us
           </a>
@@ -123,7 +123,7 @@ const PrivacyPolicy: React.FC = () => {
           legal reason to do so. Learn more about{" "}
           <a
             href="#infouse"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             how we process your information
           </a>
@@ -139,7 +139,7 @@ const PrivacyPolicy: React.FC = () => {
           third parties. Learn more about{" "}
           <a
             href="#whoshare"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             when and with whom we share your personal information
           </a>
@@ -157,7 +157,7 @@ const PrivacyPolicy: React.FC = () => {
           steal, or modify your information. Learn more about{" "}
           <a
             href="#infosafe"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             how we keep your information safe
           </a>
@@ -170,7 +170,7 @@ const PrivacyPolicy: React.FC = () => {
           certain rights regarding your personal information. Learn more about{" "}
           <a
             href="#privacyrights"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             your privacy rights
           </a>
@@ -184,7 +184,7 @@ const PrivacyPolicy: React.FC = () => {
             href="https://app.termly.io/notify/4cc21833-60c1-4224-83c8-19d53831266b"
             rel="noopener noreferrer"
             target="_blank"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             data subject access request
           </a>
@@ -196,7 +196,7 @@ const PrivacyPolicy: React.FC = () => {
           Want to learn more about what we do with any information we collect?{" "}
           <a
             href="#toc"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             Review the Privacy Notice in full
           </a>
@@ -207,13 +207,13 @@ const PrivacyPolicy: React.FC = () => {
       <div className="my-6"></div>
 
       <div id="toc" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           TABLE OF CONTENTS
         </h2>
         <div className="text-base mb-1">
           <a
             href="#infocollect"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             1. WHAT INFORMATION DO WE COLLECT?
           </a>
@@ -221,7 +221,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#infouse"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             2. HOW DO WE PROCESS YOUR INFORMATION?
           </a>
@@ -229,7 +229,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#whoshare"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             3. WHEN AND WITH WHOM DO WE SHARE YOUR PERSONAL INFORMATION?
           </a>
@@ -237,7 +237,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#sociallogins"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             4. HOW DO WE HANDLE YOUR SOCIAL LOGINS?
           </a>
@@ -245,7 +245,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#inforetain"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             5. HOW LONG DO WE KEEP YOUR INFORMATION?
           </a>
@@ -253,7 +253,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#infosafe"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             6. HOW DO WE KEEP YOUR INFORMATION SAFE?
           </a>
@@ -261,7 +261,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#infominors"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             7. DO WE COLLECT INFORMATION FROM MINORS?
           </a>
@@ -269,7 +269,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#privacyrights"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             8. WHAT ARE YOUR PRIVACY RIGHTS?
           </a>
@@ -277,7 +277,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#DNT"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             9. CONTROLS FOR DO-NOT-TRACK FEATURES
           </a>
@@ -285,7 +285,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#otherlaws"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             10. DO OTHER REGIONS HAVE SPECIFIC PRIVACY RIGHTS?
           </a>
@@ -293,7 +293,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#policyupdates"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             11. DO WE MAKE UPDATES TO THIS NOTICE?
           </a>
@@ -301,7 +301,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base mb-1">
           <a
             href="#contact"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             12. HOW CAN YOU CONTACT US ABOUT THIS NOTICE?
           </a>
@@ -309,7 +309,7 @@ const PrivacyPolicy: React.FC = () => {
         <div className="text-base">
           <a
             href="#request"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             13. HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM
             YOU?
@@ -318,36 +318,36 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="infocollect" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           1. WHAT INFORMATION DO WE COLLECT?
         </h2>
         <h3
           id="personalinfo"
-          className="text-black font-bold text-lg font-sans mb-1"
+          className="text-foreground font-bold text-lg font-sans mb-1"
         >
           Personal information you disclose to us
         </h3>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <strong>
             <em>In Short:</em>
           </strong>{" "}
           <em>We collect personal information that you provide to us.</em>
         </p>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           We collect personal information that you voluntarily provide to us
           when you register on the Services, express an interest in obtaining
           information about us or our products and Services, when you
           participate in activities on the Services, or otherwise when you
           contact us.
         </p>
-        <p className="text-base text-gray-700 mb-1">
+        <p className="text-base text-foreground mb-1">
           <strong>Personal Information Provided by You.</strong> The personal
           information that we collect depends on the context of your
           interactions with us and the Services, the choices you make, and the
           products and features you use. The personal information we collect may
           include the following:
         </p>
-        <ul className="list-disc pl-5 text-base text-gray-700 mb-3">
+        <ul className="list-disc pl-5 text-base text-foreground mb-3">
           <li>names</li>
           <li>phone numbers</li>
           <li>email addresses</li>
@@ -362,7 +362,7 @@ const PrivacyPolicy: React.FC = () => {
             information.
           </p>
         </div>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <strong>Payment Data.</strong> We may collect data necessary to
           process your payment if you choose to make purchases, such as your
           payment instrument number, and the security code associated with your
@@ -372,13 +372,13 @@ const PrivacyPolicy: React.FC = () => {
             href="https://paystack.com/privacy/merchant"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             https://paystack.com/privacy/merchant
           </a>
           .
         </p>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <strong>Social Media Login Data. </strong>We may provide you with the
           option to register with us using your existing social media account
           details, like your Facebook, X, or other social media account. If you
@@ -387,13 +387,13 @@ const PrivacyPolicy: React.FC = () => {
           the section called &apos;
           <a
             href="#sociallogins"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             HOW DO WE HANDLE YOUR SOCIAL LOGINS?
           </a>
           &apos; below.
         </p>
-        <p className="text-base text-gray-700">
+        <p className="text-base text-foreground">
           All personal information that you provide to us must be true,
           complete, and accurate, and you must notify us of any changes to such
           personal information.
@@ -406,7 +406,7 @@ const PrivacyPolicy: React.FC = () => {
               href="https://developers.google.com/terms/api-services-user-data-policy"
               rel="noopener noreferrer"
               target="_blank"
-              className="text-blue-600 text-sm font-sans break-words"
+              className="text-primary text-sm font-sans break-words"
             >
               Google API Services User Data Policy
             </a>
@@ -415,7 +415,7 @@ const PrivacyPolicy: React.FC = () => {
               href="https://developers.google.com/terms/api-services-user-data-policy#limited-use"
               rel="noopener noreferrer"
               target="_blank"
-              className="text-blue-600 text-sm font-sans break-words"
+              className="text-primary text-sm font-sans break-words"
             >
               Limited Use requirements
             </a>
@@ -425,10 +425,10 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="infouse" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           2. HOW DO WE PROCESS YOUR INFORMATION?
         </h2>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <strong>
             <em>In Short:</em>
           </strong>{" "}
@@ -439,13 +439,13 @@ const PrivacyPolicy: React.FC = () => {
             other purposes with your consent.
           </em>
         </p>
-        <p className="text-base text-gray-700 mb-1">
+        <p className="text-base text-foreground mb-1">
           <strong>
             We process your personal information for a variety of reasons,
             depending on how you interact with our Services, including:
           </strong>
         </p>
-        <ul className="list-disc pl-5 text-base text-gray-700">
+        <ul className="list-disc pl-5 text-base text-foreground">
           <li>
             <strong>
               To facilitate account creation and authentication and otherwise
@@ -495,7 +495,7 @@ const PrivacyPolicy: React.FC = () => {
             For more information, see &apos;
             <a
               href="#privacyrights"
-              className="text-blue-600 text-sm font-sans break-words"
+              className="text-primary text-sm font-sans break-words"
             >
               WHAT ARE YOUR PRIVACY RIGHTS?
             </a>
@@ -526,10 +526,10 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="whoshare" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           3. WHEN AND WITH WHOM DO WE SHARE YOUR PERSONAL INFORMATION?
         </h2>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <strong>
             <em>In Short:</em>
           </strong>{" "}
@@ -542,7 +542,7 @@ const PrivacyPolicy: React.FC = () => {
           We may need to share your personal information in the following
           situations:
         </p>
-        <ul className="list-disc pl-5 text-base text-gray-700">
+        <ul className="list-disc pl-5 text-base text-foreground">
           <li>
             <strong>Business Transfers.</strong> We may share or transfer your
             information in connection with, or during negotiations of, any
@@ -553,10 +553,10 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="sociallogins" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           4. HOW DO WE HANDLE YOUR SOCIAL LOGINS?
         </h2>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <strong>
             <em>In Short: </em>
           </strong>
@@ -565,7 +565,7 @@ const PrivacyPolicy: React.FC = () => {
             media account, we may have access to certain information about you.
           </em>
         </p>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           Our Services offer you the ability to register and log in using your
           third-party social media account details (like your Facebook or X
           logins). Where you choose to do this, we will receive certain profile
@@ -575,7 +575,7 @@ const PrivacyPolicy: React.FC = () => {
           list, and profile picture, as well as other information you choose to
           make public on such a social media platform.
         </p>
-        <p className="text-base text-gray-700">
+        <p className="text-base text-foreground">
           We will use the information we receive only for the purposes that are
           described in this Privacy Notice or that are otherwise made clear to
           you on the relevant Services. Please note that we do not control, and
@@ -588,10 +588,10 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="inforetain" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           5. HOW LONG DO WE KEEP YOUR INFORMATION?
         </h2>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <strong>
             <em>In Short:</em>
           </strong>{" "}
@@ -601,7 +601,7 @@ const PrivacyPolicy: React.FC = () => {
             by law.
           </em>
         </p>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           We will only keep your personal information for as long as it is
           necessary for the purposes set out in this Privacy Notice, unless a
           longer retention period is required or permitted by law (such as tax,
@@ -609,7 +609,7 @@ const PrivacyPolicy: React.FC = () => {
           will require us keeping your personal information for longer than the
           period of time in which users have an account with us.
         </p>
-        <p className="text-base text-gray-700">
+        <p className="text-base text-foreground">
           When we have no ongoing legitimate business need to process your
           personal information, we will either delete or anonymise such
           information, or, if this is not possible (for example, because your
@@ -620,10 +620,10 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="infosafe" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           6. HOW DO WE KEEP YOUR INFORMATION SAFE?
         </h2>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <strong>
             <em>In Short:</em>
           </strong>{" "}
@@ -632,7 +632,7 @@ const PrivacyPolicy: React.FC = () => {
             organisational and technical security measures.
           </em>
         </p>
-        <p className="text-base text-gray-700">
+        <p className="text-base text-foreground">
           We have implemented appropriate and reasonable technical and
           organisational security measures designed to protect the security of
           any personal information we process. However, despite our safeguards
@@ -649,10 +649,10 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="infominors" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           7. DO WE COLLECT INFORMATION FROM MINORS?
         </h2>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <strong>
             <em>In Short:</em>
           </strong>{" "}
@@ -661,7 +661,7 @@ const PrivacyPolicy: React.FC = () => {
             years of age.
           </em>
         </p>
-        <p className="text-base text-gray-700">
+        <p className="text-base text-foreground">
           We do not knowingly collect, solicit data from, or market to children
           under 18 years of age, nor do we knowingly sell such personal
           information. By using the Services, you represent that you are at
@@ -676,10 +676,10 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="privacyrights" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           8. WHAT ARE YOUR PRIVACY RIGHTS?
         </h2>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <strong>
             <em>In Short:</em>
           </strong>{" "}
@@ -689,7 +689,7 @@ const PrivacyPolicy: React.FC = () => {
           </em>
         </p>
         <div id="withdrawconsent" className="leading-relaxed mb-3">
-          <p className="text-base text-gray-700">
+          <p className="text-base text-foreground">
             <strong>
               <u>Withdrawing your consent:</u>
             </strong>{" "}
@@ -700,7 +700,7 @@ const PrivacyPolicy: React.FC = () => {
             us by using the contact details provided in the section &apos;
             <a
               href="#contact"
-              className="text-blue-600 text-sm font-sans break-words"
+              className="text-primary text-sm font-sans break-words"
             >
               HOW CAN YOU CONTACT US ABOUT THIS NOTICE?
             </a>
@@ -723,7 +723,7 @@ const PrivacyPolicy: React.FC = () => {
           details provided in the section &apos;
           <a
             href="#contact"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             HOW CAN YOU CONTACT US ABOUT THIS NOTICE?
           </a>
@@ -758,10 +758,10 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="DNT" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           9. CONTROLS FOR DO-NOT-TRACK FEATURES
         </h2>
-        <p className="text-base text-gray-700">
+        <p className="text-base text-foreground">
           Most web browsers and some mobile operating systems and mobile
           applications include a Do-Not-Track (&apos;DNT&apos;) feature or
           setting you can activate to signal your privacy preference not to have
@@ -777,7 +777,7 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="otherlaws" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           10. DO OTHER REGIONS HAVE SPECIFIC PRIVACY RIGHTS?
         </h2>
         <p className="text-base font-sans mb-3">
@@ -795,7 +795,7 @@ const PrivacyPolicy: React.FC = () => {
           us by using the contact details provided in the section &apos;
           <a
             href="#request"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM YOU?
           </a>
@@ -811,7 +811,7 @@ const PrivacyPolicy: React.FC = () => {
             href="https://inforegulator.org.za/"
             rel="noopener noreferrer"
             target="_blank"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             The Information Regulator (South Africa)
           </a>
@@ -822,7 +822,7 @@ const PrivacyPolicy: React.FC = () => {
             href="mailto:enquiries@inforegulator.org.za"
             rel="noopener noreferrer"
             target="_blank"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             enquiries@inforegulator.org.za
           </a>
@@ -833,7 +833,7 @@ const PrivacyPolicy: React.FC = () => {
             href="mailto:PAIAComplaints@inforegulator.org.za"
             rel="noopener noreferrer"
             target="_blank"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             PAIAComplaints@inforegulator.org.za
           </a>{" "}
@@ -842,7 +842,7 @@ const PrivacyPolicy: React.FC = () => {
             href="mailto:POPIAComplaints@inforegulator.org.za"
             rel="noopener noreferrer"
             target="_blank"
-            className="text-blue-600 text-sm font-sans break-words"
+            className="text-primary text-sm font-sans break-words"
           >
             POPIAComplaints@inforegulator.org.za
           </a>
@@ -850,16 +850,16 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="policyupdates" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           11. DO WE MAKE UPDATES TO THIS NOTICE?
         </h2>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           <em>
             <strong>In Short:</strong> Yes, we will update this notice as
             necessary to stay compliant with relevant laws.
           </em>
         </p>
-        <p className="text-base text-gray-700">
+        <p className="text-base text-foreground">
           We may update this Privacy Notice from time to time. The updated
           version will be indicated by an updated &apos;Revised&apos; date at
           the top of this Privacy Notice. If we make material changes to this
@@ -871,14 +871,14 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="contact" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           12. HOW CAN YOU CONTACT US ABOUT THIS NOTICE?
         </h2>
-        <p className="text-base text-gray-700 mb-3">
+        <p className="text-base text-foreground mb-3">
           If you have questions or comments about this notice, you may email us
           at sylvia_emerah@yahoo.com or contact us by post at:
         </p>
-        <div className="text-base text-gray-700">
+        <div className="text-base text-foreground">
           <p>Glow By Ugosylvia Cosmetics</p>
           <p>4 westminister Close, Bryanston</p>
           <p>Sandton, Gauteng 2196</p>
@@ -887,11 +887,11 @@ const PrivacyPolicy: React.FC = () => {
       </div>
 
       <div id="request" className="leading-relaxed mb-6">
-        <h2 className="text-black font-bold text-xl font-sans mb-2">
+        <h2 className="text-foreground font-bold text-xl font-sans mb-2">
           13. HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM
           YOU?
         </h2>
-        <p className="text-base text-gray-700">
+        <p className="text-base text-foreground">
           Based on the applicable laws of your country, you may have the right
           to request access to the personal information we collect from you,
           details about how we have processed it, correct inaccuracies, or

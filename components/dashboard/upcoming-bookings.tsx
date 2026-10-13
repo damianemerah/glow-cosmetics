@@ -56,7 +56,7 @@ export default function UpcomingBookings({
 
   if (initialError) {
     return (
-      <div className="flex items-center p-4 text-red-800 bg-red-50 rounded-md">
+      <div className="flex items-center p-4 text-destructive bg-destructive/5 rounded-md">
         <AlertCircle className="h-5 w-5 mr-2" />
         <p>Unable to load booking data. Please try again.</p>
       </div>
@@ -67,7 +67,7 @@ export default function UpcomingBookings({
     return (
       <div className="text-center py-6">
         <p className="text-muted-foreground">No upcoming bookings</p>
-        <Button className="mt-4 bg-green-500 hover:bg-green-600" asChild>
+        <Button className="mt-4 bg-primary hover:bg-primary/90" asChild>
           <Link href="/booking">Book Now</Link>
         </Button>
       </div>
@@ -101,10 +101,10 @@ export default function UpcomingBookings({
               <Badge
                 className={
                   booking.status === "confirmed"
-                    ? "bg-green-100 text-green-800"
+                    ? "bg-success/10 text-success"
                     : booking.status === "pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
+                      ? "bg-warning/10 text-warning"
+                      : "bg-destructive/10 text-destructive"
                 }
               >
                 {booking.status}
@@ -113,7 +113,7 @@ export default function UpcomingBookings({
               <Button
                 variant="ghost"
                 size="sm"
-                className="ml-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                className="ml-2 text-destructive hover:text-destructive hover:bg-destructive/5"
                 onClick={() => handleCancelBooking(booking.id)}
               >
                 Cancel

@@ -249,7 +249,7 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
         return (
           <>
             <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-montserrat">
+              <DialogTitle className="text-center text-2xl font-heading">
                 Join Glow by Sylvia
               </DialogTitle>
               <DialogDescription className="text-center">
@@ -268,7 +268,7 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
         return (
           <>
             <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-montserrat">
+              <DialogTitle className="text-center text-2xl font-heading">
                 Complete Your Profile
               </DialogTitle>
               <DialogDescription className="text-center">
@@ -287,7 +287,7 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
         return (
           <>
             <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-montserrat">
+              <DialogTitle className="text-center text-2xl font-heading">
                 Enter Verification Code
               </DialogTitle>
               <DialogDescription className="text-center">
@@ -308,7 +308,7 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
         return (
           <>
             <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-montserrat text-red-500">
+              <DialogTitle className="text-center text-2xl font-heading text-destructive">
                 Error
               </DialogTitle>
             </DialogHeader>
@@ -324,7 +324,7 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-green-500 hover:bg-green-600">
+        <Button className="bg-primary hover:bg-primary/90">
           Login / Sign Up
         </Button>
       </DialogTrigger>

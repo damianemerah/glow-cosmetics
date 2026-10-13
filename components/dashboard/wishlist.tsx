@@ -326,7 +326,7 @@ export default function Wishlist() {
                   {product.is_bestseller && (
                     <Badge
                       variant="secondary"
-                      className="bg-amber-400 text-amber-900 hover:bg-amber-500"
+                      className="bg-warning text-warning hover:bg-warning"
                     >
                       Bestseller
                     </Badge>

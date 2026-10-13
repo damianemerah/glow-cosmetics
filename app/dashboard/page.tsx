@@ -334,7 +334,7 @@ export default function DashboardPage() {
   return (
     <div className=" mx-auto px-4 py-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6 font-montserrat">
+        <h1 className="text-3xl font-bold mb-6 font-heading">
           My Dashboard
         </h1>
 

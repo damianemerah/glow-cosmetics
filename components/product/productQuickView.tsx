@@ -33,7 +33,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
 
   if (!product) {
     return (
-      <div className="p-6 text-center text-red-600">
+      <div className="p-6 text-center text-destructive">
         Product data not available.
       </div>
     );
@@ -63,7 +63,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
     hexCode: string | null | undefined
   ): React.CSSProperties => {
     if (!hexCode)
-      return { backgroundColor: "#e5e7eb", border: "1px solid #d1d5db" };
+      return { backgroundColor: "var(--muted)", border: "1px solid var(--border)" };
     const isWhite = hexCode.toLowerCase() === "#ffffff";
     return {
       backgroundColor: hexCode,
@@ -104,7 +104,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-h-[90vh] overflow-y-auto p-4 md:p-6 max-w-4xl mx-auto">
-      <div className="relative aspect-square w-full overflow-hidden rounded-md bg-gray-100 border">
+      <div className="relative aspect-square w-full overflow-hidden rounded-md bg-muted border">
         <Image
           src={primaryImageUrl}
           alt={product.name ?? "Product Image"}
@@ -124,7 +124,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
           {canAddToCart ? (
             <Badge
               variant="outline"
-              className="border-green-300 bg-green-50 text-green-700"
+              className="border-success/20 bg-success/5 text-primary"
             >
               <Check className="w-3.5 h-3.5 mr-1" />
               In Stock
@@ -138,7 +138,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
 
         {hasColorOptions && (
           <div className="mb-4">
-            <p className="text-sm font-medium text-gray-600 mb-1.5">
+            <p className="text-sm font-medium text-muted-foreground mb-1.5">
               Select Color:{" "}
               {selectedColor?.name && (
                 <span className="font-semibold text-primary">
@@ -157,7 +157,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
                     className={`relative block w-6 h-6 rounded-full border-2 transition-transform hover:scale-110 focus:outline-none focus:ring-1 focus:ring-offset-1 focus:ring-primary ${
                       selectedColor?.name === colorInfo.name
                         ? "border-primary ring-1 ring-primary"
-                        : "border-transparent hover:border-gray-400"
+                        : "border-transparent hover:border-input"
                     }`}
                     style={getColorStyle(colorInfo.hex)}
                     title={colorInfo.name}
@@ -171,7 +171,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
                               colorInfo.hex.toLowerCase()
                             )
                               ? "text-white"
-                              : "text-black"
+                              : "text-foreground"
                           } mix-blend-difference`}
                         />
                       </span>
@@ -180,7 +180,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
                 ))}
             </div>
             {hasColorOptions && !selectedColor && (
-              <p className="text-xs text-red-600 mt-1.5">Selection required</p>
+              <p className="text-xs text-destructive mt-1.5">Selection required</p>
             )}
           </div>
         )}
@@ -190,7 +190,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
             {formatZAR(product.price)}
           </span>
           {product.compare_price && product.compare_price > product.price && (
-            <span className="text-lg text-gray-400 line-through">
+            <span className="text-lg text-muted-foreground line-through">
               {formatZAR(product.compare_price)}
             </span>
           )}
@@ -202,7 +202,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
           selectedColor={selectedColor}
         />
 
-        <div className="flex items-center gap-4 mb-5 text-sm text-gray-500">
+        <div className="flex items-center gap-4 mb-5 text-sm text-muted-foreground">
           <button
             className={`flex items-center gap-1 hover:text-primary transition-colors ${
               isWishlistLoading ? "opacity-50 cursor-wait" : ""
@@ -214,7 +214,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
             }`}
           >
             <Heart
-              className={`w-4 h-4 ${isInWishlist ? "fill-red-500 text-red-500" : ""}`}
+              className={`w-4 h-4 ${isInWishlist ? "fill-destructive text-destructive" : ""}`}
             />
             {isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
           </button>
@@ -227,15 +227,15 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
           </button> */}
         </div>
 
-        {/* <div className="mb-6 p-3 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800 flex items-start gap-2">
-          <ShoppingBag className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+        {/* <div className="mb-6 p-3 bg-warning/5 border border-warning/30 rounded-md text-xs text-warning flex items-start gap-2">
+          <ShoppingBag className="w-5 h-5 text-warning mt-0.5 flex-shrink-0" />
           <div>
             <span className="font-semibold block">Other people want this.</span>
             <span>29 people have this in their carts right now.</span>
           </div>
         </div> */}
         <div className="mt-auto pt-4 border-t text-sm">
-          <span className="font-medium text-gray-700">Categories: </span>
+          <span className="font-medium text-foreground">Categories: </span>
           {Array.isArray(product.product_categories) &&
           product.product_categories.length > 0 ? (
             product.product_categories
@@ -253,7 +253,7 @@ export function ProductQuickView({ product, onClose }: ProductQuickViewProps) {
                 </span>
               ))
           ) : (
-            <span className="text-gray-500">N/A</span>
+            <span className="text-muted-foreground">N/A</span>
           )}
         </div>
       </div>

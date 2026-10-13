@@ -119,7 +119,7 @@ export default function AppointmentFilter({
         </div>
 
         <Button
-          className="bg-primary text-white hover:bg-primary/90 hover:scale-105 transition-transform"
+          className="bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 transition-transform"
           onClick={onAddAppointmentClick}
         >
           Add Appointment

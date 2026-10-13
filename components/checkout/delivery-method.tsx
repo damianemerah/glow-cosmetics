@@ -36,7 +36,7 @@ export default function DeliveryMethod({
           <Label
             key={option.id}
             htmlFor={`delivery-${option.id}`} // Unique ID
-            className={`flex items-center justify-between border p-3 rounded-md cursor-pointer transition-colors hover:border-gray-400 ${
+            className={`flex items-center justify-between border p-3 rounded-md cursor-pointer transition-colors hover:border-input ${
               selectedMethod === option.id
                 ? "border-primary ring-1 ring-primary" // Use primary color for selection
                 : "border-input" // Default border
@@ -51,7 +51,7 @@ export default function DeliveryMethod({
               <span className="font-medium text-sm">{option.name}</span>
             </div>
             <span
-              className={`text-sm font-medium ${option.fee === 0 ? "text-green-600" : "text-gray-700"}`}
+              className={`text-sm font-medium ${option.fee === 0 ? "text-primary" : "text-foreground"}`}
             >
               {option.fee === 0 ? "Free" : formatZAR(option.fee)}
             </span>
@@ -59,7 +59,7 @@ export default function DeliveryMethod({
         ))}
       </RadioGroup>
       {error && (
-        <p id="deliveryMethod-error" className="text-red-600 text-sm mt-1">
+        <p id="deliveryMethod-error" className="text-destructive text-sm mt-1">
           {error}
         </p>
       )}
