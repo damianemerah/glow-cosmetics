@@ -140,11 +140,11 @@ export const CategoryList = ({
     if (buttonStyle === "mobile-nav") {
       return (
         <div
-          className="font-heading flex flex-col items-center justify-center rounded-none h-full text-xs text-muted-foreground w-full"
+          className="flex flex-col items-center justify-center rounded-none h-full text-xs font-medium text-muted-foreground w-full"
           aria-label="Open categories menu"
         >
-          <Grid3X3 className="h-7 w-7 mb-1" />
-          <span className="font-heading">Categories</span>
+          <Grid3X3 className="h-6 w-6 mb-1" />
+          <span>Categories</span>
         </div>
       );
     }

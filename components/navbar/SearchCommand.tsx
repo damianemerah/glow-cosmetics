@@ -96,15 +96,15 @@ export const SearchCommand = ({
         <Button
           variant="ghost"
           size="sm"
-          className={`flex items-center justify-center font-heading`}
+          className={`flex items-center justify-center`}
           aria-label="Search"
         >
           <Search className="h-5 w-5" />
-          <span className="font-heading">Search</span>
+          <span>Search</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className={`${variant === "desktop" ? "w-[60%] p-0" : "w-[100vw] max-w-[1000px] p-0"}`}
+        className={`${variant === "desktop" ? "w-[min(32rem,calc(100vw-2rem))] p-0" : "w-[100vw] max-w-[1000px] p-0"}`}
         side="bottom"
         align={variant === "desktop" ? "end" : "center"}
         onOpenAutoFocus={(e) => e.preventDefault()}

@@ -1,22 +1,9 @@
 import { createClient } from "@/utils/supabase/server";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/constants/ui/index";
-
-import { CheckCircle, Package, CreditCard, ChevronDown } from "lucide-react";
-import Link from "next/link";
 import { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { formatZAR } from "@/utils";
+import OrderConfirmationView, {
+  type ConfirmationShippingAddress,
+} from "@/components/checkout/order-confirmation-view";
 
 export const metadata: Metadata = {
   title: "Order Confirmation | Glow Cosmetics",
@@ -64,16 +51,8 @@ export default async function OrderConfirmationPage({
   }
 
   // Format the shipping address for display
-  const shippingAddress = order.shipping_address as {
-    firstName: string;
-    lastName: string;
-    address: string;
-    apartment?: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  };
+  const shippingAddress =
+    order.shipping_address as ConfirmationShippingAddress | null;
 
   // Store pickup info (from project rules)
   const storeInfo = {
@@ -83,132 +62,10 @@ export default async function OrderConfirmationPage({
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-md">
-      <Card className="border-success/20">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
-            <CheckCircle className="h-6 w-6 text-primary" />
-          </div>
-          <CardTitle className="text-xl font-bold font-heading">
-            Order Confirmed!
-          </CardTitle>
-          <CardDescription>
-            Order Reference: {order.payment_reference}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center">
-          <div className="mb-4 p-2 rounded bg-muted/50 text-sm">
-            <div className="flex justify-between mb-2">
-              <span className="font-medium">Status:</span>
-              <span
-                className={`font-medium ${
-                  order.status === "paid" ? "text-success" : "text-warning"
-                }`}
-              >
-                {order.status === "paid" ? "Paid" : "Pending Payment"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium">Total:</span>
-              <span className="font-medium">
-                {formatZAR(order.total_price)}
-              </span>
-            </div>
-          </div>
-
-          <p className="mb-4">
-            Thank you for your purchase. We&apos;ve sent a confirmation email to{" "}
-            {order.email}.
-          </p>
-
-          {/* Delivery Info: Show different info for store pickup */}
-          {order.delivery_method === "store_pickup" ? (
-            <Collapsible className="bg-muted/50 p-4 rounded-md mb-4">
-              <CollapsibleTrigger className="flex items-center justify-between w-full font-medium">
-                <div className="flex items-center">
-                  <Package className="h-4 w-4 mr-2" />
-                  Pickup Information
-                </div>
-                <ChevronDown className="h-4 w-4" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="text-sm text-muted-foreground text-left mt-2">
-                <p>
-                  <span className="font-medium">Pickup Location:</span>
-                  <br />
-                  {storeInfo.address}
-                </p>
-                <p>
-                  <span className="font-medium">Contact:</span>{" "}
-                  {storeInfo.phone}
-                </p>
-                <p>
-                  <span className="font-medium">Hours:</span>
-                  <br />
-                  {storeInfo.hours.map((h) => (
-                    <span key={h} className="block">
-                      {h}
-                    </span>
-                  ))}
-                </p>
-                <p className="mt-2">
-                  Your order will be ready for pickup within 1-2 business days.
-                  Please bring your order reference and ID.
-                </p>
-              </CollapsibleContent>
-            </Collapsible>
-          ) : (
-            shippingAddress && (
-              <Collapsible className="bg-muted/50 p-4 rounded-md mb-4">
-                <CollapsibleTrigger className="flex items-center justify-between w-full font-medium">
-                  <div className="flex items-center">
-                    <Package className="h-4 w-4 mr-2" />
-                    Shipping Information
-                  </div>
-                  <ChevronDown className="h-4 w-4" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="text-sm text-muted-foreground text-left mt-2">
-                  <p>
-                    {shippingAddress.firstName} {shippingAddress.lastName}
-                  </p>
-                  <p>{shippingAddress.address}</p>
-                  {shippingAddress.apartment && (
-                    <p>{shippingAddress.apartment}</p>
-                  )}
-                  <p>
-                    {shippingAddress.city}, {shippingAddress.state}{" "}
-                    {shippingAddress.zipCode}
-                  </p>
-                  <p>{shippingAddress.country}</p>
-                  <p className="mt-2">
-                    Your order will be shipped within 1-2 business days.
-                  </p>
-                </CollapsibleContent>
-              </Collapsible>
-            )
-          )}
-
-          {order.status !== "paid" && (
-            <div className="mt-4 mb-4 p-3 border border-warning/30 rounded-md bg-warning/5">
-              <h3 className="font-medium mb-2 flex items-center text-warning">
-                <CreditCard className="h-4 w-4 mr-2" />
-                Payment Pending
-              </h3>
-              <p className="text-sm text-warning">
-                We&apos;re still processing your payment. Please contact support
-                if you&apos;ve already paid.
-              </p>
-            </div>
-          )}
-        </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row gap-2 justify-center">
-          <Button asChild variant="outline">
-            <Link href="/dashboard">View My Orders</Link>
-          </Button>
-          <Button asChild className="bg-primary hover:bg-primary/90">
-            <Link href="/products">Continue Shopping</Link>
-          </Button>
-        </CardFooter>
-      </Card>
-    </div>
+    <OrderConfirmationView
+      order={order}
+      shippingAddress={shippingAddress}
+      storeInfo={storeInfo}
+    />
   );
 }

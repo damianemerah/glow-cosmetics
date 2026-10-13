@@ -126,7 +126,7 @@ export function OtpVerificationForm({
           name="otp"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Verification Code</FormLabel>
+              <FormLabel className="sr-only">Verification Code</FormLabel>
               <FormControl>
                 <div className="flex justify-center">
                   <InputOTP
@@ -139,13 +139,14 @@ export function OtpVerificationForm({
                       }
                     }}
                   >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
+                    <InputOTPGroup className="gap-2">
+                      {[0, 1, 2, 3, 4, 5].map((i) => (
+                        <InputOTPSlot
+                          key={i}
+                          index={i}
+                          className="h-12 w-11 rounded-lg border bg-card font-heading text-xl shadow-none first:rounded-lg last:rounded-lg sm:w-12"
+                        />
+                      ))}
                     </InputOTPGroup>
                   </InputOTP>
                 </div>
@@ -154,10 +155,10 @@ export function OtpVerificationForm({
             </FormItem>
           )}
         />
-        <div className="py-2 text-sm text-muted-foreground">
+        <p className="text-center text-sm text-muted-foreground">
           Please check <span className="font-medium">{email}</span> for the
           verification code. It may take a few moments to arrive.
-        </div>
+        </p>
 
         <div className="text-center">
           <Button
@@ -175,18 +176,13 @@ export function OtpVerificationForm({
           </Button>
         </div>
 
-        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onBack}
-            className="mb-2 sm:mb-0"
-          >
+        <DialogFooter className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
+          <Button type="button" variant="outline" onClick={onBack}>
             Back
           </Button>
           <Button
             type="submit"
-            className="bg-primary hover:bg-primary/90"
+            className="row-start-1 sm:row-start-auto"
             disabled={isLoading}
           >
             {isLoading ? (

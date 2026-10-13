@@ -41,7 +41,7 @@ interface DisplayCartItem {
     id: string;
     name: string;
     price: number;
-    image_url: string | null;
+    image_url: string[] | null;
     slug: string;
   };
   color: string | null;
@@ -122,7 +122,8 @@ export default function CartClient({ initialCartItems }: CartClientProps) {
               id: product.id,
               name: product.name,
               price: product.price,
-              image_url: product.image_url ? product.image_url[0] : null,
+              image_url: product.image_url ?? null,
+              slug: product.slug ?? "",
             },
             quantity: offlineItem.quantity,
           };

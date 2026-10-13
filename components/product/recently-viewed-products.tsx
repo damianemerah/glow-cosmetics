@@ -24,6 +24,8 @@ export default function RecentlyViewedProducts({
 }: RecentlyViewedProductsProps) {
   // State to hold the IDs of recently viewed products (excluding the current one)
   const [productIds, setProductIds] = useState<string[]>([]);
+  // True once localStorage has been read, so an empty list means "nothing to show".
+  const [hasReadHistory, setHasReadHistory] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
@@ -56,6 +58,7 @@ export default function RecentlyViewedProducts({
         .map((item) => item.id);
 
       setProductIds(displayIds);
+      setHasReadHistory(true);
 
       // If the user is logged in, sync the recently viewed list to Supabase via RPC
       (async () => {
@@ -73,6 +76,7 @@ export default function RecentlyViewedProducts({
       })();
     } catch (err) {
       console.error("Error handling recently viewed:", err);
+      setHasReadHistory(true);
     }
   }, [currentProduct, supabase]);
 
@@ -83,8 +87,8 @@ export default function RecentlyViewedProducts({
     { revalidateOnFocus: false }
   );
 
-  // Show skeleton while loading, or if no products are found yet but still potentially loading
-  if (isLoading || (productIds.length === 0 && currentProduct?.id)) {
+  // Show skeleton until history has been read, then while the products load
+  if (!hasReadHistory || isLoading) {
     return <RecentlyViewedProductsSkeleton />;
   }
 

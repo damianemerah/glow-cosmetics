@@ -1,71 +1,62 @@
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/constants/ui/index";
-import { CheckCircle } from "lucide-react";
+import { Button } from "@/constants/ui/index";
+import { CalendarCheck, Mail } from "lucide-react";
 import Link from "next/link";
+import StatusPage, {
+  StatusPanel,
+  StatusRow,
+} from "@/components/common/status-page";
+
+const nextSteps = [
+  "Arrive 10 minutes before your scheduled appointment time",
+  "Bring a form of ID for verification",
+  "The remaining balance will be due at the time of your appointment",
+];
 
 export default function BookingPage({ bookingId }: { bookingId: string }) {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-md">
-      <Card className="border-success/20">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
-            <CheckCircle className="h-6 w-6 text-primary" />
-          </div>
-          <CardTitle className="text-xl font-bold font-heading">
-            Booking Confirmed!
-          </CardTitle>
-          <CardDescription>
-            Your booking (ID: {bookingId}) has been confirmed.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center">
-          <p className="mb-4">
-            Thank you for your deposit payment. Your appointment has been
-            secured with Glow by Sylvia.
-          </p>
-          <p className="text-sm text-muted-foreground mb-6">
-            A confirmation email has been sent to your registered email address
-            with all the details.
-          </p>
-          <div className="bg-muted/50 p-4 rounded-md mb-4">
-            <h3 className="font-medium mb-2">What&apos;s Next?</h3>
-            <ul className="text-sm text-left space-y-2">
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span>
-                  Arrive 10 minutes before your scheduled appointment time
-                </span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span>Bring a form of ID for verification</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span>
-                  The remaining balance will be due at the time of your
-                  appointment
-                </span>
-              </li>
-            </ul>
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col sm:flex-row gap-2 justify-center">
-          <Button asChild variant="outline">
+    <StatusPage
+      icon={CalendarCheck}
+      eyebrow="Thank you"
+      title="Booking confirmed"
+      description="Thank you for your deposit payment. Your appointment has been secured with Glow by UgoSylvia."
+      actions={
+        <>
+          <Button asChild size="lg" variant="outline">
             <Link href="/dashboard">View My Bookings</Link>
           </Button>
-          <Button asChild className="bg-primary hover:bg-primary/90">
+          <Button asChild size="lg">
             <Link href="/">Return to Home</Link>
           </Button>
-        </CardFooter>
-      </Card>
-    </div>
+        </>
+      }
+    >
+      <StatusPanel>
+        <dl className="divide-y">
+          <StatusRow label="Booking reference">
+            <span className="break-words font-mono text-xs tracking-wide">
+              {bookingId}
+            </span>
+          </StatusRow>
+        </dl>
+        <p className="mt-5 flex items-start gap-3 rounded-xl bg-secondary/70 p-4 text-sm text-muted-foreground">
+          <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+          A confirmation email has been sent to your registered email address
+          with all the details.
+        </p>
+      </StatusPanel>
+
+      <StatusPanel title="What's next?">
+        <ol className="space-y-4">
+          {nextSteps.map((step, i) => (
+            <li key={step} className="flex items-start gap-4 text-sm">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-highlight/50 font-heading text-sm text-foreground">
+                {i + 1}
+              </span>
+              <span className="pt-1 text-muted-foreground">{step}</span>
+            </li>
+          ))}
+        </ol>
+      </StatusPanel>
+    </StatusPage>
   );
 }

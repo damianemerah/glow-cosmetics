@@ -17,16 +17,14 @@ export default function BookingConfirmationPage({
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 md:px-6 flex justify-center items-center">
-      <Suspense
-        fallback={
-          <div className="flex justify-center items-center">
-            <Loader2 />
-          </div>
-        }
-      >
-        <BookingPage bookingId={bookingId} />
-      </Suspense>
-    </div>
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      }
+    >
+      <BookingPage bookingId={bookingId} />
+    </Suspense>
   );
 }

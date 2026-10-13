@@ -174,20 +174,22 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative isolate overflow-hidden bg-primary py-20 text-primary-foreground md:py-24">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,color-mix(in_oklch,var(--highlight)_28%,transparent),transparent_60%)]" />
-        <div className="container mx-auto px-4 text-center">
-          <p className="eyebrow mb-4 text-highlight">Your glow starts here</p>
-          <h2 className="mx-auto mb-10 max-w-2xl font-heading text-3xl font-medium leading-tight md:text-5xl">
-            Ready to book your appointment?
-          </h2>
-          <Button
-            asChild
-            size="lg"
-            className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
-          >
-            <Link href="/booking">Get started</Link>
-          </Button>
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="relative isolate overflow-hidden rounded-3xl bg-primary px-6 py-16 text-center text-primary-foreground md:px-16 md:py-24">
+            <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,color-mix(in_oklch,var(--highlight)_28%,transparent),transparent_60%)]" />
+            <p className="eyebrow mb-4 text-highlight">Your glow starts here</p>
+            <h2 className="mx-auto mb-10 max-w-2xl font-heading text-3xl font-medium leading-tight md:text-5xl">
+              Ready to book your appointment?
+            </h2>
+            <Button
+              asChild
+              size="lg"
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90"
+            >
+              <Link href="/booking">Get started</Link>
+            </Button>
+          </div>
         </div>
       </section>
     </div>

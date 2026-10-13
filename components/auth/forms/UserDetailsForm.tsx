@@ -230,18 +230,13 @@ export function UserDetailsForm({
         </p>
 
         {/* Footer Buttons */}
-        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between sm:space-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onBack}
-            className="mb-2 sm:mb-0"
-          >
+        <DialogFooter className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
+          <Button type="button" variant="outline" onClick={onBack}>
             Back
           </Button>
           <Button
             type="submit"
-            className="bg-primary hover:bg-primary/90"
+            className="row-start-1 sm:row-start-auto"
             disabled={isLoading}
           >
             {isLoading ? (

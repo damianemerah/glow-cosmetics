@@ -35,7 +35,7 @@ export default function HomeCategories({ categories }: HomeCategoriesProps) {
               <Link
                 href={`/products/c/${category.slug}`}
                 key={category.id}
-                className={`group flex flex-col items-center text-center ${i === 6 ? "hidden md:block" : ""}`}
+                className={`group flex flex-col items-center text-center ${i === 6 ? "hidden md:flex" : ""}`}
               >
                 <div
                   className="

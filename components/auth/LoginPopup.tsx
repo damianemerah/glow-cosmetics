@@ -248,14 +248,11 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
       case "email":
         return (
           <>
-            <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-heading">
-                Join Glow by Sylvia
-              </DialogTitle>
-              <DialogDescription className="text-center">
-                Enter your email to continue or create an account
-              </DialogDescription>
-            </DialogHeader>
+            <AuthHeader
+              eyebrow="Welcome"
+              title="Join Glow by UgoSylvia"
+              description="Enter your email to continue or create an account"
+            />
             <EmailForm
               onSubmit={handleEmailSubmit}
               onOAuthSignIn={handleOAuthSignIn}
@@ -267,14 +264,11 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
       case "newUserDetails":
         return (
           <>
-            <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-heading">
-                Complete Your Profile
-              </DialogTitle>
-              <DialogDescription className="text-center">
-                Please provide a few more details to create your account
-              </DialogDescription>
-            </DialogHeader>
+            <AuthHeader
+              eyebrow="New here"
+              title="Complete your profile"
+              description="Please provide a few more details to create your account"
+            />
             <UserDetailsForm
               onSubmit={handleUserDetailsSubmit}
               onBack={() => setCurrentView("email")}
@@ -286,15 +280,18 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
       case "otpVerification":
         return (
           <>
-            <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-heading">
-                Enter Verification Code
-              </DialogTitle>
-              <DialogDescription className="text-center">
-                We&apos;ve sent a verification code to{" "}
-                <strong>{tempEmail}</strong>
-              </DialogDescription>
-            </DialogHeader>
+            <AuthHeader
+              eyebrow="Check your inbox"
+              title="Enter verification code"
+              description={
+                <>
+                  We&apos;ve sent a verification code to{" "}
+                  <span className="font-medium text-foreground">
+                    {tempEmail}
+                  </span>
+                </>
+              }
+            />
             <OtpVerificationForm
               onSubmit={handleOtpSubmit}
               onBack={() => setCurrentView("email")}
@@ -307,11 +304,7 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
       case "error":
         return (
           <>
-            <DialogHeader>
-              <DialogTitle className="text-center text-2xl font-heading text-destructive">
-                Error
-              </DialogTitle>
-            </DialogHeader>
+            <AuthHeader eyebrow="Sign in" title="Something went wrong" />
             <ErrorView error={error} onRetry={() => setCurrentView("email")} />
           </>
         );
@@ -328,9 +321,33 @@ export function LoginPopup({ onLoginSuccess }: LoginPopupProps) {
           Login / Sign Up
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[400px] max-h-[85vh] overflow-y-auto login-dialog-content">
+      <DialogContent className="max-h-[85vh] overflow-y-auto rounded-2xl p-6 sm:max-w-[420px] sm:p-8 login-dialog-content">
         {getViewContent()}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function AuthHeader({
+  eyebrow,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  title: string;
+  description?: React.ReactNode;
+}) {
+  return (
+    <DialogHeader className="items-center text-center sm:text-center">
+      <p className="eyebrow justify-center text-primary">{eyebrow}</p>
+      <DialogTitle className="mt-1 text-center font-heading text-3xl font-medium leading-tight">
+        {title}
+      </DialogTitle>
+      {description && (
+        <DialogDescription className="text-center">
+          {description}
+        </DialogDescription>
+      )}
+    </DialogHeader>
   );
 }

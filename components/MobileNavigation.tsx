@@ -46,18 +46,18 @@ export default function MobileNavigation({
             variant="ghost"
             size="sm"
             onClick={handleFilterButtonClick}
-            className="flex flex-col items-center justify-center rounded-none h-full text-xs text-muted-foreground  font-heading"
+            className="flex flex-col items-center justify-center rounded-none h-full text-xs text-muted-foreground font-medium"
           >
             <Filter className="h-6 w-6 mb-1" />
-            <span className="font-heading">Filter</span>
+            <span>Filter</span>
           </Button>
         ) : (
           <Link
             href="/products"
-            className={`flex flex-col items-center justify-center text-xs  font-heading`}
+            className={`flex flex-col items-center justify-center text-xs font-medium`}
           >
             <Store className="h-6 w-6 mb-1" />
-            <span className="font-heading">Store</span>
+            <span>Store</span>
           </Link>
         )}
 
@@ -69,17 +69,17 @@ export default function MobileNavigation({
         </div>
 
         <div
-          className={`flex flex-col items-center justify-center text-xs font-heading`}
+          className={`flex flex-col items-center justify-center text-xs font-medium`}
           aria-label="Search"
           onClick={() => setIsSearchOpen(true)}
         >
           <Search className="h-6 w-6 mb-1" />
-          <span className="font-heading">Search</span>
+          <span>Search</span>
         </div>
 
         <Link
           href="/dashboard#wishlists"
-          className={`flex flex-col items-center justify-center text-xs font-heading ${pathname === "/dashboard#wishlists" ? "text-primary" : "text-muted-foreground"}`}
+          className={`flex flex-col items-center justify-center text-xs font-medium ${pathname === "/dashboard#wishlists" ? "text-primary" : "text-muted-foreground"}`}
           onClick={(e) => {
             if (!user) {
               e.preventDefault();
@@ -88,12 +88,12 @@ export default function MobileNavigation({
           }}
         >
           <Heart className="h-6 w-6 mb-1" />
-          <span className="font-heading">Wishlist</span>
+          <span>Wishlist</span>
         </Link>
 
         <Link
           href="/dashboard"
-          className={`flex flex-col items-center justify-center text-xs font-heading ${pathname === "/dashboard" ? "text-primary" : "text-muted-foreground"}`}
+          className={`flex flex-col items-center justify-center text-xs font-medium ${pathname === "/dashboard" ? "text-primary" : "text-muted-foreground"}`}
           onClick={(e) => {
             if (!user) {
               e.preventDefault();
@@ -102,7 +102,7 @@ export default function MobileNavigation({
           }}
         >
           <User className="h-6 w-6 mb-1" />
-          <span className="font-heading">Account</span>
+          <span>Account</span>
         </Link>
       </div>
     </div>
