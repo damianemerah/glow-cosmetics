@@ -11,6 +11,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from "@/constants/ui/index";
+import { cn } from "@/lib/utils";
 
 export type SortOption = "latest" | "price-asc" | "price-desc" | "popularity";
 
@@ -37,19 +38,23 @@ export default function ProductSortView({
 }: ProductSortViewProps) {
   return (
     <div
-      className={`sm:flex  items-center justify-between sm:gap-4 py-3 ${className}`}
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-3 py-3",
+        className
+      )}
     >
-      <div className="text-sm text-muted-foreground mb-4 sm:mb-0">
-        Showing {displayCount} of {productCount} result
-        {productCount !== 1 ? "s" : ""}
-      </div>
+      <p className="text-sm text-muted-foreground">
+        Showing{" "}
+        <span className="font-medium text-foreground">{displayCount}</span> of{" "}
+        {productCount} product{productCount !== 1 ? "s" : ""}
+      </p>
 
-      <div className="flex items-center gap-4 justify-between">
+      <div className="flex items-center gap-3">
         <Select
           value={currentSort}
           onValueChange={(value) => onSortChange(value as SortOption)}
         >
-          <SelectTrigger className="w-[180px] h-9">
+          <SelectTrigger className="h-9 w-[180px] rounded-full">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent>
@@ -82,20 +87,21 @@ export default function ProductSortView({
 
         <ToggleGroup
           type="single"
+          className="hidden rounded-full border p-0.5 sm:flex"
           value={currentView}
           onValueChange={(value) => value && onViewChange(value as ViewMode)}
         >
           <ToggleGroupItem
             value="grid"
             aria-label="Grid view"
-            className="px-4 py-2"
+            className="h-8 rounded-full px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
           >
             <Grid className="h-4 w-4" />
           </ToggleGroupItem>
           <ToggleGroupItem
             value="list"
             aria-label="List view"
-            className="px-4 py-2"
+            className="h-8 rounded-full px-3 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
           >
             <List className="h-4 w-4" />
           </ToggleGroupItem>

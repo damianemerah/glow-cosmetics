@@ -21,12 +21,8 @@ export default function OrderSummary({
   totalAmount,
 }: OrderSummaryProps) {
   return (
-    <div className="bg-muted/50 p-4 md:p-6 rounded-lg border border-border sticky top-24">
-      {" "}
-      {/* Make summary sticky */}
-      <h2 className="text-lg font-semibold mb-4 font-heading">
-        Order Summary
-      </h2>
+    <div className="rounded-xl border bg-secondary/50 p-5 md:p-6">
+      <h2 className="mb-4 font-heading text-xl font-medium">Order summary</h2>
       {/* Scrollable item list for many items */}
       <div className="space-y-3 mb-4 max-h-60 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
         {cartItems.map((item) => (
@@ -95,9 +91,11 @@ export default function OrderSummary({
           </span>
         </div>
         <Separator className="my-2" />
-        <div className="flex justify-between font-bold text-base md:text-lg pt-1">
-          <span>Total</span>
-          <span>{formatZAR(totalAmount)}</span>
+        <div className="flex items-baseline justify-between pt-1">
+          <span className="font-medium">Total</span>
+          <span className="font-heading text-2xl md:text-3xl">
+            {formatZAR(totalAmount)}
+          </span>
         </div>
       </div>
     </div>

@@ -96,9 +96,10 @@ export default function RecentlyViewedProducts({
   // Render the recently viewed products section
   return (
     <ProductGroupSection
-      title="Recently Viewed"
+      title="Recently viewed"
+      eyebrow="Pick up where you left off"
       products={data.products as ProductWithCategories[]}
-      className="mt-10"
+      className="border-t"
     />
   );
 }

@@ -23,8 +23,8 @@ export default function DeliveryMethod({
   error,
 }: DeliveryMethodProps) {
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold mb-2">Delivery Method</h3>
+    <div className="space-y-4 rounded-xl border bg-card p-5 shadow-soft md:p-6">
+      <h3 className="font-heading text-xl font-medium">Delivery method</h3>
       <RadioGroup
         value={selectedMethod}
         onValueChange={onMethodChange}

@@ -51,9 +51,12 @@ export default function ShippingAddress({
   };
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4 font-heading">
-        Shipping Address
+    <section className="rounded-xl border bg-card p-5 shadow-soft md:p-7">
+      <h2 className="mb-5 flex items-center gap-3 font-heading text-2xl font-medium">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary font-sans text-xs font-semibold text-primary-foreground">
+          2
+        </span>
+        Shipping address
       </h2>
       <div className="space-y-4">
         {/* Country Select */}
@@ -212,6 +215,6 @@ export default function ShippingAddress({
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }

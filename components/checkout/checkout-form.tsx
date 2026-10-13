@@ -331,10 +331,10 @@ export default function CheckoutForm({
   const hasOptedInBefore = user?.receive_emails;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+    <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3 lg:gap-12">
       {/* Left Column: Checkout Form */}
-      <div className="md:col-span-2">
-        <form onSubmit={handleSubmit} className="space-y-8" noValidate>
+      <div className="lg:col-span-2">
+        <form onSubmit={handleSubmit} className="space-y-6" noValidate>
           <ContactInformation
             email={contactData.email}
             emailOffers={contactData.emailOffers}
@@ -361,10 +361,11 @@ export default function CheckoutForm({
             totalAmount={totalAmount}
           />
 
-          <div className="mt-6 pt-6 border-t">
+          <div className="pt-2">
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90 py-3 text-base md:text-lg font-semibold disabled:opacity-60"
+              size="lg"
+              className="h-12 w-full text-base font-semibold disabled:opacity-60"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -380,15 +381,15 @@ export default function CheckoutForm({
             </Button>
 
             <div className="text-xs text-center text-muted-foreground mt-4 space-x-2">
-              <Link href="/refund-policy" className="hover:underline">
+              <Link href="/terms#returnno" className="hover:underline">
                 Refund policy
               </Link>
               <span>•</span>
-              <Link href="/privacy-policy" className="hover:underline">
+              <Link href="/privacy" className="hover:underline">
                 Privacy policy
               </Link>
               <span>•</span>
-              <Link href="/terms-of-service" className="hover:underline">
+              <Link href="/terms" className="hover:underline">
                 Terms of service
               </Link>
             </div>
@@ -397,8 +398,8 @@ export default function CheckoutForm({
       </div>
 
       {/* Right Column: Delivery & Summary */}
-      <div className="md:col-span-1">
-        <div className="space-y-6 sticky top-24">
+      <div className="lg:col-span-1">
+        <div className="space-y-6 lg:sticky lg:top-24">
           <DeliveryMethod
             options={deliveryOptions}
             selectedMethod={deliveryMethod}

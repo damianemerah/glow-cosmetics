@@ -221,8 +221,8 @@ export default function EnhancedAddToCart({
       {/* Quantity Selector */}
       {showQuantitySelector && (
         <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium">Quantity:</span>
-          <div className="inline-flex items-center overflow-hidden border rounded-md">
+          <span className="text-sm font-medium">Quantity</span>
+          <div className="inline-flex items-center overflow-hidden rounded-full border">
             <Button
               variant="outline"
               size="icon"
@@ -265,7 +265,8 @@ export default function EnhancedAddToCart({
       {/* Buttons */}
       <div className="flex flex-wrap gap-3">
         <Button
-          className="flex-1 min-w-[150px] sm:flex-none bg-primary hover:bg-primary/90 text-primary-foreground"
+          size="lg"
+          className="min-w-[150px] flex-1"
           onClick={handleAddToCart}
           disabled={isActionDisabled}
           aria-label={
@@ -283,8 +284,9 @@ export default function EnhancedAddToCart({
         </Button>
         {showBuyNow && (
           <Button
-            variant="default"
-            className="flex-1 min-w-[150px] sm:flex-none"
+            variant="outline"
+            size="lg"
+            className="min-w-[150px] flex-1"
             onClick={handleBuyNow}
             disabled={isActionDisabled}
             aria-label={

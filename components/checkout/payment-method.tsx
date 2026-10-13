@@ -37,8 +37,13 @@ export default function PaymentMethod({
   };
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold mb-4 font-heading">Payment</h2>
+    <section className="rounded-xl border bg-card p-5 shadow-soft md:p-7">
+      <h2 className="mb-5 flex items-center gap-3 font-heading text-2xl font-medium">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary font-sans text-xs font-semibold text-primary-foreground">
+          3
+        </span>
+        Payment
+      </h2>
       <p className="text-sm text-muted-foreground mb-3">
         All transactions are secure and encrypted.
       </p>
@@ -127,7 +132,7 @@ export default function PaymentMethod({
               rel="noopener noreferrer"
               className="block mt-3" // Margin top
             >
-              <div className="w-full border border-primary text-primary hover:bg-success/5 text-center py-2 px-4 rounded-md text-sm font-medium transition-colors">
+              <div className="w-full rounded-md border border-primary px-4 py-2 text-center text-sm font-medium text-primary transition-colors hover:bg-primary/5">
                 Confirm Transfer via WhatsApp
               </div>
               {/* Use div styled as button if Link component causes issues */}
@@ -135,6 +140,6 @@ export default function PaymentMethod({
           )}
         </div>
       )}
-    </div>
+    </section>
   );
 }

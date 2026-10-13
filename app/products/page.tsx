@@ -45,6 +45,7 @@ async function NewlyAddedSection() {
   return (
     <ProductGroupSection
       title="Newly Added"
+      eyebrow="Just in"
       products={products}
       viewAllHref="/products?sort=latest"
     />
@@ -56,6 +57,7 @@ async function DealsSection() {
   return (
     <ProductGroupSection
       title="Deals of the Week"
+      eyebrow="Limited time"
       products={products}
       viewAllHref="/products?filter=deals"
     />
@@ -67,6 +69,7 @@ async function BestSellingSection() {
   return (
     <ProductGroupSection
       title="Best Selling"
+      eyebrow="Customer favourites"
       products={products}
       viewAllHref="/products?filter=bestseller"
     />
@@ -78,6 +81,7 @@ async function RecommendedSection() {
   return (
     <ProductGroupSection
       title="Recommended For You"
+      eyebrow="Picked for you"
       products={products}
       viewAllHref="/products?sort=popularity"
     />
@@ -137,10 +141,10 @@ export default async function ProductsPage({
   const { categories } = await getCachedCategories();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background ">
+    <div className="flex min-h-screen flex-col bg-background">
       <ProductHero />
-      <div className="px-2">
-        <ProductNavigation categoryData={categories} />
+      <ProductNavigation categoryData={categories} />
+      <div className="container mx-auto px-4">
 
         {showFilteredGrid ? (
           <Suspense fallback={<ProductGridSkeletonWrapper />}>
